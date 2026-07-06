@@ -9,10 +9,8 @@
  *
  * These utilities sit between the numerical method computation and the Plotly
  * rendering cells. They help the OJS pages answer questions such as:
- * - which iteration rows are currently visible?
  * - what finite values should contribute to the plotted bounds?
  * - what padded axis range should be used for the current view?
- * - which sampled function values are safe to include in range estimation?
  *
  * The helpers attach to `window.VisualMathPlotModelUtils` because the Quarto
  * pages load them through a plain `<script>` tag.
@@ -40,49 +38,6 @@
     }
 
     return target
-  }
-
-  /**
-   * Append sampled function values across an interval into an array.
-   *
-   * Pages use this when estimating vertical plot bounds from the visible x-range.
-   *
-   * @param {number[]} target Destination array that will be mutated.
-   * @param {(x: number) => number} fn Numeric function to sample.
-   * @param {{ lo: number, hi: number, count?: number, maxAbs?: number }} options
-   *   Sampling options for the interval and filtering.
-   * @returns {number[]} The mutated target array.
-   */
-  const appendSampledFunctionValues = (target, fn, options) => {
-    const {lo, hi} = options
-    const count = options.count ?? 400
-    const maxAbs = options.maxAbs ?? Infinity
-
-    if (!Number.isFinite(lo) || !Number.isFinite(hi) || count < 2) {
-      return target
-    }
-
-    for (let i = 0; i < count; i++) {
-      const x = lo + (hi - lo) * i / (count - 1)
-      pushFiniteValues(target, [fn(x)], {maxAbs})
-    }
-
-    return target
-  }
-
-  /**
-   * Select the currently visible iteration prefix for step-by-step controls.
-   *
-   * The pages all reveal rows cumulatively from step 0 onward, so this helper
-   * centralizes the slicing behavior.
-   *
-   * @param {Array<object>} rows Full iteration history.
-   * @param {unknown} stepControl Current step-control value from OJS.
-   * @returns {Array<object>} Visible prefix of the iteration rows.
-   */
-  const sliceVisibleRows = (rows, stepControl) => {
-    const visibleCount = Math.min(Number(stepControl), rows.length) + 1
-    return rows.slice(0, visibleCount)
   }
 
   /**
@@ -130,8 +85,6 @@
 
   globalThis.VisualMathPlotModelUtils = {
     pushFiniteValues,
-    appendSampledFunctionValues,
-    sliceVisibleRows,
     createPaddedRange
   }
 })(window)
