@@ -32,13 +32,6 @@
     }
   }
 
-  // Appends all finite values from `values` to `arr`. Optional maxAbs cap.
-  const pushFiniteValues = (arr, values, {maxAbs = Infinity} = {}) => {
-    for (const v of values) {
-      if (Number.isFinite(v) && Math.abs(v) <= maxAbs) arr.push(Number(v))
-    }
-  }
-
   // Returns {lo, hi} padded axis range from an array of values.
   const paddedRange = (values, {emptyRange = [-1, 1], singularPadding = 1, relativePadding = 0.1, minPadding = 0.5} = {}) => {
     const finite = values.filter(Number.isFinite).map(Number)
@@ -50,12 +43,18 @@
     return {lo: lo - pad, hi: hi + pad}
   }
 
-  // Returns a DOM table node styled with the shared ojs-table classes.
-  const renderTable = ({html, headers, rows}) => html`
-    <div class="ojs-table-container"><table class="ojs-table">
-      <thead><tr>${headers.map(h => html`<th>${h}</th>`)}</tr></thead>
-      <tbody>${rows.map(row => html`<tr>${row.map(cell => html`<td>${cell}</td>`)}</tr>`)}</tbody>
-    </table></div>`
+  // Returns a DOM table node, styled entirely with Bootstrap utility classes:
+  // table/table-sm/table-bordered for structure, small for compact text, and
+  // per-column text-center/text-end + text-nowrap for the numeric data
+  // (the first column is the iteration number; the rest are numeric).
+  const renderTable = ({html, headers, rows}) => {
+    const cellClass = i => `text-nowrap ${i === 0 ? "text-center" : "text-end"}`
+    return html`
+      <div class="ojs-table-container"><table class="table table-sm table-bordered small">
+        <thead><tr>${headers.map((h, i) => html`<th class="${cellClass(i)}">${h}</th>`)}</tr></thead>
+        <tbody>${rows.map(row => html`<tr>${row.map((cell, i) => html`<td class="${cellClass(i)}">${cell}</td>`)}</tr>`)}</tbody>
+      </table></div>`
+  }
 
-  globalThis.VM = {makeFunction, makeDerivative, pushFiniteValues, paddedRange, renderTable}
+  globalThis.VM = {makeFunction, makeDerivative, paddedRange, renderTable}
 })(window)
