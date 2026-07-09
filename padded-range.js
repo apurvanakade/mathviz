@@ -16,7 +16,10 @@
    * @returns {{lo: number, hi: number}}
    */
   const paddedRange = (values, {emptyRange = [-1, 1], relativePadding = 0.1, minPadding = 0.5} = {}) => {
-    const finite = values.filter(Number.isFinite).map(Number)
+    const finite = []
+    for (const value of values) {
+      if (Number.isFinite(value)) finite.push(Number(value))
+    }
     if (finite.length === 0) return {lo: emptyRange[0], hi: emptyRange[1]}
     const lo = Math.min(...finite)
     const hi = Math.max(...finite)

@@ -7,11 +7,20 @@
 (function attachVM(globalThis) {
   const csvCell = value => {
     const s = String(value)
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`
+    return s
   }
 
-  const toCsv = (headers, rows) =>
-    [headers, ...rows].map(row => row.map(csvCell).join(",")).join("\n")
+  const toCsv = (headers, rows) => {
+    const allRows = [headers, ...rows]
+    const lines = []
+    for (const row of allRows) {
+      const cells = []
+      for (const cell of row) cells.push(csvCell(cell))
+      lines.push(cells.join(","))
+    }
+    return lines.join("\n")
+  }
 
   const downloadCsv = (csv, filename) => {
     const url = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8;"}))
@@ -31,7 +40,10 @@
   // from headers, which may contain KaTeX DOM nodes (from `tex` templates)
   // that render fine on screen but not as CSV text.
   const renderTable = ({html, headers, rows, csvHeaders = headers, filename = "iteration-table.csv"}) => {
-    const cellClass = i => `text-nowrap ${i === 0 ? "text-center" : "text-end"}`
+    const cellClass = i => {
+      if (i === 0) return "text-nowrap text-center"
+      return "text-nowrap text-end"
+    }
 
     // Built as a real DOM node (not a `${...}` attribute expression) because
     // this project's `html` tag doesn't wire up inline event-handler attributes.
@@ -43,11 +55,25 @@
       downloadCsv(toCsv(csvHeaders, rows), filename)
     })
 
+    const headerCells = []
+    for (let i = 0; i < headers.length; i++) {
+      headerCells.push(html`<th class="${cellClass(i)}">${headers[i]}</th>`)
+    }
+
+    const bodyRows = []
+    for (const row of rows) {
+      const rowCells = []
+      for (let i = 0; i < row.length; i++) {
+        rowCells.push(html`<td class="${cellClass(i)}">${row[i]}</td>`)
+      }
+      bodyRows.push(html`<tr>${rowCells}</tr>`)
+    }
+
     return html`
       <div class="ojs-table-toolbar">${downloadLink}</div>
       <div class="ojs-table-container"><table class="table table-sm table-bordered small">
-        <thead><tr>${headers.map((h, i) => html`<th class="${cellClass(i)}">${h}</th>`)}</tr></thead>
-        <tbody>${rows.map(row => html`<tr>${row.map((cell, i) => html`<td class="${cellClass(i)}">${cell}</td>`)}</tr>`)}</tbody>
+        <thead><tr>${headerCells}</tr></thead>
+        <tbody>${bodyRows}</tbody>
       </table></div>`
   }
 
