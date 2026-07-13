@@ -27,5 +27,5 @@
     return sum * h / 3
   }
 
-  globalThis.VM = {...globalThis.VM, simpsonEstimate}
+  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, simpsonEstimate}}
 })(window)

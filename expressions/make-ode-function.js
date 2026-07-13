@@ -20,5 +20,5 @@
     }
   }
 
-  globalThis.VM = {...globalThis.VM, makeFunction2}
+  globalThis.VM = {...globalThis.VM, expressions: {...globalThis.VM?.expressions, makeFunction2}}
 })(window)

@@ -21,5 +21,5 @@
     return {ts, ys}
   }
 
-  globalThis.VM = {...globalThis.VM, eulerSolve}
+  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, eulerSolve}}
 })(window)

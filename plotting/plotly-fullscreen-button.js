@@ -46,5 +46,5 @@
     globalThis.Plotly[name] = (gd, data, layout, config) => original(gd, data, layout, addButton(config))
   }
 
-  globalThis.VM = {...globalThis.VM, fullscreenButton}
+  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, fullscreenButton}}
 })(window)

@@ -76,5 +76,5 @@
     return null
   }
 
-  globalThis.VM = {...globalThis.VM, makeRational}
+  globalThis.VM = {...globalThis.VM, expressions: {...globalThis.VM?.expressions, makeRational}}
 })(window)

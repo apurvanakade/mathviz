@@ -27,5 +27,5 @@
     return {lo: lo - pad, hi: hi + pad}
   }
 
-  globalThis.VM = {...globalThis.VM, paddedRange}
+  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, paddedRange}}
 })(window)

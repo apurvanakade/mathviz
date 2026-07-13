@@ -77,5 +77,5 @@
       </table></div>`
   }
 
-  globalThis.VM = {...globalThis.VM, renderTable}
+  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, renderTable}}
 })(window)

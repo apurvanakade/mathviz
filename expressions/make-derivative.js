@@ -18,5 +18,5 @@
     }
   }
 
-  globalThis.VM = {...globalThis.VM, makeDerivative}
+  globalThis.VM = {...globalThis.VM, expressions: {...globalThis.VM?.expressions, makeDerivative}}
 })(window)
