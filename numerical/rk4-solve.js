@@ -26,5 +26,5 @@
     return {ts, ys}
   }
 
-  globalThis.VM = {...globalThis.VM, rk4Solve}
+  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, rk4Solve}}
 })(window)

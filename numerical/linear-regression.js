@@ -29,5 +29,5 @@
     return {slope, intercept, xlo: points[0].x, xhi: points[pointCount - 1].x}
   }
 
-  globalThis.VM = {...globalThis.VM, linearRegression}
+  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, linearRegression}}
 })(window)

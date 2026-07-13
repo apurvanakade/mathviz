@@ -22,5 +22,5 @@
     return {xs, ys}
   }
 
-  globalThis.VM = {...globalThis.VM, lagrangeQuadratic}
+  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, lagrangeQuadratic}}
 })(window)
