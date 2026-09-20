@@ -13,7 +13,7 @@
   // This maps each name onto the shared chart palette
   // (js/plotting/chart-theme.js), read at CALL time so a cell that re-runs
   // on a theme toggle repaints: red -> alt, green -> ok, blue -> fn. The
-  // prose swatches in styles.css (.vm-swatch-alt / -ok / -accent) use the
+  // prose swatches in swatch.css (.vm-swatch-alt / -ok / -accent) use the
   // same three tokens, so a swatch and a dot agree. Returns null for
   // anything that isn't one of the three names.
   const vertexColor = (name) => {

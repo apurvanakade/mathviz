@@ -6,7 +6,7 @@
 
 (function attachVM(globalThis) {
   // In fullscreen the chart is letterboxed to its on-page aspect ratio (see
-  // styles.css), so it no longer spans the screen — but the controls bar
+  // src/css/chart-block.css), so it no longer spans the screen — but the controls bar
   // above it is a plain block that does, leaving a control strip visibly wider
   // than the chart it drives. Matching the two can't be written in CSS: the bar's
   // width follows the chart's, the chart's width follows the height left over
@@ -96,9 +96,9 @@
   // own budget.
   //
   // Feature-detected because scripts/load-vm.mjs runs every file listed in
-  // head-scripts.html against a minimal stub so the unit tests can exercise
+  // src/manifest.mjs against a minimal stub so the unit tests can exercise
   // the real functions, and that stub's `window` is Node's globalThis, which
-  // has no addEventListener — the same reason js/ui/draggable-overlay.js
+  // has no addEventListener — the same reason ui/draggable-overlay.js
   // checks before touching the DOM. `document.addEventListener` above is
   // safe: the stub does provide that one.
   if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
@@ -132,7 +132,7 @@
         document.exitFullscreen()
       } else {
         // Record the chart's on-page aspect ratio before entering fullscreen
-        // so styles.css (`:fullscreen .js-plotly-plot`) can letterbox the
+        // so chart-block.css (`:fullscreen .js-plotly-plot`) can letterbox the
         // chart at that ratio instead of stretching it to fill the screen.
         const rect = gd.getBoundingClientRect()
         if (rect.height > 0) {
@@ -169,40 +169,40 @@
     Plotly.relayout(gd, update)
   }
 
-  const zoomInButton = {
+  const zoomInButton = (Plotly) => ({
     name: "zoomIn",
     title: "Zoom in",
-    icon: globalThis.Plotly.Icons.zoom_plus,
+    icon: Plotly.Icons.zoom_plus,
     click: (gd) => zoomBy(gd, 1 / ZOOM_STEP)
-  }
+  })
 
-  const zoomOutButton = {
+  const zoomOutButton = (Plotly) => ({
     name: "zoomOut",
     title: "Zoom out",
-    icon: globalThis.Plotly.Icons.zoom_minus,
+    icon: Plotly.Icons.zoom_minus,
     click: (gd) => zoomBy(gd, ZOOM_STEP)
-  }
+  })
 
   // Patch Plotly.newPlot/react so every chart gets the button automatically,
-  // and box/lasso select are dropped from the modebar (this site's charts
+  // and box/lasso select are dropped from the modebar (these charts
   // use selection-free zoom/pan, not point selection) with pan as the
   // default drag tool instead of Plotly's own default of box zoom —
   // pages call Plotly.newPlot(gd, data, layout, config) as plain imperative
-  // code (see CLAUDE.md), so no per-page wiring is needed or expected.
+  // code, so no per-page wiring is needed or expected.
   // Spelled out as an explicit modeBarButtons list rather than the
   // ToAdd/ToRemove pair, because swapping the two zoom buttons for the
   // gentler ones above via ToRemove+ToAdd would also relocate them to the
   // end of the bar (added buttons always append), shuffling an otherwise
   // familiar modebar. This keeps Plotly's own cartesian order intact, minus
-  // box/lasso select. Every chart on this site is 2D cartesian, which is
-  // what makes hardcoding this list safe.
-  const addButton = (config) => {
+  // box/lasso select. Every chart this library was built for is 2D
+  // cartesian, which is what makes hardcoding this list safe.
+  const addButton = (Plotly, config) => {
     return {
       ...config,
       modeBarButtons: [
         ["toImage"],
         ["zoom2d", "pan2d"],
-        [zoomInButton, zoomOutButton, "autoScale2d", "resetScale2d"],
+        [zoomInButton(Plotly), zoomOutButton(Plotly), "autoScale2d", "resetScale2d"],
         [fullscreenButton]
       ]
     }
@@ -211,7 +211,7 @@
     if (layout && layout.dragmode !== undefined) return layout
     return {...layout, dragmode: "pan"}
   }
-  // Layers the shared theme (js/plotting/chart-theme.js) UNDER whatever
+  // Layers the shared theme (chart-theme.js) UNDER whatever
   // layout a page passes, so every existing mainPlot cell picks up
   // themed axes/fonts/background with no page-level edit -- a page's own
   // layout keys (margin, xaxis.range, ...) still win where they overlap,
@@ -241,67 +241,72 @@
     return out
   }
 
-  for (const name of ["newPlot", "react"]) {
-    const original = globalThis.Plotly[name]
-    globalThis.Plotly[name] = (gd, data, layout, config) =>
-      original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(layout)), addButton(globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config))
+  // Installs the newPlot/react patch onto whatever Plotly is on the page.
+  // Idempotent, and a no-op (returning false) when Plotly isn't loaded --
+  // this library is also used on pages that draw with D3 or a canvas and
+  // never load Plotly at all, and a load-time `globalThis.Plotly.newPlot`
+  // there would throw and take the rest of the bundle down with it. Runs
+  // once at load and once more on DOMContentLoaded, so a Plotly tag placed
+  // after this one is still picked up; a page that loads Plotly later than
+  // that (dynamic import) calls VM.plotting.installPlotlyPatch() itself.
+  const installPlotlyPatch = () => {
+    const Plotly = globalThis.Plotly
+    if (!Plotly || typeof Plotly.newPlot !== "function") return false
+    if (Plotly.__vmPatched) return true
+    for (const name of ["newPlot", "react"]) {
+      const original = Plotly[name]
+      Plotly[name] = (gd, data, layout, config) =>
+        original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(layout)), addButton(Plotly, globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config))
+    }
+    Plotly.__vmPatched = true
+    return true
   }
 
   // A page's chart is normally re-themed the next time it reactively
   // rebuilds (Plotly.react runs VM.plotting.layout() fresh every call, per
   // withTheme above) -- but toggling dark mode alone doesn't touch any
-  // OJS input, so nothing would otherwise trigger that rebuild. Watch
-  // <body>'s class for the quarto-dark/quarto-light flip
-  // (toggleBodyColorMode in Quarto's own inline script is what sets it,
-  // see docs/**/*.html) and relayout every live chart on the page
-  // immediately, without needing a per-page listener.
+  // OJS input, so nothing would otherwise trigger that rebuild. Subscribe to
+  // the shared theme watcher (chart-theme.js's onThemeChange, which already
+  // knows which selector means "dark", defers two frames for the stylesheet
+  // swap, and ignores unrelated <body> class churn) and relayout every live
+  // chart on the page immediately, without needing a per-page listener.
   //
   // Registration is deferred to DOMContentLoaded. This file is loaded from
-  // _includes/head-scripts.html via include-in-header, i.e. from <head> --
-  // at which point document.body is still null, so guarding on
+  // <head> -- at which point document.body is still null, so guarding on
   // `document.body` and registering inline (which this did) silently
   // skipped the observer on every page and the toggle re-themed nothing.
   const watchThemeToggle = () => {
     if (typeof document === "undefined" || !document.body) return
-    if (typeof MutationObserver === "undefined") return
+    if (!globalThis.VM?.plotting?.onThemeChange) return
     const repaint = () => {
       if (!globalThis.Plotly?.relayout || !globalThis.VM?.plotting?.themePatch) return
       for (const gd of document.querySelectorAll(".js-plotly-plot")) {
         globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch())
       }
     }
-
-    // <body>'s class list is not the theme's alone -- the sidebar rail writes
-    // .vm-sidebar-open to it on every hover-to-preview and .vm-sidebar-pinned
-    // on every pin (_includes/sidebar-rail.html). Without this check, opening
-    // the sidebar relayouted every chart on the page for nothing.
-    let lastTheme = globalThis.VM?.plotting?.themeName?.()
-
-    const themeObserver = new MutationObserver(() => {
-      // Deferred by two frames, not run inline. Quarto's toggle flips the
-      // body class and swaps the light/dark stylesheet as separate steps,
-      // and the class lands first -- so reading --vm-* here synchronously
-      // returns the *outgoing* theme's tokens (measured: colorway, which
-      // comes from classList, flipped correctly while hoverlabel.bgcolor,
-      // which comes from getComputedStyle, stayed on the light surface).
-      // One frame for the stylesheet to apply, one for style recalc. The
-      // theme comparison goes inside that wait, not around it, so a real
-      // toggle still gets both frames before anything reads a token.
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        const theme = globalThis.VM?.plotting?.themeName?.()
-        if (theme === lastTheme) return
-        lastTheme = theme
-        repaint()
-      }))
+    // onThemeChange calls back once immediately with the current theme;
+    // there is nothing to repaint yet at that point, only on a later flip.
+    let first = true
+    globalThis.VM.plotting.onThemeChange(() => {
+      if (first) {
+        first = false
+        return
+      }
+      repaint()
     })
-    themeObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] })
   }
 
-  if (typeof document !== "undefined" && document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", watchThemeToggle)
-  } else {
+  const onReady = () => {
+    installPlotlyPatch()
     watchThemeToggle()
   }
 
-  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, fullscreenButton}}
+  installPlotlyPatch()
+  if (typeof document !== "undefined" && document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", onReady)
+  } else {
+    onReady()
+  }
+
+  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, fullscreenButton, installPlotlyPatch}}
 })(window)

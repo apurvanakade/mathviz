@@ -5,7 +5,7 @@
  */
 
 // Keeps every range slider's --sx custom property in sync with its value,
-// as a percentage. styles.css paints the filled part of the track with a
+// as a percentage. sliders.css paints the filled part of the track with a
 // gradient sized by --sx: Firefox has ::-moz-range-progress and fills the
 // track natively, but WebKit/Blink have no equivalent, so the fill there
 // has to be drawn on ::-webkit-slider-runnable-track and therefore has to
@@ -19,7 +19,7 @@
 (function attachRangeProgress() {
   // This file is pure DOM side effects -- no VM.* export -- but it is still
   // loaded by scripts/load-vm.mjs, which runs every script listed in
-  // head-scripts.html against a minimal `document` stub. Bail out unless a
+  // src/manifest.mjs against a minimal `document` stub. Bail out unless a
   // real DOM is present, so the unit tests (and any other non-browser
   // consumer) can load it harmlessly.
   if (typeof document === "undefined") return

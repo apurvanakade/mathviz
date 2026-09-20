@@ -7,7 +7,7 @@
 (function attachVM(globalThis) {
   // Lets the reader drag the trace legend (js/ui/legend-overlay.js) off
   // whatever part of the curve it happens to be covering. It is pinned to a
-  // fixed corner by styles.css, which is the right default but is sometimes
+  // fixed corner by legend-controls.css, which is the right default but is sometimes
   // exactly where the interesting part of the plot is.
   //
   // The legend is the only draggable panel. The step/parameter bar
@@ -68,7 +68,7 @@
   globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, clampOverlayOffset, overlayStorageKey}}
 
   // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
-  // listed in head-scripts.html against a minimal `document` stub so the unit
+  // listed in src/manifest.mjs against a minimal `document` stub so the unit
   // tests can exercise the real functions above, so bail out before touching
   // anything that stub doesn't have.
   if (typeof document === "undefined") return
@@ -153,7 +153,7 @@
       return offset
     }
 
-    // Appended last, not prepended. Either end interacts with styles.css's
+    // Appended last, not prepended. Either end interacts with legend-controls.css's
     // `.ojs-row > div:first-of-type { flex: 1 1 200px }` /
     // `:last-of-type { flex: 0 0 auto }` sizing -- those were written as
     // :first-child/:last-child, which any inserted sibling would have knocked
@@ -194,7 +194,7 @@
       // synthesize from it -- click and dblclick included -- so the
       // double-click-to-reset binding below silently never fired. The text
       // selection preventDefault was there to stop is handled by
-      // `user-select: none` on the grip in styles.css instead, and the
+      // `user-select: none` on the grip in legend-controls.css instead, and the
       // dragstart listener below covers the native image-drag.
     })
 

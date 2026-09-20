@@ -130,7 +130,7 @@
   }
 
   // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
-  // listed in head-scripts.html against a minimal `document` stub so the unit
+  // listed in src/manifest.mjs against a minimal `document` stub so the unit
   // tests can exercise the real functions above, so bail out before touching
   // anything that stub doesn't have.
   if (typeof document === "undefined") return
@@ -579,7 +579,7 @@
     setButtonState()
     // Inserted before whichever form-level element holds the range input, so
     // this works whether Observable Inputs puts the range and its number
-    // readout directly in the form or inside a wrapper div. styles.css turns
+    // readout directly in the form or inside a wrapper div. sliders.css turns
     // .vm-has-play into a wrapping flex row and lets the element after the
     // button grow, rather than depending on that structure either.
     let anchor = input

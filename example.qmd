@@ -1,0 +1,70 @@
+---
+title: "mathviz example"
+filters:
+  - mathviz
+mathviz:
+  referrer: same-origin
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: superhero
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+A minimal page that uses the extension in place (this file sits next to
+`_extensions/`, so no `quarto add` is needed). `quarto render example.qmd`
+and open the result; toggle the theme in the navbar to see the chart, the
+panel and the <span class="vm-swatch vm-swatch-alt">red</span> swatch follow.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+```
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+//| echo: false
+viewof fText = Inputs.text({label: "f(x)", value: "sin(x) + x/3"})
+```
+```{ojs}
+//| echo: false
+viewof k = Inputs.range([1, 5], {label: "Frequency", step: 0.1, value: 1})
+```
+:::
+
+::: {.ojs-chart-block}
+```{ojs}
+//| echo: false
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+```{ojs}
+//| echo: false
+mainPlot = {
+  const f = VM.expressions.makeFunction(math, fText)
+  const xs = [], ys = []
+  for (let i = 0; i <= 400; i++) {
+    const x = -6 + 12 * i / 400
+    xs.push(x)
+    ys.push(f ? f(k * x) : NaN)
+  }
+  const div = document.createElement("div")
+  div.className = "plotly-box-large"
+  Plotly.newPlot(div, [
+    {x: xs, y: ys, mode: "lines", name: fText, line: {color: chartColors.fn, width: 2.5}, showlegend: false}
+  ], VM.plotting.layout({
+    xaxis: {title: "x"},
+    yaxis: {title: "f(kx)"},
+    annotations: f ? [] : VM.plotting.emptyState("Couldn't parse that expression")
+  }), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::

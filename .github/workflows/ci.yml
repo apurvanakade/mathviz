@@ -1,0 +1,27 @@
+# Copyright (c) 2026 Apurva Nakade. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Apurva Nakade
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      # dist/ is committed (quarto add and jsDelivr both serve the repo as
+      # is). Rebuild and refuse a commit whose dist/ is stale.
+      - run: npm run build
+      - run: git diff --exit-code -- dist _extensions/mathviz/dist || (echo "dist/ is out of date: run 'npm run build' and commit" && exit 1)
+      # Proves the Lua filter loads and the extension resolves in a real render.
+      - uses: quarto-dev/quarto-actions/setup@v2
+      - run: quarto render example.qmd

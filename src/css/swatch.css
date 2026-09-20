@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+/* ── Prose color swatches ────────────────────────────────────────── */
+/* A word in a sentence tinted with the color it names -- "the
+ * <span class="vm-swatch vm-swatch-alt">red</span> vertex" -- on the
+ * Sperner's lemma pages, where the prose keeps referring to what the
+ * diagram draws. The modifier picks a chart-palette token (the same
+ * --vm-color-* custom properties VM.plotting.colors() reads, declared in
+ * tokens.css), so the swatch is the same hue as the dot or fill it
+ * describes and follows a theme toggle with it. A tint with
+ * the body text color on top rather than white-on-solid: white on amber
+ * is unreadable, and dark mode lightens every hue anyway. */
+.vm-swatch {
+  padding: 0.05em 0.35em;
+  border-radius: var(--vm-radius-sm);
+  background: color-mix(in srgb, var(--vm-swatch) 40%, var(--vm-bg));
+  color: var(--vm-text);
+  white-space: nowrap;
+}
+
+.vm-swatch-alt     { --vm-swatch: var(--vm-color-alt); }
+.vm-swatch-ok      { --vm-swatch: var(--vm-color-ok); }
+.vm-swatch-accent  { --vm-swatch: var(--vm-accent); }
+.vm-swatch-warn    { --vm-swatch: var(--vm-color-warn); }
+.vm-swatch-accent2 { --vm-swatch: var(--vm-color-accent2); }
+

@@ -8,7 +8,7 @@
   // Renders a small floating panel of clickable legend items (colored
   // swatch + label) that toggle which traces a chart shows -- meant to sit
   // absolutely-positioned on top of a Plotly chart (see .ojs-chart-block /
-  // .ojs-legend-overlay in styles.css) in place of a separate checkbox row
+  // .ojs-legend-overlay in legend-controls.css) in place of a separate checkbox row
   // in the controls panel.
   //
   // Implements Observable Inputs' view contract (a `value` property, an

@@ -31,7 +31,7 @@
   // the block resizes, a figure SVG resizes or is replaced, or fullscreen
   // toggles.
   //
-  // Fullscreen letterboxing is CSS (styles.css, `.ojs-svg-block:fullscreen`),
+  // Fullscreen letterboxing is CSS (chart-block.css, `.ojs-svg-block:fullscreen`),
   // the same chain of fill-and-center wrappers the Plotly block uses; the
   // one thing CSS can't know is the picture's aspect ratio, so each figure
   // SVG is tagged `vm-fs-figure` and given its ratio as --vm-svg-aspect
@@ -86,7 +86,7 @@
   globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, svgAspectRatio, figureBounds}}
 
   // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
-  // listed in head-scripts.html against a minimal `document` stub so the unit
+  // listed in src/manifest.mjs against a minimal `document` stub so the unit
   // tests can exercise the real functions above, so bail out before touching
   // anything that stub doesn't have.
   if (typeof document === "undefined") return

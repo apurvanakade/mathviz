@@ -5,26 +5,43 @@
  */
 
 // Shared chart theme: one source of truth for the colors, Plotly layout,
-// Plotly config, and Observable Plot options every method page's plots use,
+// Plotly config, and Observable Plot options every chart on a page uses,
 // instead of each page hardcoding its own hex literals and copy-pasting
-// `{responsive: true, displaylogo: false}` (15 pages did, verbatim).
+// `{responsive: true, displaylogo: false}`.
 //
-// Every function reads the page's live --vm-* custom properties (see
-// _theme/vml-light.scss / vml-dark.scss) via getComputedStyle at CALL time,
-// not at load time, so a chart built after a dark-mode toggle picks up the
-// new theme automatically. plotly-fullscreen-button.js's Plotly.newPlot/
-// react patch also re-applies VM.plotting.layout() on every call (which
-// happens on essentially every reactive rerender -- a step slider, an
-// example load, ...) and relayouts every live chart the instant the theme
-// toggles, so a chart re-themes without the page's own cell needing to know
-// about dark mode at all.
+// Every function reads the page's live --vm-* custom properties (declared
+// with defaults in src/css/tokens.css; a site overrides them in its own
+// stylesheet) via getComputedStyle at CALL time, not at load time, so a
+// chart built after a dark-mode toggle picks up the new theme automatically.
+// plotly-fullscreen-button.js's Plotly.newPlot/react patch also re-applies
+// VM.plotting.layout() on every call (which happens on essentially every
+// reactive rerender -- a step slider, an example load, ...) and relayouts
+// every live chart the instant the theme toggles, so a chart re-themes
+// without the page's own cell needing to know about dark mode at all.
 (function attachVM(globalThis) {
-  // Reads from document.body, NOT document.documentElement. The light
-  // tokens are declared on `:root` (_theme/vml-light.scss) but the dark ones
-  // are declared on `body.quarto-dark` (_theme/vml-dark.scss) -- which is
-  // what Quarto's own theme toggle flips. Reading from <html> therefore
-  // returns the *light* value even in dark mode, since the dark block never
-  // matches <html>. Measured on a real page after toggling to dark:
+  // Which theme is active, as a CSS selector matched against <body> and
+  // <html>. MUST stay identical to the dark block's selector list in
+  // src/css/tokens.css -- that stylesheet is where the dark token values
+  // live, and this is how the JS agrees with it about when they apply.
+  // `body.quarto-dark` is what Quarto's light/dark toggle sets;
+  // `[data-bs-theme="dark"]` is Bootstrap 5.3's convention; `.vm-dark` is
+  // for a site with its own toggle. A site whose toggle uses none of these
+  // calls VM.plotting.configure({darkSelector: ".my-dark"}) once at load
+  // (and declares its dark --vm-* tokens under that same selector).
+  const settings = {
+    darkSelector: 'body.quarto-dark, [data-bs-theme="dark"], [data-bs-theme="dark"] body, .vm-dark, .vm-dark body'
+  }
+
+  const configure = (overrides) => {
+    if (overrides && typeof overrides === "object") Object.assign(settings, overrides)
+    return { ...settings }
+  }
+
+  // Reads from document.body, NOT document.documentElement. The dark tokens
+  // are declared under a selector that matches <body> (Quarto's toggle
+  // flips a class there), and <html> never matches it -- so reading from
+  // <html> returns the *light* value even in dark mode. Measured on a real
+  // page after toggling to dark:
   //   getComputedStyle(documentElement)["--vm-surface"] -> "#f6f7f9" (light)
   //   getComputedStyle(document.body)["--vm-surface"]   -> "#1e2436" (right)
   // That single wrong element is what made every chart's hover label render
@@ -38,18 +55,25 @@
   }
 
   const isDark = () => {
-    if (typeof document === "undefined" || !document.body) return false
-    return document.body.classList.contains("quarto-dark")
+    if (typeof document === "undefined") return false
+    for (const element of [document.body, document.documentElement]) {
+      if (!element || typeof element.matches !== "function") continue
+      if (element.matches(settings.darkSelector)) return true
+    }
+    return false
   }
 
   // "dark" | "light". Exported so a page can build a reactive OJS cell that
-  // re-runs on a theme toggle -- see the vmTheme pattern in
-  // apps/newton-method/index.qmd.
+  // re-runs on a theme toggle -- see onThemeChange below.
   const themeName = () => (isDark() ? "dark" : "light")
 
-  // Matches $font-family-sans-serif in _theme/vml-{light,dark}.scss, so
-  // chart text is typeset in the same face as the page around it.
-  const FONT_FAMILY = "Inter, system-ui, -apple-system, sans-serif"
+  // The face chart text is set in, read from the --vm-font-sans token so a
+  // site that loads its own font (Inter, say) gets charts typeset in the
+  // same face as the page around them. The fallback is the system stack.
+  const fontFamily = () => cssVar(
+    "--vm-font-sans",
+    'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+  )
 
   // Calls back with "light"/"dark" now, and again on every theme toggle.
   // Returns a teardown function, so it drops straight into an OJS cell:
@@ -71,15 +95,18 @@
   // hover-label background (that comes from getComputedStyle).
   //
   // The `last` check is what keeps this from firing on class changes that
-  // have nothing to do with the theme. <body>'s class list is shared: the
-  // sidebar rail toggles .vm-sidebar-open on it on every hover-to-preview
-  // and .vm-sidebar-pinned on every pin (_includes/sidebar-rail.html), and
+  // have nothing to do with the theme. <body>'s class list is shared: a
+  // site's own scripts write to it (Visual Math Lab's sidebar rail toggles
+  // .vm-sidebar-open on it whenever the sidebar opens or closes), and
   // without this guard each of those notified every consumer -- which, on a
   // page whose chartColors cell depends on this, re-ran mainPlot, the legend
-  // and both sub-charts, rebuilding the whole chart just because the pointer
-  // touched the left edge of the screen. The comparison has to live INSIDE
-  // the deferred callback, not around the requestAnimationFrame pair, so the
-  // two-frame wait above still happens on a real toggle.
+  // and both sub-charts, rebuilding the whole chart for nothing. The
+  // comparison has to live INSIDE the deferred callback, not around the
+  // requestAnimationFrame pair, so the two-frame wait above still happens
+  // on a real toggle.
+  //
+  // Both <html> and <body> are observed, since the dark selector can match
+  // either (Quarto flips a body class, Bootstrap sets data-bs-theme on html).
   const onThemeChange = (callback) => {
     let last = themeName()
     callback(last)
@@ -93,7 +120,9 @@
         callback(next)
       }))
     })
-    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] })
+    const options = { attributes: true, attributeFilter: ["class", "data-bs-theme"] }
+    observer.observe(document.body, options)
+    if (document.documentElement) observer.observe(document.documentElement, options)
     return () => observer.disconnect()
   }
 
@@ -102,7 +131,7 @@
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches
   }
 
-  // js/ui/slider-play.js publishes how long it has, in ms, between one slider
+  // ui/slider-play.js publishes how long it has, in ms, between one slider
   // value and the next while a sweep is running (0 when idle). The default
   // 300ms transition below assumes a human dragging the slider, one step at a
   // time -- during an animated sweep that is often longer than the gap
@@ -117,65 +146,73 @@
     return value
   }
 
-  // Named after what each color means on the chart (the function itself,
-  // an alternate/reference trace, a "good"/converged marker, ...), not the
-  // hex value -- so a page reads `colors.fn` / `colors.alt` rather than
-  // repeating a literal `"#2563eb"`. Each pair is the same hue site-wide
-  // already used (light column matches the hardcoded hex it replaces:
-  // fn ×50, alt ×61, ok ×40, muted ×29, ink ×19, warn ×14, accent2 ×13
-  // occurrences respectively); the dark column lightens each one, since the
-  // light-mode hex values read muddy on the dark theme's near-black ground.
-  const PALETTE = {
-    fn:      { light: "#2563eb", dark: "#8ab4ff" },
-    alt:     { light: "#dc2626", dark: "#f87171" },
-    ok:      { light: "#16a34a", dark: "#4ade80" },
-    muted:   { light: "#94a3b8", dark: "#7d8aa3" },
-    ink:     { light: "#111827", dark: "#c9cedb" },
-    warn:    { light: "#f59e0b", dark: "#fbbf24" },
-    accent2: { light: "#9333ea", dark: "#c084fc" },
-    // A third accent (teal), added for the Sperner's lemma pages: their
-    // three vertex colors are alt/ok/fn (red/green/blue) and each mixed
-    // pair of them needs a hue of its own -- red+green is warn, red+blue
-    // is accent2, and green+blue had nothing between the two until this.
-    // Same Tailwind family (teal-600 / teal-400) as the rest of the table.
-    accent3: { light: "#0d9488", dark: "#2dd4bf" },
-    // The ring drawn around a marker to lift it off whatever it sits on --
-    // pages hardcoded `line: {color: "white"}` for this, which is a white
-    // halo on a near-black chart in dark mode.
-    halo:    { light: "#ffffff", dark: "#171b29" }
-  }
-
-  // Same hue as a palette token, at the given opacity -- for the translucent
-  // area/bar fills that pair with a solid stroke of the same color. Pages
-  // used to hardcode these as `rgba(22, 163, 74, 0.2)` literals, which stay
-  // light-mode green after a theme toggle while their own stroke lightens,
-  // so fill and stroke visibly drift apart in dark mode.
-  const hexToRgb = (hex) => {
-    const clean = hex.replace("#", "")
-    const full = clean.length === 3 ? clean.split("").map(c => c + c).join("") : clean
-    return {
-      r: parseInt(full.slice(0, 2), 16),
-      g: parseInt(full.slice(2, 4), 16),
-      b: parseInt(full.slice(4, 6), 16)
-    }
-  }
-
-  const alpha = (token, opacity) => {
-    const pair = PALETTE[token]
-    const hex = pair ? (isDark() ? pair.dark : pair.light) : token
-    if (typeof hex !== "string" || !hex.startsWith("#")) return hex
-    const { r, g, b } = hexToRgb(hex)
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`
+  // The chart palette lives in CSS: --vm-color-<name> in src/css/tokens.css
+  // (light on :root, dark under the dark selector), so a site re-themes its
+  // charts by overriding custom properties, the same way it re-themes the
+  // panels. Named after what each color means on the chart (the function
+  // itself, an alternate/reference trace, a "good"/converged marker, ...),
+  // not the hex value -- so a page reads `colors.fn` / `colors.alt` rather
+  // than repeating a literal "#2563eb".
+  //
+  // The values here are the light defaults, used only when the stylesheet
+  // is not loaded (a CDN user who skipped mathviz.css, the Node test stub).
+  // `accent3` (teal) exists for pages whose three primary colors are
+  // alt/ok/fn and need a hue for each mixed pair -- red+green is warn,
+  // red+blue is accent2, green+blue is this. `halo` is the ring drawn around
+  // a marker to lift it off whatever it sits on -- white on light, the page
+  // background on dark; pages used to hardcode `line: {color: "white"}`
+  // for this, which is a white halo on a near-black chart in dark mode.
+  const FALLBACK = {
+    fn:      "#2563eb",
+    alt:     "#dc2626",
+    ok:      "#16a34a",
+    muted:   "#94a3b8",
+    ink:     "#111827",
+    warn:    "#f59e0b",
+    accent2: "#9333ea",
+    accent3: "#0d9488",
+    halo:    "#ffffff"
   }
 
   // Returns a fresh snapshot of the palette for whichever theme is active
   // right now -- called (not just referenced) so a page that rebuilds its
   // trace colors on every reactive rerun stays in sync with the theme.
   const colors = () => {
-    const dark = isDark()
     const out = {}
-    for (const [name, pair] of Object.entries(PALETTE)) out[name] = dark ? pair.dark : pair.light
+    for (const name of Object.keys(FALLBACK)) out[name] = cssVar("--vm-color-" + name, FALLBACK[name])
     return out
+  }
+
+  // Same hue as a palette token, at the given opacity -- for the translucent
+  // area/bar fills that pair with a solid stroke of the same color. Pages
+  // used to hardcode these as `rgba(22, 163, 74, 0.2)` literals, which stay
+  // light-mode green after a theme toggle while their own stroke lightens,
+  // so fill and stroke visibly drift apart in dark mode. Accepts a palette
+  // token name, a #rgb/#rrggbb hex, or an rgb(r, g, b) string (what a
+  // stylesheet may resolve a token to); anything else comes back unchanged.
+  const parseColor = (value) => {
+    if (typeof value !== "string") return null
+    const text = value.trim()
+    if (text.startsWith("#")) {
+      const clean = text.slice(1)
+      if (clean.length !== 3 && clean.length !== 6) return null
+      const full = clean.length === 3 ? clean.split("").map(c => c + c).join("") : clean
+      return {
+        r: parseInt(full.slice(0, 2), 16),
+        g: parseInt(full.slice(2, 4), 16),
+        b: parseInt(full.slice(4, 6), 16)
+      }
+    }
+    const rgb = text.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+    if (rgb) return { r: Number(rgb[1]), g: Number(rgb[2]), b: Number(rgb[3]) }
+    return null
+  }
+
+  const alpha = (token, opacity) => {
+    const value = token in FALLBACK ? colors()[token] : token
+    const parsed = parseColor(value)
+    if (!parsed) return value
+    return `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${opacity})`
   }
 
   // Plotly's/Plot's automatic color cycle for traces a page didn't color
@@ -185,7 +222,7 @@
   const colorway = () => {
     const active = colors()
     const out = []
-    for (const name of Object.keys(PALETTE)) {
+    for (const name of Object.keys(FALLBACK)) {
       if (name === "halo") continue
       out.push(active[name])
     }
@@ -231,7 +268,7 @@
     const base = {
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor: "rgba(0,0,0,0)",
-      font: { family: FONT_FAMILY, size: 13, color: text },
+      font: { family: fontFamily(), size: 13, color: text },
       xaxis: { ...axisDefaults },
       yaxis: { ...axisDefaults },
       colorway: colorway(),
@@ -239,9 +276,9 @@
       // Trace `text` labels (the x₀/x₁ callouts next to iteration markers)
       // inherit no color of their own, so without this they render in
       // Plotly's default near-black and disappear on the dark theme.
-      textfont: { family: FONT_FAMILY, color: text },
+      textfont: { family: fontFamily(), color: text },
       // Plotly's own modebar chrome. The shape (pill, blur, radius) is CSS
-      // in styles.css; these are the parts only Plotly can set.
+      // in src/css/modebar.css; these are the parts only Plotly can set.
       modebar: {
         bgcolor: "rgba(0,0,0,0)",
         color: textSoft,
@@ -314,7 +351,7 @@
     bgcolor: cssVar("--vm-surface", "#f6f7f9"),
     bordercolor: cssVar("--vm-border", "rgba(27, 31, 36, 0.15)"),
     align: "left",
-    font: { family: FONT_FAMILY, size: 12, color: cssVar("--vm-text", "#14161a") }
+    font: { family: fontFamily(), size: 12, color: cssVar("--vm-text", "#14161a") }
   })
 
   // A centered message drawn in the empty plot area, for when a page's
@@ -330,7 +367,7 @@
       x: 0.5,
       y: 0.5,
       showarrow: false,
-      font: { family: FONT_FAMILY, size: 14, color: textSoft },
+      font: { family: fontFamily(), size: 14, color: textSoft },
       align: "center"
     }]
   }
@@ -391,7 +428,7 @@
     const grid = cssVar("--vm-grid", "rgba(20, 22, 26, 0.08)")
     const border = cssVar("--vm-border", "rgba(27, 31, 36, 0.15)")
     const base = {
-      style: { fontFamily: FONT_FAMILY, fontSize: 12, color: text },
+      style: { fontFamily: fontFamily(), fontSize: 12, color: text },
       color: { range: colorway() },
       grid: true
     }
@@ -412,7 +449,7 @@
     ...globalThis.VM,
     plotting: {
       ...globalThis.VM?.plotting,
-      colors, colorway, alpha, themeName, onThemeChange, subscript, autoResize,
+      configure, colors, colorway, alpha, themeName, onThemeChange, subscript, autoResize,
       layout, config, plotOptions, themePatch, emptyState, hoverLabel
     }
   }

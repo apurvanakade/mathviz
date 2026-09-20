@@ -7,7 +7,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import * as mathjs from 'mathjs'
-import { loadVM } from '../../scripts/load-vm.mjs'
+import { loadVM } from '../../../scripts/load-vm.mjs'
 
 const VM = loadVM()
 const { makeFunction } = VM.expressions
