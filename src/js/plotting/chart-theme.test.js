@@ -178,6 +178,26 @@ test('VM.plotting.colors falls back to the light palette when no stylesheet decl
   assert.equal(VM.plotting.colors().fn, '#2563eb')
 })
 
+test('the default darkSelector never matches a bare, unscoped attribute/class -- v0.1.0 regression', () => {
+  // v0.1.0 shipped `[data-bs-theme="dark"]` and `.vm-dark` unscoped, which
+  // (via CSS custom-property inheritance, which this stub does not model)
+  // matched Quarto's own <nav data-bs-theme="dark">, set unconditionally to
+  // force a dark navbar independent of the page theme -- leaking the whole
+  // dark palette into the navbar on an otherwise-light page. Every clause
+  // must be anchored to html or body (or the quarto-dark class, which only
+  // Quarto's own light/dark toggle sets, and only on body) so a component
+  // elsewhere in the page can carry the same attribute/class with no effect.
+  stubDocument(false)
+  const VM = loadVM()
+  const clauses = VM.plotting.configure().darkSelector.split(',').map(s => s.trim())
+  for (const clause of clauses) {
+    assert.ok(
+      clause === 'body.quarto-dark' || /^(html|body)[.\[]/.test(clause),
+      `clause "${clause}" is not anchored to html/body`
+    )
+  }
+})
+
 test('VM.plotting.configure lets a site name its own dark selector', () => {
   stubDocument(true, { darkSelector: '.my-dark' })
   const VM = loadVM()

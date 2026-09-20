@@ -2,3 +2,5 @@ node_modules
 example.html
 example_files/
 .quarto/
+
+/.luarc.json

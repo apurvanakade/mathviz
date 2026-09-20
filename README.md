@@ -119,7 +119,7 @@ body.quarto-dark {
 | `--vm-font-sans` | chart text |
 | `--vm-color-fn` / `-alt` / `-ok` / `-muted` / `-ink` / `-warn` / `-accent2` / `-accent3` / `-halo` | the chart palette `VM.plotting.colors()` returns, keyed by role: the function itself, an alternate trace, a converged marker, de-emphasized, strokes, a warning, two more accents, and the ring drawn around a marker (white on light, the page background on dark) |
 
-**Dark mode** is detected by a selector matched against `<html>` and `<body>`: by default `body.quarto-dark` (Quarto's toggle), `[data-bs-theme="dark"]` (Bootstrap 5.3), or `.vm-dark`. Declare your dark tokens under one of those, or under your own selector and tell the JS: `VM.plotting.configure({darkSelector: ".my-dark"})`.
+**Dark mode** is detected by a selector matched against `<html>` and `<body>`: by default `body.quarto-dark` (Quarto's toggle), `html[data-bs-theme="dark"]`/`body[data-bs-theme="dark"]` (Bootstrap 5.3), or `html.vm-dark`/`body.vm-dark`. Deliberately root-scoped, not a bare `[data-bs-theme="dark"]`/`.vm-dark` match — a component library can set that same attribute or class on an individual component (Quarto's own navbar does, to force a dark variant independent of the page theme), and since custom properties inherit down the DOM, an unscoped selector would leak the dark palette into that component even on a light page. Declare your dark tokens under one of those, or under your own selector and tell the JS: `VM.plotting.configure({darkSelector: ".my-dark"})` (and put `.my-dark` on `<html>` or `<body>` only, for the same reason).
 
 JS reads tokens from `document.body` at call time, so a chart built after a toggle sees the new values.
 
