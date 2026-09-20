@@ -1,0 +1,143 @@
+---
+title: "Step slider with playback"
+subtitle: "Newton's method, one iteration at a time, with a play button and a results table"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+The slider that steps through an iterative method belongs **above the chart**, not in the panel with the problem's inputs -- it's what the reader scrubs while watching. `ojs-chart-controls` puts it there and keeps it there in fullscreen; the playback module gives it a ▶; and because `layout()` reads the sweep's pace, the chart tweens smoothly from one iterate to the next.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## Inputs
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+viewof newtonF = Inputs.text({label: "f(x)", value: "cos(x) - x"})
+```
+```{ojs}
+viewof newtonX0 = Inputs.text({label: "x₀", value: "3"})
+```
+```{ojs}
+viewof newtonMax = Inputs.text({label: "max iterations", value: "12"})
+```
+:::
+
+## All the iterates, computed once
+
+Compute the whole sequence in one cell; the slider then only chooses how many to *show*. This keeps the slider cell cheap (it re-runs on every tick of a sweep) and makes the table trivial.
+
+```{ojs}
+iterates = {
+  const f = VM.expressions.makeFunction(math, newtonF)
+  const df = VM.expressions.makeDerivative(math, newtonF)
+  const x0 = VM.expressions.makeNumber(math, newtonX0)
+  const max = VM.expressions.makeNumber(math, newtonMax)
+  if (f === null || df === null || x0 === null || max === null) return null
+  const xs = [x0]
+  for (let n = 0; n < Math.min(max, 60); n++) {
+    const x = xs[xs.length - 1]
+    const d = df(x)
+    if (!Number.isFinite(d) || d === 0) break
+    const next = x - f(x) / d
+    if (!Number.isFinite(next)) break
+    xs.push(next)
+  }
+  return {f, xs}
+}
+```
+
+## The chart block
+
+The slider's range depends on how many iterates exist, so its `viewof` is **recreated** whenever `iterates` changes -- which is exactly the situation `applyExampleParams` warns about, and why that function takes selectors. Nothing to do here; just be aware the element isn't stable.
+
+::: {.ojs-chart-block}
+::: {.ojs-chart-controls}
+```{ojs}
+viewof step = Inputs.range([0, iterates ? iterates.xs.length - 1 : 0], {label: "iteration n", step: 1, value: 0})
+```
+:::
+```{ojs}
+mainPlot = {
+  const data = []
+  if (iterates !== null) {
+    const {f, xs} = iterates
+    const shown = xs.slice(0, step + 1)
+    const range = VM.plotting.paddedRange(shown, {minPadding: 1})
+    const cx = [], cy = []
+    for (let i = 0; i <= 300; i++) { const x = range.lo + (range.hi - range.lo) * i / 300; cx.push(x); cy.push(f(x)) }
+    data.push({x: cx, y: cy, name: "f(x)", line: {color: chartColors.fn, width: 2.5}})
+    // Tangent from the current iterate to the next: the picture of one Newton step.
+    if (step < xs.length - 1) {
+      const x = xs[step]
+      data.push({x: [x, xs[step + 1]], y: [f(x), 0], name: "tangent", line: {color: chartColors.alt, width: 1.5, dash: "dot"}})
+    }
+    const labels = []
+    for (let n = 0; n <= step; n++) labels.push("x" + VM.plotting.subscript(n))
+    data.push({x: shown, y: shown.map(() => 0), mode: "markers+text", text: labels, textposition: "bottom center", name: "iterates",
+      marker: {color: chartColors.muted, size: 8, line: {color: chartColors.halo, width: 1.5}}})
+    data.push({x: [xs[step]], y: [f(xs[step])], mode: "markers", name: "current", marker: {color: chartColors.ok, size: 12, line: {color: chartColors.halo, width: 2}}})
+  }
+  const div = document.createElement("div")
+  div.className = "plotly-box-large"
+  div.style.height = "400px"; div.style.minHeight = "0"
+  Plotly.newPlot(div, data, VM.plotting.layout({
+    showlegend: false,
+    xaxis: {title: "x"},
+    yaxis: {zeroline: true},
+    annotations: iterates ? [] : VM.plotting.emptyState("Check the inputs")
+  }), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+Press ▶. The tween length comes from `VM.ui.playbackTweenMs`, which the playback module publishes and `layout()` reads -- so at 4× the chart still lands each frame before the next arrives, instead of a fixed 300 ms tween being cut off every time.
+
+## The table
+
+`renderTable` takes header cells that may be KaTeX nodes (`tex` is an OJS global) and separate plain-text headers for the CSV.
+
+```{ojs}
+{
+  if (iterates === null) return html`<em>No iterates.</em>`
+  const rows = []
+  for (let n = 0; n <= step; n++) {
+    const x = iterates.xs[n]
+    rows.push([n, x.toPrecision(10), Math.abs(iterates.f(x)).toExponential(3)])
+  }
+  return VM.ui.renderTable({html, headers: ["n", tex`x_n`, tex`|f(x_n)|`], rows, csvHeaders: ["n", "x_n", "|f(x_n)|"], filename: "newton-iterates.csv"})
+}
+```
+
+## The markup
+
+````markdown
+::: {.ojs-panel .ojs-row}
+... problem inputs ...
+:::
+
+```{ojs}
+iterates = { ... }
+```
+
+::: {.ojs-chart-block}
+::: {.ojs-chart-controls}
+```{ojs}
+viewof step = Inputs.range([0, iterates ? iterates.xs.length - 1 : 0], {label: "iteration n", step: 1, value: 0})
+```
+:::
+```{ojs}
+mainPlot = { ... }
+```
+:::
+````

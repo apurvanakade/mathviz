@@ -5,7 +5,14 @@
  */
 
 (function attachVM(globalThis) {
-  // Chi-squared(k) is exactly Gamma(shape = k/2, rate = 1/2).
+  /**
+   * Chi-squared density with `k` degrees of freedom -- exactly
+   * `gammaPdf(x, k/2, 1/2)`.
+   *
+   * @param {number} x - `0` for `x <= 0`.
+   * @param {number} k - Degrees of freedom; must be `> 0`.
+   * @returns {number}
+   */
   const chiSquaredPdf = (x, k) => {
     return globalThis.VM.distributions.gammaPdf(x, k / 2, 0.5)
   }

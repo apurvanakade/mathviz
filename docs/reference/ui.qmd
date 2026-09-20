@@ -1,0 +1,230 @@
+---
+title: "VM.ui"
+subtitle: "Controls: legend overlay, results table, example presets, slider playback"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Most of what `VM.ui` does needs **no call at all**. Three modules are self-installing: they watch the page for the markup they enhance and attach themselves to it whenever it appears, including elements Observable Inputs recreates on a re-run.
+
+| Enhancement | Attaches to | Opt out |
+|---|---|---|
+| [Slider playback](#slider-playback) -- a play/pause button with speed and loop/bounce options | every `input[type="range"]` inside `.ojs-panel` or `.ojs-chart-controls` | `data-vm-play="off"` on the slider or any ancestor |
+| [Draggable legend](#draggable-legend) -- a grip that lets the reader move the floating legend, remembered per page | every `.ojs-legend-overlay` inside `.ojs-chart-block` | -- |
+| Slider fill -- paints the filled part of the track in WebKit/Blink, which have no native progress pseudo-element | every `input[type="range"]` | -- |
+
+The callable API is four functions: a legend that is also an Observable view, a table renderer, an "apply this example" helper, and the pure arithmetic behind playback (exported for tests and for anyone building their own).
+
+```{ojs}
+//| echo: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## Legend
+
+### VM.ui.legendOverlay(items, options?) {#legendOverlay}
+
+A floating legend of clickable swatch+label rows that toggles which traces a chart shows, replacing Plotly's built-in legend. It implements Observable Inputs' **view contract** (a `value` property, an `"input"` event on change), so it slots into `viewof` exactly like an `Inputs.checkbox`:
+
+```js
+viewof shown = VM.ui.legendOverlay([{label: "f(x)", color: chartColors.fn}, {label: "f'(x)", color: chartColors.alt}])
+```
+
+and `shown` is the array of checked labels. Put the cell inside the chart's `.ojs-chart-block`: the CSS floats it over the chart's top-left corner, and the draggable-legend module picks it up.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | `{label, color}[]` | | Rows, in display order. |
+| `options.value` | `string[]` | every label | The initially checked labels. |
+
+**Returns** an `HTMLDivElement` (`div.ojs-legend-overlay`) with:
+
+- a `value` accessor -- getter returns the checked labels **in `items` order** (`string[]`); the setter accepts any iterable (`null` clears all) and re-renders
+- a bubbling `"input"` event on each **user** toggle (click, Enter, Space) -- not on a programmatic `value` set, matching Observable Inputs and the set-then-dispatch protocol `applyExampleParams` uses
+
+It uses only DOM APIs -- no `htl` or `Inputs` dependency -- so it works on a plain page too.
+
+::: {.ojs-chart-block}
+```{ojs}
+//| echo: false
+viewof legendShown = VM.ui.legendOverlay([
+  {label: "sin", color: chartColors.fn},
+  {label: "cos", color: chartColors.alt},
+  {label: "sin·cos", color: chartColors.ok}
+])
+```
+```{ojs}
+//| echo: false
+{
+  const xs = [], s = [], c = [], sc = []
+  for (let i = 0; i <= 200; i++) { const x = -Math.PI + 2 * Math.PI * i / 200; xs.push(x); s.push(Math.sin(x)); c.push(Math.cos(x)); sc.push(Math.sin(x) * Math.cos(x)) }
+  const data = [
+    {name: "sin", x: xs, y: s, line: {color: chartColors.fn}},
+    {name: "cos", x: xs, y: c, line: {color: chartColors.alt}},
+    {name: "sin·cos", x: xs, y: sc, line: {color: chartColors.ok}}
+  ]
+  for (const trace of data) trace.visible = legendShown.includes(trace.name) ? true : "legendonly"
+  const div = document.createElement("div")
+  div.style.height = "300px"
+  Plotly.newPlot(div, data, {showlegend: false, xaxis: {title: "x"}})
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+```{ojs}
+legendShown
+```
+
+Try dragging the legend by its grip (appears on hover), then reload -- the position is remembered.
+
+### Draggable legend {#draggable-legend}
+
+The grip on the legend above is added by a self-installing module. It clamps the panel to the chart block, re-clamps on resize and fullscreen, supports the keyboard (arrows move 10 px, Shift+arrow 1 px, Home resets) and double-click to reset, and persists the offset in `localStorage`. It deliberately does not touch `.ojs-chart-controls`, which sits in normal flow above the chart and has nothing to be dragged clear of. The two pure helpers behind it:
+
+### VM.ui.clampOverlayOffset({…}) {#clampOverlayOffset}
+
+Clamps a proposed drag offset so no part of the panel leaves its container. Takes one object: `{dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight}`. `dx`/`dy` are the proposed offset; `offsetLeft`/`offsetTop` the panel's **layout** position (transforms don't affect layout, so they stay a fixed reference); `width`/`height` the panel's size; `containerWidth`/`containerHeight` the block's.
+
+**Returns** `{dx, dy}`. A panel larger than its container is pinned to the near edge rather than given a crossed range.
+
+### VM.ui.overlayStorageKey(pathname, role, index) {#overlayStorageKey}
+
+The `localStorage` key a dragged panel's offset is kept under: `` `vml-overlay-pos:${pathname}:${role}:${index}` ``. The module uses `location.pathname`, `"legend"`, and the panel's `.ojs-chart-block` index on the page; the stored value is `JSON.stringify({dx, dy})`.
+
+```{ojs}
+VM.ui.overlayStorageKey("/apps/newton-method/", "legend", 0)
+```
+
+## Table
+
+### VM.ui.renderTable({html, headers, rows, csvHeaders?, filename?}) {#renderTable}
+
+A compact, horizontally scrollable results table with a "Download csv" link above it.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `html` | function | | htl's `html` tag -- an OJS global. |
+| `headers` | `Array` | | Header cells. May be DOM nodes (a `tex` template's output) as well as strings. |
+| `rows` | `Array[]` | | Body rows. The first column is centered, the rest right-aligned, all `nowrap`. |
+| `csvHeaders` | `string[]` | `headers` | Plain-text labels for the download, for when `headers` holds KaTeX nodes that don't serialize. |
+| `filename` | `string` | `"iteration-table.csv"` | The download's name. |
+
+**Returns** one fragment: `<div class="ojs-table-toolbar">` (the link) then `<div class="ojs-table-container"><table class="table table-sm table-bordered small">`. The table classes are Bootstrap's, so it inherits the Quarto theme's table styling.
+
+```{ojs}
+{
+  const rows = []
+  let x = 1
+  for (let n = 0; n < 6; n++) { rows.push([n, x.toFixed(10), Math.abs(x - Math.SQRT2).toExponential(2)]); x = x - (x * x - 2) / (2 * x) }
+  return VM.ui.renderTable({html, headers: ["n", tex`x_n`, tex`|x_n - \sqrt2|`], rows, csvHeaders: ["n", "x_n", "error"], filename: "newton-sqrt2.csv"})
+}
+```
+
+## Example presets
+
+### VM.ui.applyExampleParams(fieldSelectors, params, triggerEl) {#applyExampleParams}
+
+Applies an example's parameter values to the page's `viewof` fields, then clicks the page's own "plot"/"run" button so the normal commit flow runs -- no reload, no scroll jump. This is what a "Try an example" dropdown calls.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `fieldSelectors` | `{paramKey: cssSelector}` | Plain strings, looked up fresh with `document.querySelector` each time -- e.g. `{fx: '[data-example-field="fx"]'}`. Tag each targetable field with a stable `data-example-field` attribute in the cell that owns it. |
+| `params` | `{paramKey: value}` | Applied in insertion order with a **100 ms wait after each** (including the last), so a field whose bounds depend on an earlier one sees its freshly recreated view. Order upstream fields first. Keys with no selector, or whose element isn't on the page, are skipped. |
+| `triggerEl` | `Element` | An element containing the `<button>` to click at the end. Must not be `null` (throws); the click is skipped if it holds no button. |
+
+**Returns** `Promise<void>`.
+
+Two rules that come from how Observable's runtime behaves, both learned the hard way:
+
+::: {.callout-important title="Pass selectors, not `viewof` references"}
+A cell that references a view whose identity is reactively recreated -- a step slider capped by a "max" field -- becomes reactive on it. Since this function is what changes that upstream field, a version taking direct references re-triggers itself in a loop with no natural end. A `querySelector` at the moment of use carries no reactive dependency.
+:::
+
+::: {.callout-important title="Call it from a plain DOM listener, never from a cell reactive on a `<select>`"}
+A native `<select>` fires both `input` and `change` per selection, so a reactive cell runs twice, and two overlapping calls race -- observed corrupting a field's final value when the second cascade landed after the first. Attach one listener to a stable element instead. The [try-an-example recipe](../recipes/try-an-example.qmd) shows the full wiring.
+:::
+
+## Slider playback {#slider-playback}
+
+Every range slider inside an `.ojs-panel` or `.ojs-chart-controls` gets a play/pause button and a small caret that opens a popover of speed presets (¼× – 4×) and a mode (Once / Loop / Bounce). Playback is `requestAnimationFrame`-driven, so the motion is smooth rather than a stepped jump; it stops when the reader grabs the slider, when the tab is hidden, when a re-run detaches the slider, and at the end of a Once sweep (the button becomes a replay glyph). At most one sweep runs per page.
+
+::: {.ojs-chart-block}
+::: {.ojs-chart-controls}
+```{ojs}
+//| echo: false
+viewof playDemo = Inputs.range([0, 2 * Math.PI], {label: "phase (press ▶)", step: 0.05, value: 0})
+```
+:::
+```{ojs}
+//| echo: false
+{
+  const xs = [], ys = []
+  for (let i = 0; i <= 300; i++) { const x = 4 * Math.PI * i / 300; xs.push(x); ys.push(Math.sin(x - playDemo)) }
+  const div = document.createElement("div")
+  div.style.height = "220px"
+  Plotly.newPlot(div, [{x: xs, y: ys, line: {color: chartColors.fn, width: 2.5}}], {showlegend: false, yaxis: {range: [-1.2, 1.2]}, margin: {t: 8}})
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+The chosen speed and mode are a **viewing preference**, shared by every slider on the site and stored in `localStorage["vm-playback"]` as `{speed, mode}` -- deliberately not URL-synced like the page's inputs, since they're not part of the computation a shared link reproduces.
+
+The sweep's length scales with the slider's own stop count -- about 350 ms per stop, clamped to 2–10 s -- which is what lets the module enhance every slider with no per-page tuning. A page opts a slider **out** with `data-vm-play="off"` on the input or an ancestor:
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+//| echo: false
+{
+  const wrap = document.createElement("div")
+  wrap.dataset.vmPlay = "off"
+  wrap.appendChild(Inputs.range([0, 10], {label: "data-vm-play=\"off\": no play button", step: 1, value: 3}))
+  return wrap
+}
+```
+```{ojs}
+//| echo: false
+Inputs.range([0, 10], {label: "a sibling without it", step: 1, value: 3})
+```
+:::
+
+::: {.callout-note title="Why the popover is a native `[popover]`"}
+It renders in the browser's **top layer**. Quarto wraps every OJS output in `.cell-output-display` with `overflow: auto`, which clips any descendant that escapes its box -- a panel opening above a 37 px cell was cut to a sliver. No z-index fixes a clip; only leaving it does, and the top layer is outside every ancestor's clip. This applies to **any** floating UI inside any OJS cell: reach for `[popover]`, not a nested absolute box.
+:::
+
+### VM.ui.playbackDuration({…}) {#playbackDuration}
+
+Takes one object: `{min, max, step, speed}`. Total length of one end-to-end sweep, in ms: `350 ms × stops`, clamped to `[2000, 10000]`, divided by `speed`. A non-finite or non-positive `step` (a slider with `step="any"`) counts as 100 stops; a non-finite or non-positive `speed` as `1`.
+
+**Returns** `number`; `0` when the slider can't be swept (`max ≤ min`, or a non-finite bound).
+
+```{ojs}
+[VM.ui.playbackDuration({min: 0, max: 10, step: 1, speed: 1}), VM.ui.playbackDuration({min: 0, max: 100, step: 1, speed: 2}), VM.ui.playbackDuration({min: 0, max: 0, step: 1, speed: 1})]
+```
+
+### VM.ui.playbackFrame({…}) {#playbackFrame}
+
+Takes one object: `{min, max, step, elapsed, duration, mode, start}`. Where the thumb should be after `elapsed` ms of a sweep of length `duration` that began at fraction `start` of the track. `mode` is `"once"`, `"loop"` (sawtooth) or `"bounce"` (triangle wave); anything else behaves as `"once"`.
+
+**Returns** `{value, direction, done}` -- `value` snapped to the step grid (by whole-step count from `min`, then trimmed to 12 significant digits, then clamped into `[min, max]`); `direction` is `−1` only on a bounce's return leg; `done` is `true` once a `"once"` sweep reaches the end, and for any degenerate input.
+
+```{ojs}
+VM.ui.playbackFrame({min: 0, max: 10, step: 0.5, elapsed: 750, duration: 3000, mode: "bounce", start: 0})
+```
+
+### VM.ui.playbackTweenMs {#playbackTweenMs}
+
+A **number**, not a function: the chart transition length `VM.plotting.layout()` should use right now. `0` while no sweep is running; during one, 90% of the gap between consecutive slider values, capped at 300 ms, so each tween settles just before the next value arrives instead of a flat 300 ms overrunning a faster gap and leaving the chart permanently mid-tween. Read it if you build your own layout; don't set it.
+
+```{ojs}
+VM.ui.playbackTweenMs
+```

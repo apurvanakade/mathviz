@@ -1,0 +1,142 @@
+---
+title: "\"Try an example\" dropdown"
+subtitle: "Presets that fill the fields and run the page, with no reload and no race"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+A page whose inputs commit on a button (so a half-typed expression doesn't redraw on every keystroke) wants a way to load a worked example: fill every field, then press the button. `VM.ui.applyExampleParams` does exactly that -- but Observable's runtime punishes two natural ways of wiring it, so this recipe is as much about the wiring as the call.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## The fields, tagged
+
+Each targetable field gets a stable `data-example-field` attribute from the cell that creates it. The text fields also submit on Enter by clicking the button -- found by its own tag, not by a reactive reference.
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+viewof exF = {
+  const view = Inputs.text({label: "f(x)", value: "sin(x)"})
+  view.dataset.exampleField = "f"
+  view.classList.add("ojs-fill")
+  view.addEventListener("keydown", e => { if (e.key === "Enter") document.querySelector('[data-example-field="plot"] button')?.click() })
+  return view
+}
+```
+```{ojs}
+viewof exLo = {
+  const view = Inputs.text({label: "from", value: "-6"})
+  view.dataset.exampleField = "lo"
+  return view
+}
+```
+```{ojs}
+viewof exHi = {
+  const view = Inputs.text({label: "to", value: "6"})
+  view.dataset.exampleField = "hi"
+  return view
+}
+```
+```{ojs}
+viewof exPlot = {
+  const view = Inputs.button("Plot")
+  view.dataset.exampleField = "plot"
+  return view
+}
+```
+:::
+
+## Commit on click
+
+The result cell depends on the button's click count and reads the fields through their **views** (`viewof exF.value`), which is not a reactive dependency on their values -- so typing doesn't redraw; clicking does.
+
+```{ojs}
+committed = {
+  exPlot   // the click count: this cell re-runs on each click and on nothing else
+  return {f: viewof exF.value, lo: viewof exLo.value, hi: viewof exHi.value}
+}
+```
+
+## The dropdown
+
+Two rules, both from `applyExampleParams`'s own contract:
+
+1. **Selectors, not `viewof` references.** A cell that references a view whose element gets recreated becomes reactive on it; since applying an example is what recreates downstream views, a direct-reference version re-triggers itself without end.
+2. **One DOM listener, not a reactive cell.** A `<select>` fires `input` *and* `change` per pick; a cell reactive on its value runs twice and the two overlapping applications race. The cell below creates the `<select>` and attaches a single listener; it depends on nothing reactive, so it never re-runs.
+
+```{ojs}
+examples = [
+  {label: "sine on a period", params: {f: "sin(x)", lo: "0", hi: "2pi"}},
+  {label: "damped oscillation", params: {f: "e^(-x/4) cos(3x)", lo: "0", hi: "12"}},
+  {label: "runge's function", params: {f: "1/(1 + 25x^2)", lo: "-1", hi: "1"}},
+  {label: "a pole", params: {f: "1/(x - 1)", lo: "-2", hi: "4"}}
+]
+```
+```{ojs}
+fieldSelectors = ({
+  f: '[data-example-field="f"]',
+  lo: '[data-example-field="lo"]',
+  hi: '[data-example-field="hi"]'
+})
+```
+```{ojs}
+{
+  const select = document.createElement("select")
+  select.className = "form-select form-select-sm"
+  select.style.maxWidth = "22em"
+  select.setAttribute("aria-label", "Try an example")
+  const first = document.createElement("option")
+  first.textContent = "Try an example…"
+  first.value = ""
+  select.appendChild(first)
+  for (let i = 0; i < examples.length; i++) {
+    const option = document.createElement("option")
+    option.value = String(i)
+    option.textContent = examples[i].label
+    select.appendChild(option)
+  }
+  select.addEventListener("change", () => {
+    if (select.value === "") return
+    const example = examples[Number(select.value)]
+    const trigger = document.querySelector('[data-example-field="plot"]')
+    VM.ui.applyExampleParams(fieldSelectors, example.params, trigger)
+    select.value = ""
+  })
+  return select
+}
+```
+
+## The chart
+
+::: {.ojs-chart-block}
+```{ojs}
+{
+  const f = VM.expressions.makeFunction(math, committed.f)
+  const lo = VM.expressions.makeNumber(math, committed.lo)
+  const hi = VM.expressions.makeNumber(math, committed.hi)
+  const ok = f !== null && lo !== null && hi !== null && hi > lo
+  const xs = [], ys = []
+  if (ok) for (let i = 0; i <= 500; i++) { const x = lo + (hi - lo) * i / 500; xs.push(x); ys.push(f(x)) }
+  const div = document.createElement("div")
+  div.style.height = "340px"
+  Plotly.newPlot(div, [{x: xs, y: ys, line: {color: chartColors.fn, width: 2.5}, showlegend: false}], VM.plotting.layout({
+    xaxis: {title: "x"},
+    annotations: ok ? [] : VM.plotting.emptyState("Check the inputs, then press Plot")
+  }), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+## Order matters in `params`
+
+`applyExampleParams` applies keys in insertion order with a 100 ms wait after each. If a field's bounds depend on another (a step slider capped by a "max" field), list the upstream field first, or the later one is applied to a view that's about to be replaced and its value silently discarded. The examples above have no such dependency; the [step-slider recipe](step-slider.qmd)'s `step` slider would.

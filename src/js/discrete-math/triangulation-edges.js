@@ -5,9 +5,14 @@
  */
 
 (function attachVM(globalThis) {
-  // Returns every edge of a uniform order-N triangulation exactly once, as
-  // {a, b} pairs of barycentric triples. Derived from VM.discreteMath.subTriangleTriples,
-  // deduping each interior edge (shared by two adjacent triangles).
+  /**
+   * Every edge of a uniform order-`N` triangulation exactly once, derived
+   * from {@link subTriangleTriples} with each interior edge (shared by two
+   * adjacent triangles) deduplicated.
+   *
+   * @param {number} N - The order.
+   * @returns {{a: number[], b: number[]}[]} Edges as pairs of barycentric triples.
+   */
   const triangulationEdges = (N) => {
     const seen = new Set();
     const edges = [];

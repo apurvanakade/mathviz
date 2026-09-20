@@ -1,0 +1,86 @@
+---
+title: "Observable Plot in an SVG block"
+subtitle: "The theme applied to Plot, and a fullscreen button for a chart with no modebar"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Observable Plot draws inline SVG. `VM.plotting.plotOptions()` gives it the same font, grid color and palette as the Plotly charts, and `ojs-svg-block` on the wrapper gives it the fullscreen button the Plotly modebar provides -- hover the chart to see it, top right of the figure.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+viewof plotDegree = Inputs.range([1, 9], {label: "polynomial degree", step: 1, value: 3})
+```
+```{ojs}
+viewof plotNoise = Inputs.range([0, 1], {label: "noise sd", step: 0.05, value: 0.3})
+```
+:::
+
+```{ojs}
+fitData = {
+  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(11))
+  const points = []
+  for (let i = 0; i <= 24; i++) {
+    const x = -2 + 4 * i / 24
+    points.push({x, y: Math.sin(1.5 * x) + plotNoise * gaussian()})
+  }
+  const fit = VM.numerical.polynomialFit(math, points, plotDegree)
+  const curve = []
+  if (fit !== null) for (let i = 0; i <= 200; i++) { const x = -2 + 4 * i / 200; curve.push({x, y: fit.evaluate(x)}) }
+  return {points, fit, curve}
+}
+```
+
+## The block
+
+Both classes go on the **same** div. The chart cell reads `chartColors` so it repaints on a theme toggle; the button outside the cell survives every re-run.
+
+::: {.ojs-chart-block .ojs-svg-block}
+```{ojs}
+{
+  const {points, fit, curve} = fitData
+  const title = fit === null ? "not enough points for that degree" : `degree ${plotDegree}, total squared error ${fit.totalSquaredError.toFixed(3)}`
+  return Plot.plot(VM.plotting.plotOptions({
+    width: 640, height: 400,
+    x: {label: "x"}, y: {label: "y", domain: [-2.5, 2.5]},
+    marks: [
+      Plot.line(curve, {x: "x", y: "y", stroke: chartColors.fn, strokeWidth: 2.5}),
+      Plot.dot(points, {x: "x", y: "y", fill: chartColors.alt, stroke: chartColors.halo, r: 4}),
+      Plot.text([title], {frameAnchor: "top-left", dx: 8, dy: 8, fill: chartColors.ink})
+    ]
+  }))
+}
+```
+:::
+
+A Plot chart has a fixed width, so it's narrower than its column; the block centers it and pins the button to the **figure's** corner rather than the column's. In fullscreen the figure is letterboxed by its `viewBox` ratio.
+
+## What `plotOptions` sets
+
+```{ojs}
+VM.plotting.plotOptions({x: {label: "x"}})
+```
+
+`style` (font, size, color), `color.range` (the `colorway`) and `grid: true`, deep-merged with what you pass; for any `x`/`y` scale you name without a `stroke`, the axis is stroked in `--vm-border`. It doesn't create scales you don't mention. Everything else is Plot's own options, passed through.
+
+## The markup
+
+````markdown
+::: {.ojs-chart-block .ojs-svg-block}
+```{ojs}
+Plot.plot(VM.plotting.plotOptions({ ... }))
+```
+:::
+````
+
+Nothing else -- no button to add, nothing to call. The same two classes work for a hand-built `<svg>`.

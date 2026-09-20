@@ -14,11 +14,20 @@
   // between samples) -- both are beliefs the filter is given, not
   // estimated from the data.
 
-  // One predict+update step: takes the previous {xHat, P} belief and a new
-  // measurement z, returns the new {xHat, P, K}. Separated from
-  // kalman1DFilter (which just loops this over a precomputed array) for
-  // pages that consume measurements one at a time as they actually arrive
-  // -- a live/streaming page has no array to loop over.
+  /**
+   * One predict+update step of the scalar Kalman filter, for pages that
+   * consume measurements one at a time as they arrive -- a live/streaming
+   * page has no array for {@link kalman1DFilter} to loop over.
+   *
+   * @param {{xHat: number, P: number}} prev - The previous state estimate and its error variance.
+   * @param {number} z - The new measurement.
+   * @param {Object} opts
+   * @param {number} opts.R - Assumed measurement-noise variance.
+   * @param {number} opts.Q - Assumed process-noise variance (how far the
+   *   true state is expected to drift between samples).
+   * @returns {{xHat: number, P: number, K: number}} The updated estimate,
+   *   its error variance, and the Kalman gain used for this step.
+   */
   const kalman1DStep = (prev, z, opts) => {
     const R = opts.R
     const Q = opts.Q
@@ -32,9 +41,21 @@
     return {xHat, P, K}
   }
 
-  // Runs kalman1DStep over a precomputed array zs, returning {xs, Ps, Ks}:
-  // the state estimate, error variance, and gain at each step, each the
-  // same length as zs.
+  /**
+   * Runs {@link kalman1DStep} over a precomputed array of measurements.
+   *
+   * @param {number[]} zs - The measurements.
+   * @param {Object} opts
+   * @param {number} opts.R - Assumed measurement-noise variance.
+   * @param {number} opts.Q - Assumed process-noise variance.
+   * @param {number} [opts.x0=zs[0]] - Initial state estimate.
+   * @param {number} [opts.P0=opts.R] - Initial error variance. Defaults to
+   *   `R` -- "the first estimate is as uncertain as one measurement" --
+   *   not to `1` or `Q`.
+   * @returns {{xs: number[], Ps: number[], Ks: number[]}} The estimate,
+   *   error variance and gain after each step, each the same length as
+   *   `zs` (all empty for an empty input; `opts` is then never read).
+   */
   const kalman1DFilter = (zs, opts) => {
     const n = zs.length
     const xs = new Array(n)

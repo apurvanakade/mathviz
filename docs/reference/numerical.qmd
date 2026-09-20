@@ -1,0 +1,161 @@
+---
+title: "VM.numerical"
+subtitle: "ODE steppers, quadrature, interpolation and least-squares fits"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Pure functions over plain arrays and `{x, y}` points. None of them validate their inputs beyond what is noted; they are written to be read by a mathematics audience, so each is the textbook algorithm with no surprises inside.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+```
+
+## Fitting
+
+### VM.numerical.linearRegression(points) {#linearRegression}
+
+Ordinary least-squares fit of a line `y = slope·x + intercept`. Every convergence-order plot uses this on `(log h, log error)` pairs -- the slope is the observed order.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `points` | `{x, y}[]` | The data, **in the order the fitted segment should be drawn**. |
+
+**Returns** `{slope, intercept, xlo, xhi} | null` -- `null` if there are fewer than two points or the x-values don't vary (a vertical, degenerate fit).
+
+::: {.callout-note}
+`xlo` and `xhi` are the **first and last** point's `x`, not the min and max. They exist for drawing the fitted segment across the data, which is only what they describe when `points` is sorted by `x`.
+:::
+
+```{ojs}
+{
+  const pts = []
+  for (let i = 1; i <= 6; i++) pts.push({x: i, y: 2 * i + 1 + (i % 2 === 0 ? 0.1 : -0.1)})
+  return VM.numerical.linearRegression(pts)
+}
+```
+
+### VM.numerical.l1Regression(points, opts?) {#l1Regression}
+
+Least-absolute-deviations (L1) line fit, via iteratively reweighted least squares seeded from `linearRegression`. Far less sensitive to a few large outliers than L2: an outlier's residual is down-weighted in proportion to its own size instead of being squared.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `points` | `{x, y}[]` | | The data, in drawing order. |
+| `opts.maxIterations` | `number` | `100` | Cap on reweighting passes. |
+| `opts.tolerance` | `number` | `1e-10` | Stop once `|Δslope| + |Δintercept|` falls below this. |
+| `opts.epsilon` | `number` | `1e-6` | Floor on `|residual|` in the weight `1 / max(|residual|, epsilon)`, so a point the line passes through exactly doesn't get infinite weight. |
+
+**Returns** `{slope, intercept, xlo, xhi, iterations} | null` -- the fit plus the number of passes taken; `null` under the same conditions as `linearRegression`.
+
+```{ojs}
+{
+  // Five points on y = x, plus one wild outlier. L2 is dragged toward it; L1 is not.
+  const pts = [{x: 1, y: 1}, {x: 2, y: 2}, {x: 3, y: 3}, {x: 4, y: 4}, {x: 5, y: 5}, {x: 6, y: 30}]
+  return {l2: VM.numerical.linearRegression(pts), l1: VM.numerical.l1Regression(pts)}
+}
+```
+
+### VM.numerical.polynomialFit(mathjs, points, degree) {#polynomialFit}
+
+Least-squares polynomial fit of a given degree, solved from the normal equations with math.js's LU solver (plain Gaussian elimination loses too much precision once `degree` approaches the point count).
+
+| Parameter | Type | Description |
+|---|---|---|
+| `mathjs` | math.js instance | Does the linear algebra. |
+| `points` | `{x, y}[]` | At least `degree + 1` of them. |
+| `degree` | `number` | Degree of the polynomial. |
+
+**Returns** `{coeffs, evaluate, totalSquaredError} | null`:
+
+- `coeffs` -- `[c0, c1, …, c_degree]`, in increasing power
+- `evaluate` -- the fitted polynomial as `(x) => number`
+- `totalSquaredError` -- the sum of squared residuals over `points`
+
+`null` if there are fewer points than coefficients or the system is singular.
+
+```{ojs}
+{
+  const pts = []
+  for (let x = -2; x <= 2; x++) pts.push({x, y: x * x - 1})
+  const fit = VM.numerical.polynomialFit(math, pts, 2)
+  return {coeffs: fit.coeffs, at3: fit.evaluate(3), error: fit.totalSquaredError}
+}
+```
+
+## ODE steppers
+
+Both take the same arguments and return the same shape, so a page switches methods by swapping the function.
+
+### VM.numerical.eulerSolve(f, t0, y0, tEnd, n) {#eulerSolve}
+
+Forward Euler for `y' = f(t, y)`, `y(t0) = y0`, with `n` fixed steps of `h = (tEnd − t0) / n`.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `f` | `(t, y) => number` | The right-hand side -- see [`makeFunction2`](expressions.qmd#makeFunction2). |
+| `t0`, `y0` | `number` | Initial condition. |
+| `tEnd` | `number` | Final time. |
+| `n` | `number` | Number of steps. Not validated: `n = 0` gives an infinite step and a single-point trajectory. |
+
+**Returns** `{ts: number[], ys: number[]}` -- `n + 1` samples each, starting at `(t0, y0)`.
+
+### VM.numerical.rk4Solve(f, t0, y0, tEnd, n) {#rk4Solve}
+
+The classical fourth-order Runge-Kutta method. Same parameters and return shape as `eulerSolve`.
+
+```{ojs}
+viewof odeSteps = Inputs.range([2, 64], {label: "steps n", step: 1, value: 8})
+```
+```{ojs}
+{
+  // y' = y, y(0) = 1, so y(1) = e. Watch the two errors shrink as n grows.
+  const f = (t, y) => y
+  const euler = VM.numerical.eulerSolve(f, 0, 1, 1, odeSteps)
+  const rk4 = VM.numerical.rk4Solve(f, 0, 1, 1, odeSteps)
+  const last = arr => arr[arr.length - 1]
+  return html`Euler error: <b>${Math.abs(last(euler.ys) - Math.E).toExponential(2)}</b> &nbsp; RK4 error: <b>${Math.abs(last(rk4.ys) - Math.E).toExponential(2)}</b>`
+}
+```
+
+## Quadrature and interpolation
+
+### VM.numerical.simpsonEstimate(f, lo, hi, n) {#simpsonEstimate}
+
+Composite Simpson's rule on `n` subintervals.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `f` | `(x) => number` | The integrand. |
+| `lo`, `hi` | `number` | The limits. |
+| `n` | `number` | Number of subintervals. **Must be even.** This is not validated; an odd `n` silently applies the wrong weights. |
+
+**Returns** `number`.
+
+::: {.callout-warning}
+Samples where `f` is not finite -- a pole, a domain error -- are **skipped** (they contribute zero), including the endpoints. So `simpsonEstimate(x => 1/x, 0, 1, n)` returns a finite, wrong number rather than `Infinity`. This is deliberate for a page where a reader is typing the integrand: one bad point shouldn't blank the whole estimate. Check the integrand yourself if you need a hard failure.
+:::
+
+```{ojs}
+VM.numerical.simpsonEstimate(Math.sin, 0, Math.PI, 10)   // exact value 2
+```
+
+### VM.numerical.lagrangeQuadratic(x0, y0, x1, y1, x2, y2, sampleCount) {#lagrangeQuadratic}
+
+Samples the unique quadratic through three points -- the parabola one Simpson panel integrates -- at `sampleCount + 1` evenly spaced abscissae from `x0` to `x2` inclusive, so it can be drawn.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `x0, y0, x1, y1, x2, y2` | `number` | The three points. The x-values must be distinct; a repeat divides by zero and fills `ys` with `Infinity`/`NaN`. |
+| `sampleCount` | `number` | Number of intervals between samples. |
+
+**Returns** `{xs: number[], ys: number[]}` with `sampleCount + 1` points.
+
+```{ojs}
+VM.numerical.lagrangeQuadratic(0, 0, 1, 1, 2, 4, 4)   // the parabola y = x² sampled at 0, .5, 1, 1.5, 2
+```

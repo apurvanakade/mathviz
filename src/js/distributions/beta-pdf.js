@@ -5,6 +5,15 @@
  */
 
 (function attachVM(globalThis) {
+  /**
+   * Beta density on the open interval `(0, 1)`.
+   *
+   * @param {number} x - `0` at and outside the endpoints, so `betaPdf(0, 1, 1)`
+   *   is `0` even though the density is `1` on the interior.
+   * @param {number} a - First shape parameter; must be `> 0`.
+   * @param {number} b - Second shape parameter; must be `> 0`.
+   * @returns {number}
+   */
   const betaPdf = (x, a, b) => {
     if (x <= 0 || x >= 1 || a <= 0 || b <= 0) return 0
     const logGamma = globalThis.VM.distributions.logGamma

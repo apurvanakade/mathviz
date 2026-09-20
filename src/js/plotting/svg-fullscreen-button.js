@@ -51,6 +51,14 @@
   // viewBox when there is one (Observable Plot and hand-built SVGs alike
   // set it), else explicit width/height, else null for "measure it". Pure,
   // and exported so it can be unit-tested without a DOM.
+  /**
+   * The width/height ratio an `<svg>` draws at, from its attributes.
+   *
+   * @param {{viewBox?: string, width?: string|number, height?: string|number}} attrs
+   * @returns {number|null} From a four-part `viewBox` when it has one, else
+   *   from `width`/`height` when both are positive, else `null` ("measure
+   *   it").
+   */
   const svgAspectRatio = ({viewBox, width, height}) => {
     if (typeof viewBox === "string") {
       const parts = viewBox.trim().split(/[\s,]+/)
@@ -68,6 +76,13 @@
 
   // The smallest box containing every given rect ({left, top, right,
   // bottom}); null for no rects. Pure, exported for the same reason.
+  /**
+   * The smallest box containing every given rect.
+   *
+   * @param {{left: number, top: number, right: number, bottom: number}[]} rects
+   * @returns {{left: number, top: number, right: number, bottom: number}|null}
+   *   `null` for an empty list.
+   */
   const figureBounds = (rects) => {
     let bounds = null
     for (const rect of rects) {

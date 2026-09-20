@@ -1,0 +1,41 @@
+---
+title: "API reference"
+subtitle: "Everything on `window.VM`, by category"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+The bundle attaches one global, `VM`, with a namespace per concern. Each source file adds one function (a few add two or three that belong together) and nothing here has hidden state beyond what's noted -- the theme functions read CSS at call time, the self-installing UI modules keep track of what they've enhanced.
+
+| Namespace | What's in it | Depends on |
+|---|---|---|
+| [`VM.expressions`](expressions.qmd) | typed formulas → JavaScript functions and numbers, never throwing | math.js (passed in) |
+| [`VM.numerical`](numerical.qmd) | Euler and RK4 steppers, Simpson's rule, a Lagrange parabola, L1/L2/polynomial fits | -- (`polynomialFit` takes math.js) |
+| [`VM.sampling`](sampling.qmd) | seeded uniform and Gaussian generators | -- |
+| [`VM.filters`](filters.qmd) | moving average, EMA, scalar Kalman | -- |
+| [`VM.distributions`](distributions.qmd) | 16 closed-form PDFs/PMFs, `logGamma`, `sampleCurve`, `histogramBins` | -- |
+| [`VM.plotting`](plotting.qmd) | the theme (`colors`, `layout`, `plotOptions`, …), theme detection, the Plotly patch, fullscreen helpers | Plotly for the patch; otherwise none |
+| [`VM.ui`](ui.qmd) | legend overlay, results table, example presets, slider playback | `renderTable` needs htl's `html` |
+| [`VM.discreteMath`](discrete-math.qmd) | triangulations and Sperner colorings | -- |
+
+## Conventions
+
+These hold across the whole surface, so each page states only its exceptions.
+
+**Bad input gives `null`, not an exception.** Anything that parses reader-typed text (`makeFunction`, `makeNumber`, `makeRational`) returns `null` when it can't; a fit with too few points returns `null`. Branch on it and draw an [`emptyState`](plotting.qmd#emptyState).
+
+**Outside a distribution's support you get `0`.** Never `NaN`, so a slider at an invalid parameter flattens a curve rather than breaking the chart.
+
+**math.js is passed in, not imported.** `VM.expressions.*` and `polynomialFit` take the math.js instance as their first argument -- the global `math` on a page rendered through the extension. The one exception is `makeRational`, which parses literals only and takes no instance.
+
+**Colors are read when you ask, not when the page loads.** `colors()`, `alpha()` and the three `discreteMath` color helpers return whatever the active theme says right now. Call them inside the cell that builds the traces, and make that cell depend on `vmTheme` so it re-runs on a toggle -- see [`onThemeChange`](plotting.qmd#onThemeChange).
+
+**Self-installing modules take no call.** The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the [markup contract](../markup.qmd).
+
+## Where the signatures live
+
+Every function's JSDoc in `src/js/<category>/<name>.js` is the authoritative signature; these pages restate it with context and a live example. A test (`src/docs-coverage.test.js`) fails the build if a `VM.*` member exists without a heading here, or vice versa, so the two can't drift.

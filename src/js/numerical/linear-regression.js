@@ -5,11 +5,19 @@
  */
 
 (function attachVM(globalThis) {
-  // Ordinary least-squares fit of a line y = slope*x + intercept through
-  // points [{x, y}, ...]. Returns {slope, intercept, xlo, xhi} (xlo/xhi are
-  // the first and last point's x, for drawing the fitted segment), or null
-  // if there are fewer than two points or the x-values don't vary (a
-  // vertical/degenerate fit).
+  /**
+   * Ordinary least-squares fit of a line `y = slope*x + intercept`. Every
+   * convergence-order plot uses this on `(log h, log error)` pairs, where
+   * the slope is the observed order.
+   *
+   * @param {{x: number, y: number}[]} points - The data, in the order the
+   *   fitted segment should be drawn.
+   * @returns {{slope: number, intercept: number, xlo: number, xhi: number}|null}
+   *   The fit, or `null` if there are fewer than two points or the
+   *   x-values don't vary (a vertical, degenerate fit). `xlo`/`xhi` are the
+   *   **first and last** point's `x` -- not the min and max -- so the
+   *   segment they describe covers the data only when `points` is sorted.
+   */
   const linearRegression = points => {
     if (points.length < 2) return null
 

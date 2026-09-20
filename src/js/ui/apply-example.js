@@ -52,6 +52,24 @@
   // selection, and a cell reactive on that value re-runs once per event —
   // two overlapping calls race to apply the same params, and the second
   // pass's field-recreation cascade can stomp the first pass's result.
+  /**
+   * Applies an example's parameter values to the page's `viewof` fields,
+   * then clicks the page's own "plot"/"run" button so the normal commit
+   * flow (recompute, rewrite the URL) happens with no reload or scroll.
+   *
+   * @param {Object<string, string>} fieldSelectors - `{paramKey: cssSelector}`,
+   *   plain strings looked up fresh with `document.querySelector` -- e.g.
+   *   `{fx: '[data-example-field="fx"]'}`. Never direct `viewof` references.
+   * @param {Object<string, *>} params - `{paramKey: value}`, applied in
+   *   insertion order with a 100 ms wait after **each** (including the
+   *   last), so a field whose bounds depend on an earlier one sees its
+   *   recreated view. Order upstream fields first. Keys with no selector,
+   *   or whose element isn't on the page, are skipped.
+   * @param {Element} triggerEl - An element containing the `<button>` to
+   *   click at the end (e.g. a `viewof` button's wrapper). Must not be
+   *   null; the click is skipped if it holds no button.
+   * @returns {Promise<void>}
+   */
   const applyExampleParams = async (fieldSelectors, params, triggerEl) => {
     for (const key in params) {
       const selector = fieldSelectors[key]

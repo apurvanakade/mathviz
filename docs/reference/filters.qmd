@@ -1,0 +1,117 @@
+---
+title: "VM.filters"
+subtitle: "One-dimensional smoothing and state estimation"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Three causal filters for a noisy scalar signal. All take a plain array and return one of the same length; none looks ahead, so each output matches what the filter would have produced running online, one sample at a time.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+```{ojs}
+//| echo: false
+noisy = {
+  const rng = VM.sampling.seededRandom(7)
+  const gaussian = VM.sampling.gaussianRandom(rng)
+  const zs = []
+  for (let i = 0; i < 60; i++) zs.push(Math.sin(i / 8) + 0.3 * gaussian())
+  return zs
+}
+```
+
+### VM.filters.movingAverageFilter(xs, k) {#movingAverageFilter}
+
+Simple moving average: `output[i]` is the mean of the last `k` samples ending at `i`. Near the start, where fewer than `k` samples have arrived, it averages whatever is available.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `xs` | `number[]` | The signal. |
+| `k` | `number` | Window size. Rounded to the nearest integer and floored at 1, so a slider value of `0` or `2.4` is accepted. |
+
+**Returns** `number[]`, same length as `xs`.
+
+### VM.filters.emaFilter(xs, alpha, initial?) {#emaFilter}
+
+Exponential moving average, a.k.a. a first-order low-pass filter: `s_i = alpha·s_{i−1} + (1 − alpha)·x_i`.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `xs` | `number[]` | The signal. |
+| `alpha` | `number` | Smoothing factor in `[0, 1]`: `0` passes the signal through, `1` never moves off the initial value. Not clamped. |
+| `initial` | `number` (optional) | A prior going into the very first update, so `s_0 = alpha·initial + (1 − alpha)·x_0` -- e.g. the known true starting state instead of the first noisy sample. Without it `s_0 = x_0`. This is the analogue of `kalman1DFilter`'s `x0`. |
+
+**Returns** `number[]`, same length as `xs`.
+
+### VM.filters.kalman1DStep(prev, z, opts) {#kalman1DStep}
+
+One predict+update step of the scalar Kalman filter, for a page that consumes measurements as they arrive and has no array to loop over.
+
+```
+predict:  xHat⁻ = xHat_{i−1},   P⁻ = P_{i−1} + Q
+update:   K = P⁻ / (P⁻ + R),   xHat = xHat⁻ + K·(z − xHat⁻),   P = (1 − K)·P⁻
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `prev` | `{xHat, P}` | The previous estimate and its error variance. |
+| `z` | `number` | The new measurement. |
+| `opts.R` | `number` | Assumed measurement-noise variance. |
+| `opts.Q` | `number` | Assumed process-noise variance -- how far the true state is expected to drift between samples. Both are beliefs the filter is given, not estimated from the data. |
+
+**Returns** `{xHat, P, K}` -- the updated estimate, its error variance, and the gain used for this step.
+
+### VM.filters.kalman1DFilter(zs, opts) {#kalman1DFilter}
+
+Runs `kalman1DStep` over a precomputed array.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `zs` | `number[]` | | The measurements. |
+| `opts.R` | `number` | | Measurement-noise variance. |
+| `opts.Q` | `number` | | Process-noise variance. |
+| `opts.x0` | `number` | `zs[0]` | Initial estimate. |
+| `opts.P0` | `number` | `opts.R` | Initial error variance -- "the first estimate is as uncertain as one measurement". Not `1`, not `Q`. |
+
+**Returns** `{xs, Ps, Ks}` -- estimate, error variance and gain after each step, each the same length as `zs` (all empty for an empty input).
+
+## The three side by side
+
+```{ojs}
+viewof filterK = Inputs.range([1, 15], {label: "moving-average window k", step: 1, value: 5})
+viewof filterAlpha = Inputs.range([0, 0.99], {label: "EMA alpha", step: 0.01, value: 0.8})
+viewof filterQ = Inputs.range([0.0001, 0.1], {label: "Kalman Q", step: 0.0001, value: 0.005})
+```
+```{ojs}
+{
+  const ma = VM.filters.movingAverageFilter(noisy, filterK)
+  const ema = VM.filters.emaFilter(noisy, filterAlpha)
+  const kal = VM.filters.kalman1DFilter(noisy, {R: 0.09, Q: filterQ}).xs
+  const c = chartColors   // reactive on the theme, so the lines repaint on a toggle
+  const rows = []
+  for (let i = 0; i < noisy.length; i++) {
+    rows.push({i, series: "measured", y: noisy[i]})
+    rows.push({i, series: "moving average", y: ma[i]})
+    rows.push({i, series: "EMA", y: ema[i]})
+    rows.push({i, series: "Kalman", y: kal[i]})
+  }
+  return Plot.plot(VM.plotting.plotOptions({
+    height: 320,
+    x: {label: "sample"}, y: {label: null},
+    color: {legend: true, domain: ["measured", "moving average", "EMA", "Kalman"], range: [c.muted, c.alt, c.ok, c.fn]},
+    marks: [
+      Plot.dot(rows.filter(d => d.series === "measured"), {x: "i", y: "y", stroke: "series", r: 2}),
+      Plot.line(rows.filter(d => d.series !== "measured"), {x: "i", y: "y", stroke: "series", strokeWidth: 2})
+    ]
+  }))
+}
+```

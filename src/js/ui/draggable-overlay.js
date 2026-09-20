@@ -54,6 +54,22 @@
   // container. Transforms don't affect layout, so those stay a fixed
   // reference to measure from no matter what translate is currently applied
   // -- which is what lets this be re-run at any time without drift.
+  /**
+   * Clamps a proposed drag offset so no part of the legend leaves its
+   * chart block.
+   *
+   * @param {Object} args
+   * @param {number} args.dx - Proposed horizontal offset from the CSS anchor.
+   * @param {number} args.dy - Proposed vertical offset.
+   * @param {number} args.offsetLeft - The panel's layout position in the container.
+   * @param {number} args.offsetTop
+   * @param {number} args.width - The panel's size.
+   * @param {number} args.height
+   * @param {number} args.containerWidth - The chart block's size.
+   * @param {number} args.containerHeight
+   * @returns {{dx: number, dy: number}} A panel larger than its container
+   *   is pinned to the near edge rather than given a crossed range.
+   */
   const clampOverlayOffset = ({dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight}) => {
     return {
       dx: clampValue(dx, -offsetLeft, containerWidth - offsetLeft - width),
@@ -63,6 +79,17 @@
 
   // One key per panel per chart per page. The vml- prefix matches the site's
   // other stored values (vml-sidebar-pinned, vml-analytics-consent).
+  /**
+   * The `localStorage` key under which a dragged panel's offset is kept:
+   * `"vml-overlay-pos:<pathname>:<role>:<index>"`. The module uses
+   * `location.pathname`, `"legend"`, and the panel's `.ojs-chart-block`
+   * index on the page; the value is `JSON.stringify({dx, dy})`.
+   *
+   * @param {string} pathname
+   * @param {string} role
+   * @param {number} index
+   * @returns {string}
+   */
   const overlayStorageKey = (pathname, role, index) => `${KEY_PREFIX}:${pathname}:${role}:${index}`
 
   globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, clampOverlayOffset, overlayStorageKey}}

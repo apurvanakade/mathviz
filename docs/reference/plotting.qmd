@@ -1,0 +1,291 @@
+---
+title: "VM.plotting"
+subtitle: "The chart theme, the Plotly patch, and the fullscreen buttons"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Everything a chart needs to look like part of the page: one theme read live from the [`--vm-*` tokens](../theming.qmd), applied to Plotly and Observable Plot alike, and following the light/dark toggle the moment it flips.
+
+Two things to hold onto:
+
+1. **Every function reads the tokens at call time, from `document.body`.** Call `colors()` inside the cell that builds traces; never cache the result in a module-level constant. (Why `body`: the dark tokens are declared on a selector that matches `<body>`, so `<html>` reports the light values even in dark mode -- the origin of a white tooltip on a dark chart.)
+2. **On a page rendered through the extension, the Plotly patch is already installed.** `Plotly.newPlot(div, data, {xaxis: {title: "x"}}, {})` gets the full theme, tooltip style, pan-by-default and the shared modebar with no `VM.plotting.*` call at all. The theme functions are for what the patch can't reach: the colors you bake into traces, and Observable Plot.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## Palette
+
+### VM.plotting.colors() {#colors}
+
+A fresh snapshot of the chart palette for whichever theme is active right now, read from the `--vm-color-<name>` tokens. Keyed by **role**, not hue, so a page reads `colors.fn` rather than repeating `"#2563eb"`.
+
+| Key | Role on a chart | Light default | Dark default |
+|---|---|---|---|
+| `fn` | the function itself, the primary trace | `#2563eb` | `#8ab4ff` |
+| `alt` | an alternate or reference trace | `#dc2626` | `#f87171` |
+| `ok` | a converged / correct / "good" marker | `#16a34a` | `#4ade80` |
+| `muted` | de-emphasized data, history | `#94a3b8` | `#7d8aa3` |
+| `ink` | strokes and labels that should read as text | `#111827` | `#c9cedb` |
+| `warn` | a warning, a diverging iterate | `#f59e0b` | `#fbbf24` |
+| `accent2` | a third series | `#9333ea` | `#c084fc` |
+| `accent3` | a fourth series | `#0d9488` | `#2dd4bf` |
+| `halo` | the ring around a marker -- white on light, the page background on dark. Use it instead of `"white"`. | `#ffffff` | `#171b29` |
+
+**Returns** `{fn, alt, ok, muted, ink, warn, accent2, accent3, halo}` as CSS color strings. Falls back to the light hexes when no stylesheet is loaded.
+
+Any argument is ignored. The idiom `VM.plotting.colors(vmTheme)` exists purely to make the OJS cell depend on `vmTheme` -- see [`onThemeChange`](#onThemeChange).
+
+```{ojs}
+chartColors
+```
+
+```{ojs}
+//| echo: false
+{
+  const row = document.createElement("div")
+  row.style.cssText = "display:flex;gap:.5rem;flex-wrap:wrap"
+  for (const name of Object.keys(chartColors)) {
+    const chip = document.createElement("div")
+    chip.style.cssText = `width:5.5rem;padding:.4rem .5rem;border-radius:6px;border:1px solid var(--vm-border);background:${VM.plotting.alpha(chartColors[name], 0.25)};font:12px var(--vm-font-sans)`
+    chip.innerHTML = `<span style="display:inline-block;width:.8rem;height:.8rem;border-radius:50%;background:${chartColors[name]};vertical-align:-1px;margin-right:.3rem"></span>${name}`
+    row.appendChild(chip)
+  }
+  return row
+}
+```
+
+### VM.plotting.colorway() {#colorway}
+
+The trace color cycle -- `colors()` in role order minus `halo`, so a trace Plotly or Plot colors automatically never lands on the background color. Already set on `layout()` and `plotOptions()`.
+
+**Returns** `string[]`: `[fn, alt, ok, muted, ink, warn, accent2, accent3]`.
+
+### VM.plotting.alpha(token, opacity) {#alpha}
+
+The same hue as a palette token (or any color string) at a given opacity, for a translucent fill that pairs with a solid stroke. An `rgba(...)` literal stays light-mode-colored after a toggle while its own stroke lightens, so fill and stroke drift apart; this doesn't.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `token` | `string` | A palette role (`"fn"`, `"ok"`, …) resolved through `colors()`, or a `#rgb` / `#rrggbb` / `rgb(...)` / `rgba(...)` string. |
+| `opacity` | `number` | `0`..`1`; not clamped. |
+
+**Returns** `"rgba(r, g, b, opacity)"`. An input that can't be parsed (a CSS named color, `hsl(...)`, a non-string) is returned **unchanged**.
+
+```{ojs}
+[VM.plotting.alpha("ok", 0.2), VM.plotting.alpha("#ff0000", 0.5), VM.plotting.alpha("rebeccapurple", 0.5)]
+```
+
+### VM.plotting.subscript(value) {#subscript}
+
+Replaces each digit with its Unicode subscript, for iteration labels in Plotly trace `text` -- which is plain text with no markup, so `"x_0"` renders with a literal underscore.
+
+**Returns** `string`; non-digit characters pass through.
+
+```{ojs}
+["x" + VM.plotting.subscript(0), "x" + VM.plotting.subscript(12), VM.plotting.subscript("n=3")]
+```
+
+## Theme detection
+
+### VM.plotting.themeName() {#themeName}
+
+Which theme is active right now, by testing the dark selector against `<body>` and then `<html>`.
+
+**Returns** `"light" | "dark"` (`"light"` when there is no `document`).
+
+```{ojs}
+vmTheme   // this cell re-runs on every toggle -- try it
+```
+
+### VM.plotting.onThemeChange(callback) {#onThemeChange}
+
+Calls `callback(themeName())` now, synchronously, and again after every **real** theme change. It observes `class` and `data-bs-theme` on both `<body>` and `<html>`, waits two animation frames (Quarto flips the class and swaps the stylesheet as separate steps, class first), and compares the theme name before calling -- so unrelated body-class churn (a sidebar opening) fires nothing.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `callback` | `(theme: "light" \| "dark") => void` | |
+
+**Returns** `() => void`, a teardown that disconnects the observer (a no-op when there's no `document.body` or `MutationObserver`; the initial call still happens).
+
+The shape is exactly what `Generators.observe` wants, which gives the two-line pattern every chart page needs:
+
+```js
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+Now any cell that reads `chartColors` re-runs on a toggle. **This is what makes trace colors follow the theme.** Chart chrome (axes, grid, tooltip) is re-themed for you by a `relayout` the patch performs, but a color you baked into a trace is a value the page chose, and only re-running the cell changes it.
+
+### VM.plotting.configure(overrides?) {#configure}
+
+Adjusts the module's settings. The only setting is `darkSelector`: the selector list that means "dark mode", tested against `<body>` and `<html>`. Default:
+
+```css
+body.quarto-dark, html[data-bs-theme="dark"], body[data-bs-theme="dark"], html.vm-dark, body.vm-dark
+```
+
+A site whose toggle uses none of these calls `VM.plotting.configure({darkSelector: ".my-dark"})` once at load, and declares its dark `--vm-*` tokens under that same selector. Keep the selectors root-scoped (`html`/`body`); an unscoped `[data-bs-theme="dark"]` matches Quarto's `<nav>` and leaks the dark palette into the navbar.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `overrides` | `{darkSelector?: string}` | Merged in when it's an object; anything else is ignored. Keys are not validated. |
+
+**Returns** a copy of the settings now in effect.
+
+## Building a chart
+
+### VM.plotting.layout(overrides?) {#layout}
+
+The shared Plotly layout, themed from the live tokens:
+
+- transparent `paper_bgcolor` / `plot_bgcolor`, so the page's own background shows through (no `#E5ECF6` plate, no white box in dark mode)
+- `font` in `--vm-font-sans`, `--vm-text`; axes, ticks, gridlines in `--vm-text-soft` / `--vm-border` / `--vm-grid`, `automargin: true`
+- `colorway()`, `hoverLabel()`, themed `modebar` colors, `textfont` for trace labels
+- a `transition` of 300 ms `cubic-in-out` (`0` under `prefers-reduced-motion`; while a [slider playback](ui.qmd#playbackTweenMs) sweep runs, shortened to the gap between values so the tween lands before the next one arrives)
+- small non-zero `margin` (`{l: 8, r: 12, t: 12, b: 8}`) that `automargin` grows as needed
+
+| Parameter | Type | Description |
+|---|---|---|
+| `overrides` | `object` (optional) | **Deep-merged** on top, so `{xaxis: {title: "x", range: [0, 1]}}` extends the shared axis chrome rather than replacing it. Arrays and primitives replace wholesale. |
+
+**Returns** a Plotly layout object.
+
+::: {.callout-warning title="Don't pass `margin: {l: 0, r: 0, t: 0, b: 0}`"}
+It was a common convention and it defeats `automargin`: the rotated y-title and tick labels end up jammed against the container edge.
+:::
+
+With the patch installed this is merged under every `newPlot`/`react` layout automatically. Calling it explicitly is harmless and makes the dependency visible.
+
+### VM.plotting.config(overrides?) {#config}
+
+`{responsive: true, displaylogo: false}`, deep-merged with `overrides`. The patch also applies this and then sets the modebar button list on top.
+
+### VM.plotting.hoverLabel() {#hoverLabel}
+
+The themed tooltip style: `--vm-surface` background, `--vm-border` border, left-aligned, 12 px `--vm-font-sans` in `--vm-text`.
+
+It has to be set on **each trace**, not only the layout -- Plotly derives a trace's tooltip background from that trace's own color unless the trace sets `hoverlabel` itself, so a layout-level default never actually shows. The patch injects it onto every trace that doesn't set one. Call it yourself only for a chart built outside the patch.
+
+### VM.plotting.emptyState(message) {#emptyState}
+
+A centered message for an empty plot area, as an `annotations` array. Use it whenever the page's computation bailed out; without it an unparseable input draws an empty grid indistinguishable from a valid-but-empty result.
+
+```js
+annotations: f ? [] : VM.plotting.emptyState("Couldn't parse that expression")
+```
+
+**Returns** a one-element Plotly `annotations` array at paper coordinates `(0.5, 0.5)` in `--vm-text-soft`.
+
+### VM.plotting.autoResize(div) {#autoResize}
+
+Keeps a graph div sized to its container, and stops once the div leaves the document. Every chart built detached (the usual OJS pattern: create a `div`, `Plotly.newPlot` into it, return it) needs this, because Plotly measures 0×0 at `newPlot` time. A bare `ResizeObserver` outlives its div and throws `"Resize must be passed a displayed plot div element."` once a re-run replaces it; this one disconnects itself.
+
+**Returns** the `ResizeObserver`, or `null` where `ResizeObserver` doesn't exist. Skips resizing while the div is hidden (`display: none`) and is safe when Plotly isn't loaded.
+
+### VM.plotting.paddedRange(values, opts?) {#paddedRange}
+
+A `{lo, hi}` axis range covering an array of values with some breathing room.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `values` | `number[]` | | Non-finite entries are ignored. |
+| `opts.emptyRange` | `[number, number]` | `[-1, 1]` | Returned when `values` has no finite entry. |
+| `opts.relativePadding` | `number` | `0.1` | Padding as a fraction of the span `hi − lo`. |
+| `opts.minPadding` | `number` | `0.5` | Floor on the padding, for small or zero spans (every value identical). |
+
+**Returns** `{lo, hi}`.
+
+```{ojs}
+[VM.plotting.paddedRange([1, 2, 3, NaN, 10]), VM.plotting.paddedRange([5, 5, 5]), VM.plotting.paddedRange([])]
+```
+
+### VM.plotting.plotOptions(overrides?) {#plotOptions}
+
+The Observable Plot equivalent of `layout()`: same font, grid color and `colorway`, so a `Plot.plot` under a Plotly chart reads as the same chart system.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `overrides` | `object` (optional) | Deep-merged on top. If it names an `x` or `y` scale without a `stroke`, that axis is stroked in `--vm-border`; scales it doesn't name are left for Plot to default. |
+
+**Returns** options for `Plot.plot(...)`.
+
+```{ojs}
+{
+  const pts = []
+  for (let i = 0; i <= 40; i++) pts.push({x: i / 4, y: Math.exp(-i / 16) * Math.cos(i / 3)})
+  return Plot.plot(VM.plotting.plotOptions({
+    height: 220, x: {label: "t"}, y: {label: "damped"},
+    marks: [Plot.line(pts, {x: "x", y: "y", stroke: chartColors.fn, strokeWidth: 2}), Plot.ruleY([0])]
+  }))
+}
+```
+
+### VM.plotting.themePatch() {#themePatch}
+
+The theme-dependent style attributes as a **flat**, dotted-path object for `Plotly.relayout` -- `{"xaxis.gridcolor": …, "hoverlabel.bgcolor": …, colorway: […]}`. `relayout` replaces whatever attribute each key names wholesale, so a nested `{xaxis: {...}}` would wipe the page's own `xaxis.title`/`range`; dotted keys patch only the one sub-property. The patch runs this over every live `.js-plotly-plot` on each theme flip. A page shouldn't need to call it.
+
+**Returns** an object with 24 keys.
+
+## The Plotly patch
+
+On load (and again on `DOMContentLoaded`) the library wraps `Plotly.newPlot` and `Plotly.react`. Every chart on the page then gets, with no per-page code:
+
+- `layout()` merged **under** the page's layout
+- `hoverLabel()` on every trace that lacks a `hoverlabel`
+- `dragmode: "pan"`, unless the page set its own
+- `config()` merged under the page's config, then this modebar:
+
+  | Group | Buttons |
+  |---|---|
+  | 1 | download PNG |
+  | 2 | box zoom, pan |
+  | 3 | zoom in, zoom out (each step scales the visible span by **1.25×**, not Plotly's 2×, which overshoots when framing a curve), autoscale, reset |
+  | 4 | fullscreen |
+
+  Box select and lasso are absent. The list is spelled out as `config.modeBarButtons`, replacing whatever a page passes there -- which is safe only because every chart the library targets is 2-D cartesian.
+
+- a `relayout(themePatch())` on every theme flip
+
+The patch is idempotent and a silent no-op when `Plotly` isn't on the page (`mathviz: {plotly: false}`).
+
+### VM.plotting.installPlotlyPatch() {#installPlotlyPatch}
+
+Runs the patch. Only needed when Plotly arrives **later** than the bundle and `DOMContentLoaded` -- a dynamic import, say.
+
+**Returns** `true` once patched (also when already patched); `false` when `Plotly` isn't on the page.
+
+### VM.plotting.fullscreenButton {#fullscreenButton}
+
+The fullscreen modebar button, as a Plotly custom-button object: `{name: "fullscreen", title, icon: {width, height, path}, click(gd)}`. The patch adds it to every chart; a page touches this only to reuse its glyph (`VM.plotting.fullscreenButton.icon` -- Bootstrap Icons' `arrows-fullscreen`), or to add it to a chart built outside the patch via `modeBarButtonsToAdd`.
+
+Clicking fullscreens the nearest `.ojs-chart-block` -- so the controls bar and legend come along -- or, without one, the graph div itself; a second click exits. Before entering it records the chart's aspect ratio as `--vm-plot-aspect-ratio` on the div so the CSS can letterbox it.
+
+## SVG fullscreen helpers
+
+Charts drawn as inline SVG (Observable Plot, hand-built `<svg>`) have no modebar. Give the wrapper `class="ojs-chart-block ojs-svg-block"` and the library appends one persistent fullscreen button pinned to the figure's top-right corner -- see the [markup contract](../markup.qmd#ojs-svg-block). These two pure helpers are what it measures with; they're exported for unit tests and for a page that wants to do the same arithmetic.
+
+### VM.plotting.svgAspectRatio({…}) {#svgAspectRatio}
+
+Takes `{viewBox, width, height}`. The width/height ratio an `<svg>` draws at, from its attributes: a four-part `viewBox` when it has one, else `width`/`height` when both are positive.
+
+**Returns** `number | null` (`null` means "measure it").
+
+```{ojs}
+[VM.plotting.svgAspectRatio({viewBox: "0 0 640 400"}), VM.plotting.svgAspectRatio({width: "300", height: "150"}), VM.plotting.svgAspectRatio({})]
+```
+
+### VM.plotting.figureBounds(rects) {#figureBounds}
+
+The smallest box containing every given `{left, top, right, bottom}`.
+
+**Returns** `{left, top, right, bottom} | null` (`null` for an empty list).

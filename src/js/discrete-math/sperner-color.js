@@ -5,13 +5,25 @@
  */
 
 (function attachVM(globalThis) {
-  // Colors a barycentric triple [a, b, c] (a + b + c = N) satisfying
-  // Sperner's condition: each vertex of the outer triangle (two of the
-  // three coordinates are 0) gets its own fixed color -- (0,0,N) red,
-  // (N,0,0) green, (0,N,0) blue -- each boundary edge point (one
-  // coordinate is 0) gets one of its two endpoint colors uniformly at
-  // random, and each interior point gets any of the three colors
-  // uniformly at random.
+  /**
+   * Colors a barycentric triple so that the whole labelling satisfies
+   * Sperner's condition: the three outer vertices get fixed colors --
+   * `(0,0,N)` red, `(N,0,0)` green, `(0,N,0)` blue -- a point on a boundary
+   * edge (one coordinate zero) gets one of that edge's two endpoint colors
+   * uniformly at random, and an interior point gets any of the three
+   * uniformly at random.
+   *
+   * Uses `Math.random()`, so it is not reproducible; a page that needs a
+   * URL-shareable coloring should draw its own randomness from
+   * {@link VM.sampling.seededRandom} and apply the same rules.
+   *
+   * @param {number} a
+   * @param {number} b
+   * @param {number} c
+   * @returns {'red'|'green'|'blue'} A color **name** -- the key every
+   *   Sperner helper compares against. Draw it through
+   *   {@link vertexColor}.
+   */
   const spernerColor = (a, b, c) => {
     if (a === 0 && b === 0) return 'red'
     if (b === 0 && c === 0) return 'green'

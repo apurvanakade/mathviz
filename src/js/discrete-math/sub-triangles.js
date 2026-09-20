@@ -5,9 +5,14 @@
  */
 
 (function attachVM(globalThis) {
-  // Enumerates the small triangles of a uniform order-N triangulation as
-  // triples of barycentric triples [[i,j,k], [i,j,k], [i,j,k]], covering
-  // both the "upward" and "downward" pointing triangles.
+  /**
+   * The small triangles of a uniform order-`N` triangulation, each as a
+   * triple of barycentric triples: the `N(N+1)/2` "upward" triangles
+   * first, then the `N(N-1)/2` "downward" ones.
+   *
+   * @param {number} N - The order.
+   * @returns {number[][][]} `N²` triangles, each `[[i,j,k], [i,j,k], [i,j,k]]`.
+   */
   const subTriangleTriples = (N) => {
     const triangles = []
     for (let i = 0; i < N; i++) {

@@ -1,0 +1,62 @@
+---
+title: "VM.sampling"
+subtitle: "Reproducible random numbers"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Two generator factories. Each returns a zero-argument function you call for the next value, so a page seeds once and draws as many samples as it needs -- and because the seed can live in the URL, a link reproduces exactly the same "random" data.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+```
+
+### VM.sampling.seededRandom(seed) {#seededRandom}
+
+A deterministic [mulberry32](https://github.com/bryc/code/blob/master/jshash/PRNGs.md#mulberry32) generator: the same seed always produces the same sequence.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `seed` | `number` | Coerced to a 32-bit unsigned integer (`seed >>> 0`), so `1.7` and `1` are the same seed. |
+
+**Returns** `() => number`, uniform on `[0, 1)`.
+
+```{ojs}
+viewof seed = Inputs.range([0, 9999], {label: "seed", step: 1, value: 42})
+```
+```{ojs}
+{
+  const rng = VM.sampling.seededRandom(seed)
+  const out = []
+  for (let i = 0; i < 5; i++) out.push(rng().toFixed(4))
+  return out
+}
+```
+
+### VM.sampling.gaussianRandom(rng) {#gaussianRandom}
+
+Box-Muller transform: turns a uniform generator into a standard-normal one (mean 0, variance 1). For any other normal, scale and shift the output: `mean + sd * gaussian()`.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `rng` | `() => number` | A uniform `[0, 1)` generator -- typically `seededRandom`'s return value. Two draws are consumed per sample. |
+
+**Returns** `() => number`, standard normal.
+
+```{ojs}
+{
+  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(seed))
+  let sum = 0, sumSq = 0
+  const n = 10000
+  for (let i = 0; i < n; i++) { const z = gaussian(); sum += z; sumSq += z * z }
+  const mean = sum / n
+  return html`Over ${n} draws: mean <b>${mean.toFixed(3)}</b>, variance <b>${(sumSq / n - mean * mean).toFixed(3)}</b>`
+}
+```
+
+See the [distribution explorer recipe](../recipes/distribution-explorer.qmd) for these feeding a histogram under a theoretical curve.

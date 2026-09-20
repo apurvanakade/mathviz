@@ -13,8 +13,18 @@
   // too much precision once degree approaches the point count (e.g. degree
   // 9 through 10 points, an exact interpolation rather than a loose fit).
   //
-  // Returns {coeffs, evaluate, totalSquaredError}, or null if there are
-  // fewer points than coefficients (degree + 1) or the system is singular.
+  /**
+   * Least-squares polynomial fit of a given degree.
+   *
+   * @param {Object} mathjs - A math.js instance (its LU solver does the linear algebra).
+   * @param {{x: number, y: number}[]} points - The data.
+   * @param {number} degree - Degree of the polynomial; there must be at least `degree + 1` points.
+   * @returns {{coeffs: number[], evaluate: (x: number) => number, totalSquaredError: number}|null}
+   *   `coeffs` are `[c0, c1, ..., c_degree]` in increasing power, `evaluate`
+   *   is the fitted polynomial as a function, and `totalSquaredError` is the
+   *   sum of squared residuals over `points`. `null` if there are fewer
+   *   points than coefficients or the normal equations are singular.
+   */
   const polynomialFit = (mathjs, points, degree) => {
     const numCoeffs = degree + 1
     if (points.length < numCoeffs) return null

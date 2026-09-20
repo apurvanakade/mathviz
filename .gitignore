@@ -1,6 +1,9 @@
 node_modules
-example.html
-example_files/
+# Rendered documentation site (_quarto.yml: output-dir). Published to the
+# gh-pages branch by .github/workflows/docs.yml, never committed.
+_site/
 .quarto/
 
 /.luarc.json
+
+/.quarto/

@@ -19,8 +19,10 @@ Authors: Apurva Nakade
 
 A minimal page that uses the extension in place (this file sits next to
 `_extensions/`, so no `quarto add` is needed). `quarto render example.qmd`
-and open the result; toggle the theme in the navbar to see the chart, the
-panel and the <span class="vm-swatch vm-swatch-alt">red</span> swatch follow.
+writes `_site/example.html`; open it and toggle the theme in the navbar to
+see the chart, the panel and the <span class="vm-swatch vm-swatch-alt">red</span>
+swatch follow. The [documentation site](docs/index.qmd) walks through this
+page cell by cell.
 
 ```{ojs}
 //| echo: false

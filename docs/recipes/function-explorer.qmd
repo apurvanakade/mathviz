@@ -1,0 +1,132 @@
+---
+title: "Function explorer"
+subtitle: "A text field, a derivative, a tangent line, and a legend that toggles them"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Type a function; see it, its derivative, and the tangent at a point. The legend floats over the chart and can be dragged. A bad expression marks the field red and puts a message in the plot.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## The panel
+
+The expression field validates itself on every keystroke: `makeFunction` returns `null` for anything unparseable, and the field toggles `vm-invalid` to say so. The `x₀` field accepts any constant expression -- `pi/2`, `sqrt(2)` -- through `makeNumber`.
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+viewof fxText = {
+  const view = Inputs.text({label: "f(x)", value: "x^3 - 3x", placeholder: "an expression in x"})
+  view.classList.add("ojs-fill")
+  const input = view.querySelector("input")
+  const check = () => input.classList.toggle("vm-invalid", VM.expressions.makeFunction(math, input.value) === null)
+  view.addEventListener("input", check)
+  check()
+  return view
+}
+```
+```{ojs}
+viewof x0Text = Inputs.text({label: "tangent at x₀", value: "1"})
+```
+:::
+
+## The result cell
+
+One cell turns text into numbers, so the chart cell has nothing to parse. Returning `null` here is what the chart branches on.
+
+```{ojs}
+result = {
+  const f = VM.expressions.makeFunction(math, fxText)
+  const df = VM.expressions.makeDerivative(math, fxText)
+  const x0 = VM.expressions.makeNumber(math, x0Text)
+  if (f === null || df === null || x0 === null) return null
+  const xs = [], ys = [], dys = []
+  for (let i = 0; i <= 400; i++) {
+    const x = -4 + 8 * i / 400
+    xs.push(x); ys.push(f(x)); dys.push(df(x))
+  }
+  const slope = df(x0)
+  const y0 = f(x0)
+  return {xs, ys, dys, x0, y0, slope}
+}
+```
+
+## The chart block
+
+The legend is a `viewof` cell **inside** the chart block, before the chart cell -- CSS gives it `order: -1` and floats it over the chart's top-left corner. Its value is the list of checked labels; the chart cell maps each trace's `visible` off that list, so clicking a legend row re-runs only the chart cell.
+
+::: {.ojs-chart-block}
+```{ojs}
+viewof shown = VM.ui.legendOverlay([
+  {label: "f(x)", color: chartColors.fn},
+  {label: "f′(x)", color: chartColors.alt},
+  {label: "tangent at x₀", color: chartColors.ok}
+])
+```
+```{ojs}
+mainPlot = {
+  const data = []
+  if (result !== null) {
+    const {xs, ys, dys, x0, y0, slope} = result
+    data.push({name: "f(x)", x: xs, y: ys, line: {color: chartColors.fn, width: 2.5}})
+    data.push({name: "f′(x)", x: xs, y: dys, line: {color: chartColors.alt, width: 1.5, dash: "dot"}})
+    data.push({name: "tangent at x₀", x: [x0 - 1.5, x0 + 1.5], y: [y0 - 1.5 * slope, y0 + 1.5 * slope], line: {color: chartColors.ok, width: 2}})
+    data.push({name: "x₀", x: [x0], y: [y0], mode: "markers", marker: {color: chartColors.ok, size: 11, line: {color: chartColors.halo, width: 2}}, showlegend: false, hovertemplate: "x₀ = %{x}<br>f(x₀) = %{y:.4f}<extra></extra>"})
+  }
+  for (const trace of data) {
+    if (trace.name === "x₀") trace.visible = shown.includes("tangent at x₀")
+    else trace.visible = shown.includes(trace.name) ? true : "legendonly"
+  }
+  const yRange = VM.plotting.paddedRange(result ? result.ys : [], {emptyRange: [-4, 4]})
+  const div = document.createElement("div")
+  div.className = "plotly-box-large"
+  div.style.height = "420px"; div.style.minHeight = "0"
+  Plotly.newPlot(div, data, VM.plotting.layout({
+    showlegend: false,
+    xaxis: {title: "x", range: [-4, 4]},
+    yaxis: {range: [yRange.lo, yRange.hi]},
+    annotations: result ? [] : VM.plotting.emptyState("Couldn't parse the expression or x₀")
+  }), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+::: {.callout-tip title="Why `showlegend: false`"}
+Plotly's own legend would duplicate the overlay. The overlay controls visibility through `visible: "legendonly"` -- the same state Plotly's legend uses -- so hovering and autoscale behave as if the trace were legend-hidden.
+:::
+
+## The markup
+
+````markdown
+::: {.ojs-panel .ojs-row}
+```{ojs}
+viewof fxText = ...
+```
+```{ojs}
+viewof x0Text = ...
+```
+:::
+
+```{ojs}
+result = { ... }
+```
+
+::: {.ojs-chart-block}
+```{ojs}
+viewof shown = VM.ui.legendOverlay([...])
+```
+```{ojs}
+mainPlot = { ... }
+```
+:::
+````

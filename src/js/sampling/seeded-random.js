@@ -5,9 +5,15 @@
  */
 
 (function attachVM(globalThis) {
-  // Deterministic mulberry32 PRNG factory: the same seed always produces
-  // the same sequence, which is what lets a page's noisy demo data stay
-  // reproducible from a URL-shared seed. Returns () => number in [0, 1).
+  /**
+   * Deterministic mulberry32 PRNG factory: the same seed always produces
+   * the same sequence, which is what lets a page's noisy demo data stay
+   * reproducible from a URL-shared seed.
+   *
+   * @param {number} seed - Any number; coerced to a 32-bit unsigned integer
+   *   (`seed >>> 0`), so `1.7` and `1` are the same seed.
+   * @returns {() => number} A generator of uniform values in `[0, 1)`.
+   */
   const seededRandom = (seed) => {
     let state = seed >>> 0
     return () => {

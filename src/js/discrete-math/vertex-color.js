@@ -14,8 +14,18 @@
   // (js/plotting/chart-theme.js), read at CALL time so a cell that re-runs
   // on a theme toggle repaints: red -> alt, green -> ok, blue -> fn. The
   // prose swatches in swatch.css (.vm-swatch-alt / -ok / -accent) use the
-  // same three tokens, so a swatch and a dot agree. Returns null for
-  // anything that isn't one of the three names.
+  // same three tokens, so a swatch and a dot agree.
+  /**
+   * The display color for a Sperner color **name**, read from the live
+   * chart palette at call time: `'red'` → `colors().alt`, `'green'` →
+   * `colors().ok`, `'blue'` → `colors().fn`. Use it at the moment of
+   * drawing -- `fill: d => VM.discreteMath.vertexColor(d.color)` -- never
+   * `fill: "red"`, which is not the site's red and doesn't lighten in dark
+   * mode.
+   *
+   * @param {string} name - `'red'`, `'green'` or `'blue'`.
+   * @returns {string|null} A CSS color, or `null` for any other name.
+   */
   const vertexColor = (name) => {
     const colors = globalThis.VM.plotting.colors();
     if (name === 'red') return colors.alt;

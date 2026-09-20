@@ -1,0 +1,108 @@
+---
+title: "Troubleshooting"
+subtitle: "Symptom → cause → fix"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Each of these has happened on a real page. The cause is usually one of three things: a token read from the wrong element, a value baked in at build time that should have been read at draw time, or a wrapper class missing from the markup.
+
+## Charts and theme
+
+**The chart has a pale blue plot area, or a white box, on the dark theme.**
+The layout isn't themed. On a page rendered through the extension the Plotly patch merges [`layout()`](reference/plotting.qmd#layout) under every chart, so this means either Plotly loaded *after* `mathviz.js` (a hand-written `<script>` order; the extension gets it right) or the page passed `mathviz: {plotly: false}` and loads Plotly itself. Fix the order, or call `VM.plotting.installPlotlyPatch()` after Plotly is available.
+
+**The axes and grid follow the toggle but the traces stay light-mode colored.**
+Trace colors are values the page baked in; only re-running the cell changes them. Add the two-line pattern at the top of the page and read `chartColors.fn` in the chart cell -- [Theming: following the theme](theming.qmd#following-the-theme-in-a-chart).
+
+**A translucent fill stays light-mode colored while its stroke lightens.**
+An `rgba(...)` literal. Use `VM.plotting.alpha("ok", 0.2)` and make the cell depend on `chartColors`.
+
+**The hover tooltip is a white box with unreadable text on the dark theme.**
+Two possible causes. If it's your own token-reading code: you read from `document.documentElement`; the dark tokens are declared on selectors matching `<body>`, so `<html>` reports light values -- read from `document.body` ([why](theming.qmd#why-js-reads-from-body)). If it's a chart built outside the patch: Plotly derives a trace's tooltip background from the trace's own color unless the trace sets `hoverlabel`; set [`hoverLabel()`](reference/plotting.qmd#hoverLabel) on each trace, not only on the layout.
+
+**A marker's white ring is invisible in dark mode / glaring in light mode.**
+`line: {color: "white"}`. Use `chartColors.halo` -- white on light, the page background on dark.
+
+**Colors read in a cell are correct after a toggle, but a stored array of colored things isn't.**
+The storing cell ran before the toggle and doesn't depend on the theme. Add a bare `chartColors;` line at the top of it.
+
+**The theme toggles but my `onThemeChange` callback sees the old colors.**
+You aren't using `onThemeChange`. Quarto flips the body class and swaps the stylesheet as separate steps; a synchronous observer reads the outgoing theme. `onThemeChange` waits two frames for this reason.
+
+**The whole chart rebuilds when the sidebar opens, or on some unrelated interaction.**
+A body-class observer with no theme comparison. `onThemeChange` compares `themeName()` inside its deferred callback and fires only on a real change; use it rather than a bare `MutationObserver`.
+
+**The dark palette leaks into the navbar on a light page.**
+A dark selector that isn't root-scoped -- a bare `[data-bs-theme="dark"]`. Quarto sets that attribute on its `<nav>`. Match on `html`/`body` only, in both `tokens.css` and `configure({darkSelector})`.
+
+**`Resize must be passed a displayed plot div element.`**
+A `ResizeObserver` outliving its div: the cell re-ran, built a new div, and the old observer kept firing on the detached one. Use [`autoResize`](reference/plotting.qmd#autoResize), which disconnects itself.
+
+**The y-axis title and tick labels are jammed against the container edge.**
+`margin: {l: 0, r: 0, t: 0, b: 0}` in the page's layout, which defeats `automargin`. Remove it; `layout()` provides small non-zero margins that `automargin` grows.
+
+**An unparseable formula draws an empty grid.**
+Branch on the `null` from `makeFunction` and pass [`emptyState`](reference/plotting.qmd#emptyState) as the `annotations`.
+
+**The chart is 0 px tall / doesn't appear.**
+The graph div has no height. Give it `plotly-box-large` or a `style.height`, and call `autoResize` -- the div was built detached, so Plotly measured 0×0.
+
+**Zoom in/out jumps too far; there's a box-select button I don't want.**
+The patch isn't installed (see the first item). It replaces the modebar with 1.25× zoom steps and no select tools.
+
+## Panels and controls
+
+**The legend disappeared / appears as a thin strip.**
+The legend cell isn't inside an `.ojs-chart-block`. Quarto's `.cell-output-display` is a scroll container that clips escaping descendants; the block's rules turn that off for the cells inside it.
+
+**A floating panel I built is cut in half.**
+Same clip. No `z-index` fixes it; only leaving the clip does. Render floating UI as a native `[popover]` (top layer), as the playback popover does.
+
+**Two-column grid overflows the right edge by ~70 px.**
+Observable Inputs' forms have a fixed `360px` width. The `ojs-panel` rules override it -- the controls aren't inside a panel.
+
+**Labels wrap onto three lines above a slider.**
+Observable's `120px` label column. Inside `.ojs-panel` or `.ojs-chart-controls` labels are freed; outside them they aren't.
+
+**Doubled border and background around a panel.**
+An `ojs-panel` nested inside another. Nest a bare `ojs-row`/`ojs-grid` div instead.
+
+**A slider has no play button.**
+It isn't inside `.ojs-panel` or `.ojs-chart-controls`, or something above it has `data-vm-play="off"`, or it has no `<form>` ancestor (a raw `<input type="range">` outside Observable Inputs).
+
+**The playback popover opens under the navbar / off the right edge.**
+Shouldn't happen -- it clears `#quarto-header`, `.navbar.fixed-top` and the window edge. If your site's fixed header uses another selector, the panel may open under it; file an issue with the selector.
+
+**`applyExampleParams` applies the first fields and then a later one snaps back.**
+Field order: a field whose bounds depend on an earlier one (a step slider capped by "max") must come *after* it in `params`. Or: you called it from a cell reactive on a `<select>`, which fires twice per selection; call it from one DOM listener on a stable element.
+
+**`applyExampleParams` loops forever / the page freezes with history-API throttling.**
+`fieldSelectors` holds `viewof` references instead of selector strings. See [why](reference/ui.qmd#applyExampleParams).
+
+**A table renders unstyled.**
+`renderTable` emits Bootstrap classes (`table table-sm table-bordered`). On a non-Bootstrap page bring your own table styles or target `.ojs-table-container table`.
+
+## Build and install
+
+**`quarto add` says the extension isn't found, or a symlinked `_extensions/mathviz` isn't used.**
+Quarto checks `isDirectory()` on the raw directory entry, so a symlink is skipped. Use `quarto add /path/to/mathviz --no-prompt`, which copies.
+
+**`Version mismatch: package.json=… _extension.yml=… mathviz.lua=…`**
+The build refuses to run until the three agree. Bump all three.
+
+**CI fails with "dist/ is out of date".**
+A change under `src/` without `npm run build`. Run it and commit `dist/` and `_extensions/mathviz/dist/`.
+
+**`(intermediate value)(...) is not a function` on page load.**
+Two source files concatenated without a `;` between them (`})(window)` followed by `(function` parses as a call). The build inserts the separator; this only appears if `dist/` was hand-edited or built another way.
+
+**A new function isn't in `window.VM` in the browser.**
+Its file isn't listed in `src/manifest.mjs` -- `npm test` fails with the name. Add it after anything it reads at load time.
+
+**`npm test` fails with "documents … but exported …".**
+The docs-coverage test: a `VM.*` member exists without a `### VM.<category>.<name>` heading in `docs/reference/<category>.qmd`, or a heading names something that doesn't exist. Add or fix the entry.

@@ -5,6 +5,13 @@
  */
 
 (function attachVM(globalThis) {
+  /**
+   * Student's t density with `k` degrees of freedom.
+   *
+   * @param {number} x
+   * @param {number} k - Degrees of freedom (any real `> 0`, not only an integer); otherwise `0`.
+   * @returns {number}
+   */
   const studentTPdf = (x, k) => {
     if (k <= 0) return 0
     const logGamma = globalThis.VM.distributions.logGamma

@@ -15,6 +15,17 @@
     -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7
   ]
 
+  /**
+   * Natural log of the Gamma function, ln Γ(x), by Lanczos approximation
+   * (g = 7, n = 9; reflection formula below 0.5). Every factorial and
+   * Beta-function normalizing constant in `VM.distributions` goes through
+   * this in log space, which is why `binomialPmf(k, 500, p)` doesn't
+   * overflow on the way to a perfectly ordinary answer.
+   *
+   * @param {number} x - Any real except `0` and the negative integers,
+   *   where Γ has poles; those return `Infinity`/`NaN` (no guard).
+   * @returns {number} ln Γ(x); accurate to ~15 significant digits for `x > 0`.
+   */
   const logGamma = (x) => {
     if (x < 0.5) {
       // Reflection formula: Gamma(x) * Gamma(1-x) = pi / sin(pi*x).

@@ -1,0 +1,40 @@
+# Copyright (c) 2026 Apurva Nakade. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Apurva Nakade
+
+# Renders the docs site (_quarto.yml at the repo root: docs/** plus
+# example.qmd, through the extension in place) and publishes it to the
+# gh-pages branch, which GitHub Pages serves at
+# https://apurvanakade.github.io/mathviz/.
+#
+# One-time setup, done once by hand: `quarto publish gh-pages` from a local
+# checkout creates the branch, and Settings -> Pages -> Source must point at
+# it. After that this workflow keeps it current.
+#
+# No Node or engine setup: the OJS cells run in the reader's browser, so a
+# render needs only Quarto and the committed dist/.
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: docs-publish
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: quarto-dev/quarto-actions/setup@v2
+      - uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -8,6 +8,16 @@
   // The density of e^X for X ~ Normal(mean, variance) -- note the parameters
   // describe the underlying normal, not the lognormal's own mean and
   // variance, which are exp(mu + s2/2) and (e^s2 - 1) e^(2mu + s2).
+  /**
+   * Log-normal density: the distribution of `e^X` for
+   * `X ~ Normal(mean, variance)`. The parameters describe the **underlying
+   * normal**, not the log-normal's own mean and variance.
+   *
+   * @param {number} x - `0` for `x <= 0`.
+   * @param {number} mean - Mean of `ln X`.
+   * @param {number} variance - Variance of `ln X`; must be `> 0`.
+   * @returns {number}
+   */
   const lognormalPdf = (x, mean, variance) => {
     if (x <= 0 || variance <= 0) return 0
     const z = Math.log(x) - mean

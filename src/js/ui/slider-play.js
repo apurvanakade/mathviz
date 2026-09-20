@@ -56,6 +56,19 @@
   // be swept" (a degenerate range -- e.g. a "Max" of 1 leaves a [0, 0]
   // slider), and the caller stops rather than spinning a timer that can never
   // move.
+  /**
+   * Total length of one end-to-end sweep of a slider, in ms: 350 ms per
+   * stop, clamped to 2–10 s, divided by `speed`.
+   *
+   * @param {Object} args
+   * @param {number} args.min
+   * @param {number} args.max
+   * @param {number} args.step - Non-finite or `<= 0` means `step="any"`;
+   *   the sweep then uses 100 stops.
+   * @param {number} args.speed - A multiplier; non-finite or `<= 0` is treated as `1`.
+   * @returns {number} `0` when the slider can't be swept (`max <= min`, or
+   *   a non-finite bound).
+   */
   const playbackDuration = ({min, max, step, speed}) => {
     const stops = stopCount({min, max, step})
     if (stops === 0) return 0
@@ -71,6 +84,22 @@
   // fraction `start` of the track. Returns the value snapped to the slider's
   // own step grid, the direction it is currently travelling (for a bounce),
   // and whether the sweep is finished.
+  /**
+   * Where a sweep's thumb should be after `elapsed` ms.
+   *
+   * @param {Object} args
+   * @param {number} args.min
+   * @param {number} args.max
+   * @param {number} args.step - As in {@link playbackDuration}.
+   * @param {number} args.elapsed - Milliseconds since the sweep started.
+   * @param {number} args.duration - From {@link playbackDuration}.
+   * @param {"once"|"loop"|"bounce"} args.mode - Anything else behaves as `"once"`.
+   * @param {number} args.start - Fraction of the track the sweep began at (`0`..`1`).
+   * @returns {{value: number, direction: 1|-1, done: boolean}} `value` is
+   *   snapped to the step grid and clamped into `[min, max]`; `direction`
+   *   is `-1` only on a bounce's return leg; `done` is `true` once a
+   *   `"once"` sweep reaches the end, and for any degenerate input.
+   */
   const playbackFrame = ({min, max, step, elapsed, duration, mode, start}) => {
     if (!Number.isFinite(min) || !Number.isFinite(max)) {
       return {value: min, direction: 1, done: true}
@@ -124,6 +153,14 @@
     return {value, direction, done}
   }
 
+  /**
+   * `VM.ui.playbackTweenMs` -- the chart transition length, in ms, that
+   * {@link VM.plotting.layout} should use right now: `0` while no sweep is
+   * running, otherwise 90% of the gap between consecutive slider values,
+   * capped at 300. Read it; don't set it.
+   *
+   * @type {number}
+   */
   globalThis.VM = {
     ...globalThis.VM,
     ui: {...globalThis.VM?.ui, playbackDuration, playbackFrame, playbackTweenMs: 0}
@@ -623,4 +660,4 @@
   } else {
     start()
   }
-})(globalThis);
+})(window)

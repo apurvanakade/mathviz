@@ -1,0 +1,115 @@
+---
+title: "VM.expressions"
+subtitle: "Turn typed formulas into JavaScript functions and numbers, safely"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Every function here takes a [math.js](https://mathjs.org) instance as its first argument -- on a page rendered through the extension that is the global `math` -- and an expression string as typed by a reader. The string is normalized first (trimmed, `π` replaced by `pi`), then compiled. **Nothing here throws on bad input**: an expression that can't be parsed gives `null`, and a compiled function that fails at a point (a domain error, say) gives `NaN` there. Branch on the `null` and draw an [`emptyState`](plotting.qmd#emptyState) rather than an empty grid.
+
+The one exception to the pattern is [`makeRational`](#makeRational), which takes no math.js instance and parses only literals.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+```
+
+### VM.expressions.makeFunction(mathjs, expr) {#makeFunction}
+Compiles an expression in `x` into a plain `(x) => number`.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `mathjs` | math.js instance | The global `math` on a page that loads it. |
+| `expr` | `string` | An expression in `x`, e.g. `"sin(x) + x^2/4"`. |
+
+**Returns** `((x: number) => number) | null` -- `null` if the expression can't be parsed. The returned function yields `NaN` (never throws) where evaluation fails.
+
+```{ojs}
+viewof fxText = Inputs.text({label: "f(x) =", value: "sin(x) + x^2/4"})
+```
+```{ojs}
+{
+  const f = VM.expressions.makeFunction(math, fxText)
+  if (f === null) return html`<em>Couldn't parse that.</em>`
+  return html`f(0) = <b>${f(0)}</b>, f(π) = <b>${f(Math.PI).toFixed(4)}</b>, f("a") = <b>${f("a")}</b>`
+}
+```
+
+### VM.expressions.makeDerivative(mathjs, expr) {#makeDerivative}
+Like `makeFunction`, but compiles the **symbolic derivative** df/dx via `math.derivative`.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `mathjs` | math.js instance | |
+| `expr` | `string` | An expression in `x`. |
+
+**Returns** `((x: number) => number) | null` -- `null` if the expression can't be parsed or differentiated.
+
+```{ojs}
+{
+  const df = VM.expressions.makeDerivative(math, "x^3 - 2x")
+  return html`d/dx (x³ − 2x) at x = 2: <b>${df(2)}</b> (expect 10)`
+}
+```
+
+### VM.expressions.makeNumber(mathjs, expr) {#makeNumber}
+Evaluates a **constant** expression to a JavaScript number. Use it for every numeric field on a page -- an initial guess, an endpoint, a step count -- so readers can type `pi/4` or `2^10`, not only literals.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `mathjs` | math.js instance | |
+| `expr` | `string` | A constant expression, e.g. `"1 + 2*3 + pi - e"`. |
+
+**Returns** `number | null` -- `null` if the expression can't be parsed, references a free variable, or doesn't evaluate to a finite number.
+
+```{ojs}
+[VM.expressions.makeNumber(math, "1 + 2*3 + pi - e"), VM.expressions.makeNumber(math, "x + 1"), VM.expressions.makeNumber(math, "1/0")]
+```
+
+### VM.expressions.makeFunction2(mathjs, expr) {#makeFunction2}
+Compiles an expression in `t` and `y` into a two-argument `(t, y) => number`: the right-hand side of a first-order ODE `y' = f(t, y)`, in the shape [`eulerSolve`](numerical.qmd#eulerSolve) and [`rk4Solve`](numerical.qmd#rk4Solve) take.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `mathjs` | math.js instance | |
+| `expr` | `string` | An expression in `t` and `y`, e.g. `"y - t^2 + 1"`. |
+
+**Returns** `((t: number, y: number) => number) | null`.
+
+```{ojs}
+{
+  const f = VM.expressions.makeFunction2(math, "y - t^2 + 1")
+  return html`f(t = 0, y = 0.5) = <b>${f(0, 0.5)}</b>`
+}
+```
+
+### VM.expressions.makeFunctionOfT(mathjs, expr) {#makeFunctionOfT}
+Like `makeFunction`, but the free variable is `t` -- for a parametric curve `x(t)`, `y(t)` or anything else where time is the natural parameter.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `mathjs` | math.js instance | |
+| `expr` | `string` | An expression in `t`, e.g. `"cos(2t)"`. |
+
+**Returns** `((t: number) => number) | null`.
+
+### VM.expressions.makeRational(expr) {#makeRational}
+Parses a rational-number **literal** into an exact reduced fraction -- for displaying a Butcher-tableau coefficient as `1/6` rather than `0.16666666666666666`.
+
+Unlike its siblings this takes **no math.js instance** and evaluates nothing. Only three forms are accepted:
+
+| Form | Examples |
+|---|---|
+| integer | `"3"`, `"-3"` |
+| fraction of integers | `"1/2"`, `"-1 / 3"` |
+| decimal | `"0.25"`, `".5"`, `"-2.75"` |
+
+**Returns** `{num: number, den: number} | null` -- numerator and denominator in lowest terms with `den > 0`; `null` for an empty string, a zero denominator, or anything else (`"1/2 + 1"`, `"pi"`, `"1e3"`, `"1."` all return `null`).
+
+```{ojs}
+["6/-8", "0.125", "-3", "1/2 + 1", "1/0"].map(s => [s, VM.expressions.makeRational(s)])
+```

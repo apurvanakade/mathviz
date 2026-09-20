@@ -19,8 +19,24 @@
   // below re-renders each item's checked state, so a programmatic set stays
   // visually in sync with a user click.
   //
-  // items: [{label, color}, ...] in display (and returned-array) order.
-  // options.value: initially-checked labels; defaults to every label.
+  /**
+   * A floating legend of clickable swatch+label rows that toggles which
+   * traces a chart shows. It is an Observable *view*: drop it into
+   * `viewof shown = VM.ui.legendOverlay(items)` and `shown` is the array
+   * of checked labels. Place the cell inside the chart's `.ojs-chart-block`;
+   * the CSS floats it over the chart and `draggable-overlay.js` makes it
+   * draggable with no further wiring.
+   *
+   * @param {{label: string, color: string}[]} items - Rows, in display order.
+   * @param {Object} [options]
+   * @param {string[]} [options.value] - The initially checked labels; every
+   *   label by default.
+   * @returns {HTMLDivElement} A `div.ojs-legend-overlay` with a `value`
+   *   accessor (`string[]`, in `items` order; the setter accepts any
+   *   iterable, or `null` to clear) that dispatches a bubbling `"input"`
+   *   event on each user toggle -- but not on a programmatic set, matching
+   *   Observable Inputs. Uses only DOM APIs; no `htl`/`Inputs` dependency.
+   */
   const legendOverlay = (items, options = {}) => {
     const selected = new Set(options.value ?? items.map(item => item.label))
 

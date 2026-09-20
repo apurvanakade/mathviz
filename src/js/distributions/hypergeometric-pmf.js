@@ -18,6 +18,17 @@
     return logGamma(n + 1) - logGamma(k + 1) - logGamma(n - k + 1)
   }
 
+  /**
+   * Hypergeometric mass: the probability of exactly `k` successes when
+   * drawing `n` items **without replacement** from a population of `N`
+   * that contains `K` successes.
+   *
+   * @param {number} k - Successes drawn; `0` outside the support described above.
+   * @param {number} N - Population size (`>= 1`).
+   * @param {number} K - Successes in the population (`0 <= K <= N`).
+   * @param {number} n - Draws (`0 <= n <= N`).
+   * @returns {number} `0` for any invalid parameter combination.
+   */
   const hypergeometricPmf = (k, N, K, n) => {
     if (!Number.isInteger(k) || k < 0) return 0
     if (k > n || k > K || n - k > N - K) return 0

@@ -5,11 +5,16 @@
  */
 
 (function attachVM(globalThis) {
-  // Like VM.expressions.makeFunction, but binds the free variable as `t`
-  // instead of `x` -- for pages where the natural parameter name is time
-  // (e.g. a parametric curve x(t), y(t)) rather than a spatial coordinate.
-  // Returns a JS function (t => number) or null if the expression can't be
-  // parsed. The returned function returns NaN on evaluation errors.
+  /**
+   * Like {@link makeFunction}, but binds the free variable as `t` instead of
+   * `x` -- for pages where the natural parameter is time (a parametric
+   * curve `x(t)`, `y(t)`) rather than a spatial coordinate.
+   *
+   * @param {Object} mathjs - A math.js instance.
+   * @param {string} expr - An expression in `t`, e.g. `"cos(2t)"`.
+   * @returns {((t: number) => number)|null} The compiled function, or `null`
+   *   if the expression can't be parsed. Yields `NaN` where evaluation fails.
+   */
   const makeFunctionOfT = (mathjs, expr) => {
     const normalized = String(expr).trim().replaceAll("π", "pi")
     try {

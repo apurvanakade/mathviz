@@ -1,0 +1,115 @@
+---
+title: "mathviz"
+subtitle: "Themed charts, control panels and numerical helpers for interactive math pages"
+toc: false
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+mathviz is the machinery behind [Visual Math Lab](https://www.visualmathlab.com), packaged so any site can use it: a **Quarto extension** that drops into an OJS page with one line of front matter, and the same code as a **plain script bundle** for everything else.
+
+Every chart, panel and slider on this site is drawn by the library itself. Toggle the theme in the navbar and watch them follow.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+//| echo: false
+viewof heroF = Inputs.text({label: "f(x)", value: "sin(x) + x/3"})
+```
+```{ojs}
+//| echo: false
+viewof heroK = Inputs.range([0.5, 4], {label: "k", step: 0.05, value: 1})
+```
+:::
+
+::: {.ojs-chart-block}
+```{ojs}
+//| echo: false
+{
+  const f = VM.expressions.makeFunction(math, heroF)
+  const df = VM.expressions.makeDerivative(math, heroF)
+  const xs = [], ys = [], dys = []
+  for (let i = 0; i <= 400; i++) {
+    const x = -6 + 12 * i / 400
+    xs.push(x)
+    ys.push(f ? f(heroK * x) : NaN)
+    dys.push(df ? heroK * df(heroK * x) : NaN)
+  }
+  const div = document.createElement("div")
+  div.className = "plotly-box-large"
+  div.style.height = "380px"; div.style.minHeight = "0"
+  Plotly.newPlot(div, [
+    {x: xs, y: ys, name: "f(kx)", line: {color: chartColors.fn, width: 2.5}},
+    {x: xs, y: dys, name: "d/dx f(kx)", line: {color: chartColors.alt, width: 1.5, dash: "dot"}}
+  ], {
+    xaxis: {title: "x"},
+    legend: {x: 0.01, y: 0.99},
+    annotations: f ? [] : VM.plotting.emptyState("Couldn't parse that expression")
+  })
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+## What you get
+
+- **Themed charts.** Plotly and Observable Plot read the same fonts, grid, palette and tooltip style from CSS custom properties, live -- so charts follow your site's light/dark toggle and re-theme the instant it flips. The Plotly patch does this to every chart on the page with no per-page code.
+- **A modebar worth using.** Fullscreen, gentler zoom steps, pan by default, no box/lasso select.
+- **Control-panel CSS** that lays Observable `Inputs.*` out into a tidy panel, and keeps step sliders directly above a chart -- also in fullscreen.
+- **Slider playback**: every range slider in a panel gets a play/pause button with speed and loop/bounce options.
+- **A floating, draggable legend** that toggles traces and remembers where you put it.
+- **Numerical helpers**: safe expression parsing via math.js, ODE steppers, quadrature, least-squares, sixteen closed-form densities, seeded random numbers, 1-D filters, Sperner triangulations.
+
+## Install
+
+::: {.panel-tabset}
+
+## Quarto
+
+```sh
+quarto add apurvanakade/mathviz
+```
+
+```yaml
+# _quarto.yml
+filters:
+  - mathviz
+```
+
+That's it -- math.js, Plotly, `mathviz.js` and `mathviz.css` are in every page's `<head>`, in that order, served from your own `site_libs/`.
+
+## Any web page
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.js"></script>
+```
+
+Load Plotly **before** the bundle.
+
+:::
+
+Details, options and pinning: [Installing](install.qmd).
+
+## Where next
+
+| | |
+|---|---|
+| [Your first chart](first-chart.qmd) | The chart above, explained cell by cell -- the pattern every page follows. |
+| [Theming](theming.qmd) | Every `--vm-*` token, how dark mode is detected, how to make the palette yours. |
+| [Markup contract](markup.qmd) | The `ojs-*` classes and data attributes the CSS and self-installing modules look for. |
+| [API reference](reference/index.qmd) | Every `VM.*` function, with live examples. |
+| [Recipes](recipes/index.qmd) | Complete pages to copy: a function explorer, an ODE with a convergence plot, a distribution explorer, … |
+| [Troubleshooting](troubleshooting.qmd) | Symptom → cause → fix. |

@@ -107,10 +107,22 @@
     })
   }
 
-  // A Plotly modebar button (add via config.modeBarButtonsToAdd) that
-  // toggles the graph div into the browser's native fullscreen mode.
   // Icon path is Bootstrap Icons' "arrows-fullscreen" (MIT), matching the
   // rest of the site's iconography.
+  /**
+   * The fullscreen modebar button, in Plotly's custom-button shape. The
+   * patch adds it to every chart; a page only touches this to reuse its
+   * glyph (`VM.plotting.fullscreenButton.icon`, as the SVG fullscreen
+   * button does) or to add it to a chart built outside the patch.
+   *
+   * Clicking fullscreens the nearest `.ojs-chart-block` (so the controls
+   * bar and legend come along) or, without one, the graph div itself, and
+   * exits when that element is already fullscreen.
+   *
+   * @type {{name: "fullscreen", title: string,
+   *   icon: {width: number, height: number, path: string},
+   *   click: (gd: HTMLElement) => void}}
+   */
   const fullscreenButton = {
     name: "fullscreen",
     title: "Toggle fullscreen",
@@ -249,6 +261,15 @@
   // once at load and once more on DOMContentLoaded, so a Plotly tag placed
   // after this one is still picked up; a page that loads Plotly later than
   // that (dynamic import) calls VM.plotting.installPlotlyPatch() itself.
+  /**
+   * Patches `Plotly.newPlot` and `Plotly.react` so every chart gets the
+   * themed layout, per-trace hover labels, `dragmode: "pan"` (unless the
+   * page set one) and the shared modebar. Runs by itself at load and on
+   * `DOMContentLoaded`; call it only when Plotly arrives later than that.
+   *
+   * @returns {boolean} `true` once patched (also when already patched);
+   *   `false` when `Plotly` isn't on the page.
+   */
   const installPlotlyPatch = () => {
     const Plotly = globalThis.Plotly
     if (!Plotly || typeof Plotly.newPlot !== "function") return false

@@ -5,9 +5,13 @@
  */
 
 (function attachVM(globalThis) {
-  // Picks 'red', 'green', or 'blue' uniformly at random, ignoring position --
-  // used to demonstrate what happens when Sperner's boundary condition is
-  // violated.
+  /**
+   * Picks one of the three Sperner color names uniformly at random,
+   * ignoring position -- for demonstrating what happens when the boundary
+   * condition {@link spernerColor} enforces is violated.
+   *
+   * @returns {'red'|'green'|'blue'}
+   */
   const randomColor = () => {
     const r = Math.random()
     if (r < 1 / 3) return 'red'

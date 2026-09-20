@@ -5,9 +5,17 @@
  */
 
 (function attachVM(globalThis) {
-  // Returns a JS function ((t, y) => number) or null if the expression
-  // can't be parsed. The returned function returns NaN on evaluation
-  // errors. Used for ODE right-hand sides y' = f(t, y).
+  /**
+   * Compiles an expression in `t` and `y` into a two-argument function --
+   * the right-hand side of a first-order ODE `y' = f(t, y)`, in the shape
+   * {@link VM.numerical.eulerSolve} and {@link VM.numerical.rk4Solve} take.
+   *
+   * @param {Object} mathjs - A math.js instance.
+   * @param {string} expr - An expression in `t` and `y`, e.g. `"y - t^2 + 1"`.
+   * @returns {((t: number, y: number) => number)|null} The compiled
+   *   function, or `null` if the expression can't be parsed. Yields `NaN`
+   *   where evaluation fails.
+   */
   const makeFunction2 = (mathjs, expr) => {
     const normalized = String(expr).trim().replaceAll("π", "pi")
     try {

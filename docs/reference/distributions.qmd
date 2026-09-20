@@ -1,0 +1,217 @@
+---
+title: "VM.distributions"
+subtitle: "Closed-form densities and masses, plus two helpers to plot them"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Every `*Pdf` and `*Pmf` is a pure `(x, …params) => number` evaluated straight from the formula -- no sampling, no random numbers -- so a curve drawn from one is exact and doesn't jitter when a slider moves. Conventions, so you don't have to check each one:
+
+- **Out of support or an invalid parameter returns `0`**, never `NaN`, `null` or a throw. A slider dragged to `variance = 0` draws a flat line, not a broken chart.
+- **Discrete masses return `0` at non-integer `k`.** Sample them with `sampleCurve(..., {discrete: true})`.
+- Parameterizations are called out where textbooks disagree: `normalPdf` takes a **variance**, `gammaPdf` a **rate**, `weibullPdf` a **scale**, `geometricPmf` counts **trials until the first success**.
+- Every factorial and Beta-function normalizing constant goes through `logGamma`, in log space, so `binomialPmf(k, 500, p)` is an ordinary number rather than an overflow.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## Explorer
+
+Every distribution below, drawn through `sampleCurve`. The parameter sliders are the function's own arguments in order.
+
+```{ojs}
+//| echo: false
+families = new Map([
+  ["normalPdf(x, mean, variance)",       {fn: (x, a, b) => VM.distributions.normalPdf(x, a, b),       lo: -6, hi: 6,  p: [[-3, 3, 0.1, 0], [0.1, 4, 0.1, 1]]}],
+  ["exponentialPdf(x, rate)",            {fn: (x, a) => VM.distributions.exponentialPdf(x, a),          lo: 0,  hi: 6,  p: [[0.1, 3, 0.1, 1]]}],
+  ["gammaPdf(x, shape, rate)",           {fn: (x, a, b) => VM.distributions.gammaPdf(x, a, b),          lo: 0,  hi: 12, p: [[0.5, 8, 0.1, 2], [0.2, 3, 0.1, 1]]}],
+  ["chiSquaredPdf(x, k)",                {fn: (x, a) => VM.distributions.chiSquaredPdf(x, a),           lo: 0,  hi: 12, p: [[1, 10, 1, 3]]}],
+  ["betaPdf(x, a, b)",                   {fn: (x, a, b) => VM.distributions.betaPdf(x, a, b),           lo: 0,  hi: 1,  p: [[0.5, 6, 0.1, 2], [0.5, 6, 0.1, 3]]}],
+  ["studentTPdf(x, k)",                  {fn: (x, a) => VM.distributions.studentTPdf(x, a),             lo: -5, hi: 5,  p: [[1, 30, 1, 3]]}],
+  ["fPdf(x, d1, d2)",                    {fn: (x, a, b) => VM.distributions.fPdf(x, a, b),              lo: 0,  hi: 5,  p: [[1, 20, 1, 5], [1, 20, 1, 10]]}],
+  ["lognormalPdf(x, mean, variance)",    {fn: (x, a, b) => VM.distributions.lognormalPdf(x, a, b),      lo: 0,  hi: 6,  p: [[-1, 1.5, 0.1, 0], [0.05, 1.5, 0.05, 0.25]]}],
+  ["cauchyPdf(x, location, scale)",      {fn: (x, a, b) => VM.distributions.cauchyPdf(x, a, b),         lo: -6, hi: 6,  p: [[-3, 3, 0.1, 0], [0.1, 3, 0.1, 1]]}],
+  ["weibullPdf(x, shape, scale)",        {fn: (x, a, b) => VM.distributions.weibullPdf(x, a, b),        lo: 0,  hi: 4,  p: [[0.5, 5, 0.1, 1.5], [0.2, 3, 0.1, 1]]}],
+  ["bernoulliPmf(k, p)",                 {fn: (k, a) => VM.distributions.bernoulliPmf(k, a),            lo: -1, hi: 2,  p: [[0, 1, 0.05, 0.3]], discrete: true}],
+  ["binomialPmf(k, n, p)",               {fn: (k, a, b) => VM.distributions.binomialPmf(k, a, b),       lo: 0,  hi: 30, p: [[1, 30, 1, 12], [0, 1, 0.05, 0.4]], discrete: true}],
+  ["poissonPmf(k, lambda)",              {fn: (k, a) => VM.distributions.poissonPmf(k, a),              lo: 0,  hi: 25, p: [[0.1, 15, 0.1, 4]], discrete: true}],
+  ["geometricPmf(k, p)",                 {fn: (k, a) => VM.distributions.geometricPmf(k, a),            lo: 0,  hi: 20, p: [[0.05, 1, 0.05, 0.3]], discrete: true}],
+  ["negativeBinomialPmf(k, r, p)",       {fn: (k, a, b) => VM.distributions.negativeBinomialPmf(k, a, b), lo: 0, hi: 40, p: [[1, 10, 1, 3], [0.05, 1, 0.05, 0.4]], discrete: true}],
+  ["hypergeometricPmf(k, N, K, n)",      {fn: (k, a, b, c) => VM.distributions.hypergeometricPmf(k, a, b, c), lo: 0, hi: 20, p: [[5, 60, 1, 40], [0, 40, 1, 15], [1, 30, 1, 12]], discrete: true}]
+])
+```
+
+::: {.ojs-panel .ojs-grid}
+```{ojs}
+//| echo: false
+viewof familyName = Inputs.select([...families.keys()], {label: "Distribution", value: "gammaPdf(x, shape, rate)"})
+```
+```{ojs}
+//| echo: false
+family = families.get(familyName)
+paramNames = familyName.slice(familyName.indexOf(",") + 1, -1).split(",").map(s => s.trim())
+```
+```{ojs}
+//| echo: false
+viewof p0 = family.p.length > 0 ? Inputs.range([family.p[0][0], family.p[0][1]], {label: paramNames[0], step: family.p[0][2], value: family.p[0][3]}) : Inputs.input(0)
+```
+```{ojs}
+//| echo: false
+viewof p1 = family.p.length > 1 ? Inputs.range([family.p[1][0], family.p[1][1]], {label: paramNames[1], step: family.p[1][2], value: family.p[1][3]}) : Inputs.input(0)
+```
+```{ojs}
+//| echo: false
+viewof p2 = family.p.length > 2 ? Inputs.range([family.p[2][0], family.p[2][1]], {label: paramNames[2], step: family.p[2][2], value: family.p[2][3]}) : Inputs.input(0)
+```
+:::
+
+::: {.ojs-chart-block}
+```{ojs}
+//| echo: false
+{
+  const curve = VM.distributions.sampleCurve(x => family.fn(x, p0, p1, p2), family.lo, family.hi, {discrete: family.discrete === true})
+  const trace = family.discrete
+    ? {x: curve.xs, y: curve.ys, type: "bar", marker: {color: VM.plotting.alpha(chartColors.fn, 0.6), line: {color: chartColors.fn, width: 1.5}}, width: 0.6}
+    : {x: curve.xs, y: curve.ys, mode: "lines", line: {color: chartColors.fn, width: 2.5}}
+  const div = document.createElement("div")
+  div.style.height = "340px"
+  Plotly.newPlot(div, [trace], {xaxis: {title: family.discrete ? "k" : "x"}, yaxis: {title: family.discrete ? "P(K = k)" : "density", rangemode: "tozero"}, showlegend: false})
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+## Helpers
+
+### VM.distributions.logGamma(x) {#logGamma}
+
+ln Γ(x) by Lanczos approximation (g = 7, n = 9; reflection formula below 0.5), accurate to ~15 significant digits for `x > 0`. The shared building block behind every normalizing constant here; useful directly for `log(n choose k) = logGamma(n+1) − logGamma(k+1) − logGamma(n−k+1)`.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `x` | `number` | Any real except `0` and the negative integers (poles); those return `Infinity`/`NaN` with no guard. |
+
+**Returns** `number`.
+
+```{ojs}
+[VM.distributions.logGamma(5), Math.log(24), VM.distributions.logGamma(0.5), Math.log(Math.sqrt(Math.PI))]
+```
+
+### VM.distributions.sampleCurve(fn, lo, hi, opts?) {#sampleCurve}
+
+Samples a function over `[lo, hi]` into parallel arrays ready for a Plotly trace or a `Plot.line`.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `fn` | `(x) => number` | | Typically a `*Pdf`/`*Pmf` with its parameters bound: `x => VM.distributions.normalPdf(x, 0, 1)`. |
+| `lo`, `hi` | `number` | | The range, both ends inclusive. |
+| `opts.discrete` | `boolean` | `false` | Evaluate only at the **integers** from `ceil(lo)` to `floor(hi)` -- what a PMF has support on -- instead of on a fine grid. `opts.n` is ignored; the arrays are empty if no integer lies in the range. |
+| `opts.n` | `number` | `400` | Number of evenly spaced samples in continuous mode. `n = 1` divides by zero. |
+
+**Returns** `{xs: number[], ys: number[]}`.
+
+```{ojs}
+VM.distributions.sampleCurve(k => VM.distributions.poissonPmf(k, 2), 0, 5, {discrete: true})
+```
+
+### VM.distributions.histogramBins(samples, binCount, range?) {#histogramBins}
+
+Bins an array of draws into equal-width bins, normalized to **densities** so the bars' total area is ~1 and a theoretical curve overlays directly.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `samples` | `number[]` | | The draws. |
+| `binCount` | `number` | | Number of bins (`≥ 1`). |
+| `range` | `{lo, hi}` | samples' min/max | A fixed bin range. Pass `{lo: min − 0.5, hi: max + 0.5}` with `binCount = max − min + 1` for one bin centered on each integer. Samples outside an explicit range are **clamped into the first/last bin**, not dropped. A zero-width range is widened to `[lo − 0.5, hi + 0.5]`. |
+
+**Returns** `{edges: number[], centers: number[], densities: number[]}` -- `binCount + 1` edges; `binCount` centers and densities, where `densities[i] = count[i] / (samples.length · width)`. All three arrays are empty when `samples` is empty or `binCount < 1`.
+
+```{ojs}
+{
+  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(1))
+  const draws = []
+  for (let i = 0; i < 2000; i++) draws.push(gaussian())
+  return VM.distributions.histogramBins(draws, 6, {lo: -3, hi: 3})
+}
+```
+
+See the [distribution explorer recipe](../recipes/distribution-explorer.qmd) for the histogram-under-a-curve chart.
+
+## Discrete masses
+
+All return `0` when `k` is not an integer in the support.
+
+### VM.distributions.bernoulliPmf(k, p) {#bernoulliPmf}
+
+`P(K = 1) = p`, `P(K = 0) = 1 − p`; `0` for any other `k`. `p` is not validated.
+
+### VM.distributions.binomialPmf(k, n, p) {#binomialPmf}
+
+Exactly `k` successes in `n` independent trials with success probability `p`. `p ≤ 0` puts all mass on `k = 0`, `p ≥ 1` all mass on `k = n`.
+
+### VM.distributions.poissonPmf(k, lambda) {#poissonPmf}
+
+`λ^k e^{−λ} / k!` for integer `k ≥ 0`. `lambda ≤ 0` puts all mass on `k = 0`.
+
+### VM.distributions.geometricPmf(k, p) {#geometricPmf}
+
+**Trials until the first success**: `(1 − p)^{k−1} p` for `k = 1, 2, 3, …` -- not the competing "failures before the first success" convention whose support starts at 0. `p` is not validated.
+
+### VM.distributions.negativeBinomialPmf(k, r, p) {#negativeBinomialPmf}
+
+**Trials until the r-th success**, so the support is `k = r, r+1, …` and `r = 1` is exactly `geometricPmf`. `0` when `p` is outside `(0, 1]`; `p = 1` puts all mass on `k = r`.
+
+### VM.distributions.hypergeometricPmf(k, N, K, n) {#hypergeometricPmf}
+
+Exactly `k` successes when drawing `n` items **without replacement** from a population of `N` containing `K` successes: `C(K, k)·C(N−K, n−k) / C(N, n)`. Support is `max(0, n − (N − K)) ≤ k ≤ min(n, K)`; `0` there and for any invalid `(N, K, n)`.
+
+## Continuous densities
+
+### VM.distributions.exponentialPdf(x, rate) {#exponentialPdf}
+
+Mean `1 / rate`. `0` for `x < 0` or `rate ≤ 0`.
+
+### VM.distributions.normalPdf(x, mean, variance) {#normalPdf}
+
+Parameterized by **variance**, not standard deviation: pass `sd * sd`. `0` for `variance ≤ 0`.
+
+### VM.distributions.gammaPdf(x, shape, rate) {#gammaPdf}
+
+Parameterized by **rate**, not scale: the mean is `shape / rate`. For a scale θ pass `1 / θ`. Valid for any real `shape > 0`. `0` for `x ≤ 0` or a non-positive parameter.
+
+### VM.distributions.chiSquaredPdf(x, k) {#chiSquaredPdf}
+
+`k` degrees of freedom -- exactly `gammaPdf(x, k/2, 1/2)`.
+
+### VM.distributions.betaPdf(x, a, b) {#betaPdf}
+
+On the **open** interval `(0, 1)`: `0` at and outside the endpoints, so `betaPdf(0, 1, 1)` is `0` even though the density is `1` on the interior. `0` for a non-positive shape.
+
+### VM.distributions.studentTPdf(x, k) {#studentTPdf}
+
+`k` degrees of freedom, any real `k > 0` (not only an integer). `0` for `k ≤ 0`.
+
+### VM.distributions.fPdf(x, d1, d2) {#fPdf}
+
+`d1` numerator and `d2` denominator degrees of freedom. `0` for `x ≤ 0` or a non-positive parameter.
+
+### VM.distributions.lognormalPdf(x, mean, variance) {#lognormalPdf}
+
+The density of `e^X` for `X ~ Normal(mean, variance)`. The parameters describe the **underlying normal**, not the log-normal's own mean (`exp(μ + σ²/2)`) and variance. `0` for `x ≤ 0` or `variance ≤ 0`.
+
+### VM.distributions.cauchyPdf(x, location, scale) {#cauchyPdf}
+
+The Cauchy has no mean and no variance, so `location` is its **median** and `scale` its half-width at half-maximum. `0` for `scale ≤ 0`.
+
+### VM.distributions.weibullPdf(x, shape, scale) {#weibullPdf}
+
+Parameterized by **scale**, not rate, so `shape = 1` is the exponential with rate `1 / scale`. Shape below 1 gives a failure rate that falls with age, above 1 one that rises. `0` for `x < 0` or a non-positive parameter; at `x = 0` the density is `1/scale` when `shape = 1` and `0` otherwise.

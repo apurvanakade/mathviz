@@ -5,8 +5,22 @@
  */
 
 (function attachVM(globalThis) {
-  // Approximates the integral of f over [lo, hi] with composite Simpson's
-  // rule using n subintervals. n must be even.
+  /**
+   * Approximates the integral of `f` over `[lo, hi]` with the composite
+   * Simpson's rule on `n` subintervals.
+   *
+   * Samples where `f` is not finite (a pole, a domain error) are skipped --
+   * they contribute zero rather than turning the whole estimate into `NaN`
+   * -- including the two endpoints. So `simpsonEstimate(x => 1/x, 0, 1, n)`
+   * returns a finite (wrong) number, not `Infinity`.
+   *
+   * @param {(x: number) => number} f - The integrand.
+   * @param {number} lo - Lower limit.
+   * @param {number} hi - Upper limit.
+   * @param {number} n - Number of subintervals. **Must be even**; this is not
+   *   validated, and an odd `n` silently applies the wrong weights.
+   * @returns {number} The estimate.
+   */
   const simpsonEstimate = (f, lo, hi, n) => {
     const h = (hi - lo) / n
     let sum = 0

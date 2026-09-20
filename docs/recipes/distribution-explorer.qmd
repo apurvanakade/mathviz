@@ -1,0 +1,104 @@
+---
+title: "Distribution explorer"
+subtitle: "An exact density with a histogram of seeded samples underneath"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+The curve is exact (`sampleCurve` over a closed-form density -- it never jitters when a slider moves); the bars are draws from a seeded generator, binned by `histogramBins` into densities so their area is ~1 and they sit under the curve on the same axis. Change the seed and only the bars change.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+::: {.ojs-panel .ojs-grid}
+```{ojs}
+viewof distMean = Inputs.range([-3, 3], {label: "mean", step: 0.1, value: 0})
+```
+```{ojs}
+viewof distSd = Inputs.range([0.2, 3], {label: "sd", step: 0.05, value: 1})
+```
+```{ojs}
+viewof distCount = Inputs.range([50, 5000], {label: "samples", step: 50, value: 500})
+```
+```{ojs}
+viewof distSeed = Inputs.range([1, 999], {label: "seed", step: 1, value: 7})
+```
+:::
+
+## Samples
+
+`seededRandom` gives a uniform generator; `gaussianRandom` wraps it as a standard normal; scale and shift for the chosen mean and sd. The seed is part of the page's state, so a shared URL (if your page syncs inputs to it) reproduces the same bars.
+
+```{ojs}
+draws = {
+  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(distSeed))
+  const out = []
+  for (let i = 0; i < distCount; i++) out.push(distMean + distSd * gaussian())
+  return out
+}
+```
+
+## The chart
+
+The histogram range is fixed to the axis range rather than the samples' own min/max, so the bins don't shift as the seed changes; samples beyond it are clamped into the end bins. `alpha` makes the fill translucent in a way that follows the theme.
+
+::: {.ojs-chart-block}
+```{ojs}
+{
+  const lo = -8, hi = 8
+  const curve = VM.distributions.sampleCurve(x => VM.distributions.normalPdf(x, distMean, distSd * distSd), lo, hi)
+  const bins = VM.distributions.histogramBins(draws, 48, {lo, hi})
+  const div = document.createElement("div")
+  div.style.height = "380px"
+  Plotly.newPlot(div, [
+    {type: "bar", x: bins.centers, y: bins.densities, name: `${distCount} draws`, width: bins.edges[1] - bins.edges[0],
+      marker: {color: VM.plotting.alpha("fn", 0.35), line: {color: chartColors.fn, width: 1}}},
+    {x: curve.xs, y: curve.ys, name: "normalPdf", line: {color: chartColors.alt, width: 2.5}}
+  ], VM.plotting.layout({
+    xaxis: {title: "x", range: [lo, hi]}, yaxis: {title: "density", rangemode: "tozero"},
+    legend: {x: 0.02, y: 0.98}, bargap: 0
+  }), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+## A discrete variant
+
+For a PMF, sample the curve at the integers and align one bin per integer: `range: {lo: min − 0.5, hi: max + 0.5}` with `binCount = max − min + 1`, which auto-ranging can't guarantee.
+
+```{ojs}
+viewof lambda = Inputs.range([0.5, 12], {label: "Poisson λ", step: 0.1, value: 4})
+```
+```{ojs}
+{
+  // Poisson draws by inversion from the seeded uniform generator.
+  const rng = VM.sampling.seededRandom(distSeed)
+  const draws = []
+  for (let i = 0; i < distCount; i++) {
+    let k = 0, p = Math.exp(-lambda), s = p
+    const u = rng()
+    while (u > s && k < 60) { k++; p *= lambda / k; s += p }
+    draws.push(k)
+  }
+  const max = 25
+  const pmf = VM.distributions.sampleCurve(k => VM.distributions.poissonPmf(k, lambda), 0, max, {discrete: true})
+  const bins = VM.distributions.histogramBins(draws, max + 1, {lo: -0.5, hi: max + 0.5})
+  const div = document.createElement("div")
+  div.style.height = "300px"
+  Plotly.newPlot(div, [
+    {type: "bar", x: bins.centers, y: bins.densities, name: "draws", marker: {color: VM.plotting.alpha("fn", 0.35), line: {color: chartColors.fn, width: 1}}},
+    {x: pmf.xs, y: pmf.ys, mode: "markers", name: "poissonPmf", marker: {color: chartColors.alt, size: 8, line: {color: chartColors.halo, width: 1.5}}}
+  ], VM.plotting.layout({xaxis: {title: "k", range: [-0.5, max + 0.5]}, yaxis: {title: "P(K = k)", rangemode: "tozero"}, legend: {x: 0.7, y: 0.98}}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```

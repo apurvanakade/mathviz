@@ -14,6 +14,22 @@
   // each integer (range {lo: min - 0.5, hi: max + 0.5}, binCount = max -
   // min + 1), which auto-ranging can't guarantee since (max - min) rarely
   // divides evenly into whole-integer-width bins.
+  /**
+   * Bins an array of draws into equal-width bins, normalized to densities
+   * so the bars' total area is ~1 and a theoretical PDF/PMF curve can be
+   * overlaid directly.
+   *
+   * @param {number[]} samples - The draws.
+   * @param {number} binCount - Number of bins (`>= 1`).
+   * @param {{lo: number, hi: number}} [range] - Fixed bin range. Defaults to
+   *   the samples' own min and max. Samples outside an explicit range are
+   *   **clamped into the first/last bin**, not dropped. A zero-width range
+   *   (all samples equal) is widened to `[lo - 0.5, hi + 0.5]`.
+   * @returns {{edges: number[], centers: number[], densities: number[]}}
+   *   `binCount + 1` edges, and `binCount` centers and densities, where
+   *   `densities[i] = count[i] / (samples.length * width)`. All three are
+   *   empty when `samples` is empty or `binCount < 1`.
+   */
   const histogramBins = (samples, binCount, range) => {
     if (samples.length === 0 || binCount < 1) return {edges: [], centers: [], densities: []}
 

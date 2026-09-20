@@ -39,6 +39,24 @@
   // csvHeaders are plain-text column labels for the downloaded file — separate
   // from headers, which may contain KaTeX DOM nodes (from `tex` templates)
   // that render fine on screen but not as CSV text.
+  /**
+   * Renders a compact, horizontally scrollable results table with a
+   * "Download csv" link above it.
+   *
+   * @param {Object} args
+   * @param {Function} args.html - htl's `html` tag (an OJS global).
+   * @param {Array} args.headers - Header cells; may be DOM nodes (a `tex`
+   *   template's output) as well as strings.
+   * @param {Array[]} args.rows - Body rows, one array of cells each. The
+   *   first column is centered, the rest right-aligned, all `nowrap`.
+   * @param {Array<string>} [args.csvHeaders=headers] - Plain-text header
+   *   labels for the download, for when `headers` holds KaTeX nodes that
+   *   don't serialize.
+   * @param {string} [args.filename="iteration-table.csv"] - Download name.
+   * @returns {Node} `<div class="ojs-table-toolbar">` + `<div
+   *   class="ojs-table-container"><table class="table table-sm
+   *   table-bordered small">`, as one fragment.
+   */
   const renderTable = ({html, headers, rows, csvHeaders = headers, filename = "iteration-table.csv"}) => {
     const cellClass = i => {
       if (i === 0) return "text-nowrap text-center"

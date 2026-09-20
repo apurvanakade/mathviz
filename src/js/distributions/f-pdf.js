@@ -5,6 +5,14 @@
  */
 
 (function attachVM(globalThis) {
+  /**
+   * F density with `d1` numerator and `d2` denominator degrees of freedom.
+   *
+   * @param {number} x - `0` for `x <= 0`.
+   * @param {number} d1 - Must be `> 0`.
+   * @param {number} d2 - Must be `> 0`.
+   * @returns {number}
+   */
   const fPdf = (x, d1, d2) => {
     if (x <= 0 || d1 <= 0 || d2 <= 0) return 0
     const logGamma = globalThis.VM.distributions.logGamma

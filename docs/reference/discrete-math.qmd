@@ -1,0 +1,144 @@
+---
+title: "VM.discreteMath"
+subtitle: "Triangulations and Sperner colorings"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+The combinatorics behind a Sperner's-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color **names** into palette colors at the moment of drawing.
+
+Every helper works in the names `'red'`, `'green'`, `'blue'` -- those are the keys the logic compares -- and only the three `*Color` functions at the end touch the actual palette. Keep that split: `fill: d => VM.discreteMath.vertexColor(d.color)`, never `fill: "red"`, which is not the site's red and doesn't lighten in dark mode.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## Live
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+//| echo: false
+viewof N = Inputs.range([1, 12], {label: "order N", step: 1, value: 5})
+```
+```{ojs}
+//| echo: false
+viewof recolor = Inputs.button("Recolor")
+```
+:::
+
+::: {.ojs-chart-block .ojs-svg-block}
+```{ojs}
+//| echo: false
+{
+  recolor; chartColors   // re-run on the button and on a theme toggle
+  const toXY = ([i, j, k]) => ({x: (j + k / 2) / N, y: (Math.sqrt(3) / 2) * k / N})
+  const coloring = new Map()
+  for (const t of VM.discreteMath.barycentricTriples(N)) coloring.set(t.join(","), VM.discreteMath.spernerColor(...t))
+  const colorOf = t => coloring.get(t.join(","))
+  const triangles = []
+  for (const tri of VM.discreteMath.subTriangleTriples(N)) {
+    const fill = VM.discreteMath.triangleFillColor(tri.map(colorOf))
+    triangles.push({points: tri.map(toXY), fill})
+  }
+  const edges = []
+  for (const {a, b} of VM.discreteMath.triangulationEdges(N)) {
+    edges.push({...toXY(a), x2: toXY(b).x, y2: toXY(b).y, stroke: VM.discreteMath.pairColor(colorOf(a), colorOf(b)) ?? chartColors.muted})
+  }
+  const dots = []
+  for (const t of VM.discreteMath.barycentricTriples(N)) dots.push({...toXY(t), color: colorOf(t)})
+  const rainbow = triangles.filter(t => t.fill !== "none").length
+  return Plot.plot(VM.plotting.plotOptions({
+    width: 520, height: 470, axis: null, grid: false, x: {domain: [-0.05, 1.05]}, y: {domain: [-0.05, 0.92]},
+    marks: [
+      ...triangles.map(t => Plot.line(t.points.concat([t.points[0]]), {x: "x", y: "y", fill: t.fill, stroke: "none"})),
+      Plot.link(edges, {x1: "x", y1: "y", x2: "x2", y2: "y2", stroke: "stroke", strokeWidth: 2}),
+      Plot.dot(dots, {x: "x", y: "y", fill: d => VM.discreteMath.vertexColor(d.color), r: N > 8 ? 4 : 6, stroke: chartColors.halo}),
+      Plot.text([{x: 0.5, y: -0.03, t: `${rainbow} rainbow triangle${rainbow === 1 ? "" : "s"} (Sperner: always odd)`}], {x: "x", y: "y", text: "t", fill: chartColors.ink})
+    ]
+  }))
+}
+```
+:::
+
+## Triangulation
+
+A uniform order-`N` triangulation has `(N+1)(N+2)/2` vertices, each a triple `[i, j, k]` of non-negative integers with `i + j + k = N`; a vertex is a corner when two coordinates are zero and on an edge when one is.
+
+### VM.discreteMath.barycentricTriples(N) {#barycentricTriples}
+
+Every vertex, `i`-major.
+
+**Returns** `number[][]` -- `(N+1)(N+2)/2` triples. `[[0,0,0]]` for `N = 0`; empty for negative `N`.
+
+```{ojs}
+VM.discreteMath.barycentricTriples(2)
+```
+
+### VM.discreteMath.subTriangleTriples(N) {#subTriangleTriples}
+
+The `N²` small triangles, each as a triple of vertex triples: the `N(N+1)/2` "upward" ones first, then the `N(N−1)/2` "downward" ones.
+
+**Returns** `number[][][]`.
+
+```{ojs}
+VM.discreteMath.subTriangleTriples(2)
+```
+
+### VM.discreteMath.triangulationEdges(N) {#triangulationEdges}
+
+Every edge exactly once, derived from `subTriangleTriples` with each interior edge (shared by two triangles) deduplicated.
+
+**Returns** `{a: number[], b: number[]}[]`.
+
+```{ojs}
+VM.discreteMath.triangulationEdges(2).length   // 3N(N+1)/2 = 9
+```
+
+## Coloring
+
+### VM.discreteMath.spernerColor(a, b, c) {#spernerColor}
+
+Colors one vertex so the whole labelling satisfies **Sperner's condition**: the corners get fixed colors -- `(0,0,N)` red, `(N,0,0)` green, `(0,N,0)` blue -- a vertex on a boundary edge gets one of that edge's two corner colors uniformly at random, and an interior vertex any of the three uniformly at random.
+
+**Returns** `'red' | 'green' | 'blue'`.
+
+Uses `Math.random()`, so it isn't reproducible from a seed; a page that needs a URL-shareable coloring draws its own randomness from [`seededRandom`](sampling.qmd#seededRandom) and applies the same three rules.
+
+### VM.discreteMath.randomColor() {#randomColor}
+
+One of the three names uniformly at random, ignoring position -- for showing what breaks when the boundary condition is violated.
+
+**Returns** `'red' | 'green' | 'blue'`.
+
+## Drawing
+
+These read [`VM.plotting.colors()`](plotting.qmd#colors) / [`alpha()`](plotting.qmd#alpha) **when called**. A cell that stores their output (an array of colored edges, a triangle's `fillColor`) must itself depend on `chartColors` -- a bare `chartColors;` line at the top, as in the live example above -- or the stored colors go stale on a toggle.
+
+### VM.discreteMath.vertexColor(name) {#vertexColor}
+
+`'red'` → `colors().alt`, `'green'` → `colors().ok`, `'blue'` → `colors().fn`. The prose swatches `.vm-swatch-alt` / `-ok` / `-accent` use the same tokens, so a word and a dot agree.
+
+**Returns** a CSS color, or `null` for any other name.
+
+### VM.discreteMath.pairColor(colorA, colorB) {#pairColor}
+
+The shared color for a pair of **distinct** names, at 80% opacity: red+green → `warn` (amber), green+blue → `accent3` (teal), red+blue → `accent2` (purple). Order doesn't matter.
+
+**Returns** an `rgba(...)` string, or `null` when the names are equal or the pair isn't one of the three.
+
+### VM.discreteMath.triangleFillColor(colors) {#triangleFillColor}
+
+The fill for a small triangle given its vertex names: translucent `accent2` (55%) when all three are distinct -- a "rainbow" triangle, the object of the lemma -- and the string `'none'` otherwise.
+
+**Returns** `string`.
+
+```{ojs}
+[VM.discreteMath.vertexColor("red"), VM.discreteMath.pairColor("green", "blue"), VM.discreteMath.triangleFillColor(["red", "green", "blue"]), VM.discreteMath.triangleFillColor(["red", "red", "blue"])]
+```

@@ -13,7 +13,17 @@
   // from the shared chart palette at call time, translucent via
   // VM.plotting.alpha, so an edge drawn after a dark-mode toggle gets the
   // lightened hue rather than a light-mode literal.
-  // Returns null if colorA === colorB (no pair to color).
+  /**
+   * The shared display color for a pair of **distinct** Sperner color
+   * names, at 80% opacity from the live palette: red+green → `warn`
+   * (amber), green+blue → `accent3` (teal), red+blue → `accent2`
+   * (purple). Order doesn't matter.
+   *
+   * @param {string} colorA
+   * @param {string} colorB
+   * @returns {string|null} An `rgba(...)` color, or `null` when the two
+   *   names are equal or the pair isn't one of the three above.
+   */
   const pairColor = (colorA, colorB) => {
     if (colorA === colorB) return null;
     const alpha = globalThis.VM.plotting.alpha;

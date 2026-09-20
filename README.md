@@ -11,6 +11,11 @@ pages. It is the machinery behind [Visual Math Lab](https://www.visualmathlab.co
 packaged as a Quarto extension and as a plain script bundle so any site can
 use it.
 
+**Documentation: <https://apurvanakade.github.io/mathviz/>** -- guides, a
+full API reference with live examples, and complete recipe pages to copy.
+Every chart on that site is drawn by the library; toggle the theme to see it
+follow.
+
 What you get, with no per-page wiring:
 
 - **Themed charts.** `VM.plotting.layout()` / `config()` / `plotOptions()` give Plotly and Observable Plot the same fonts, grid, palette and tooltip style, read live from CSS custom properties -- so charts follow your site's light/dark toggle, and re-theme the instant it flips.
@@ -18,7 +23,7 @@ What you get, with no per-page wiring:
 - **Control-panel CSS.** `ojs-panel`, `ojs-row`, `ojs-grid` lay out Observable `Inputs.*` controls into a tidy panel; `ojs-chart-block` + `ojs-chart-controls` put step sliders directly above a chart (and keep them there in fullscreen).
 - **Slider playback.** Every range slider inside a panel gets a play/pause button with speed and loop/bounce options.
 - **A floating, draggable legend** that toggles trace visibility (`VM.ui.legendOverlay`), replacing Plotly's own.
-- **Numerical helpers**: safe expression parsing via math.js, ODE steppers, quadrature, least-squares, closed-form probability densities, seeded random numbers, 1-D filters, Sperner-triangulation combinatorics.
+- **Numerical helpers**: safe expression parsing via math.js, ODE steppers, quadrature, least-squares, sixteen closed-form probability densities, seeded random numbers, 1-D filters, Sperner-triangulation combinatorics.
 
 ## Install
 
@@ -45,17 +50,18 @@ mathviz:
   referrer: same-origin     # emit <meta name="referrer"> before the CDN tags
 ```
 
-Update later with `quarto update apurvanakade/mathviz`. Pin a version with `quarto add apurvanakade/mathviz@v0.1.0`.
+Update later with `quarto update apurvanakade/mathviz`. Pin a version with `quarto add apurvanakade/mathviz@v0.1.1`.
 
 ### Any other web page
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.0/dist/mathviz.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.css">
+<script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.0/dist/mathviz.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.js"></script>
 ```
 
-Load Plotly **before** `mathviz.js` (the modebar patch runs when the bundle loads; if Plotly arrives later, call `VM.plotting.installPlotlyPatch()` yourself). `dist/mathviz.js` is a plain concatenation of the source files -- readable, un-minified, ~140 kB.
+Load Plotly **before** `mathviz.js` (the modebar patch runs when the bundle loads; if Plotly arrives later, call `VM.plotting.installPlotlyPatch()` yourself). `dist/mathviz.js` is a plain concatenation of the documented source files -- readable, un-minified, ~170 kB.
 
 ## A first chart
 
@@ -89,71 +95,31 @@ mainPlot = {
 :::
 ````
 
-[`example.qmd`](example.qmd) is this, runnable: `quarto render example.qmd`.
+[`example.qmd`](example.qmd) is this, runnable: `quarto render example.qmd`. The docs walk through it [cell by cell](https://apurvanakade.github.io/mathviz/docs/first-chart.html).
 
 The `vmTheme`/`chartColors` pair is what makes *trace* colors follow a theme toggle: chart chrome (axes, grid, tooltip) is re-themed for you by a `relayout`, but a color you baked into a trace only changes when the cell re-runs, and `colors(vmTheme)` creates that reactive dependency (`colors()` ignores its argument).
 
-## Theming: the `--vm-*` contract
+## Theming in one paragraph
 
-Everything -- panels, sliders, legend, chart chrome, chart palette -- is driven by CSS custom properties declared in [`src/css/tokens.css`](src/css/tokens.css). The defaults are wrapped in `:where()`, which has zero specificity, so a plain declaration in your own stylesheet always wins regardless of load order:
+Everything is driven by `--vm-*` CSS custom properties declared in [`src/css/tokens.css`](src/css/tokens.css), wrapped in `:where()` so a plain `:root { --vm-accent: … }` in your own stylesheet wins regardless of load order. Dark mode is detected by `body.quarto-dark`, `[data-bs-theme="dark"]` on `html`/`body`, or `.vm-dark` on `html`/`body`; name your own with `VM.plotting.configure({darkSelector})`. The full token table, live, is on the [Theming](https://apurvanakade.github.io/mathviz/docs/theming.html) page.
 
-```css
-:root {
-  --vm-accent: #b45309;
-  --vm-color-fn: #b45309;
-  --vm-font-sans: "Inter", system-ui, sans-serif;
-}
-body.quarto-dark {
-  --vm-accent: #fbbf24;
-  --vm-color-fn: #fbbf24;
-}
-```
+## Documentation
 
-| Token | Used for |
+| | |
 |---|---|
-| `--vm-bg`, `--vm-surface`, `--vm-surface-hover` | page and panel backgrounds |
-| `--vm-text`, `--vm-text-soft` | text, axis labels |
-| `--vm-border`, `--vm-grid` | panel borders, chart gridlines |
-| `--vm-accent`, `--vm-accent-hover` | buttons, focus rings, slider fill |
-| `--vm-radius`, `--vm-radius-sm`, `--vm-shadow` | panel shape |
-| `--vm-font-sans` | chart text |
-| `--vm-color-fn` / `-alt` / `-ok` / `-muted` / `-ink` / `-warn` / `-accent2` / `-accent3` / `-halo` | the chart palette `VM.plotting.colors()` returns, keyed by role: the function itself, an alternate trace, a converged marker, de-emphasized, strokes, a warning, two more accents, and the ring drawn around a marker (white on light, the page background on dark) |
+| [Installing](https://apurvanakade.github.io/mathviz/docs/install.html) | both channels, every filter option, what needs what |
+| [Your first chart](https://apurvanakade.github.io/mathviz/docs/first-chart.html) | the page above, cell by cell |
+| [Theming](https://apurvanakade.github.io/mathviz/docs/theming.html) | every token, dark-mode detection, following the theme in a chart |
+| [Markup contract](https://apurvanakade.github.io/mathviz/docs/markup.html) | every `ojs-*` / `vm-*` class and `data-vm-*` attribute, with live examples |
+| [API reference](https://apurvanakade.github.io/mathviz/docs/reference/) | every `VM.*` function |
+| [Recipes](https://apurvanakade.github.io/mathviz/docs/recipes/) | complete pages: function explorer, step slider with playback, ODE with convergence plot, distribution explorer, example presets, Observable Plot |
+| [Troubleshooting](https://apurvanakade.github.io/mathviz/docs/troubleshooting.html) | symptom → cause → fix |
 
-**Dark mode** is detected by a selector matched against `<html>` and `<body>`: by default `body.quarto-dark` (Quarto's toggle), `html[data-bs-theme="dark"]`/`body[data-bs-theme="dark"]` (Bootstrap 5.3), or `html.vm-dark`/`body.vm-dark`. Deliberately root-scoped, not a bare `[data-bs-theme="dark"]`/`.vm-dark` match — a component library can set that same attribute or class on an individual component (Quarto's own navbar does, to force a dark variant independent of the page theme), and since custom properties inherit down the DOM, an unscoped selector would leak the dark palette into that component even on a light page. Declare your dark tokens under one of those, or under your own selector and tell the JS: `VM.plotting.configure({darkSelector: ".my-dark"})` (and put `.my-dark` on `<html>` or `<body>` only, for the same reason).
-
-JS reads tokens from `document.body` at call time, so a chart built after a toggle sees the new values.
-
-## Markup contract
-
-| Class | Put it on | Effect |
-|---|---|---|
-| `ojs-panel` | a `<div>` around your `Inputs.*` cells | the control panel chrome |
-| `ojs-row` / `ojs-grid` | the same div, or a nested div | one flex row / an auto-wrapping grid of controls |
-| `ojs-fill` / `ojs-auto` / `ojs-end` | an input's wrapper (via `classList.add`) | fill the row / natural width / push right |
-| `ojs-chart-block` | a `<div>` around the chart cell | anchor for the legend; what the fullscreen button fullscreens |
-| `ojs-chart-controls` | a `<div>` inside the block, holding sliders | a bar directly above the chart that comes along into fullscreen |
-| `ojs-svg-block` | alongside `ojs-chart-block`, for Observable Plot / hand-drawn SVG | adds the fullscreen button Plotly charts get from the modebar |
-| `plotly-box-large` | the Plotly graph div | a tall responsive chart box |
-| `vm-swatch vm-swatch-alt` (`-ok`, `-warn`, `-accent`, `-accent2`) | a `<span>` in prose | tints a color word with the matching palette color |
-| `data-vm-play="off"` | a slider or ancestor | opt that slider out of the play button |
-
-## What needs what
-
-| | Plain JS | Needs Plotly | Needs Observable (`Inputs`/`htl`) |
-|---|---|---|---|
-| `VM.expressions.*` (pass a math.js instance as the first argument) | ✓ | | |
-| `VM.numerical.*`, `VM.sampling.*`, `VM.filters.*`, `VM.distributions.*`, `VM.discreteMath.*` | ✓ | | |
-| `VM.plotting.colors/colorway/alpha/themeName/onThemeChange/subscript/plotOptions/paddedRange` | ✓ | | |
-| `VM.plotting.layout/config/hoverLabel/emptyState/themePatch/autoResize/fullscreenButton/installPlotlyPatch` | | ✓ | |
-| `VM.ui.legendOverlay` (a `viewof`-compatible view), `VM.ui.applyExampleParams` | | | ✓ |
-| `VM.ui.renderTable({html, headers, rows})` | | | ✓ (`html` is htl's tag; emits Bootstrap table classes) |
-| slider play button, draggable legend, SVG fullscreen button | ✓ self-installing | | |
-
-The full per-function reference is in [`CLAUDE.md`](CLAUDE.md).
+The site is the repository's `docs/` folder rendered with Quarto; `quarto preview` at the repo root serves it locally.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: edit `src/`, `npm test`, `npm run build`, commit `dist/` too.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: edit `src/`, add JSDoc and a reference entry, `npm test`, `npm run build`, commit `dist/` too. Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

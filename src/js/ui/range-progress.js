@@ -16,6 +16,12 @@
 // recreated whenever a reactive upstream field changes -- see the
 // viewof-recreation note in js/ui/apply-example.js), so there is no single
 // moment at which they all exist to be wired up individually.
+/**
+ * Exports nothing. Self-installing: a delegated `input`/`change` listener
+ * and a body `MutationObserver` keep every `input[type="range"]`'s `--sx`
+ * custom property equal to its value as a percentage of its range.
+ * `--sx` is reserved; don't set it yourself.
+ */
 (function attachRangeProgress() {
   // This file is pure DOM side effects -- no VM.* export -- but it is still
   // loaded by scripts/load-vm.mjs, which runs every script listed in

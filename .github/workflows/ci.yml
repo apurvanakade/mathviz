@@ -22,6 +22,8 @@ jobs:
       # is). Rebuild and refuse a commit whose dist/ is stale.
       - run: npm run build
       - run: git diff --exit-code -- dist _extensions/mathviz/dist || (echo "dist/ is out of date: run 'npm run build' and commit" && exit 1)
-      # Proves the Lua filter loads and the extension resolves in a real render.
+      # Renders example.qmd and every docs page through the extension in
+      # place: proves the Lua filter loads, the extension resolves, and every
+      # documented snippet still compiles.
       - uses: quarto-dev/quarto-actions/setup@v2
-      - run: quarto render example.qmd
+      - run: quarto render

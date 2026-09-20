@@ -16,6 +16,15 @@
   // triangle class its own meaning (e.g. combinatorial-proof's RG
   // "hallway" triangles) should handle those cases themselves and only
   // fall back to this for the rest.
+  /**
+   * The fill for a small triangle given its vertex color names: a
+   * translucent `accent2` (55%) from the live palette when all three
+   * colors are distinct (a "rainbow" triangle -- the thing Sperner's lemma
+   * is about), and `'none'` otherwise.
+   *
+   * @param {string[]} colors - The (up to three) vertex color names.
+   * @returns {string} An `rgba(...)` color, or the string `'none'`.
+   */
   const triangleFillColor = (colors) => {
     const distinct = new Set(colors);
     if (distinct.size === 3) return globalThis.VM.plotting.alpha('accent2', 0.55);

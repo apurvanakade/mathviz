@@ -5,11 +5,22 @@
  */
 
 (function attachVM(globalThis) {
-  // Samples a density function over [lo, hi] into {xs, ys} ready to hand to
-  // a Plotly trace. Continuous by default: `opts.n` (default 400) evenly
-  // spaced points. With `opts.discrete: true` it instead evaluates the
-  // function at each integer from ceil(lo) to floor(hi) -- for a PMF, where
-  // only whole-number x carry mass.
+  /**
+   * Samples a function over `[lo, hi]` into parallel arrays ready to hand
+   * to a Plotly trace or a `Plot.line`.
+   *
+   * @param {(x: number) => number} fn - Typically one of the `*Pdf`/`*Pmf` functions, with its parameters bound.
+   * @param {number} lo - Start of the range (inclusive).
+   * @param {number} hi - End of the range (inclusive).
+   * @param {Object} [opts]
+   * @param {boolean} [opts.discrete=false] - Evaluate only at the integers
+   *   from `ceil(lo)` to `floor(hi)` -- what a PMF actually has support on
+   *   -- instead of on a fine grid. `opts.n` is ignored in this mode, and
+   *   the arrays are empty if no integer lies in the range.
+   * @param {number} [opts.n=400] - Number of evenly spaced samples in
+   *   continuous mode, including both endpoints. `n = 1` divides by zero.
+   * @returns {{xs: number[], ys: number[]}}
+   */
   const sampleCurve = (fn, lo, hi, opts = {}) => {
     const xs = []
     const ys = []

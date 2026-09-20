@@ -17,8 +17,22 @@
   // proportion to its own size, instead of being squared and dominating
   // the fit.
   //
-  // Returns {slope, intercept, xlo, xhi, iterations}, or null if there are
-  // fewer than two points or the x-values don't vary (a degenerate fit).
+  /**
+   * Least-absolute-deviations (L1) line fit, via IRLS seeded from
+   * {@link linearRegression}.
+   *
+   * @param {{x: number, y: number}[]} points - The data, in drawing order.
+   * @param {Object} [opts]
+   * @param {number} [opts.maxIterations=100] - Cap on reweighting passes.
+   * @param {number} [opts.tolerance=1e-10] - Stop once `|Δslope| + |Δintercept|` falls below this.
+   * @param {number} [opts.epsilon=1e-6] - Floor on `|residual|` in the weight
+   *   `1 / max(|residual|, epsilon)`, so a point the line passes through
+   *   exactly doesn't get infinite weight.
+   * @returns {{slope: number, intercept: number, xlo: number, xhi: number, iterations: number}|null}
+   *   The fit plus the number of passes taken, or `null` if there are fewer
+   *   than two points or the seed fit is degenerate. `xlo`/`xhi` are the
+   *   first and last point's `x`, as in {@link linearRegression}.
+   */
   const l1Regression = (points, opts = {}) => {
     if (points.length < 2) return null
 

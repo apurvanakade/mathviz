@@ -5,13 +5,21 @@
  */
 
 (function attachVM(globalThis) {
-  // Exponential moving average, a.k.a. a first-order low-pass filter:
-  // s_i = alpha*s_{i-1} + (1-alpha)*x_i. `initial`, if given, is the prior
-  // belief going into the very first update (matching kalman1DFilter's
-  // `x0` option), so s_0 = alpha*initial + (1-alpha)*x_0 -- e.g. seeding a
-  // simulation with the true starting state instead of the first noisy
-  // sample. Without it, s_0 = x_0 (the pre-existing default: the first
-  // output is exactly the first sample, not biased toward 0).
+  /**
+   * Exponential moving average, a.k.a. a first-order low-pass filter:
+   * `s_i = alpha*s_{i-1} + (1-alpha)*x_i`.
+   *
+   * @param {number[]} xs - The signal.
+   * @param {number} alpha - Smoothing factor in `[0, 1]`: `0` passes the
+   *   signal through, `1` never moves off the initial value. Not clamped.
+   * @param {number} [initial] - A prior belief going into the very first
+   *   update (the analogue of {@link kalman1DFilter}'s `x0`), so
+   *   `s_0 = alpha*initial + (1-alpha)*x_0` -- e.g. seeding from the known
+   *   true starting state rather than the first noisy sample. Without it,
+   *   `s_0 = x_0`: the first output is exactly the first sample, not
+   *   biased toward zero.
+   * @returns {number[]} Same length as `xs`.
+   */
   const emaFilter = (xs, alpha, initial) => {
     const n = xs.length
     const ys = new Array(n)

@@ -39,6 +39,16 @@
     darkSelector: 'body.quarto-dark, html[data-bs-theme="dark"], body[data-bs-theme="dark"], html.vm-dark, body.vm-dark'
   }
 
+  /**
+   * Adjusts the module's settings. The only setting today is
+   * `darkSelector`, for a site whose theme toggle uses none of the default
+   * hooks; declare the dark `--vm-*` tokens under that same selector.
+   *
+   * @param {{darkSelector?: string}} [overrides] - Merged into the settings
+   *   when it is an object; anything else is ignored. Keys are not
+   *   validated -- an unknown key is stored and never read.
+   * @returns {{darkSelector: string}} A copy of the settings now in effect.
+   */
   const configure = (overrides) => {
     if (overrides && typeof overrides === "object") Object.assign(settings, overrides)
     return { ...settings }
@@ -70,8 +80,12 @@
     return false
   }
 
-  // "dark" | "light". Exported so a page can build a reactive OJS cell that
-  // re-runs on a theme toggle -- see onThemeChange below.
+  /**
+   * Which theme is active right now, by testing the dark selector against
+   * `<body>` and then `<html>`.
+   *
+   * @returns {"light"|"dark"} `"light"` when there is no `document` (Node).
+   */
   const themeName = () => (isDark() ? "dark" : "light")
 
   // The face chart text is set in, read from the --vm-font-sans token so a
@@ -114,6 +128,16 @@
   //
   // Both <html> and <body> are observed, since the dark selector can match
   // either (Quarto flips a body class, Bootstrap sets data-bs-theme on html).
+  /**
+   * Calls `callback` with the theme name now, synchronously, and again
+   * after every real theme change. Fits `Generators.observe` directly:
+   * `vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))`.
+   *
+   * @param {(theme: "light"|"dark") => void} callback
+   * @returns {() => void} A teardown that disconnects the observer. A no-op
+   *   when there is no `document.body` or no `MutationObserver` (the
+   *   initial call still happens).
+   */
   const onThemeChange = (callback) => {
     let last = themeName()
     callback(last)
@@ -181,9 +205,20 @@
     halo:    "#ffffff"
   }
 
-  // Returns a fresh snapshot of the palette for whichever theme is active
-  // right now -- called (not just referenced) so a page that rebuilds its
-  // trace colors on every reactive rerun stays in sync with the theme.
+  /**
+   * A fresh snapshot of the chart palette for whichever theme is active
+   * right now, read from the `--vm-color-<name>` tokens on `<body>`. Call
+   * it inside the cell that builds traces -- never cache the object.
+   *
+   * Any argument is ignored. `VM.plotting.colors(vmTheme)` is written that
+   * way purely so the OJS cell depends on `vmTheme` and re-runs on a
+   * toggle.
+   *
+   * @returns {{fn: string, alt: string, ok: string, muted: string, ink: string,
+   *   warn: string, accent2: string, accent3: string, halo: string}}
+   *   CSS colors, keyed by role. Falls back to the light-mode hexes when
+   *   the stylesheet isn't loaded.
+   */
   const colors = () => {
     const out = {}
     for (const name of Object.keys(FALLBACK)) out[name] = cssVar("--vm-color-" + name, FALLBACK[name])
@@ -215,6 +250,18 @@
     return null
   }
 
+  /**
+   * The same hue as a palette token (or any color string) at a given
+   * opacity, for a translucent fill that pairs with a solid stroke.
+   *
+   * @param {string} token - A palette role (`"fn"`, `"ok"`, ...) resolved
+   *   through {@link colors}, or a `#rgb`/`#rrggbb`/`rgb(...)`/`rgba(...)`
+   *   string.
+   * @param {number} opacity - `0`..`1`; not clamped.
+   * @returns {string} `"rgba(r, g, b, opacity)"`. An input that can't be
+   *   parsed (a CSS named color, `hsl(...)`, a non-string) is returned
+   *   unchanged.
+   */
   const alpha = (token, opacity) => {
     const value = token in FALLBACK ? colors()[token] : token
     const parsed = parseColor(value)
@@ -226,6 +273,12 @@
   // explicitly. `halo` is excluded deliberately -- it's the marker-ring
   // color (white on light, the page background on dark), so cycling a trace
   // onto it would draw that trace in the background color, invisible.
+  /**
+   * The trace color cycle -- {@link colors} in role order minus `halo`, so
+   * an uncolored trace never lands on the background color.
+   *
+   * @returns {string[]} `[fn, alt, ok, muted, ink, warn, accent2, accent3]`.
+   */
   const colorway = () => {
     const active = colors()
     const out = []
@@ -253,12 +306,28 @@
   // through it -- this is what removes both Plotly's default #E5ECF6 plot
   // area and the "white box on a dark page" bug in one move, with no
   // separate light/dark case to keep in sync.
+  /**
+   * The shared Plotly layout, themed from the live tokens: transparent
+   * backgrounds, `--vm-font-sans`, themed axes/gridlines/ticks,
+   * {@link colorway}, {@link hoverLabel}, modebar colors, a 300 ms tween
+   * (`0` under `prefers-reduced-motion`; shortened to the slider gap while
+   * a playback sweep runs) and small non-zero margins that `automargin`
+   * grows as needed.
+   *
+   * Not needed when the Plotly patch is installed (it merges this under
+   * every `newPlot`/`react` layout), but harmless to call explicitly.
+   *
+   * @param {Object} [overrides] - Deep-merged on top, so
+   *   `{xaxis: {title: "x", range: [0, 1]}}` extends the shared axis chrome
+   *   rather than replacing it. Arrays and primitives replace wholesale.
+   *   Don't pass `margin: {l: 0, r: 0, t: 0, b: 0}`: it defeats `automargin`.
+   * @returns {Object} A Plotly layout object.
+   */
   const layout = (overrides) => {
     const text = cssVar("--vm-text", "#14161a")
     const textSoft = cssVar("--vm-text-soft", "#5f6672")
     const grid = cssVar("--vm-grid", "rgba(20, 22, 26, 0.08)")
     const border = cssVar("--vm-border", "rgba(27, 31, 36, 0.15)")
-    const surface = cssVar("--vm-surface", "#f6f7f9")
     const accent = cssVar("--vm-accent", "#2563eb")
     const axisDefaults = {
       gridcolor: grid,
@@ -314,6 +383,16 @@
   // reactive), it builds a *new* div and the old one is detached with its
   // observer still firing, which makes Plotly throw
   // "Resize must be passed a displayed plot div element."
+  /**
+   * Keeps a Plotly graph div sized to its container, and stops once the
+   * div leaves the document. Every chart built detached (the usual OJS
+   * pattern) needs this, since Plotly measures 0×0 at `newPlot` time.
+   *
+   * @param {HTMLElement} div - The graph div.
+   * @returns {ResizeObserver|null} The observer, or `null` where
+   *   `ResizeObserver` doesn't exist. Skips resizing while the div is
+   *   hidden (`display: none`) and is safe when Plotly isn't loaded.
+   */
   const autoResize = (div) => {
     if (typeof ResizeObserver === "undefined") return null
     const observer = new ResizeObserver(() => {
@@ -337,6 +416,14 @@
   // way to get real subscripts into a Plotly data label.
   const SUBSCRIPT_DIGITS = "₀₁₂₃₄₅₆₇₈₉"
 
+  /**
+   * Replaces each digit with its Unicode subscript, for iteration labels
+   * in Plotly trace `text` (which has no markup): `subscript("x10")` is
+   * `"x₁₀"`.
+   *
+   * @param {number|string} value - Coerced with `String()`; non-digits pass through.
+   * @returns {string}
+   */
   const subscript = (value) => {
     const digits = String(value)
     let out = ""
@@ -354,6 +441,15 @@
   // layout.hoverlabel, so setting it only on the layout leaves every
   // tooltip unthemed. plotly-fullscreen-button.js injects this onto each
   // trace that doesn't set its own.
+  /**
+   * The themed tooltip style. Set it on each trace's `hoverlabel` as well
+   * as the layout's -- Plotly derives a trace's tooltip background from
+   * that trace's color unless the trace sets its own, so a layout-level
+   * default alone never shows. The Plotly patch does this per trace for you.
+   *
+   * @returns {{bgcolor: string, bordercolor: string, align: "left",
+   *   font: {family: string, size: number, color: string}}}
+   */
   const hoverLabel = () => ({
     bgcolor: cssVar("--vm-surface", "#f6f7f9"),
     bordercolor: cssVar("--vm-border", "rgba(27, 31, 36, 0.15)"),
@@ -365,6 +461,16 @@
   // `result` cell bailed out (an unparseable expression, a non-finite
   // guess). Without it an invalid formula silently renders an empty grid
   // that looks identical to a valid-but-empty result.
+  /**
+   * A centered message for an empty plot area, as an `annotations` array:
+   * `annotations: f ? [] : VM.plotting.emptyState("Couldn't parse that")`.
+   * Without it an unparseable input draws an empty grid indistinguishable
+   * from a valid-but-empty result.
+   *
+   * @param {string} message
+   * @returns {Object[]} A one-element Plotly annotations array, positioned
+   *   at paper coordinates `(0.5, 0.5)` in `--vm-text-soft`.
+   */
   const emptyState = (message) => {
     const textSoft = cssVar("--vm-text-soft", "#5f6672")
     return [{
@@ -389,6 +495,17 @@
   // "xaxis.gridcolor" patch only that one sub-property. Used to re-theme
   // every on-page chart the instant dark mode toggles, without touching
   // anything the page itself set.
+  /**
+   * The theme-dependent style attributes as a **flat**, dotted-path object
+   * for `Plotly.relayout` -- `{"xaxis.gridcolor": ..., colorway: [...]}` --
+   * so re-theming a live chart touches only those attributes and leaves
+   * the page's own titles and ranges alone. The Plotly patch applies this
+   * to every chart on each theme flip; a page shouldn't need to call it.
+   *
+   * @returns {Object} 24 keys: backgrounds, `font.color`, `textfont.color`,
+   *   the three `hoverlabel.*` colors, `modebar.color`/`.activecolor`,
+   *   `colorway`, and seven `xaxis.*`/`yaxis.*` colors each.
+   */
   const themePatch = () => {
     const text = cssVar("--vm-text", "#14161a")
     const textSoft = cssVar("--vm-text-soft", "#5f6672")
@@ -424,12 +541,30 @@
 
   // Replaces the `{responsive: true, displaylogo: false}` object every page
   // copy-pasted (15 pages, verbatim) with one shared default.
+  /**
+   * The shared Plotly config: `{responsive: true, displaylogo: false}`. The
+   * Plotly patch also merges this under every chart and then sets the
+   * modebar button list on top.
+   *
+   * @param {Object} [overrides] - Deep-merged on top.
+   * @returns {Object} A Plotly config object.
+   */
   const config = (overrides) => deepMerge({ responsive: true, displaylogo: false }, overrides)
 
   // The Observable Plot equivalent of layout() -- same font, same grid
   // color, same palette -- so the iterates/convergence Plot charts under a
   // page's main Plotly chart read as the same chart system, not a visually
   // different library bolted on underneath.
+  /**
+   * The Observable Plot equivalent of {@link layout}: the same font, grid
+   * color and {@link colorway}, so a `Plot.plot` beneath a Plotly chart
+   * reads as the same chart system.
+   *
+   * @param {Object} [overrides] - Deep-merged on top. If it names an `x` or
+   *   `y` scale without a `stroke`, the axis is stroked in `--vm-border`;
+   *   scales it doesn't name are left for Plot to default.
+   * @returns {Object} Options for `Plot.plot(...)`.
+   */
   const plotOptions = (overrides) => {
     const text = cssVar("--vm-text", "#14161a")
     const grid = cssVar("--vm-grid", "rgba(20, 22, 26, 0.08)")
@@ -448,7 +583,6 @@
     for (const axis of ["x", "y"]) {
       if (merged[axis] && merged[axis].stroke === undefined) merged[axis] = { ...merged[axis], stroke: border }
     }
-    if (merged.grid === true) merged.grid = true
     return merged
   }
 

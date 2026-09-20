@@ -47,9 +47,10 @@ const license = (open, close) => [
 ].join('\n')
 
 // `separator` is emitted between files. For JS it is a lone semicolon: each
-// source file is an IIFE ending in `})(window)` with no trailing semicolon,
-// and two of those back to back parse as `})(window)(function ...)` -- the
-// first file's return value called with the second file as its argument.
+// source file is an IIFE that ends in a call -- `})(window)`, or `})()` for
+// a module that exports nothing -- with no trailing semicolon, and two of
+// those back to back parse as `})(window)(function ...)` -- the first
+// file's return value called with the second file as its argument.
 // That is syntactically valid, so `node --check` below can't catch it; the
 // page just died with "(intermediate value)(...) is not a function" after
 // the first file. The semicolon makes each file its own statement.

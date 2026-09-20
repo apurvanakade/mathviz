@@ -54,9 +54,22 @@
     return reduce(num, den)
   }
 
-  // Returns {num, den} in lowest terms (den > 0) for a rational-number
-  // expression such as "3", "-3", "1/2", "-1/3", or "0.25", or null if the
-  // expression isn't a plain integer, fraction, or decimal literal.
+  /**
+   * Parses a rational-number *literal* into an exact reduced fraction, for
+   * displaying values such as Butcher-tableau coefficients without floating
+   * point noise.
+   *
+   * Unlike its siblings in `VM.expressions`, this takes no math.js instance
+   * and does not evaluate expressions: only a plain integer (`"3"`, `"-3"`),
+   * a fraction of integers (`"1/2"`, `"-1 / 3"`) or a decimal (`"0.25"`,
+   * `".5"`) is accepted. `"1/2 + 1"`, `"pi"`, `"1e3"` and `"1."` all
+   * return `null`.
+   *
+   * @param {string} expr - The literal to parse; surrounding whitespace is ignored.
+   * @returns {{num: number, den: number}|null} Numerator and denominator in
+   *   lowest terms with `den > 0`, or `null` for an empty string, a zero
+   *   denominator, or anything that isn't one of the three literal forms.
+   */
   const makeRational = expr => {
     const text = String(expr).trim()
     if (text === "") return null
