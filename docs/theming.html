@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Theming – mathviz</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ef56b68f8fa1e9d2ba328e99e439f80.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-268b9611d5c32c6cc39e13a48e7764dc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<meta name="referrer" content="same-origin">
+<script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="../site_libs/quarto-contrib/mathviz-0.1.1/mathviz.js"></script>
+<link href="../site_libs/quarto-contrib/mathviz-0.1.1/mathviz.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="module" src="../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">mathviz</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../docs/index.html" aria-current="page"> 
+<span class="menu-text">Guide</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../docs/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../docs/recipes/index.html"> 
+<span class="menu-text">Recipes</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/apurvanakade/mathviz"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/theming.html">Theming</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">mathviz</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installing</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/first-chart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Your first chart</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/theming.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Theming</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/markup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Markup contract</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Troubleshooting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/internals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How it’s put together</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overriding-tokens" id="toc-overriding-tokens" class="nav-link active" data-scroll-target="#overriding-tokens">Overriding tokens</a></li>
+  <li><a href="#the-tokens" id="toc-the-tokens" class="nav-link" data-scroll-target="#the-tokens">The tokens</a></li>
+  <li><a href="#dark-mode" id="toc-dark-mode" class="nav-link" data-scroll-target="#dark-mode">Dark mode</a>
+  <ul class="collapse">
+  <li><a href="#why-js-reads-from-body" id="toc-why-js-reads-from-body" class="nav-link" data-scroll-target="#why-js-reads-from-body">Why JS reads from <code>&lt;body&gt;</code></a></li>
+  <li><a href="#two-step-toggles" id="toc-two-step-toggles" class="nav-link" data-scroll-target="#two-step-toggles">Two-step toggles</a></li>
+  </ul></li>
+  <li><a href="#following-the-theme-in-a-chart" id="toc-following-the-theme-in-a-chart" class="nav-link" data-scroll-target="#following-the-theme-in-a-chart">Following the theme in a chart</a></li>
+  <li><a href="#prose-swatches" id="toc-prose-swatches" class="nav-link" data-scroll-target="#prose-swatches">Prose swatches</a></li>
+  <li><a href="#bringing-your-own-stylesheet" id="toc-bringing-your-own-stylesheet" class="nav-link" data-scroll-target="#bringing-your-own-stylesheet">Bringing your own stylesheet</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Theming</h1>
+<p class="subtitle lead">The <code>--vm-*</code> contract: one set of tokens drives panels, sliders, legend and charts</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+<p>Everything mathviz draws – panel chrome, slider tracks, the legend, chart axes and gridlines, the chart palette – is a CSS custom property with a <code>--vm-</code> prefix. The CSS reads them the ordinary way; the JavaScript reads them with <code>getComputedStyle</code> <strong>at call time</strong>, so a chart built after a theme toggle sees the new values. To re-theme the library you redeclare tokens. There is no JavaScript configuration for colors.</p>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="16" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 15;"><span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<section id="overriding-tokens" class="level2">
+<h2 class="anchored" data-anchor-id="overriding-tokens">Overriding tokens</h2>
+<p>The defaults live in <a href="https://github.com/apurvanakade/mathviz/blob/main/src/css/tokens.css"><code>src/css/tokens.css</code></a>, and every one of them is wrapped in <code>:where()</code>, which has <strong>zero specificity</strong>. That is the whole trick: a plain declaration in your own stylesheet wins no matter which file loads first.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* your styles.css */</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-accent</span><span class="ch">:</span> <span class="cn">#b45309</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-color-fn</span><span class="ch">:</span> <span class="cn">#b45309</span><span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-font-sans</span><span class="ch">:</span> <span class="st">"Inter"</span><span class="op">,</span> <span class="dv">system-ui</span><span class="op">,</span> <span class="dv">sans-serif</span><span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>body<span class="fu">.quarto-dark</span> {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-accent</span><span class="ch">:</span> <span class="cn">#fbbf24</span><span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-color-fn</span><span class="ch">:</span> <span class="cn">#fbbf24</span><span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Why it matters in Quarto specifically: an extension’s stylesheet is injected <strong>before</strong> a project’s <code>css:</code> files but <strong>after</strong> its compiled theme SCSS. Without <code>:where()</code> the library’s <code>:root { --vm-x }</code> would beat a theme’s own <code>:root</code> declarations. Don’t unwrap them if you fork the CSS.</p>
+<p>Declare dark values under one of the <a href="#dark-mode">dark selectors</a> below. Tokens that don’t change between themes (<code>--vm-radius</code>, <code>--vm-font-sans</code>) need declaring only once.</p>
+</section>
+<section id="the-tokens" class="level2">
+<h2 class="anchored" data-anchor-id="the-tokens">The tokens</h2>
+<p>Live: each swatch is the value your browser computes for the token <strong>right now</strong>. Toggle the theme and watch the column change.</p>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb3" data-startfrom="47" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 46;"><span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  vmTheme</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> [</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Chrome"</span><span class="op">,</span> <span class="kw">null</span>]<span class="op">,</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-bg"</span><span class="op">,</span> <span class="st">"page background: fullscreen backdrop, the pill behind the fullscreen button, slider thumb ring, swatch tint base"</span>]<span class="op">,</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-surface"</span><span class="op">,</span> <span class="st">"panel and controls-bar background; tooltip background (JS)"</span>]<span class="op">,</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-surface-hover"</span><span class="op">,</span> <span class="st">"hover state of modebar and fullscreen buttons"</span>]<span class="op">,</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-text"</span><span class="op">,</span> <span class="st">"panel text; chart font and tooltip text (JS)"</span>]<span class="op">,</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-text-soft"</span><span class="op">,</span> <span class="st">"labels, the legend's unchecked items, play buttons; axis ticks and titles, the empty-state message (JS)"</span>]<span class="op">,</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-border"</span><span class="op">,</span> <span class="st">"panel borders, slider tracks; axis lines, zero lines, ticks, tooltip border (JS)"</span>]<span class="op">,</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-accent"</span><span class="op">,</span> <span class="st">"buttons, focus rings, slider fill, the active modebar button"</span>]<span class="op">,</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-accent-hover"</span><span class="op">,</span> <span class="st">"Observable Inputs button hover"</span>]<span class="op">,</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-grid"</span><span class="op">,</span> <span class="st">"chart gridlines (JS only)"</span>]<span class="op">,</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-radius"</span><span class="op">,</span> <span class="st">"panel and popover corners -- same in both themes"</span>]<span class="op">,</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-radius-sm"</span><span class="op">,</span> <span class="st">"inputs, buttons, the legend grip -- same in both themes"</span>]<span class="op">,</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-shadow"</span><span class="op">,</span> <span class="st">"legend, popover, modebar pill"</span>]<span class="op">,</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-font-sans"</span><span class="op">,</span> <span class="st">"chart text and the playback popover -- same in both themes. Redeclare it if your site self-hosts a font"</span>]<span class="op">,</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Chart palette (VM.plotting.colors())"</span><span class="op">,</span> <span class="kw">null</span>]<span class="op">,</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-fn"</span><span class="op">,</span> <span class="st">"the function itself, the primary trace"</span>]<span class="op">,</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-alt"</span><span class="op">,</span> <span class="st">"an alternate or reference trace; .vm-swatch-alt; .vm-invalid"</span>]<span class="op">,</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-ok"</span><span class="op">,</span> <span class="st">"a converged or correct marker; .vm-swatch-ok"</span>]<span class="op">,</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-muted"</span><span class="op">,</span> <span class="st">"de-emphasized data"</span>]<span class="op">,</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-ink"</span><span class="op">,</span> <span class="st">"strokes and labels that should read as text"</span>]<span class="op">,</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-warn"</span><span class="op">,</span> <span class="st">"a warning, a diverging iterate; .vm-swatch-warn"</span>]<span class="op">,</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-accent2"</span><span class="op">,</span> <span class="st">"a third series; .vm-swatch-accent2"</span>]<span class="op">,</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-accent3"</span><span class="op">,</span> <span class="st">"a fourth series"</span>]<span class="op">,</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"--vm-color-halo"</span><span class="op">,</span> <span class="st">"the ring around a marker: white on light, the page background on dark"</span>]</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> style <span class="op">=</span> <span class="fu">getComputedStyle</span>(<span class="bu">document</span><span class="op">.</span><span class="at">body</span>)</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> table <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"table"</span>)</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>  table<span class="op">.</span><span class="at">className</span> <span class="op">=</span> <span class="st">"table table-sm small"</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>  table<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> <span class="st">"&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Token&lt;/th&gt;&lt;th&gt;Current value&lt;/th&gt;&lt;th&gt;Used for&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;"</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> body <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"tbody"</span>)</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> [name<span class="op">,</span> use] <span class="kw">of</span> rows) {</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> tr <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"tr"</span>)</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (use <span class="op">===</span> <span class="kw">null</span>) { tr<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> <span class="vs">`&lt;th colspan=3 style="padding-top:.8rem"&gt;</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">&lt;/th&gt;`</span><span class="op">;</span> body<span class="op">.</span><span class="fu">appendChild</span>(tr)<span class="op">;</span> <span class="cf">continue</span> }</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> value <span class="op">=</span> style<span class="op">.</span><span class="fu">getPropertyValue</span>(name)<span class="op">.</span><span class="fu">trim</span>()</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> isColor <span class="op">=</span> <span class="ss">/</span><span class="sc">^(</span><span class="ss">#</span><span class="sc">|</span><span class="ss">rgb</span><span class="sc">)</span><span class="ss">/</span><span class="op">.</span><span class="fu">test</span>(value)</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> chip <span class="op">=</span> isColor <span class="op">?</span> <span class="vs">`&lt;span style="display:inline-block;width:1rem;height:1rem;border-radius:3px;border:1px solid var(--vm-border);background:</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">;vertical-align:-3px;margin-right:.4rem"&gt;&lt;/span&gt;`</span> <span class="op">:</span> <span class="st">""</span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>    tr<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> <span class="vs">`&lt;td style="white-space:nowrap"&gt;&lt;code&gt;</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">&lt;/code&gt;&lt;/td&gt;&lt;td style="white-space:nowrap"&gt;</span><span class="sc">${</span>chip<span class="sc">}</span><span class="vs">&lt;code&gt;</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">&lt;/code&gt;&lt;/td&gt;&lt;td&gt;</span><span class="sc">${</span>use<span class="sc">}</span><span class="vs">&lt;/td&gt;`</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>    body<span class="op">.</span><span class="fu">appendChild</span>(tr)</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>  table<span class="op">.</span><span class="fu">appendChild</span>(body)</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> table</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-2" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<p>The palette is keyed by <strong>role</strong>, not hue. A page reads <code>chartColors.fn</code> and <code>chartColors.alt</code> rather than repeating a hex, so redefining <code>--vm-color-fn</code> recolors every primary trace on the site. <code>halo</code> deserves a word: pages used to write <code>line: {color: "white"}</code> for the ring around a marker, which is a white ring on a near-black chart in dark mode. Use <code>chartColors.halo</code>.</p>
+<p>Only these tokens are public. The library also writes a few custom properties <strong>at runtime</strong> for its own layout – <code>--sx</code> (a slider’s fill fraction), <code>--vm-plot-aspect-ratio</code>, <code>--vm-fs-plot-width</code>, <code>--vm-svg-aspect</code> (fullscreen letterboxing) and <code>--vm-swatch</code> (a swatch’s tint). Treat them as reserved; don’t set them.</p>
+</section>
+<section id="dark-mode" class="level2">
+<h2 class="anchored" data-anchor-id="dark-mode">Dark mode</h2>
+<p>The library decides “dark” by testing one selector list against <code>&lt;body&gt;</code> and then <code>&lt;html&gt;</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>body<span class="fu">.quarto-dark</span><span class="op">,</span> html<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> body<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> html<span class="fu">.vm-dark</span><span class="op">,</span> body<span class="fu">.vm-dark</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><code>body.quarto-dark</code> – what Quarto’s built-in light/dark toggle sets</li>
+<li><code>[data-bs-theme="dark"]</code> on <code>html</code> or <code>body</code> – Bootstrap 5.3’s convention</li>
+<li><code>.vm-dark</code> on <code>html</code> or <code>body</code> – for a site with its own toggle: add the class and the library follows</li>
+</ul>
+<p>The same list appears in two places – the dark block in <code>tokens.css</code>, and <code>settings.darkSelector</code> in <code>chart-theme.js</code> – and they must stay identical. If your toggle uses none of these, either add <code>.vm-dark</code> to <code>&lt;html&gt;</code> when it flips, or name your own selector:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">configure</span>({<span class="dt">darkSelector</span><span class="op">:</span> <span class="st">"html.theme-dark"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>and declare your dark tokens under that same selector.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Keep the selector root-scoped">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Keep the selector root-scoped
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A bare <code>[data-bs-theme="dark"]</code> looks equivalent but isn’t: Quarto sets that attribute directly on its <code>&lt;nav&gt;</code> to force a dark navbar on an otherwise-light page, and custom properties inherit down the DOM – so an unscoped match painted the entire dark palette into the navbar. Match on <code>html</code> or <code>body</code> only.</p>
+</div>
+</div>
+<section id="why-js-reads-from-body" class="level3">
+<h3 class="anchored" data-anchor-id="why-js-reads-from-body">Why JS reads from <code>&lt;body&gt;</code></h3>
+<p>The light tokens are declared on <code>:root</code>, but the dark ones under selectors that match <code>&lt;body&gt;</code> (Quarto flips a body class). So <code>getComputedStyle(document.documentElement)</code> returns the <strong>light</strong> value even in dark mode – <code>&lt;html&gt;</code> never matches the dark block. Every <code>--vm-*</code> read in the library goes through <code>document.body</code> for this reason. If you write your own token-reading code, do the same; this exact mistake once turned every chart tooltip into a white box on the dark theme.</p>
+</section>
+<section id="two-step-toggles" class="level3">
+<h3 class="anchored" data-anchor-id="two-step-toggles">Two-step toggles</h3>
+<p>Quarto’s toggle flips the body class and swaps the stylesheet as <strong>separate steps</strong>, class first. A callback that reads tokens synchronously on the class change sees the outgoing theme’s values. <a href="../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a> waits two animation frames before notifying for exactly this reason, and compares the theme name inside that wait so unrelated body-class changes (a sidebar opening) don’t fire it. Use it rather than your own <code>MutationObserver</code>.</p>
+</section>
+</section>
+<section id="following-the-theme-in-a-chart" class="level2">
+<h2 class="anchored" data-anchor-id="following-the-theme-in-a-chart">Following the theme in a chart</h2>
+<p>Chart <strong>chrome</strong> – background, axes, gridlines, tooltip – re-themes itself: the Plotly patch subscribes to <code>onThemeChange</code> and runs <code>Plotly.relayout(gd, VM.plotting.themePatch())</code> on every chart when the theme flips. Nothing to do.</p>
+<p>Chart <strong>traces</strong> don’t, because their colors are values your page baked in. The fix is two cells at the top of the page:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Any cell that reads <code>chartColors</code> re-runs on a toggle. If a cell stores a color in a data structure rather than reading it at draw time (a <code>mixedEdges</code> array, a feature’s <code>fillColor</code>) it must depend on <code>chartColors</code> too – a bare <code>chartColors;</code> line at the top of the cell is enough.</p>
+<p>For translucent fills use <code>VM.plotting.alpha("ok", 0.2)</code> rather than an <code>rgba(...)</code> literal: the literal stays light-mode green after a toggle while the stroke next to it lightens.</p>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb7" data-startfrom="147" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 146;"><span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> div <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>  div<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">height</span> <span class="op">=</span> <span class="st">"240px"</span></span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xs <span class="op">=</span> []<span class="op">,</span> ys <span class="op">=</span> []</span>
+<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">100</span><span class="op">;</span> i<span class="op">++</span>) { <span class="kw">const</span> x <span class="op">=</span> i <span class="op">/</span> <span class="dv">10</span><span class="op">;</span> xs<span class="op">.</span><span class="fu">push</span>(x)<span class="op">;</span> ys<span class="op">.</span><span class="fu">push</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">exp</span>(<span class="op">-</span>x <span class="op">/</span> <span class="dv">3</span>) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(<span class="dv">2</span> <span class="op">*</span> x)) }</span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>  Plotly<span class="op">.</span><span class="fu">newPlot</span>(div<span class="op">,</span> [</span>
+<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">x</span><span class="op">:</span> xs<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> ys<span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"tozeroy"</span><span class="op">,</span> <span class="dt">fillcolor</span><span class="op">:</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"ok"</span><span class="op">,</span> <span class="fl">0.2</span>)<span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">ok</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="dv">2</span>}<span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"alpha('ok', 0.2) under an ok stroke"</span>}<span class="op">,</span></span>
+<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">x</span><span class="op">:</span> [<span class="fl">2.4</span><span class="op">,</span> <span class="fl">5.5</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> [ys[<span class="dv">24</span>]<span class="op">,</span> ys[<span class="dv">55</span>]]<span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"markers"</span><span class="op">,</span> <span class="dt">marker</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">alt</span><span class="op">,</span> <span class="dt">size</span><span class="op">:</span> <span class="dv">12</span><span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">halo</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="fl">2.5</span>}}<span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"halo ring"</span>}</span>
+<span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span> {<span class="dt">legend</span><span class="op">:</span> {<span class="dt">x</span><span class="op">:</span> <span class="fl">0.55</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="fl">0.98</span>}<span class="op">,</span> <span class="dt">margin</span><span class="op">:</span> {<span class="dt">t</span><span class="op">:</span> <span class="dv">8</span>}})</span>
+<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>  VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">autoResize</span>(div)</span>
+<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> div</span>
+<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-3" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="prose-swatches" class="level2">
+<h2 class="anchored" data-anchor-id="prose-swatches">Prose swatches</h2>
+<p>To tint a color word in running text so it matches the trace it describes: <code>&lt;span class="vm-swatch vm-swatch-alt"&gt;red&lt;/span&gt;</code> → <span class="vm-swatch vm-swatch-alt">red</span>. Five modifiers exist – <code>-alt</code>, <code>-ok</code>, <code>-warn</code>, <code>-accent2</code> map to the matching palette token, <code>-accent</code> to <code>--vm-accent</code>. <code>vm-swatch</code> alone sets no color. There is no <code>-fn</code>, <code>-muted</code>, <code>-ink</code>, <code>-accent3</code> or <code>-halo</code> swatch.</p>
+</section>
+<section id="bringing-your-own-stylesheet" class="level2">
+<h2 class="anchored" data-anchor-id="bringing-your-own-stylesheet">Bringing your own stylesheet</h2>
+<p><code>mathviz: {css: false}</code> (or simply not loading <code>mathviz.css</code>) leaves you responsible for both halves: the <code>--vm-*</code> tokens the JS reads (it falls back to the light defaults without them – fine on a light-only site, wrong in dark mode) and the <code>ojs-*</code> / <code>vm-*</code> rules that lay out panels and position the legend. Most sites want the stylesheet plus a handful of token overrides, not a replacement.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICB2bVRoZW1lXG4gIGNvbnN0IHJvd3MgPSBbXG4gICAgW1wiQ2hyb21lXCIsIG51bGxdLFxuICAgIFtcIi0tdm0tYmdcIiwgXCJwYWdlIGJhY2tncm91bmQ6IGZ1bGxzY3JlZW4gYmFja2Ryb3AsIHRoZSBwaWxsIGJlaGluZCB0aGUgZnVsbHNjcmVlbiBidXR0b24sIHNsaWRlciB0aHVtYiByaW5nLCBzd2F0Y2ggdGludCBiYXNlXCJdLFxuICAgIFtcIi0tdm0tc3VyZmFjZVwiLCBcInBhbmVsIGFuZCBjb250cm9scy1iYXIgYmFja2dyb3VuZDsgdG9vbHRpcCBiYWNrZ3JvdW5kIChKUylcIl0sXG4gICAgW1wiLS12bS1zdXJmYWNlLWhvdmVyXCIsIFwiaG92ZXIgc3RhdGUgb2YgbW9kZWJhciBhbmQgZnVsbHNjcmVlbiBidXR0b25zXCJdLFxuICAgIFtcIi0tdm0tdGV4dFwiLCBcInBhbmVsIHRleHQ7IGNoYXJ0IGZvbnQgYW5kIHRvb2x0aXAgdGV4dCAoSlMpXCJdLFxuICAgIFtcIi0tdm0tdGV4dC1zb2Z0XCIsIFwibGFiZWxzLCB0aGUgbGVnZW5kJ3MgdW5jaGVja2VkIGl0ZW1zLCBwbGF5IGJ1dHRvbnM7IGF4aXMgdGlja3MgYW5kIHRpdGxlcywgdGhlIGVtcHR5LXN0YXRlIG1lc3NhZ2UgKEpTKVwiXSxcbiAgICBbXCItLXZtLWJvcmRlclwiLCBcInBhbmVsIGJvcmRlcnMsIHNsaWRlciB0cmFja3M7IGF4aXMgbGluZXMsIHplcm8gbGluZXMsIHRpY2tzLCB0b29sdGlwIGJvcmRlciAoSlMpXCJdLFxuICAgIFtcIi0tdm0tYWNjZW50XCIsIFwiYnV0dG9ucywgZm9jdXMgcmluZ3MsIHNsaWRlciBmaWxsLCB0aGUgYWN0aXZlIG1vZGViYXIgYnV0dG9uXCJdLFxuICAgIFtcIi0tdm0tYWNjZW50LWhvdmVyXCIsIFwiT2JzZXJ2YWJsZSBJbnB1dHMgYnV0dG9uIGhvdmVyXCJdLFxuICAgIFtcIi0tdm0tZ3JpZFwiLCBcImNoYXJ0IGdyaWRsaW5lcyAoSlMgb25seSlcIl0sXG4gICAgW1wiLS12bS1yYWRpdXNcIiwgXCJwYW5lbCBhbmQgcG9wb3ZlciBjb3JuZXJzIC0tIHNhbWUgaW4gYm90aCB0aGVtZXNcIl0sXG4gICAgW1wiLS12bS1yYWRpdXMtc21cIiwgXCJpbnB1dHMsIGJ1dHRvbnMsIHRoZSBsZWdlbmQgZ3JpcCAtLSBzYW1lIGluIGJvdGggdGhlbWVzXCJdLFxuICAgIFtcIi0tdm0tc2hhZG93XCIsIFwibGVnZW5kLCBwb3BvdmVyLCBtb2RlYmFyIHBpbGxcIl0sXG4gICAgW1wiLS12bS1mb250LXNhbnNcIiwgXCJjaGFydCB0ZXh0IGFuZCB0aGUgcGxheWJhY2sgcG9wb3ZlciAtLSBzYW1lIGluIGJvdGggdGhlbWVzLiBSZWRlY2xhcmUgaXQgaWYgeW91ciBzaXRlIHNlbGYtaG9zdHMgYSBmb250XCJdLFxuICAgIFtcIkNoYXJ0IHBhbGV0dGUgKFZNLnBsb3R0aW5nLmNvbG9ycygpKVwiLCBudWxsXSxcbiAgICBbXCItLXZtLWNvbG9yLWZuXCIsIFwidGhlIGZ1bmN0aW9uIGl0c2VsZiwgdGhlIHByaW1hcnkgdHJhY2VcIl0sXG4gICAgW1wiLS12bS1jb2xvci1hbHRcIiwgXCJhbiBhbHRlcm5hdGUgb3IgcmVmZXJlbmNlIHRyYWNlOyAudm0tc3dhdGNoLWFsdDsgLnZtLWludmFsaWRcIl0sXG4gICAgW1wiLS12bS1jb2xvci1va1wiLCBcImEgY29udmVyZ2VkIG9yIGNvcnJlY3QgbWFya2VyOyAudm0tc3dhdGNoLW9rXCJdLFxuICAgIFtcIi0tdm0tY29sb3ItbXV0ZWRcIiwgXCJkZS1lbXBoYXNpemVkIGRhdGFcIl0sXG4gICAgW1wiLS12bS1jb2xvci1pbmtcIiwgXCJzdHJva2VzIGFuZCBsYWJlbHMgdGhhdCBzaG91bGQgcmVhZCBhcyB0ZXh0XCJdLFxuICAgIFtcIi0tdm0tY29sb3Itd2FyblwiLCBcImEgd2FybmluZywgYSBkaXZlcmdpbmcgaXRlcmF0ZTsgLnZtLXN3YXRjaC13YXJuXCJdLFxuICAgIFtcIi0tdm0tY29sb3ItYWNjZW50MlwiLCBcImEgdGhpcmQgc2VyaWVzOyAudm0tc3dhdGNoLWFjY2VudDJcIl0sXG4gICAgW1wiLS12bS1jb2xvci1hY2NlbnQzXCIsIFwiYSBmb3VydGggc2VyaWVzXCJdLFxuICAgIFtcIi0tdm0tY29sb3ItaGFsb1wiLCBcInRoZSByaW5nIGFyb3VuZCBhIG1hcmtlcjogd2hpdGUgb24gbGlnaHQsIHRoZSBwYWdlIGJhY2tncm91bmQgb24gZGFya1wiXVxuICBdXG4gIGNvbnN0IHN0eWxlID0gZ2V0Q29tcHV0ZWRTdHlsZShkb2N1bWVudC5ib2R5KVxuICBjb25zdCB0YWJsZSA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoXCJ0YWJsZVwiKVxuICB0YWJsZS5jbGFzc05hbWUgPSBcInRhYmxlIHRhYmxlLXNtIHNtYWxsXCJcbiAgdGFibGUuaW5uZXJIVE1MID0gXCI8dGhlYWQ+PHRyPjx0aD5Ub2tlbjwvdGg+PHRoPkN1cnJlbnQgdmFsdWU8L3RoPjx0aD5Vc2VkIGZvcjwvdGg+PC90cj48L3RoZWFkPlwiXG4gIGNvbnN0IGJvZHkgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwidGJvZHlcIilcbiAgZm9yIChjb25zdCBbbmFtZSwgdXNlXSBvZiByb3dzKSB7XG4gICAgY29uc3QgdHIgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwidHJcIilcbiAgICBpZiAodXNlID09PSBudWxsKSB7IHRyLmlubmVySFRNTCA9IGA8dGggY29sc3Bhbj0zIHN0eWxlPVwicGFkZGluZy10b3A6LjhyZW1cIj4ke25hbWV9PC90aD5gOyBib2R5LmFwcGVuZENoaWxkKHRyKTsgY29udGludWUgfVxuICAgIGNvbnN0IHZhbHVlID0gc3R5bGUuZ2V0UHJvcGVydHlWYWx1ZShuYW1lKS50cmltKClcbiAgICBjb25zdCBpc0NvbG9yID0gL14oI3xyZ2IpLy50ZXN0KHZhbHVlKVxuICAgIGNvbnN0IGNoaXAgPSBpc0NvbG9yID8gYDxzcGFuIHN0eWxlPVwiZGlzcGxheTppbmxpbmUtYmxvY2s7d2lkdGg6MXJlbTtoZWlnaHQ6MXJlbTtib3JkZXItcmFkaXVzOjNweDtib3JkZXI6MXB4IHNvbGlkIHZhcigtLXZtLWJvcmRlcik7YmFja2dyb3VuZDoke3ZhbHVlfTt2ZXJ0aWNhbC1hbGlnbjotM3B4O21hcmdpbi1yaWdodDouNHJlbVwiPjwvc3Bhbj5gIDogXCJcIlxuICAgIHRyLmlubmVySFRNTCA9IGA8dGQgc3R5bGU9XCJ3aGl0ZS1zcGFjZTpub3dyYXBcIj48Y29kZT4ke25hbWV9PC9jb2RlPjwvdGQ+PHRkIHN0eWxlPVwid2hpdGUtc3BhY2U6bm93cmFwXCI+JHtjaGlwfTxjb2RlPiR7dmFsdWV9PC9jb2RlPjwvdGQ+PHRkPiR7dXNlfTwvdGQ+YFxuICAgIGJvZHkuYXBwZW5kQ2hpbGQodHIpXG4gIH1cbiAgdGFibGUuYXBwZW5kQ2hpbGQoYm9keSlcbiAgcmV0dXJuIHRhYmxlXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IGRpdiA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoXCJkaXZcIilcbiAgZGl2LnN0eWxlLmhlaWdodCA9IFwiMjQwcHhcIlxuICBjb25zdCB4cyA9IFtdLCB5cyA9IFtdXG4gIGZvciAobGV0IGkgPSAwOyBpIDw9IDEwMDsgaSsrKSB7IGNvbnN0IHggPSBpIC8gMTA7IHhzLnB1c2goeCk7IHlzLnB1c2goTWF0aC5leHAoLXggLyAzKSAqIE1hdGguc2luKDIgKiB4KSkgfVxuICBQbG90bHkubmV3UGxvdChkaXYsIFtcbiAgICB7eDogeHMsIHk6IHlzLCBmaWxsOiBcInRvemVyb3lcIiwgZmlsbGNvbG9yOiBWTS5wbG90dGluZy5hbHBoYShcIm9rXCIsIDAuMiksIGxpbmU6IHtjb2xvcjogY2hhcnRDb2xvcnMub2ssIHdpZHRoOiAyfSwgbmFtZTogXCJhbHBoYSgnb2snLCAwLjIpIHVuZGVyIGFuIG9rIHN0cm9rZVwifSxcbiAgICB7eDogWzIuNCwgNS41XSwgeTogW3lzWzI0XSwgeXNbNTVdXSwgbW9kZTogXCJtYXJrZXJzXCIsIG1hcmtlcjoge2NvbG9yOiBjaGFydENvbG9ycy5hbHQsIHNpemU6IDEyLCBsaW5lOiB7Y29sb3I6IGNoYXJ0Q29sb3JzLmhhbG8sIHdpZHRoOiAyLjV9fSwgbmFtZTogXCJoYWxvIHJpbmdcIn1cbiAgXSwge2xlZ2VuZDoge3g6IDAuNTUsIHk6IDAuOTh9LCBtYXJnaW46IHt0OiA4fX0pXG4gIFZNLnBsb3R0aW5nLmF1dG9SZXNpemUoZGl2KVxuICByZXR1cm4gZGl2XG59XG4ifV19
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../docs";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apurvanakade\.github\.io\/mathviz\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Apache-2.0 · Copyright (c) 2026 Apurva Nakade</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>VM.plotting – mathviz</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ef56b68f8fa1e9d2ba328e99e439f80.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-268b9611d5c32c6cc39e13a48e7764dc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<meta name="referrer" content="same-origin">
+<script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="../../site_libs/quarto-contrib/mathviz-0.1.1/mathviz.js"></script>
+<link href="../../site_libs/quarto-contrib/mathviz-0.1.1/mathviz.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="module" src="../../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">mathviz</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../docs/index.html"> 
+<span class="menu-text">Guide</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../../docs/reference/index.html" aria-current="page"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../docs/recipes/index.html"> 
+<span class="menu-text">Recipes</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/apurvanakade/mathviz"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../docs/reference/plotting.html">VM.plotting</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">API reference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/expressions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.expressions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/numerical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.numerical</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.sampling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/filters.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.filters</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.distributions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/plotting.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">VM.plotting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/ui.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.ui</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/discrete-math.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.discreteMath</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#palette" id="toc-palette" class="nav-link active" data-scroll-target="#palette">Palette</a>
+  <ul class="collapse">
+  <li><a href="#colors" id="toc-colors" class="nav-link" data-scroll-target="#colors">VM.plotting.colors()</a></li>
+  <li><a href="#colorway" id="toc-colorway" class="nav-link" data-scroll-target="#colorway">VM.plotting.colorway()</a></li>
+  <li><a href="#alpha" id="toc-alpha" class="nav-link" data-scroll-target="#alpha">VM.plotting.alpha(token, opacity)</a></li>
+  <li><a href="#subscript" id="toc-subscript" class="nav-link" data-scroll-target="#subscript">VM.plotting.subscript(value)</a></li>
+  </ul></li>
+  <li><a href="#theme-detection" id="toc-theme-detection" class="nav-link" data-scroll-target="#theme-detection">Theme detection</a>
+  <ul class="collapse">
+  <li><a href="#themeName" id="toc-themeName" class="nav-link" data-scroll-target="#themeName">VM.plotting.themeName()</a></li>
+  <li><a href="#onThemeChange" id="toc-onThemeChange" class="nav-link" data-scroll-target="#onThemeChange">VM.plotting.onThemeChange(callback)</a></li>
+  <li><a href="#configure" id="toc-configure" class="nav-link" data-scroll-target="#configure">VM.plotting.configure(overrides?)</a></li>
+  </ul></li>
+  <li><a href="#building-a-chart" id="toc-building-a-chart" class="nav-link" data-scroll-target="#building-a-chart">Building a chart</a>
+  <ul class="collapse">
+  <li><a href="#layout" id="toc-layout" class="nav-link" data-scroll-target="#layout">VM.plotting.layout(overrides?)</a></li>
+  <li><a href="#config" id="toc-config" class="nav-link" data-scroll-target="#config">VM.plotting.config(overrides?)</a></li>
+  <li><a href="#hoverLabel" id="toc-hoverLabel" class="nav-link" data-scroll-target="#hoverLabel">VM.plotting.hoverLabel()</a></li>
+  <li><a href="#emptyState" id="toc-emptyState" class="nav-link" data-scroll-target="#emptyState">VM.plotting.emptyState(message)</a></li>
+  <li><a href="#autoResize" id="toc-autoResize" class="nav-link" data-scroll-target="#autoResize">VM.plotting.autoResize(div)</a></li>
+  <li><a href="#paddedRange" id="toc-paddedRange" class="nav-link" data-scroll-target="#paddedRange">VM.plotting.paddedRange(values, opts?)</a></li>
+  <li><a href="#plotOptions" id="toc-plotOptions" class="nav-link" data-scroll-target="#plotOptions">VM.plotting.plotOptions(overrides?)</a></li>
+  <li><a href="#themePatch" id="toc-themePatch" class="nav-link" data-scroll-target="#themePatch">VM.plotting.themePatch()</a></li>
+  </ul></li>
+  <li><a href="#the-plotly-patch" id="toc-the-plotly-patch" class="nav-link" data-scroll-target="#the-plotly-patch">The Plotly patch</a>
+  <ul class="collapse">
+  <li><a href="#installPlotlyPatch" id="toc-installPlotlyPatch" class="nav-link" data-scroll-target="#installPlotlyPatch">VM.plotting.installPlotlyPatch()</a></li>
+  <li><a href="#fullscreenButton" id="toc-fullscreenButton" class="nav-link" data-scroll-target="#fullscreenButton">VM.plotting.fullscreenButton</a></li>
+  </ul></li>
+  <li><a href="#svg-fullscreen-helpers" id="toc-svg-fullscreen-helpers" class="nav-link" data-scroll-target="#svg-fullscreen-helpers">SVG fullscreen helpers</a>
+  <ul class="collapse">
+  <li><a href="#svgAspectRatio" id="toc-svgAspectRatio" class="nav-link" data-scroll-target="#svgAspectRatio">VM.plotting.svgAspectRatio({…})</a></li>
+  <li><a href="#figureBounds" id="toc-figureBounds" class="nav-link" data-scroll-target="#figureBounds">VM.plotting.figureBounds(rects)</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">VM.plotting</h1>
+<p class="subtitle lead">The chart theme, the Plotly patch, and the fullscreen buttons</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+<p>Everything a chart needs to look like part of the page: one theme read live from the <a href="../../docs/theming.html"><code>--vm-*</code> tokens</a>, applied to Plotly and Observable Plot alike, and following the light/dark toggle the moment it flips.</p>
+<p>Two things to hold onto:</p>
+<ol type="1">
+<li><strong>Every function reads the tokens at call time, from <code>document.body</code>.</strong> Call <code>colors()</code> inside the cell that builds traces; never cache the result in a module-level constant. (Why <code>body</code>: the dark tokens are declared on a selector that matches <code>&lt;body&gt;</code>, so <code>&lt;html&gt;</code> reports the light values even in dark mode – the origin of a white tooltip on a dark chart.)</li>
+<li><strong>On a page rendered through the extension, the Plotly patch is already installed.</strong> <code>Plotly.newPlot(div, data, {xaxis: {title: "x"}}, {})</code> gets the full theme, tooltip style, pan-by-default and the shared modebar with no <code>VM.plotting.*</code> call at all. The theme functions are for what the patch can’t reach: the colors you bake into traces, and Observable Plot.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="21" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 20;"><span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<section id="palette" class="level2">
+<h2 class="anchored" data-anchor-id="palette">Palette</h2>
+<section id="colors" class="level3">
+<h3 class="anchored" data-anchor-id="colors">VM.plotting.colors()</h3>
+<p>A fresh snapshot of the chart palette for whichever theme is active right now, read from the <code>--vm-color-&lt;name&gt;</code> tokens. Keyed by <strong>role</strong>, not hue, so a page reads <code>colors.fn</code> rather than repeating <code>"#2563eb"</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Key</th>
+<th>Role on a chart</th>
+<th>Light default</th>
+<th>Dark default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fn</code></td>
+<td>the function itself, the primary trace</td>
+<td><code>#2563eb</code></td>
+<td><code>#8ab4ff</code></td>
+</tr>
+<tr class="even">
+<td><code>alt</code></td>
+<td>an alternate or reference trace</td>
+<td><code>#dc2626</code></td>
+<td><code>#f87171</code></td>
+</tr>
+<tr class="odd">
+<td><code>ok</code></td>
+<td>a converged / correct / “good” marker</td>
+<td><code>#16a34a</code></td>
+<td><code>#4ade80</code></td>
+</tr>
+<tr class="even">
+<td><code>muted</code></td>
+<td>de-emphasized data, history</td>
+<td><code>#94a3b8</code></td>
+<td><code>#7d8aa3</code></td>
+</tr>
+<tr class="odd">
+<td><code>ink</code></td>
+<td>strokes and labels that should read as text</td>
+<td><code>#111827</code></td>
+<td><code>#c9cedb</code></td>
+</tr>
+<tr class="even">
+<td><code>warn</code></td>
+<td>a warning, a diverging iterate</td>
+<td><code>#f59e0b</code></td>
+<td><code>#fbbf24</code></td>
+</tr>
+<tr class="odd">
+<td><code>accent2</code></td>
+<td>a third series</td>
+<td><code>#9333ea</code></td>
+<td><code>#c084fc</code></td>
+</tr>
+<tr class="even">
+<td><code>accent3</code></td>
+<td>a fourth series</td>
+<td><code>#0d9488</code></td>
+<td><code>#2dd4bf</code></td>
+</tr>
+<tr class="odd">
+<td><code>halo</code></td>
+<td>the ring around a marker – white on light, the page background on dark. Use it instead of <code>"white"</code>.</td>
+<td><code>#ffffff</code></td>
+<td><code>#171b29</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>{fn, alt, ok, muted, ink, warn, accent2, accent3, halo}</code> as CSS color strings. Falls back to the light hexes when no stylesheet is loaded.</p>
+<p>Any argument is ignored. The idiom <code>VM.plotting.colors(vmTheme)</code> exists purely to make the OJS cell depend on <code>vmTheme</code> – see <a href="#onThemeChange"><code>onThemeChange</code></a>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" data-startfrom="48" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 47;"><span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>chartColors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-2" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb3" data-startfrom="53" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 52;"><span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> row <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  row<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">cssText</span> <span class="op">=</span> <span class="st">"display:flex;gap:.5rem;flex-wrap:wrap"</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> name <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(chartColors)) {</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> chip <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    chip<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">cssText</span> <span class="op">=</span> <span class="vs">`width:5.5rem;padding:.4rem .5rem;border-radius:6px;border:1px solid var(--vm-border);background:</span><span class="sc">${</span>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(chartColors[name]<span class="op">,</span> <span class="fl">0.25</span>)<span class="sc">}</span><span class="vs">;font:12px var(--vm-font-sans)`</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    chip<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> <span class="vs">`&lt;span style="display:inline-block;width:.8rem;height:.8rem;border-radius:50%;background:</span><span class="sc">${</span>chartColors[name]<span class="sc">}</span><span class="vs">;vertical-align:-1px;margin-right:.3rem"&gt;&lt;/span&gt;</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    row<span class="op">.</span><span class="fu">appendChild</span>(chip)</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> row</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-3" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="colorway" class="level3">
+<h3 class="anchored" data-anchor-id="colorway">VM.plotting.colorway()</h3>
+<p>The trace color cycle – <code>colors()</code> in role order minus <code>halo</code>, so a trace Plotly or Plot colors automatically never lands on the background color. Already set on <code>layout()</code> and <code>plotOptions()</code>.</p>
+<p><strong>Returns</strong> <code>string[]</code>: <code>[fn, alt, ok, muted, ink, warn, accent2, accent3]</code>.</p>
+</section>
+<section id="alpha" class="level3">
+<h3 class="anchored" data-anchor-id="alpha">VM.plotting.alpha(token, opacity)</h3>
+<p>The same hue as a palette token (or any color string) at a given opacity, for a translucent fill that pairs with a solid stroke. An <code>rgba(...)</code> literal stays light-mode-colored after a toggle while its own stroke lightens, so fill and stroke drift apart; this doesn’t.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>token</code></td>
+<td><code>string</code></td>
+<td>A palette role (<code>"fn"</code>, <code>"ok"</code>, …) resolved through <code>colors()</code>, or a <code>#rgb</code> / <code>#rrggbb</code> / <code>rgb(...)</code> / <code>rgba(...)</code> string.</td>
+</tr>
+<tr class="even">
+<td><code>opacity</code></td>
+<td><code>number</code></td>
+<td><code>0</code>..<code>1</code>; not clamped.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>"rgba(r, g, b, opacity)"</code>. An input that can’t be parsed (a CSS named color, <code>hsl(...)</code>, a non-string) is returned <strong>unchanged</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" data-startfrom="84" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 83;"><span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"ok"</span><span class="op">,</span> <span class="fl">0.2</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"#ff0000"</span><span class="op">,</span> <span class="fl">0.5</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"rebeccapurple"</span><span class="op">,</span> <span class="fl">0.5</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-4" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="subscript" class="level3">
+<h3 class="anchored" data-anchor-id="subscript">VM.plotting.subscript(value)</h3>
+<p>Replaces each digit with its Unicode subscript, for iteration labels in Plotly trace <code>text</code> – which is plain text with no markup, so <code>"x_0"</code> renders with a literal underscore.</p>
+<p><strong>Returns</strong> <code>string</code>; non-digit characters pass through.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" data-startfrom="94" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 93;"><span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>[<span class="st">"x"</span> <span class="op">+</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="dv">0</span>)<span class="op">,</span> <span class="st">"x"</span> <span class="op">+</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="dv">12</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="st">"n=3"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-5" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="theme-detection" class="level2">
+<h2 class="anchored" data-anchor-id="theme-detection">Theme detection</h2>
+<section id="themeName" class="level3">
+<h3 class="anchored" data-anchor-id="themeName">VM.plotting.themeName()</h3>
+<p>Which theme is active right now, by testing the dark selector against <code>&lt;body&gt;</code> and then <code>&lt;html&gt;</code>.</p>
+<p><strong>Returns</strong> <code>"light" | "dark"</code> (<code>"light"</code> when there is no <code>document</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" data-startfrom="106" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 105;"><span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>vmTheme   <span class="co">// this cell re-runs on every toggle -- try it</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-6" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="onThemeChange" class="level3">
+<h3 class="anchored" data-anchor-id="onThemeChange">VM.plotting.onThemeChange(callback)</h3>
+<p>Calls <code>callback(themeName())</code> now, synchronously, and again after every <strong>real</strong> theme change. It observes <code>class</code> and <code>data-bs-theme</code> on both <code>&lt;body&gt;</code> and <code>&lt;html&gt;</code>, waits two animation frames (Quarto flips the class and swaps the stylesheet as separate steps, class first), and compares the theme name before calling – so unrelated body-class churn (a sidebar opening) fires nothing.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>callback</code></td>
+<td><code>(theme: "light" \| "dark") =&gt; void</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>() =&gt; void</code>, a teardown that disconnects the observer (a no-op when there’s no <code>document.body</code> or <code>MutationObserver</code>; the initial call still happens).</p>
+<p>The shape is exactly what <code>Generators.observe</code> wants, which gives the two-line pattern every chart page needs:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now any cell that reads <code>chartColors</code> re-runs on a toggle. <strong>This is what makes trace colors follow the theme.</strong> Chart chrome (axes, grid, tooltip) is re-themed for you by a <code>relayout</code> the patch performs, but a color you baked into a trace is a value the page chose, and only re-running the cell changes it.</p>
+</section>
+<section id="configure" class="level3">
+<h3 class="anchored" data-anchor-id="configure">VM.plotting.configure(overrides?)</h3>
+<p>Adjusts the module’s settings. The only setting is <code>darkSelector</code>: the selector list that means “dark mode”, tested against <code>&lt;body&gt;</code> and <code>&lt;html&gt;</code>. Default:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>body<span class="fu">.quarto-dark</span><span class="op">,</span> html<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> body<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> html<span class="fu">.vm-dark</span><span class="op">,</span> body<span class="fu">.vm-dark</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A site whose toggle uses none of these calls <code>VM.plotting.configure({darkSelector: ".my-dark"})</code> once at load, and declares its dark <code>--vm-*</code> tokens under that same selector. Keep the selectors root-scoped (<code>html</code>/<code>body</code>); an unscoped <code>[data-bs-theme="dark"]</code> matches Quarto’s <code>&lt;nav&gt;</code> and leaks the dark palette into the navbar.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>overrides</code></td>
+<td><code>{darkSelector?: string}</code></td>
+<td>Merged in when it’s an object; anything else is ignored. Keys are not validated.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> a copy of the settings now in effect.</p>
+</section>
+</section>
+<section id="building-a-chart" class="level2">
+<h2 class="anchored" data-anchor-id="building-a-chart">Building a chart</h2>
+<section id="layout" class="level3">
+<h3 class="anchored" data-anchor-id="layout">VM.plotting.layout(overrides?)</h3>
+<p>The shared Plotly layout, themed from the live tokens:</p>
+<ul>
+<li>transparent <code>paper_bgcolor</code> / <code>plot_bgcolor</code>, so the page’s own background shows through (no <code>#E5ECF6</code> plate, no white box in dark mode)</li>
+<li><code>font</code> in <code>--vm-font-sans</code>, <code>--vm-text</code>; axes, ticks, gridlines in <code>--vm-text-soft</code> / <code>--vm-border</code> / <code>--vm-grid</code>, <code>automargin: true</code></li>
+<li><code>colorway()</code>, <code>hoverLabel()</code>, themed <code>modebar</code> colors, <code>textfont</code> for trace labels</li>
+<li>a <code>transition</code> of 300 ms <code>cubic-in-out</code> (<code>0</code> under <code>prefers-reduced-motion</code>; while a <a href="../../docs/reference/ui.html#playbackTweenMs">slider playback</a> sweep runs, shortened to the gap between values so the tween lands before the next one arrives)</li>
+<li>small non-zero <code>margin</code> (<code>{l: 8, r: 12, t: 12, b: 8}</code>) that <code>automargin</code> grows as needed</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>overrides</code></td>
+<td><code>object</code> (optional)</td>
+<td><strong>Deep-merged</strong> on top, so <code>{xaxis: {title: "x", range: [0, 1]}}</code> extends the shared axis chrome rather than replacing it. Arrays and primitives replace wholesale.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> a Plotly layout object.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Don't pass `margin: {l: 0, r: 0, t: 0, b: 0}`">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Don’t pass <code>margin: {l: 0, r: 0, t: 0, b: 0}</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It was a common convention and it defeats <code>automargin</code>: the rotated y-title and tick labels end up jammed against the container edge.</p>
+</div>
+</div>
+<p>With the patch installed this is merged under every <code>newPlot</code>/<code>react</code> layout automatically. Calling it explicitly is harmless and makes the dependency visible.</p>
+</section>
+<section id="config" class="level3">
+<h3 class="anchored" data-anchor-id="config">VM.plotting.config(overrides?)</h3>
+<p><code>{responsive: true, displaylogo: false}</code>, deep-merged with <code>overrides</code>. The patch also applies this and then sets the modebar button list on top.</p>
+</section>
+<section id="hoverLabel" class="level3">
+<h3 class="anchored" data-anchor-id="hoverLabel">VM.plotting.hoverLabel()</h3>
+<p>The themed tooltip style: <code>--vm-surface</code> background, <code>--vm-border</code> border, left-aligned, 12 px <code>--vm-font-sans</code> in <code>--vm-text</code>.</p>
+<p>It has to be set on <strong>each trace</strong>, not only the layout – Plotly derives a trace’s tooltip background from that trace’s own color unless the trace sets <code>hoverlabel</code> itself, so a layout-level default never actually shows. The patch injects it onto every trace that doesn’t set one. Call it yourself only for a chart built outside the patch.</p>
+</section>
+<section id="emptyState" class="level3">
+<h3 class="anchored" data-anchor-id="emptyState">VM.plotting.emptyState(message)</h3>
+<p>A centered message for an empty plot area, as an <code>annotations</code> array. Use it whenever the page’s computation bailed out; without it an unparseable input draws an empty grid indistinguishable from a valid-but-empty result.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>annotations<span class="op">:</span> f <span class="op">?</span> [] <span class="op">:</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">emptyState</span>(<span class="st">"Couldn't parse that expression"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Returns</strong> a one-element Plotly <code>annotations</code> array at paper coordinates <code>(0.5, 0.5)</code> in <code>--vm-text-soft</code>.</p>
+</section>
+<section id="autoResize" class="level3">
+<h3 class="anchored" data-anchor-id="autoResize">VM.plotting.autoResize(div)</h3>
+<p>Keeps a graph div sized to its container, and stops once the div leaves the document. Every chart built detached (the usual OJS pattern: create a <code>div</code>, <code>Plotly.newPlot</code> into it, return it) needs this, because Plotly measures 0×0 at <code>newPlot</code> time. A bare <code>ResizeObserver</code> outlives its div and throws <code>"Resize must be passed a displayed plot div element."</code> once a re-run replaces it; this one disconnects itself.</p>
+<p><strong>Returns</strong> the <code>ResizeObserver</code>, or <code>null</code> where <code>ResizeObserver</code> doesn’t exist. Skips resizing while the div is hidden (<code>display: none</code>) and is safe when Plotly isn’t loaded.</p>
+</section>
+<section id="paddedRange" class="level3">
+<h3 class="anchored" data-anchor-id="paddedRange">VM.plotting.paddedRange(values, opts?)</h3>
+<p>A <code>{lo, hi}</code> axis range covering an array of values with some breathing room.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>values</code></td>
+<td><code>number[]</code></td>
+<td></td>
+<td>Non-finite entries are ignored.</td>
+</tr>
+<tr class="even">
+<td><code>opts.emptyRange</code></td>
+<td><code>[number, number]</code></td>
+<td><code>[-1, 1]</code></td>
+<td>Returned when <code>values</code> has no finite entry.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.relativePadding</code></td>
+<td><code>number</code></td>
+<td><code>0.1</code></td>
+<td>Padding as a fraction of the span <code>hi − lo</code>.</td>
+</tr>
+<tr class="even">
+<td><code>opts.minPadding</code></td>
+<td><code>number</code></td>
+<td><code>0.5</code></td>
+<td>Floor on the padding, for small or zero spans (every value identical).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>{lo, hi}</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" data-startfrom="208" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 207;"><span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="kw">NaN</span><span class="op">,</span> <span class="dv">10</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">5</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">5</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([])]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-7" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="plotOptions" class="level3">
+<h3 class="anchored" data-anchor-id="plotOptions">VM.plotting.plotOptions(overrides?)</h3>
+<p>The Observable Plot equivalent of <code>layout()</code>: same font, grid color and <code>colorway</code>, so a <code>Plot.plot</code> under a Plotly chart reads as the same chart system.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>overrides</code></td>
+<td><code>object</code> (optional)</td>
+<td>Deep-merged on top. If it names an <code>x</code> or <code>y</code> scale without a <code>stroke</code>, that axis is stroked in <code>--vm-border</code>; scales it doesn’t name are left for Plot to default.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> options for <code>Plot.plot(...)</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" data-startfrom="222" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 221;"><span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pts <span class="op">=</span> []</span>
+<span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">40</span><span class="op">;</span> i<span class="op">++</span>) pts<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> i <span class="op">/</span> <span class="dv">4</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">exp</span>(<span class="op">-</span>i <span class="op">/</span> <span class="dv">16</span>) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(i <span class="op">/</span> <span class="dv">3</span>)})</span>
+<span id="cb11-225"><a href="#cb11-225" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
+<span id="cb11-226"><a href="#cb11-226" aria-hidden="true" tabindex="-1"></a>    <span class="dt">height</span><span class="op">:</span> <span class="dv">220</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"t"</span>}<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"damped"</span>}<span class="op">,</span></span>
+<span id="cb11-227"><a href="#cb11-227" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [Plot<span class="op">.</span><span class="fu">line</span>(pts<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">fn</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span> Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])]</span>
+<span id="cb11-228"><a href="#cb11-228" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb11-229"><a href="#cb11-229" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-8" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="themePatch" class="level3">
+<h3 class="anchored" data-anchor-id="themePatch">VM.plotting.themePatch()</h3>
+<p>The theme-dependent style attributes as a <strong>flat</strong>, dotted-path object for <code>Plotly.relayout</code> – <code>{"xaxis.gridcolor": …, "hoverlabel.bgcolor": …, colorway: […]}</code>. <code>relayout</code> replaces whatever attribute each key names wholesale, so a nested <code>{xaxis: {...}}</code> would wipe the page’s own <code>xaxis.title</code>/<code>range</code>; dotted keys patch only the one sub-property. The patch runs this over every live <code>.js-plotly-plot</code> on each theme flip. A page shouldn’t need to call it.</p>
+<p><strong>Returns</strong> an object with 24 keys.</p>
+</section>
+</section>
+<section id="the-plotly-patch" class="level2">
+<h2 class="anchored" data-anchor-id="the-plotly-patch">The Plotly patch</h2>
+<p>On load (and again on <code>DOMContentLoaded</code>) the library wraps <code>Plotly.newPlot</code> and <code>Plotly.react</code>. Every chart on the page then gets, with no per-page code:</p>
+<ul>
+<li><p><code>layout()</code> merged <strong>under</strong> the page’s layout</p></li>
+<li><p><code>hoverLabel()</code> on every trace that lacks a <code>hoverlabel</code></p></li>
+<li><p><code>dragmode: "pan"</code>, unless the page set its own</p></li>
+<li><p><code>config()</code> merged under the page’s config, then this modebar:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Group</th>
+<th>Buttons</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>download PNG</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>box zoom, pan</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>zoom in, zoom out (each step scales the visible span by <strong>1.25×</strong>, not Plotly’s 2×, which overshoots when framing a curve), autoscale, reset</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>fullscreen</td>
+</tr>
+</tbody>
+</table>
+<p>Box select and lasso are absent. The list is spelled out as <code>config.modeBarButtons</code>, replacing whatever a page passes there – which is safe only because every chart the library targets is 2-D cartesian.</p></li>
+<li><p>a <code>relayout(themePatch())</code> on every theme flip</p></li>
+</ul>
+<p>The patch is idempotent and a silent no-op when <code>Plotly</code> isn’t on the page (<code>mathviz: {plotly: false}</code>).</p>
+<section id="installPlotlyPatch" class="level3">
+<h3 class="anchored" data-anchor-id="installPlotlyPatch">VM.plotting.installPlotlyPatch()</h3>
+<p>Runs the patch. Only needed when Plotly arrives <strong>later</strong> than the bundle and <code>DOMContentLoaded</code> – a dynamic import, say.</p>
+<p><strong>Returns</strong> <code>true</code> once patched (also when already patched); <code>false</code> when <code>Plotly</code> isn’t on the page.</p>
+</section>
+<section id="fullscreenButton" class="level3">
+<h3 class="anchored" data-anchor-id="fullscreenButton">VM.plotting.fullscreenButton</h3>
+<p>The fullscreen modebar button, as a Plotly custom-button object: <code>{name: "fullscreen", title, icon: {width, height, path}, click(gd)}</code>. The patch adds it to every chart; a page touches this only to reuse its glyph (<code>VM.plotting.fullscreenButton.icon</code> – Bootstrap Icons’ <code>arrows-fullscreen</code>), or to add it to a chart built outside the patch via <code>modeBarButtonsToAdd</code>.</p>
+<p>Clicking fullscreens the nearest <code>.ojs-chart-block</code> – so the controls bar and legend come along – or, without one, the graph div itself; a second click exits. Before entering it records the chart’s aspect ratio as <code>--vm-plot-aspect-ratio</code> on the div so the CSS can letterbox it.</p>
+</section>
+</section>
+<section id="svg-fullscreen-helpers" class="level2">
+<h2 class="anchored" data-anchor-id="svg-fullscreen-helpers">SVG fullscreen helpers</h2>
+<p>Charts drawn as inline SVG (Observable Plot, hand-built <code>&lt;svg&gt;</code>) have no modebar. Give the wrapper <code>class="ojs-chart-block ojs-svg-block"</code> and the library appends one persistent fullscreen button pinned to the figure’s top-right corner – see the <a href="../../docs/markup.html#ojs-svg-block">markup contract</a>. These two pure helpers are what it measures with; they’re exported for unit tests and for a page that wants to do the same arithmetic.</p>
+<section id="svgAspectRatio" class="level3">
+<h3 class="anchored" data-anchor-id="svgAspectRatio">VM.plotting.svgAspectRatio({…})</h3>
+<p>Takes <code>{viewBox, width, height}</code>. The width/height ratio an <code>&lt;svg&gt;</code> draws at, from its attributes: a four-part <code>viewBox</code> when it has one, else <code>width</code>/<code>height</code> when both are positive.</p>
+<p><strong>Returns</strong> <code>number | null</code> (<code>null</code> means “measure it”).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" data-startfrom="283" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 282;"><span id="cb12-283"><a href="#cb12-283" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">viewBox</span><span class="op">:</span> <span class="st">"0 0 640 400"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">width</span><span class="op">:</span> <span class="st">"300"</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="st">"150"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({})]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="figureBounds" class="level3">
+<h3 class="anchored" data-anchor-id="figureBounds">VM.plotting.figureBounds(rects)</h3>
+<p>The smallest box containing every given <code>{left, top, right, bottom}</code>.</p>
+<p><strong>Returns</strong> <code>{left, top, right, bottom} | null</code> (<code>null</code> for an empty list).</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiY2hhcnRDb2xvcnNcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgY29uc3Qgcm93ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICByb3cuc3R5bGUuY3NzVGV4dCA9IFwiZGlzcGxheTpmbGV4O2dhcDouNXJlbTtmbGV4LXdyYXA6d3JhcFwiXG4gIGZvciAoY29uc3QgbmFtZSBvZiBPYmplY3Qua2V5cyhjaGFydENvbG9ycykpIHtcbiAgICBjb25zdCBjaGlwID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICAgIGNoaXAuc3R5bGUuY3NzVGV4dCA9IGB3aWR0aDo1LjVyZW07cGFkZGluZzouNHJlbSAuNXJlbTtib3JkZXItcmFkaXVzOjZweDtib3JkZXI6MXB4IHNvbGlkIHZhcigtLXZtLWJvcmRlcik7YmFja2dyb3VuZDoke1ZNLnBsb3R0aW5nLmFscGhhKGNoYXJ0Q29sb3JzW25hbWVdLCAwLjI1KX07Zm9udDoxMnB4IHZhcigtLXZtLWZvbnQtc2FucylgXG4gICAgY2hpcC5pbm5lckhUTUwgPSBgPHNwYW4gc3R5bGU9XCJkaXNwbGF5OmlubGluZS1ibG9jazt3aWR0aDouOHJlbTtoZWlnaHQ6LjhyZW07Ym9yZGVyLXJhZGl1czo1MCU7YmFja2dyb3VuZDoke2NoYXJ0Q29sb3JzW25hbWVdfTt2ZXJ0aWNhbC1hbGlnbjotMXB4O21hcmdpbi1yaWdodDouM3JlbVwiPjwvc3Bhbj4ke25hbWV9YFxuICAgIHJvdy5hcHBlbmRDaGlsZChjaGlwKVxuICB9XG4gIHJldHVybiByb3dcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IltWTS5wbG90dGluZy5hbHBoYShcIm9rXCIsIDAuMiksIFZNLnBsb3R0aW5nLmFscGhhKFwiI2ZmMDAwMFwiLCAwLjUpLCBWTS5wbG90dGluZy5hbHBoYShcInJlYmVjY2FwdXJwbGVcIiwgMC41KV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IltcInhcIiArIFZNLnBsb3R0aW5nLnN1YnNjcmlwdCgwKSwgXCJ4XCIgKyBWTS5wbG90dGluZy5zdWJzY3JpcHQoMTIpLCBWTS5wbG90dGluZy5zdWJzY3JpcHQoXCJuPTNcIildXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTYiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2bVRoZW1lICAgLy8gdGhpcyBjZWxsIHJlLXJ1bnMgb24gZXZlcnkgdG9nZ2xlIC0tIHRyeSBpdFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC03IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiW1ZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFsxLCAyLCAzLCBOYU4sIDEwXSksIFZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFs1LCA1LCA1XSksIFZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFtdKV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgY29uc3QgcHRzID0gW11cbiAgZm9yIChsZXQgaSA9IDA7IGkgPD0gNDA7IGkrKykgcHRzLnB1c2goe3g6IGkgLyA0LCB5OiBNYXRoLmV4cCgtaSAvIDE2KSAqIE1hdGguY29zKGkgLyAzKX0pXG4gIHJldHVybiBQbG90LnBsb3QoVk0ucGxvdHRpbmcucGxvdE9wdGlvbnMoe1xuICAgIGhlaWdodDogMjIwLCB4OiB7bGFiZWw6IFwidFwifSwgeToge2xhYmVsOiBcImRhbXBlZFwifSxcbiAgICBtYXJrczogW1Bsb3QubGluZShwdHMsIHt4OiBcInhcIiwgeTogXCJ5XCIsIHN0cm9rZTogY2hhcnRDb2xvcnMuZm4sIHN0cm9rZVdpZHRoOiAyfSksIFBsb3QucnVsZVkoWzBdKV1cbiAgfSkpXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTkiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJbVk0ucGxvdHRpbmcuc3ZnQXNwZWN0UmF0aW8oe3ZpZXdCb3g6IFwiMCAwIDY0MCA0MDBcIn0pLCBWTS5wbG90dGluZy5zdmdBc3BlY3RSYXRpbyh7d2lkdGg6IFwiMzAwXCIsIGhlaWdodDogXCIxNTBcIn0pLCBWTS5wbG90dGluZy5zdmdBc3BlY3RSYXRpbyh7fSldXG4ifV19
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../docs/reference";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "../..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apurvanakade\.github\.io\/mathviz\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Apache-2.0 · Copyright (c) 2026 Apurva Nakade</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

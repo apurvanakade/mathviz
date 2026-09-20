@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Markup contract – mathviz</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ef56b68f8fa1e9d2ba328e99e439f80.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-268b9611d5c32c6cc39e13a48e7764dc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<meta name="referrer" content="same-origin">
+<script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="../site_libs/quarto-contrib/mathviz-0.1.1/mathviz.js"></script>
+<link href="../site_libs/quarto-contrib/mathviz-0.1.1/mathviz.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="module" src="../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">mathviz</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../docs/index.html" aria-current="page"> 
+<span class="menu-text">Guide</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../docs/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../docs/recipes/index.html"> 
+<span class="menu-text">Recipes</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/apurvanakade/mathviz"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/markup.html">Markup contract</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">mathviz</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installing</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/first-chart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Your first chart</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/theming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Theming</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/markup.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Markup contract</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Troubleshooting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/internals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How it’s put together</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#at-a-glance" id="toc-at-a-glance" class="nav-link active" data-scroll-target="#at-a-glance">At a glance</a></li>
+  <li><a href="#panels" id="toc-panels" class="nav-link" data-scroll-target="#panels">Panels</a>
+  <ul class="collapse">
+  <li><a href="#ojs-panel" id="toc-ojs-panel" class="nav-link" data-scroll-target="#ojs-panel"><code>ojs-panel</code></a></li>
+  <li><a href="#ojs-row" id="toc-ojs-row" class="nav-link" data-scroll-target="#ojs-row"><code>ojs-row</code></a></li>
+  <li><a href="#ojs-grid" id="toc-ojs-grid" class="nav-link" data-scroll-target="#ojs-grid"><code>ojs-grid</code></a></li>
+  <li><a href="#ojs-fill" id="toc-ojs-fill" class="nav-link" data-scroll-target="#ojs-fill"><code>ojs-fill</code>, <code>ojs-auto</code>, <code>ojs-end</code></a></li>
+  </ul></li>
+  <li><a href="#charts" id="toc-charts" class="nav-link" data-scroll-target="#charts">Charts</a>
+  <ul class="collapse">
+  <li><a href="#ojs-chart-block" id="toc-ojs-chart-block" class="nav-link" data-scroll-target="#ojs-chart-block"><code>ojs-chart-block</code></a></li>
+  <li><a href="#ojs-chart-controls" id="toc-ojs-chart-controls" class="nav-link" data-scroll-target="#ojs-chart-controls"><code>ojs-chart-controls</code></a></li>
+  <li><a href="#ojs-svg-block" id="toc-ojs-svg-block" class="nav-link" data-scroll-target="#ojs-svg-block"><code>ojs-svg-block</code></a></li>
+  <li><a href="#plotly-box-large" id="toc-plotly-box-large" class="nav-link" data-scroll-target="#plotly-box-large"><code>plotly-box-large</code></a></li>
+  </ul></li>
+  <li><a href="#prose" id="toc-prose" class="nav-link" data-scroll-target="#prose">Prose</a>
+  <ul class="collapse">
+  <li><a href="#vm-swatch" id="toc-vm-swatch" class="nav-link" data-scroll-target="#vm-swatch"><code>vm-swatch</code></a></li>
+  <li><a href="#vm-invalid" id="toc-vm-invalid" class="nav-link" data-scroll-target="#vm-invalid"><code>vm-invalid</code></a></li>
+  </ul></li>
+  <li><a href="#data-attributes" id="toc-data-attributes" class="nav-link" data-scroll-target="#data-attributes">Data attributes</a>
+  <ul class="collapse">
+  <li><a href="#data-vm-play" id="toc-data-vm-play" class="nav-link" data-scroll-target="#data-vm-play"><code>data-vm-play="off"</code></a></li>
+  <li><a href="#data-example-field" id="toc-data-example-field" class="nav-link" data-scroll-target="#data-example-field"><code>data-example-field="&lt;name&gt;"</code></a></li>
+  </ul></li>
+  <li><a href="#generated-by-the-library-never-author-these" id="toc-generated-by-the-library-never-author-these" class="nav-link" data-scroll-target="#generated-by-the-library-never-author-these">Generated by the library – never author these</a></li>
+  <li><a href="#host-markup" id="toc-host-markup" class="nav-link" data-scroll-target="#host-markup">Host markup the CSS depends on</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Markup contract</h1>
+<p class="subtitle lead">The classes and attributes the CSS and the self-installing modules look for</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+<p>mathviz has almost no JavaScript API for layout. You put a handful of classes on wrapper <code>&lt;div&gt;</code>s – in Quarto, a fenced div <code>::: {.ojs-panel}</code> – and the CSS lays the controls out while the self-installing modules find what to enhance. This page is every class and attribute you are meant to write yourself, with a live example of each, followed by the ones you must <strong>not</strong> write because the library generates them.</p>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="16" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 15;"><span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<section id="at-a-glance" class="level2">
+<h2 class="anchored" data-anchor-id="at-a-glance">At a glance</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Class / attribute</th>
+<th>Put it on</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#ojs-panel"><code>ojs-panel</code></a></td>
+<td>a div around <code>Inputs.*</code> cells</td>
+<td>the control-panel chrome; restyles every input inside</td>
+</tr>
+<tr class="even">
+<td><a href="#ojs-row"><code>ojs-row</code></a> / <a href="#ojs-grid"><code>ojs-grid</code></a></td>
+<td>the same div, or a nested one</td>
+<td>one wrapping flex row / an auto-fit grid</td>
+</tr>
+<tr class="odd">
+<td><a href="#ojs-fill"><code>ojs-fill</code></a> / <code>ojs-auto</code> / <code>ojs-end</code></td>
+<td>an input’s wrapper (<code>classList.add</code>)</td>
+<td>fill the row / natural width / push to the right edge</td>
+</tr>
+<tr class="even">
+<td><a href="#ojs-chart-block"><code>ojs-chart-block</code></a></td>
+<td>a div around the chart cell(s)</td>
+<td>anchor for the legend; what fullscreen enlarges</td>
+</tr>
+<tr class="odd">
+<td><a href="#ojs-chart-controls"><code>ojs-chart-controls</code></a></td>
+<td>a div <strong>inside</strong> the block, holding sliders</td>
+<td>a bar directly above the chart that comes along into fullscreen</td>
+</tr>
+<tr class="even">
+<td><a href="#ojs-svg-block"><code>ojs-svg-block</code></a></td>
+<td>alongside <code>ojs-chart-block</code>, for SVG charts</td>
+<td>adds the fullscreen button Plotly charts get from the modebar</td>
+</tr>
+<tr class="odd">
+<td><a href="#plotly-box-large"><code>plotly-box-large</code></a></td>
+<td>the Plotly graph div</td>
+<td>the one shipped chart size</td>
+</tr>
+<tr class="even">
+<td><a href="#vm-swatch"><code>vm-swatch vm-swatch-alt</code></a> (<code>-ok</code>, <code>-warn</code>, <code>-accent</code>, <code>-accent2</code>)</td>
+<td>a <code>&lt;span&gt;</code> in prose</td>
+<td>tints a color word with the matching palette color</td>
+</tr>
+<tr class="odd">
+<td><a href="#vm-invalid"><code>vm-invalid</code></a></td>
+<td>an <code>&lt;input&gt;</code></td>
+<td>red border and tint for a field that failed validation</td>
+</tr>
+<tr class="even">
+<td><a href="#data-vm-play"><code>data-vm-play="off"</code></a></td>
+<td>a slider or any ancestor</td>
+<td>opt that slider out of the play button</td>
+</tr>
+<tr class="odd">
+<td><a href="#data-example-field"><code>data-example-field="…"</code></a></td>
+<td>a <code>viewof</code> element</td>
+<td>a stable handle for <code>applyExampleParams</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="panels" class="level2">
+<h2 class="anchored" data-anchor-id="panels">Panels</h2>
+<section id="ojs-panel" class="level3">
+<h3 class="anchored" data-anchor-id="ojs-panel"><code>ojs-panel</code></h3>
+<p>The chrome: padding, a <code>--vm-border</code> border, <code>--vm-radius</code> corners, <code>--vm-surface</code> background. It also restyles every <code>&lt;input&gt;</code>, <code>&lt;select&gt;</code>, <code>&lt;button&gt;</code> and Observable Inputs <code>&lt;form&gt;</code> inside it – consistent height, focus rings in <code>--vm-accent</code>, labels stacked above controls so a row of them bottom-aligns.</p>
+<p>It is <strong>chrome only</strong>. Pair it with <code>ojs-row</code> or <code>ojs-grid</code> for layout. Don’t nest one panel inside another (the border and background double up); nest a bare <code>ojs-row</code> or <code>ojs-grid</code> div instead.</p>
+</section>
+<section id="ojs-row" class="level3">
+<h3 class="anchored" data-anchor-id="ojs-row"><code>ojs-row</code></h3>
+<p><code>display: flex; flex-wrap: wrap; align-items: flex-end</code>. The <strong>first</strong> child div gets <code>flex: 1 1 200px</code> and stretches; the <strong>last</strong> gets <code>flex: 0 0 auto</code>; anything between takes its natural width. That is the shape of most panels: a wide expression field, then a couple of small controls, then a button.</p>
+<div class="ojs-panel ojs-row">
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb2" data-startfrom="51" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 50;"><span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>viewof rowF <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"x^2 - 2"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb3" data-startfrom="55" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 54;"><span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>viewof rowX0 <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"x₀"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"1"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb4" data-startfrom="59" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 58;"><span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>viewof rowGo <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>::: {.ojs-panel .ojs-row}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>viewof f <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"x^2 - 2"</span>})</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>viewof x0 <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"x₀"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"1"</span>})</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>viewof go <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Plot"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>:::</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="ojs-grid" class="level3">
+<h3 class="anchored" data-anchor-id="ojs-grid"><code>ojs-grid</code></h3>
+<p><code>grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))</code>, bottom-aligned; two columns at ≤ 768 px, one at ≤ 480 px. For a panel of several similar controls where none should dominate.</p>
+<div class="ojs-panel ojs-grid">
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb6" data-startfrom="67" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 66;"><span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>viewof gridA <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"alpha"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb7" data-startfrom="70" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 69;"><span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>viewof gridB <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">50</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">10</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb8" data-startfrom="73" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 72;"><span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>viewof gridC <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>([<span class="st">"Euler"</span><span class="op">,</span> <span class="st">"RK4"</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"method"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb9" data-startfrom="84" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 83;"><span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>viewof gridD <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">checkbox</span>([<span class="st">"show error"</span><span class="op">,</span> <span class="st">"show exact"</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"overlay"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> [<span class="st">"show exact"</span>]})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-8" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="ojs-fill" class="level3">
+<h3 class="anchored" data-anchor-id="ojs-fill"><code>ojs-fill</code>, <code>ojs-auto</code>, <code>ojs-end</code></h3>
+<p>Per-control overrides, added to the <code>viewof</code> element from the cell that creates it:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>viewof expr <span class="op">=</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> view <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"sin(x)"</span>})</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  view<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">add</span>(<span class="st">"ojs-fill"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> view</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Class</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ojs-fill</code></td>
+<td><code>width: 100%</code>. On a <code>&lt;form&gt;</code> it also makes a contained text input a 20 em box that the reader can drag wider – for a long expression.</td>
+</tr>
+<tr class="even">
+<td><code>ojs-auto</code></td>
+<td><code>width: auto; flex: none</code> – natural width in a row that would otherwise stretch it.</td>
+</tr>
+<tr class="odd">
+<td><code>ojs-end</code></td>
+<td><code>width: fit-content; margin-left: auto</code> – pushes the control to the right edge, in a row or a grid.</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="charts" class="level2">
+<h2 class="anchored" data-anchor-id="charts">Charts</h2>
+<section id="ojs-chart-block" class="level3">
+<h3 class="anchored" data-anchor-id="ojs-chart-block"><code>ojs-chart-block</code></h3>
+<p>The wrapper around a chart and its companions. Three things depend on it:</p>
+<ul>
+<li>it is <code>position: relative</code>, the anchor a floating <a href="../docs/reference/ui.html#legendOverlay"><code>legendOverlay</code></a> is positioned against</li>
+<li>it is what the <strong>fullscreen button</strong> fullscreens (the Plotly modebar’s, or the SVG block’s), so a controls bar and legend inside it come along – the Fullscreen API hides everything outside the fullscreened element</li>
+<li>it carries the letterboxing rules that keep the chart’s aspect ratio in fullscreen</li>
+</ul>
+<p>Every chart wants one, even a chart that has neither a legend nor controls today. It also sets <code>min-width: 0</code> on Quarto’s <code>.quarto-layout-cell</code>, so a chart in a <code>layout-ncol</code> column shrinks with the column instead of forcing it wide.</p>
+</section>
+<section id="ojs-chart-controls" class="level3">
+<h3 class="anchored" data-anchor-id="ojs-chart-controls"><code>ojs-chart-controls</code></h3>
+<p>A <strong>direct child</strong> of the chart block, holding the sliders that drive the chart – an iteration count, a step size. It renders as a solid bar (panel chrome) directly above the chart (<code>order: -2</code>, so it wins over the legend cell at <code>-1</code>), stays with the chart in fullscreen, and lays its controls out for that width: fluid range tracks, <code>5.5em</code> number fields, radio/checkbox groups on one wrapped row, labels beside controls.</p>
+<p>Sliders in it get the play button. Combine with <code>ojs-grid</code> (<code>class="ojs-chart-controls ojs-grid"</code>) for several sliders side by side; the grid floor rises to <code>320px</code> so each track has room.</p>
+<div class="ojs-chart-block">
+<div class="ojs-chart-controls">
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb11" data-startfrom="88" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 87;"><span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>viewof ctrlN <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">12</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"iterations n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb12" data-startfrom="92" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 91;"><span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> g <span class="op">=</span> x <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(x)</span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> x <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xs <span class="op">=</span> [x]<span class="op">,</span> ys <span class="op">=</span> [<span class="dv">0</span>]</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> ctrlN<span class="op">;</span> i<span class="op">++</span>) { <span class="kw">const</span> gx <span class="op">=</span> <span class="fu">g</span>(x)<span class="op">;</span> xs<span class="op">.</span><span class="fu">push</span>(x<span class="op">,</span> gx)<span class="op">;</span> ys<span class="op">.</span><span class="fu">push</span>(gx<span class="op">,</span> gx)<span class="op">;</span> x <span class="op">=</span> gx }</span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> curveX <span class="op">=</span> []<span class="op">,</span> curveY <span class="op">=</span> []</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">100</span><span class="op">;</span> i<span class="op">++</span>) { <span class="kw">const</span> t <span class="op">=</span> i <span class="op">/</span> <span class="dv">100</span> <span class="op">*</span> <span class="fl">1.6</span><span class="op">;</span> curveX<span class="op">.</span><span class="fu">push</span>(t)<span class="op">;</span> curveY<span class="op">.</span><span class="fu">push</span>(<span class="fu">g</span>(t)) }</span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> div <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>  div<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">height</span> <span class="op">=</span> <span class="st">"300px"</span></span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>  Plotly<span class="op">.</span><span class="fu">newPlot</span>(div<span class="op">,</span> [</span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">x</span><span class="op">:</span> curveX<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> curveY<span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"cos x"</span><span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">fn</span>}}<span class="op">,</span></span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">x</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="fl">1.6</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="fl">1.6</span>]<span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"y = x"</span><span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">muted</span><span class="op">,</span> <span class="dt">dash</span><span class="op">:</span> <span class="st">"dot"</span>}}<span class="op">,</span></span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">x</span><span class="op">:</span> xs<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> ys<span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"cobweb"</span><span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">alt</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="fl">1.5</span>}<span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"lines+markers"</span><span class="op">,</span> <span class="dt">marker</span><span class="op">:</span> {<span class="dt">size</span><span class="op">:</span> <span class="dv">5</span>}}</span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span> {<span class="dt">showlegend</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">xaxis</span><span class="op">:</span> {<span class="dt">range</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="fl">1.6</span>]}<span class="op">,</span> <span class="dt">yaxis</span><span class="op">:</span> {<span class="dt">range</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="fl">1.1</span>]}<span class="op">,</span> <span class="dt">margin</span><span class="op">:</span> {<span class="dt">t</span><span class="op">:</span> <span class="dv">8</span>}})</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>  VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">autoResize</span>(div)</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> div</span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-10" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>::: {.ojs-chart-block}</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>::: {.ojs-chart-controls}</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>viewof n <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">12</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"iterations n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span>})</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>mainPlot <span class="op">=</span> { <span class="op">...</span> }</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>:::</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="ojs-svg-block" class="level3">
+<h3 class="anchored" data-anchor-id="ojs-svg-block"><code>ojs-svg-block</code></h3>
+<p>For a chart drawn as inline SVG – Observable Plot, or a hand-built <code>&lt;svg&gt;</code> – which has no Plotly modebar. Put it <strong>on the same element</strong> as <code>ojs-chart-block</code> and nothing else: the library appends one persistent fullscreen button as a direct child of the block (outside every cell’s output, so a re-run that rebuilds the SVG doesn’t rebuild the button), pins it to the top-right corner of the <em>figure</em> (the union of the block’s SVGs at least 64 px wide, skipping the controls bar, the legend and button icons), and re-measures on resize, on re-runs and on <code>fullscreenchange</code>. The figure SVG is centered in the block and letterboxed in fullscreen by its <code>viewBox</code> ratio.</p>
+<p>The <a href="../docs/reference/discrete-math.html#live"><code>VM.discreteMath</code> page</a> and the <a href="../docs/recipes/observable-plot.html">Observable Plot recipe</a> use it. Hover the chart there to see the button.</p>
+</section>
+<section id="plotly-box-large" class="level3">
+<h3 class="anchored" data-anchor-id="plotly-box-large"><code>plotly-box-large</code></h3>
+<p><code>width: 100%; height: 72vh; min-height: 500px</code> (<code>65vh</code> / <code>400px</code> at ≤ 768 px). It is the <strong>only</strong> size class shipped – there is no <code>-small</code> or <code>-medium</code>. For another height set <code>div.style.height</code> yourself, as the examples on this site do.</p>
+</section>
+</section>
+<section id="prose" class="level2">
+<h2 class="anchored" data-anchor-id="prose">Prose</h2>
+<section id="vm-swatch" class="level3">
+<h3 class="anchored" data-anchor-id="vm-swatch"><code>vm-swatch</code></h3>
+<p>Tints a word to match a trace: <code>&lt;span class="vm-swatch vm-swatch-alt"&gt;red&lt;/span&gt;</code> gives <span class="vm-swatch vm-swatch-alt">red</span>. The modifier is required; <code>vm-swatch</code> alone sets no color.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Modifier</th>
+<th>Token</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>vm-swatch-alt</code></td>
+<td><code>--vm-color-alt</code></td>
+<td><span class="vm-swatch vm-swatch-alt">alt</span></td>
+</tr>
+<tr class="even">
+<td><code>vm-swatch-ok</code></td>
+<td><code>--vm-color-ok</code></td>
+<td><span class="vm-swatch vm-swatch-ok">ok</span></td>
+</tr>
+<tr class="odd">
+<td><code>vm-swatch-warn</code></td>
+<td><code>--vm-color-warn</code></td>
+<td><span class="vm-swatch vm-swatch-warn">warn</span></td>
+</tr>
+<tr class="even">
+<td><code>vm-swatch-accent2</code></td>
+<td><code>--vm-color-accent2</code></td>
+<td><span class="vm-swatch vm-swatch-accent2">accent2</span></td>
+</tr>
+<tr class="odd">
+<td><code>vm-swatch-accent</code></td>
+<td><code>--vm-accent</code> (the UI accent, not a palette color)</td>
+<td><span class="vm-swatch vm-swatch-accent">accent</span></td>
+</tr>
+</tbody>
+</table>
+<p>There is no swatch for <code>fn</code>, <code>muted</code>, <code>ink</code>, <code>accent3</code> or <code>halo</code>.</p>
+</section>
+<section id="vm-invalid" class="level3">
+<h3 class="anchored" data-anchor-id="vm-invalid"><code>vm-invalid</code></h3>
+<p>A red (<code>--vm-color-alt</code>) border and 7% tint on an <code>&lt;input&gt;</code>, with a matching focus ring – for a field whose value failed to parse. <strong>Nothing in the library adds it</strong>; a page toggles it from the cell that validates:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>viewof x0 <span class="op">=</span> {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> view <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"x₀"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"1"</span>})</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  view<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">"input"</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> ok <span class="op">=</span> VM<span class="op">.</span><span class="at">expressions</span><span class="op">.</span><span class="fu">makeNumber</span>(math<span class="op">,</span> view<span class="op">.</span><span class="at">value</span>) <span class="op">!==</span> <span class="kw">null</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    view<span class="op">.</span><span class="fu">querySelector</span>(<span class="st">"input"</span>)<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">toggle</span>(<span class="st">"vm-invalid"</span><span class="op">,</span> <span class="op">!</span>ok)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> view</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>It pairs with <a href="../docs/reference/plotting.html#emptyState"><code>emptyState</code></a>: the field says <em>what</em> is wrong, the chart says <em>that</em> something is.</p>
+<p><input class="vm-invalid" value="1/0 + " readonly="" style="max-width: 12em" aria-label="an input with vm-invalid"></p>
+</section>
+</section>
+<section id="data-attributes" class="level2">
+<h2 class="anchored" data-anchor-id="data-attributes">Data attributes</h2>
+<section id="data-vm-play" class="level3">
+<h3 class="anchored" data-anchor-id="data-vm-play"><code>data-vm-play="off"</code></h3>
+<p>On a range slider <strong>or any ancestor</strong>: opt out of the play button. Useful for a slider that isn’t a parameter sweep (a zoom level, a seed).</p>
+</section>
+<section id="data-example-field" class="level3">
+<h3 class="anchored" data-anchor-id="data-example-field"><code>data-example-field="&lt;name&gt;"</code></h3>
+<p>On a <code>viewof</code> element, set by the cell that creates it, as a stable handle for <a href="../docs/reference/ui.html#applyExampleParams"><code>applyExampleParams</code></a>:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>viewof fx <span class="op">=</span> {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> view <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"sin(x)"</span>})</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  view<span class="op">.</span><span class="at">dataset</span><span class="op">.</span><span class="at">exampleField</span> <span class="op">=</span> <span class="st">"fx"</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> view</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The page’s <code>fieldSelectors</code> map is then <code>{fx: '[data-example-field="fx"]', …}</code>. Selectors rather than references, for a reason that page explains.</p>
+</section>
+</section>
+<section id="generated-by-the-library-never-author-these" class="level2">
+<h2 class="anchored" data-anchor-id="generated-by-the-library-never-author-these">Generated by the library – never author these</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Class / property</th>
+<th>Written by</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ojs-legend-overlay</code>, <code>ojs-legend-item</code>, <code>ojs-legend-swatch</code></td>
+<td><code>VM.ui.legendOverlay</code></td>
+</tr>
+<tr class="even">
+<td><code>vm-overlay-grip</code>, <code>vm-overlay-dragging</code>, <code>data-vm-draggable</code></td>
+<td>the draggable-legend module</td>
+</tr>
+<tr class="odd">
+<td><code>vm-play</code>, <code>vm-play-button</code>, <code>vm-play-more</code>, <code>vm-play-panel</code>, <code>vm-play-group</code>, <code>vm-play-pills</code>, <code>vm-play-pill</code>, <code>vm-play-pill-on</code>, <code>vm-playing</code>, <code>vm-has-play</code>, <code>data-vm-play-ready</code></td>
+<td>slider playback</td>
+</tr>
+<tr class="even">
+<td><code>vm-fullscreen-toggle</code>, <code>vm-fs-figure</code></td>
+<td>the SVG fullscreen button</td>
+</tr>
+<tr class="odd">
+<td><code>ojs-table-toolbar</code>, <code>ojs-table-container</code></td>
+<td><code>VM.ui.renderTable</code></td>
+</tr>
+<tr class="even">
+<td><code>--sx</code>, <code>--vm-plot-aspect-ratio</code>, <code>--vm-fs-plot-width</code>, <code>--vm-svg-aspect</code>, <code>--vm-swatch</code></td>
+<td>runtime layout state</td>
+</tr>
+</tbody>
+</table>
+<p><code>vm-dark</code> is neither: it is a <strong>theme hook</strong> you may put on <code>&lt;html&gt;</code> or <code>&lt;body&gt;</code> to tell the library your site is in dark mode – see <a href="../docs/theming.html#dark-mode">Theming</a>. It styles nothing by itself.</p>
+</section>
+<section id="host-markup" class="level2">
+<h2 class="anchored" data-anchor-id="host-markup">Host markup the CSS depends on</h2>
+<p>Quarto OJS is the primary host, and several rules target markup mathviz doesn’t own. They are harmless elsewhere, but on a non-Quarto page the corresponding behaviour is simply absent:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Selector</th>
+<th>What it fixes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>.cell-output-display</code>, <code>[id^="ojs-cell-"]</code></td>
+<td>Quarto wraps every OJS output in a scroll container (<code>overflow: auto</code>). The legend rules set <code>overflow: visible</code> on the ones inside a chart block, or the floating legend would be clipped to a zero-height box. The same clip is why the playback popover is a top-layer <code>[popover]</code>.</td>
+</tr>
+<tr class="even">
+<td><code>.quarto-layout-cell { min-width: 0 }</code></td>
+<td>lets a chart in a <code>layout-ncol</code> column shrink with it</td>
+</tr>
+<tr class="odd">
+<td><code>form[class^="oi-"]</code></td>
+<td>Observable Inputs’ generated forms carry a hashed class. The panel rules override their fixed <code>360px</code> width and <code>120px</code> label column, and theme their buttons. Observable injects its own <code>.oi-&lt;hash&gt;</code> rules into <code>&lt;head&gt;</code> at runtime, <em>after</em> any stylesheet, so a mathviz rule that ties on specificity loses silently – the shipped rules out-specify them or use <code>!important</code>. Bear this in mind if you add rules of your own.</td>
+</tr>
+<tr class="even">
+<td><code>.js-plotly-plot .modebar*</code></td>
+<td>Plotly’s modebar DOM; the pill, blur and hover-fade live here</td>
+</tr>
+</tbody>
+</table>
+<p>With plain <code>&lt;input&gt;</code>s in a <code>&lt;div class="ojs-panel ojs-row"&gt;</code> everything panel-related still works – the <code>form[class^="oi-"]</code> rules just find nothing to match.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIHJvd0YgPSBJbnB1dHMudGV4dCh7bGFiZWw6IFwiZih4KVwiLCB2YWx1ZTogXCJ4XjIgLSAyXCJ9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0zIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIHJvd1gwID0gSW5wdXRzLnRleHQoe2xhYmVsOiBcInjigoBcIiwgdmFsdWU6IFwiMVwifSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiByb3dHbyA9IElucHV0cy5idXR0b24oXCJQbG90XCIpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgZ3JpZEEgPSBJbnB1dHMucmFuZ2UoWzAsIDFdLCB7bGFiZWw6IFwiYWxwaGFcIiwgc3RlcDogMC4wMSwgdmFsdWU6IDAuNX0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTYiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgZ3JpZEIgPSBJbnB1dHMucmFuZ2UoWzEsIDUwXSwge2xhYmVsOiBcIm5cIiwgc3RlcDogMSwgdmFsdWU6IDEwfSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBncmlkQyA9IElucHV0cy5zZWxlY3QoW1wiRXVsZXJcIiwgXCJSSzRcIl0sIHtsYWJlbDogXCJtZXRob2RcIn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTgiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgZ3JpZEQgPSBJbnB1dHMuY2hlY2tib3goW1wic2hvdyBlcnJvclwiLCBcInNob3cgZXhhY3RcIl0sIHtsYWJlbDogXCJvdmVybGF5XCIsIHZhbHVlOiBbXCJzaG93IGV4YWN0XCJdfSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBjdHJsTiA9IElucHV0cy5yYW5nZShbMSwgMTJdLCB7bGFiZWw6IFwiaXRlcmF0aW9ucyBuXCIsIHN0ZXA6IDEsIHZhbHVlOiA0fSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTAiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IGcgPSB4ID0+IE1hdGguY29zKHgpXG4gIGxldCB4ID0gMVxuICBjb25zdCB4cyA9IFt4XSwgeXMgPSBbMF1cbiAgZm9yIChsZXQgaSA9IDA7IGkgPCBjdHJsTjsgaSsrKSB7IGNvbnN0IGd4ID0gZyh4KTsgeHMucHVzaCh4LCBneCk7IHlzLnB1c2goZ3gsIGd4KTsgeCA9IGd4IH1cbiAgY29uc3QgY3VydmVYID0gW10sIGN1cnZlWSA9IFtdXG4gIGZvciAobGV0IGkgPSAwOyBpIDw9IDEwMDsgaSsrKSB7IGNvbnN0IHQgPSBpIC8gMTAwICogMS42OyBjdXJ2ZVgucHVzaCh0KTsgY3VydmVZLnB1c2goZyh0KSkgfVxuICBjb25zdCBkaXYgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIGRpdi5zdHlsZS5oZWlnaHQgPSBcIjMwMHB4XCJcbiAgUGxvdGx5Lm5ld1Bsb3QoZGl2LCBbXG4gICAge3g6IGN1cnZlWCwgeTogY3VydmVZLCBuYW1lOiBcImNvcyB4XCIsIGxpbmU6IHtjb2xvcjogY2hhcnRDb2xvcnMuZm59fSxcbiAgICB7eDogWzAsIDEuNl0sIHk6IFswLCAxLjZdLCBuYW1lOiBcInkgPSB4XCIsIGxpbmU6IHtjb2xvcjogY2hhcnRDb2xvcnMubXV0ZWQsIGRhc2g6IFwiZG90XCJ9fSxcbiAgICB7eDogeHMsIHk6IHlzLCBuYW1lOiBcImNvYndlYlwiLCBsaW5lOiB7Y29sb3I6IGNoYXJ0Q29sb3JzLmFsdCwgd2lkdGg6IDEuNX0sIG1vZGU6IFwibGluZXMrbWFya2Vyc1wiLCBtYXJrZXI6IHtzaXplOiA1fX1cbiAgXSwge3Nob3dsZWdlbmQ6IGZhbHNlLCB4YXhpczoge3JhbmdlOiBbMCwgMS42XX0sIHlheGlzOiB7cmFuZ2U6IFswLCAxLjFdfSwgbWFyZ2luOiB7dDogOH19KVxuICBWTS5wbG90dGluZy5hdXRvUmVzaXplKGRpdilcbiAgcmV0dXJuIGRpdlxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdyb3dGJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3Jvd1gwJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3Jvd0dvJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ2dyaWRBJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ2dyaWRCJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ2dyaWRDJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ2dyaWREJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ2N0cmxOJykifV19
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../docs";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apurvanakade\.github\.io\/mathviz\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Apache-2.0 · Copyright (c) 2026 Apurva Nakade</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

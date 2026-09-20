@@ -1,0 +1,1152 @@
+[
+  {
+    "objectID": "example.html",
+    "href": "example.html",
+    "title": "mathviz example",
+    "section": "",
+    "text": "A minimal page that uses the extension in place (this file sits next to _extensions/, so no quarto add is needed). quarto render example.qmd writes _site/example.html; open it and toggle the theme in the navbar to see the chart, the panel and the red swatch follow. The documentation site walks through this page cell by cell.\n\nVM = window.VM\n\n\n\n\n\n\n\n\nviewof fText = Inputs.text({label: \"f(x)\", value: \"sin(x) + x/3\"})\n\n\n\n\n\n\n\nviewof k = Inputs.range([1, 5], {label: \"Frequency\", step: 0.1, value: 1})\n\n\n\n\n\n\n\n\n\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmainPlot = {\n  const f = VM.expressions.makeFunction(math, fText)\n  const xs = [], ys = []\n  for (let i = 0; i &lt;= 400; i++) {\n    const x = -6 + 12 * i / 400\n    xs.push(x)\n    ys.push(f ? f(k * x) : NaN)\n  }\n  const div = document.createElement(\"div\")\n  div.className = \"plotly-box-large\"\n  Plotly.newPlot(div, [\n    {x: xs, y: ys, mode: \"lines\", name: fText, line: {color: chartColors.fn, width: 2.5}, showlegend: false}\n  ], VM.plotting.layout({\n    xaxis: {title: \"x\"},\n    yaxis: {title: \"f(kx)\"},\n    annotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}"
+  },
+  {
+    "objectID": "docs/theming.html",
+    "href": "docs/theming.html",
+    "title": "Theming",
+    "section": "",
+    "text": "Everything mathviz draws – panel chrome, slider tracks, the legend, chart axes and gridlines, the chart palette – is a CSS custom property with a --vm- prefix. The CSS reads them the ordinary way; the JavaScript reads them with getComputedStyle at call time, so a chart built after a theme toggle sees the new values. To re-theme the library you redeclare tokens. There is no JavaScript configuration for colors.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Guide",
+      "Theming"
+    ]
+  },
+  {
+    "objectID": "docs/theming.html#overriding-tokens",
+    "href": "docs/theming.html#overriding-tokens",
+    "title": "Theming",
+    "section": "Overriding tokens",
+    "text": "Overriding tokens\nThe defaults live in src/css/tokens.css, and every one of them is wrapped in :where(), which has zero specificity. That is the whole trick: a plain declaration in your own stylesheet wins no matter which file loads first.\n/* your styles.css */\n:root {\n  --vm-accent: #b45309;\n  --vm-color-fn: #b45309;\n  --vm-font-sans: \"Inter\", system-ui, sans-serif;\n}\nbody.quarto-dark {\n  --vm-accent: #fbbf24;\n  --vm-color-fn: #fbbf24;\n}\nWhy it matters in Quarto specifically: an extension’s stylesheet is injected before a project’s css: files but after its compiled theme SCSS. Without :where() the library’s :root { --vm-x } would beat a theme’s own :root declarations. Don’t unwrap them if you fork the CSS.\nDeclare dark values under one of the dark selectors below. Tokens that don’t change between themes (--vm-radius, --vm-font-sans) need declaring only once.",
+    "crumbs": [
+      "Guide",
+      "Theming"
+    ]
+  },
+  {
+    "objectID": "docs/theming.html#the-tokens",
+    "href": "docs/theming.html#the-tokens",
+    "title": "Theming",
+    "section": "The tokens",
+    "text": "The tokens\nLive: each swatch is the value your browser computes for the token right now. Toggle the theme and watch the column change.\n\n{\n  vmTheme\n  const rows = [\n    [\"Chrome\", null],\n    [\"--vm-bg\", \"page background: fullscreen backdrop, the pill behind the fullscreen button, slider thumb ring, swatch tint base\"],\n    [\"--vm-surface\", \"panel and controls-bar background; tooltip background (JS)\"],\n    [\"--vm-surface-hover\", \"hover state of modebar and fullscreen buttons\"],\n    [\"--vm-text\", \"panel text; chart font and tooltip text (JS)\"],\n    [\"--vm-text-soft\", \"labels, the legend's unchecked items, play buttons; axis ticks and titles, the empty-state message (JS)\"],\n    [\"--vm-border\", \"panel borders, slider tracks; axis lines, zero lines, ticks, tooltip border (JS)\"],\n    [\"--vm-accent\", \"buttons, focus rings, slider fill, the active modebar button\"],\n    [\"--vm-accent-hover\", \"Observable Inputs button hover\"],\n    [\"--vm-grid\", \"chart gridlines (JS only)\"],\n    [\"--vm-radius\", \"panel and popover corners -- same in both themes\"],\n    [\"--vm-radius-sm\", \"inputs, buttons, the legend grip -- same in both themes\"],\n    [\"--vm-shadow\", \"legend, popover, modebar pill\"],\n    [\"--vm-font-sans\", \"chart text and the playback popover -- same in both themes. Redeclare it if your site self-hosts a font\"],\n    [\"Chart palette (VM.plotting.colors())\", null],\n    [\"--vm-color-fn\", \"the function itself, the primary trace\"],\n    [\"--vm-color-alt\", \"an alternate or reference trace; .vm-swatch-alt; .vm-invalid\"],\n    [\"--vm-color-ok\", \"a converged or correct marker; .vm-swatch-ok\"],\n    [\"--vm-color-muted\", \"de-emphasized data\"],\n    [\"--vm-color-ink\", \"strokes and labels that should read as text\"],\n    [\"--vm-color-warn\", \"a warning, a diverging iterate; .vm-swatch-warn\"],\n    [\"--vm-color-accent2\", \"a third series; .vm-swatch-accent2\"],\n    [\"--vm-color-accent3\", \"a fourth series\"],\n    [\"--vm-color-halo\", \"the ring around a marker: white on light, the page background on dark\"]\n  ]\n  const style = getComputedStyle(document.body)\n  const table = document.createElement(\"table\")\n  table.className = \"table table-sm small\"\n  table.innerHTML = \"&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Token&lt;/th&gt;&lt;th&gt;Current value&lt;/th&gt;&lt;th&gt;Used for&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;\"\n  const body = document.createElement(\"tbody\")\n  for (const [name, use] of rows) {\n    const tr = document.createElement(\"tr\")\n    if (use === null) { tr.innerHTML = `&lt;th colspan=3 style=\"padding-top:.8rem\"&gt;${name}&lt;/th&gt;`; body.appendChild(tr); continue }\n    const value = style.getPropertyValue(name).trim()\n    const isColor = /^(#|rgb)/.test(value)\n    const chip = isColor ? `&lt;span style=\"display:inline-block;width:1rem;height:1rem;border-radius:3px;border:1px solid var(--vm-border);background:${value};vertical-align:-3px;margin-right:.4rem\"&gt;&lt;/span&gt;` : \"\"\n    tr.innerHTML = `&lt;td style=\"white-space:nowrap\"&gt;&lt;code&gt;${name}&lt;/code&gt;&lt;/td&gt;&lt;td style=\"white-space:nowrap\"&gt;${chip}&lt;code&gt;${value}&lt;/code&gt;&lt;/td&gt;&lt;td&gt;${use}&lt;/td&gt;`\n    body.appendChild(tr)\n  }\n  table.appendChild(body)\n  return table\n}\n\n\n\n\n\n\nThe palette is keyed by role, not hue. A page reads chartColors.fn and chartColors.alt rather than repeating a hex, so redefining --vm-color-fn recolors every primary trace on the site. halo deserves a word: pages used to write line: {color: \"white\"} for the ring around a marker, which is a white ring on a near-black chart in dark mode. Use chartColors.halo.\nOnly these tokens are public. The library also writes a few custom properties at runtime for its own layout – --sx (a slider’s fill fraction), --vm-plot-aspect-ratio, --vm-fs-plot-width, --vm-svg-aspect (fullscreen letterboxing) and --vm-swatch (a swatch’s tint). Treat them as reserved; don’t set them.",
+    "crumbs": [
+      "Guide",
+      "Theming"
+    ]
+  },
+  {
+    "objectID": "docs/theming.html#dark-mode",
+    "href": "docs/theming.html#dark-mode",
+    "title": "Theming",
+    "section": "Dark mode",
+    "text": "Dark mode\nThe library decides “dark” by testing one selector list against &lt;body&gt; and then &lt;html&gt;:\nbody.quarto-dark, html[data-bs-theme=\"dark\"], body[data-bs-theme=\"dark\"], html.vm-dark, body.vm-dark\n\nbody.quarto-dark – what Quarto’s built-in light/dark toggle sets\n[data-bs-theme=\"dark\"] on html or body – Bootstrap 5.3’s convention\n.vm-dark on html or body – for a site with its own toggle: add the class and the library follows\n\nThe same list appears in two places – the dark block in tokens.css, and settings.darkSelector in chart-theme.js – and they must stay identical. If your toggle uses none of these, either add .vm-dark to &lt;html&gt; when it flips, or name your own selector:\nVM.plotting.configure({darkSelector: \"html.theme-dark\"})\nand declare your dark tokens under that same selector.\n\n\n\n\n\n\nKeep the selector root-scoped\n\n\n\nA bare [data-bs-theme=\"dark\"] looks equivalent but isn’t: Quarto sets that attribute directly on its &lt;nav&gt; to force a dark navbar on an otherwise-light page, and custom properties inherit down the DOM – so an unscoped match painted the entire dark palette into the navbar. Match on html or body only.\n\n\n\nWhy JS reads from &lt;body&gt;\nThe light tokens are declared on :root, but the dark ones under selectors that match &lt;body&gt; (Quarto flips a body class). So getComputedStyle(document.documentElement) returns the light value even in dark mode – &lt;html&gt; never matches the dark block. Every --vm-* read in the library goes through document.body for this reason. If you write your own token-reading code, do the same; this exact mistake once turned every chart tooltip into a white box on the dark theme.\n\n\nTwo-step toggles\nQuarto’s toggle flips the body class and swaps the stylesheet as separate steps, class first. A callback that reads tokens synchronously on the class change sees the outgoing theme’s values. onThemeChange waits two animation frames before notifying for exactly this reason, and compares the theme name inside that wait so unrelated body-class changes (a sidebar opening) don’t fire it. Use it rather than your own MutationObserver.",
+    "crumbs": [
+      "Guide",
+      "Theming"
+    ]
+  },
+  {
+    "objectID": "docs/theming.html#following-the-theme-in-a-chart",
+    "href": "docs/theming.html#following-the-theme-in-a-chart",
+    "title": "Theming",
+    "section": "Following the theme in a chart",
+    "text": "Following the theme in a chart\nChart chrome – background, axes, gridlines, tooltip – re-themes itself: the Plotly patch subscribes to onThemeChange and runs Plotly.relayout(gd, VM.plotting.themePatch()) on every chart when the theme flips. Nothing to do.\nChart traces don’t, because their colors are values your page baked in. The fix is two cells at the top of the page:\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nAny cell that reads chartColors re-runs on a toggle. If a cell stores a color in a data structure rather than reading it at draw time (a mixedEdges array, a feature’s fillColor) it must depend on chartColors too – a bare chartColors; line at the top of the cell is enough.\nFor translucent fills use VM.plotting.alpha(\"ok\", 0.2) rather than an rgba(...) literal: the literal stays light-mode green after a toggle while the stroke next to it lightens.\n\n{\n  const div = document.createElement(\"div\")\n  div.style.height = \"240px\"\n  const xs = [], ys = []\n  for (let i = 0; i &lt;= 100; i++) { const x = i / 10; xs.push(x); ys.push(Math.exp(-x / 3) * Math.sin(2 * x)) }\n  Plotly.newPlot(div, [\n    {x: xs, y: ys, fill: \"tozeroy\", fillcolor: VM.plotting.alpha(\"ok\", 0.2), line: {color: chartColors.ok, width: 2}, name: \"alpha('ok', 0.2) under an ok stroke\"},\n    {x: [2.4, 5.5], y: [ys[24], ys[55]], mode: \"markers\", marker: {color: chartColors.alt, size: 12, line: {color: chartColors.halo, width: 2.5}}, name: \"halo ring\"}\n  ], {legend: {x: 0.55, y: 0.98}, margin: {t: 8}})\n  VM.plotting.autoResize(div)\n  return div\n}",
+    "crumbs": [
+      "Guide",
+      "Theming"
+    ]
+  },
+  {
+    "objectID": "docs/theming.html#prose-swatches",
+    "href": "docs/theming.html#prose-swatches",
+    "title": "Theming",
+    "section": "Prose swatches",
+    "text": "Prose swatches\nTo tint a color word in running text so it matches the trace it describes: &lt;span class=\"vm-swatch vm-swatch-alt\"&gt;red&lt;/span&gt; → red. Five modifiers exist – -alt, -ok, -warn, -accent2 map to the matching palette token, -accent to --vm-accent. vm-swatch alone sets no color. There is no -fn, -muted, -ink, -accent3 or -halo swatch.",
+    "crumbs": [
+      "Guide",
+      "Theming"
+    ]
+  },
+  {
+    "objectID": "docs/theming.html#bringing-your-own-stylesheet",
+    "href": "docs/theming.html#bringing-your-own-stylesheet",
+    "title": "Theming",
+    "section": "Bringing your own stylesheet",
+    "text": "Bringing your own stylesheet\nmathviz: {css: false} (or simply not loading mathviz.css) leaves you responsible for both halves: the --vm-* tokens the JS reads (it falls back to the light defaults without them – fine on a light-only site, wrong in dark mode) and the ojs-* / vm-* rules that lay out panels and position the legend. Most sites want the stylesheet plus a handful of token overrides, not a replacement.",
+    "crumbs": [
+      "Guide",
+      "Theming"
+    ]
+  },
+  {
+    "objectID": "docs/reference/sampling.html",
+    "href": "docs/reference/sampling.html",
+    "title": "VM.sampling",
+    "section": "",
+    "text": "Two generator factories. Each returns a zero-argument function you call for the next value, so a page seeds once and draws as many samples as it needs – and because the seed can live in the URL, a link reproduces exactly the same “random” data.\n\nVM = window.VM\n\n\n\n\n\n\n\nVM.sampling.seededRandom(seed)\nA deterministic mulberry32 generator: the same seed always produces the same sequence.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nseed\nnumber\nCoerced to a 32-bit unsigned integer (seed &gt;&gt;&gt; 0), so 1.7 and 1 are the same seed.\n\n\n\nReturns () =&gt; number, uniform on [0, 1).\n\nviewof seed = Inputs.range([0, 9999], {label: \"seed\", step: 1, value: 42})\n\n\n\n\n\n\n\n{\n  const rng = VM.sampling.seededRandom(seed)\n  const out = []\n  for (let i = 0; i &lt; 5; i++) out.push(rng().toFixed(4))\n  return out\n}\n\n\n\n\n\n\n\n\nVM.sampling.gaussianRandom(rng)\nBox-Muller transform: turns a uniform generator into a standard-normal one (mean 0, variance 1). For any other normal, scale and shift the output: mean + sd * gaussian().\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nrng\n() =&gt; number\nA uniform [0, 1) generator – typically seededRandom’s return value. Two draws are consumed per sample.\n\n\n\nReturns () =&gt; number, standard normal.\n\n{\n  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(seed))\n  let sum = 0, sumSq = 0\n  const n = 10000\n  for (let i = 0; i &lt; n; i++) { const z = gaussian(); sum += z; sumSq += z * z }\n  const mean = sum / n\n  return html`Over ${n} draws: mean &lt;b&gt;${mean.toFixed(3)}&lt;/b&gt;, variance &lt;b&gt;${(sumSq / n - mean * mean).toFixed(3)}&lt;/b&gt;`\n}\n\n\n\n\n\n\nSee the distribution explorer recipe for these feeding a histogram under a theoretical curve.",
+    "crumbs": [
+      "Reference",
+      "VM.sampling"
+    ]
+  },
+  {
+    "objectID": "docs/reference/numerical.html",
+    "href": "docs/reference/numerical.html",
+    "title": "VM.numerical",
+    "section": "",
+    "text": "Pure functions over plain arrays and {x, y} points. None of them validate their inputs beyond what is noted; they are written to be read by a mathematics audience, so each is the textbook algorithm with no surprises inside.\nVM = window.VM",
+    "crumbs": [
+      "Reference",
+      "VM.numerical"
+    ]
+  },
+  {
+    "objectID": "docs/reference/numerical.html#fitting",
+    "href": "docs/reference/numerical.html#fitting",
+    "title": "VM.numerical",
+    "section": "Fitting",
+    "text": "Fitting\n\nVM.numerical.linearRegression(points)\nOrdinary least-squares fit of a line y = slope·x + intercept. Every convergence-order plot uses this on (log h, log error) pairs – the slope is the observed order.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\npoints\n{x, y}[]\nThe data, in the order the fitted segment should be drawn.\n\n\n\nReturns {slope, intercept, xlo, xhi} | null – null if there are fewer than two points or the x-values don’t vary (a vertical, degenerate fit).\n\n\n\n\n\n\nNote\n\n\n\nxlo and xhi are the first and last point’s x, not the min and max. They exist for drawing the fitted segment across the data, which is only what they describe when points is sorted by x.\n\n\n\n{\n  const pts = []\n  for (let i = 1; i &lt;= 6; i++) pts.push({x: i, y: 2 * i + 1 + (i % 2 === 0 ? 0.1 : -0.1)})\n  return VM.numerical.linearRegression(pts)\n}\n\n\n\n\n\n\n\n\nVM.numerical.l1Regression(points, opts?)\nLeast-absolute-deviations (L1) line fit, via iteratively reweighted least squares seeded from linearRegression. Far less sensitive to a few large outliers than L2: an outlier’s residual is down-weighted in proportion to its own size instead of being squared.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\npoints\n{x, y}[]\n\nThe data, in drawing order.\n\n\nopts.maxIterations\nnumber\n100\nCap on reweighting passes.\n\n\nopts.tolerance\nnumber\n1e-10\nStop once |Δslope| + |Δintercept| falls below this.\n\n\nopts.epsilon\nnumber\n1e-6\nFloor on |residual| in the weight 1 / max(|residual|, epsilon), so a point the line passes through exactly doesn’t get infinite weight.\n\n\n\nReturns {slope, intercept, xlo, xhi, iterations} | null – the fit plus the number of passes taken; null under the same conditions as linearRegression.\n\n{\n  // Five points on y = x, plus one wild outlier. L2 is dragged toward it; L1 is not.\n  const pts = [{x: 1, y: 1}, {x: 2, y: 2}, {x: 3, y: 3}, {x: 4, y: 4}, {x: 5, y: 5}, {x: 6, y: 30}]\n  return {l2: VM.numerical.linearRegression(pts), l1: VM.numerical.l1Regression(pts)}\n}\n\n\n\n\n\n\n\n\nVM.numerical.polynomialFit(mathjs, points, degree)\nLeast-squares polynomial fit of a given degree, solved from the normal equations with math.js’s LU solver (plain Gaussian elimination loses too much precision once degree approaches the point count).\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\nDoes the linear algebra.\n\n\npoints\n{x, y}[]\nAt least degree + 1 of them.\n\n\ndegree\nnumber\nDegree of the polynomial.\n\n\n\nReturns {coeffs, evaluate, totalSquaredError} | null:\n\ncoeffs – [c0, c1, …, c_degree], in increasing power\nevaluate – the fitted polynomial as (x) =&gt; number\ntotalSquaredError – the sum of squared residuals over points\n\nnull if there are fewer points than coefficients or the system is singular.\n\n{\n  const pts = []\n  for (let x = -2; x &lt;= 2; x++) pts.push({x, y: x * x - 1})\n  const fit = VM.numerical.polynomialFit(math, pts, 2)\n  return {coeffs: fit.coeffs, at3: fit.evaluate(3), error: fit.totalSquaredError}\n}",
+    "crumbs": [
+      "Reference",
+      "VM.numerical"
+    ]
+  },
+  {
+    "objectID": "docs/reference/numerical.html#ode-steppers",
+    "href": "docs/reference/numerical.html#ode-steppers",
+    "title": "VM.numerical",
+    "section": "ODE steppers",
+    "text": "ODE steppers\nBoth take the same arguments and return the same shape, so a page switches methods by swapping the function.\n\nVM.numerical.eulerSolve(f, t0, y0, tEnd, n)\nForward Euler for y' = f(t, y), y(t0) = y0, with n fixed steps of h = (tEnd − t0) / n.\n\n\n\nParameter\nType\nDescription\n\n\n\n\nf\n(t, y) =&gt; number\nThe right-hand side – see makeFunction2.\n\n\nt0, y0\nnumber\nInitial condition.\n\n\ntEnd\nnumber\nFinal time.\n\n\nn\nnumber\nNumber of steps. Not validated: n = 0 gives an infinite step and a single-point trajectory.\n\n\n\nReturns {ts: number[], ys: number[]} – n + 1 samples each, starting at (t0, y0).\n\n\nVM.numerical.rk4Solve(f, t0, y0, tEnd, n)\nThe classical fourth-order Runge-Kutta method. Same parameters and return shape as eulerSolve.\n\nviewof odeSteps = Inputs.range([2, 64], {label: \"steps n\", step: 1, value: 8})\n\n\n\n\n\n\n\n{\n  // y' = y, y(0) = 1, so y(1) = e. Watch the two errors shrink as n grows.\n  const f = (t, y) =&gt; y\n  const euler = VM.numerical.eulerSolve(f, 0, 1, 1, odeSteps)\n  const rk4 = VM.numerical.rk4Solve(f, 0, 1, 1, odeSteps)\n  const last = arr =&gt; arr[arr.length - 1]\n  return html`Euler error: &lt;b&gt;${Math.abs(last(euler.ys) - Math.E).toExponential(2)}&lt;/b&gt; &nbsp; RK4 error: &lt;b&gt;${Math.abs(last(rk4.ys) - Math.E).toExponential(2)}&lt;/b&gt;`\n}",
+    "crumbs": [
+      "Reference",
+      "VM.numerical"
+    ]
+  },
+  {
+    "objectID": "docs/reference/numerical.html#quadrature-and-interpolation",
+    "href": "docs/reference/numerical.html#quadrature-and-interpolation",
+    "title": "VM.numerical",
+    "section": "Quadrature and interpolation",
+    "text": "Quadrature and interpolation\n\nVM.numerical.simpsonEstimate(f, lo, hi, n)\nComposite Simpson’s rule on n subintervals.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nf\n(x) =&gt; number\nThe integrand.\n\n\nlo, hi\nnumber\nThe limits.\n\n\nn\nnumber\nNumber of subintervals. Must be even. This is not validated; an odd n silently applies the wrong weights.\n\n\n\nReturns number.\n\n\n\n\n\n\nWarning\n\n\n\nSamples where f is not finite – a pole, a domain error – are skipped (they contribute zero), including the endpoints. So simpsonEstimate(x =&gt; 1/x, 0, 1, n) returns a finite, wrong number rather than Infinity. This is deliberate for a page where a reader is typing the integrand: one bad point shouldn’t blank the whole estimate. Check the integrand yourself if you need a hard failure.\n\n\n\nVM.numerical.simpsonEstimate(Math.sin, 0, Math.PI, 10)   // exact value 2\n\n\n\n\n\n\n\n\nVM.numerical.lagrangeQuadratic(x0, y0, x1, y1, x2, y2, sampleCount)\nSamples the unique quadratic through three points – the parabola one Simpson panel integrates – at sampleCount + 1 evenly spaced abscissae from x0 to x2 inclusive, so it can be drawn.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nx0, y0, x1, y1, x2, y2\nnumber\nThe three points. The x-values must be distinct; a repeat divides by zero and fills ys with Infinity/NaN.\n\n\nsampleCount\nnumber\nNumber of intervals between samples.\n\n\n\nReturns {xs: number[], ys: number[]} with sampleCount + 1 points.\n\nVM.numerical.lagrangeQuadratic(0, 0, 1, 1, 2, 4, 4)   // the parabola y = x² sampled at 0, .5, 1, 1.5, 2",
+    "crumbs": [
+      "Reference",
+      "VM.numerical"
+    ]
+  },
+  {
+    "objectID": "docs/reference/filters.html",
+    "href": "docs/reference/filters.html",
+    "title": "VM.filters",
+    "section": "",
+    "text": "Three causal filters for a noisy scalar signal. All take a plain array and return one of the same length; none looks ahead, so each output matches what the filter would have produced running online, one sample at a time.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nnoisy = {\n  const rng = VM.sampling.seededRandom(7)\n  const gaussian = VM.sampling.gaussianRandom(rng)\n  const zs = []\n  for (let i = 0; i &lt; 60; i++) zs.push(Math.sin(i / 8) + 0.3 * gaussian())\n  return zs\n}",
+    "crumbs": [
+      "Reference",
+      "VM.filters"
+    ]
+  },
+  {
+    "objectID": "docs/reference/filters.html#the-three-side-by-side",
+    "href": "docs/reference/filters.html#the-three-side-by-side",
+    "title": "VM.filters",
+    "section": "The three side by side",
+    "text": "The three side by side\n\nviewof filterK = Inputs.range([1, 15], {label: \"moving-average window k\", step: 1, value: 5})\nviewof filterAlpha = Inputs.range([0, 0.99], {label: \"EMA alpha\", step: 0.01, value: 0.8})\nviewof filterQ = Inputs.range([0.0001, 0.1], {label: \"Kalman Q\", step: 0.0001, value: 0.005})\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{\n  const ma = VM.filters.movingAverageFilter(noisy, filterK)\n  const ema = VM.filters.emaFilter(noisy, filterAlpha)\n  const kal = VM.filters.kalman1DFilter(noisy, {R: 0.09, Q: filterQ}).xs\n  const c = chartColors   // reactive on the theme, so the lines repaint on a toggle\n  const rows = []\n  for (let i = 0; i &lt; noisy.length; i++) {\n    rows.push({i, series: \"measured\", y: noisy[i]})\n    rows.push({i, series: \"moving average\", y: ma[i]})\n    rows.push({i, series: \"EMA\", y: ema[i]})\n    rows.push({i, series: \"Kalman\", y: kal[i]})\n  }\n  return Plot.plot(VM.plotting.plotOptions({\n    height: 320,\n    x: {label: \"sample\"}, y: {label: null},\n    color: {legend: true, domain: [\"measured\", \"moving average\", \"EMA\", \"Kalman\"], range: [c.muted, c.alt, c.ok, c.fn]},\n    marks: [\n      Plot.dot(rows.filter(d =&gt; d.series === \"measured\"), {x: \"i\", y: \"y\", stroke: \"series\", r: 2}),\n      Plot.line(rows.filter(d =&gt; d.series !== \"measured\"), {x: \"i\", y: \"y\", stroke: \"series\", strokeWidth: 2})\n    ]\n  }))\n}",
+    "crumbs": [
+      "Reference",
+      "VM.filters"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html",
+    "href": "docs/reference/distributions.html",
+    "title": "VM.distributions",
+    "section": "",
+    "text": "Every *Pdf and *Pmf is a pure (x, …params) =&gt; number evaluated straight from the formula – no sampling, no random numbers – so a curve drawn from one is exact and doesn’t jitter when a slider moves. Conventions, so you don’t have to check each one:\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html#explorer",
+    "href": "docs/reference/distributions.html#explorer",
+    "title": "VM.distributions",
+    "section": "Explorer",
+    "text": "Explorer\nEvery distribution below, drawn through sampleCurve. The parameter sliders are the function’s own arguments in order.\n\nfamilies = new Map([\n  [\"normalPdf(x, mean, variance)\",       {fn: (x, a, b) =&gt; VM.distributions.normalPdf(x, a, b),       lo: -6, hi: 6,  p: [[-3, 3, 0.1, 0], [0.1, 4, 0.1, 1]]}],\n  [\"exponentialPdf(x, rate)\",            {fn: (x, a) =&gt; VM.distributions.exponentialPdf(x, a),          lo: 0,  hi: 6,  p: [[0.1, 3, 0.1, 1]]}],\n  [\"gammaPdf(x, shape, rate)\",           {fn: (x, a, b) =&gt; VM.distributions.gammaPdf(x, a, b),          lo: 0,  hi: 12, p: [[0.5, 8, 0.1, 2], [0.2, 3, 0.1, 1]]}],\n  [\"chiSquaredPdf(x, k)\",                {fn: (x, a) =&gt; VM.distributions.chiSquaredPdf(x, a),           lo: 0,  hi: 12, p: [[1, 10, 1, 3]]}],\n  [\"betaPdf(x, a, b)\",                   {fn: (x, a, b) =&gt; VM.distributions.betaPdf(x, a, b),           lo: 0,  hi: 1,  p: [[0.5, 6, 0.1, 2], [0.5, 6, 0.1, 3]]}],\n  [\"studentTPdf(x, k)\",                  {fn: (x, a) =&gt; VM.distributions.studentTPdf(x, a),             lo: -5, hi: 5,  p: [[1, 30, 1, 3]]}],\n  [\"fPdf(x, d1, d2)\",                    {fn: (x, a, b) =&gt; VM.distributions.fPdf(x, a, b),              lo: 0,  hi: 5,  p: [[1, 20, 1, 5], [1, 20, 1, 10]]}],\n  [\"lognormalPdf(x, mean, variance)\",    {fn: (x, a, b) =&gt; VM.distributions.lognormalPdf(x, a, b),      lo: 0,  hi: 6,  p: [[-1, 1.5, 0.1, 0], [0.05, 1.5, 0.05, 0.25]]}],\n  [\"cauchyPdf(x, location, scale)\",      {fn: (x, a, b) =&gt; VM.distributions.cauchyPdf(x, a, b),         lo: -6, hi: 6,  p: [[-3, 3, 0.1, 0], [0.1, 3, 0.1, 1]]}],\n  [\"weibullPdf(x, shape, scale)\",        {fn: (x, a, b) =&gt; VM.distributions.weibullPdf(x, a, b),        lo: 0,  hi: 4,  p: [[0.5, 5, 0.1, 1.5], [0.2, 3, 0.1, 1]]}],\n  [\"bernoulliPmf(k, p)\",                 {fn: (k, a) =&gt; VM.distributions.bernoulliPmf(k, a),            lo: -1, hi: 2,  p: [[0, 1, 0.05, 0.3]], discrete: true}],\n  [\"binomialPmf(k, n, p)\",               {fn: (k, a, b) =&gt; VM.distributions.binomialPmf(k, a, b),       lo: 0,  hi: 30, p: [[1, 30, 1, 12], [0, 1, 0.05, 0.4]], discrete: true}],\n  [\"poissonPmf(k, lambda)\",              {fn: (k, a) =&gt; VM.distributions.poissonPmf(k, a),              lo: 0,  hi: 25, p: [[0.1, 15, 0.1, 4]], discrete: true}],\n  [\"geometricPmf(k, p)\",                 {fn: (k, a) =&gt; VM.distributions.geometricPmf(k, a),            lo: 0,  hi: 20, p: [[0.05, 1, 0.05, 0.3]], discrete: true}],\n  [\"negativeBinomialPmf(k, r, p)\",       {fn: (k, a, b) =&gt; VM.distributions.negativeBinomialPmf(k, a, b), lo: 0, hi: 40, p: [[1, 10, 1, 3], [0.05, 1, 0.05, 0.4]], discrete: true}],\n  [\"hypergeometricPmf(k, N, K, n)\",      {fn: (k, a, b, c) =&gt; VM.distributions.hypergeometricPmf(k, a, b, c), lo: 0, hi: 20, p: [[5, 60, 1, 40], [0, 40, 1, 15], [1, 30, 1, 12]], discrete: true}]\n])\n\n\n\n\n\n\n\n\nviewof familyName = Inputs.select([...families.keys()], {label: \"Distribution\", value: \"gammaPdf(x, shape, rate)\"})\n\n\n\n\n\n\n\nfamily = families.get(familyName)\nparamNames = familyName.slice(familyName.indexOf(\",\") + 1, -1).split(\",\").map(s =&gt; s.trim())\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nviewof p0 = family.p.length &gt; 0 ? Inputs.range([family.p[0][0], family.p[0][1]], {label: paramNames[0], step: family.p[0][2], value: family.p[0][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\nviewof p1 = family.p.length &gt; 1 ? Inputs.range([family.p[1][0], family.p[1][1]], {label: paramNames[1], step: family.p[1][2], value: family.p[1][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\nviewof p2 = family.p.length &gt; 2 ? Inputs.range([family.p[2][0], family.p[2][1]], {label: paramNames[2], step: family.p[2][2], value: family.p[2][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\n\n\n{\n  const curve = VM.distributions.sampleCurve(x =&gt; family.fn(x, p0, p1, p2), family.lo, family.hi, {discrete: family.discrete === true})\n  const trace = family.discrete\n    ? {x: curve.xs, y: curve.ys, type: \"bar\", marker: {color: VM.plotting.alpha(chartColors.fn, 0.6), line: {color: chartColors.fn, width: 1.5}}, width: 0.6}\n    : {x: curve.xs, y: curve.ys, mode: \"lines\", line: {color: chartColors.fn, width: 2.5}}\n  const div = document.createElement(\"div\")\n  div.style.height = \"340px\"\n  Plotly.newPlot(div, [trace], {xaxis: {title: family.discrete ? \"k\" : \"x\"}, yaxis: {title: family.discrete ? \"P(K = k)\" : \"density\", rangemode: \"tozero\"}, showlegend: false})\n  VM.plotting.autoResize(div)\n  return div\n}",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html#helpers",
+    "href": "docs/reference/distributions.html#helpers",
+    "title": "VM.distributions",
+    "section": "Helpers",
+    "text": "Helpers\n\nVM.distributions.logGamma(x)\nln Γ(x) by Lanczos approximation (g = 7, n = 9; reflection formula below 0.5), accurate to ~15 significant digits for x &gt; 0. The shared building block behind every normalizing constant here; useful directly for log(n choose k) = logGamma(n+1) − logGamma(k+1) − logGamma(n−k+1).\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nx\nnumber\nAny real except 0 and the negative integers (poles); those return Infinity/NaN with no guard.\n\n\n\nReturns number.\n\n[VM.distributions.logGamma(5), Math.log(24), VM.distributions.logGamma(0.5), Math.log(Math.sqrt(Math.PI))]\n\n\n\n\n\n\n\n\nVM.distributions.sampleCurve(fn, lo, hi, opts?)\nSamples a function over [lo, hi] into parallel arrays ready for a Plotly trace or a Plot.line.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nfn\n(x) =&gt; number\n\nTypically a *Pdf/*Pmf with its parameters bound: x =&gt; VM.distributions.normalPdf(x, 0, 1).\n\n\nlo, hi\nnumber\n\nThe range, both ends inclusive.\n\n\nopts.discrete\nboolean\nfalse\nEvaluate only at the integers from ceil(lo) to floor(hi) – what a PMF has support on – instead of on a fine grid. opts.n is ignored; the arrays are empty if no integer lies in the range.\n\n\nopts.n\nnumber\n400\nNumber of evenly spaced samples in continuous mode. n = 1 divides by zero.\n\n\n\nReturns {xs: number[], ys: number[]}.\n\nVM.distributions.sampleCurve(k =&gt; VM.distributions.poissonPmf(k, 2), 0, 5, {discrete: true})\n\n\n\n\n\n\n\n\nVM.distributions.histogramBins(samples, binCount, range?)\nBins an array of draws into equal-width bins, normalized to densities so the bars’ total area is ~1 and a theoretical curve overlays directly.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nsamples\nnumber[]\n\nThe draws.\n\n\nbinCount\nnumber\n\nNumber of bins (≥ 1).\n\n\nrange\n{lo, hi}\nsamples’ min/max\nA fixed bin range. Pass {lo: min − 0.5, hi: max + 0.5} with binCount = max − min + 1 for one bin centered on each integer. Samples outside an explicit range are clamped into the first/last bin, not dropped. A zero-width range is widened to [lo − 0.5, hi + 0.5].\n\n\n\nReturns {edges: number[], centers: number[], densities: number[]} – binCount + 1 edges; binCount centers and densities, where densities[i] = count[i] / (samples.length · width). All three arrays are empty when samples is empty or binCount &lt; 1.\n\n{\n  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(1))\n  const draws = []\n  for (let i = 0; i &lt; 2000; i++) draws.push(gaussian())\n  return VM.distributions.histogramBins(draws, 6, {lo: -3, hi: 3})\n}\n\n\n\n\n\n\nSee the distribution explorer recipe for the histogram-under-a-curve chart.",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html#discrete-masses",
+    "href": "docs/reference/distributions.html#discrete-masses",
+    "title": "VM.distributions",
+    "section": "Discrete masses",
+    "text": "Discrete masses\nAll return 0 when k is not an integer in the support.\n\nVM.distributions.bernoulliPmf(k, p)\nP(K = 1) = p, P(K = 0) = 1 − p; 0 for any other k. p is not validated.\n\n\nVM.distributions.binomialPmf(k, n, p)\nExactly k successes in n independent trials with success probability p. p ≤ 0 puts all mass on k = 0, p ≥ 1 all mass on k = n.\n\n\nVM.distributions.poissonPmf(k, lambda)\nλ^k e^{−λ} / k! for integer k ≥ 0. lambda ≤ 0 puts all mass on k = 0.\n\n\nVM.distributions.geometricPmf(k, p)\nTrials until the first success: (1 − p)^{k−1} p for k = 1, 2, 3, … – not the competing “failures before the first success” convention whose support starts at 0. p is not validated.\n\n\nVM.distributions.negativeBinomialPmf(k, r, p)\nTrials until the r-th success, so the support is k = r, r+1, … and r = 1 is exactly geometricPmf. 0 when p is outside (0, 1]; p = 1 puts all mass on k = r.\n\n\nVM.distributions.hypergeometricPmf(k, N, K, n)\nExactly k successes when drawing n items without replacement from a population of N containing K successes: C(K, k)·C(N−K, n−k) / C(N, n). Support is max(0, n − (N − K)) ≤ k ≤ min(n, K); 0 there and for any invalid (N, K, n).",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html#continuous-densities",
+    "href": "docs/reference/distributions.html#continuous-densities",
+    "title": "VM.distributions",
+    "section": "Continuous densities",
+    "text": "Continuous densities\n\nVM.distributions.exponentialPdf(x, rate)\nMean 1 / rate. 0 for x &lt; 0 or rate ≤ 0.\n\n\nVM.distributions.normalPdf(x, mean, variance)\nParameterized by variance, not standard deviation: pass sd * sd. 0 for variance ≤ 0.\n\n\nVM.distributions.gammaPdf(x, shape, rate)\nParameterized by rate, not scale: the mean is shape / rate. For a scale θ pass 1 / θ. Valid for any real shape &gt; 0. 0 for x ≤ 0 or a non-positive parameter.\n\n\nVM.distributions.chiSquaredPdf(x, k)\nk degrees of freedom – exactly gammaPdf(x, k/2, 1/2).\n\n\nVM.distributions.betaPdf(x, a, b)\nOn the open interval (0, 1): 0 at and outside the endpoints, so betaPdf(0, 1, 1) is 0 even though the density is 1 on the interior. 0 for a non-positive shape.\n\n\nVM.distributions.studentTPdf(x, k)\nk degrees of freedom, any real k &gt; 0 (not only an integer). 0 for k ≤ 0.\n\n\nVM.distributions.fPdf(x, d1, d2)\nd1 numerator and d2 denominator degrees of freedom. 0 for x ≤ 0 or a non-positive parameter.\n\n\nVM.distributions.lognormalPdf(x, mean, variance)\nThe density of e^X for X ~ Normal(mean, variance). The parameters describe the underlying normal, not the log-normal’s own mean (exp(μ + σ²/2)) and variance. 0 for x ≤ 0 or variance ≤ 0.\n\n\nVM.distributions.cauchyPdf(x, location, scale)\nThe Cauchy has no mean and no variance, so location is its median and scale its half-width at half-maximum. 0 for scale ≤ 0.\n\n\nVM.distributions.weibullPdf(x, shape, scale)\nParameterized by scale, not rate, so shape = 1 is the exponential with rate 1 / scale. Shape below 1 gives a failure rate that falls with age, above 1 one that rises. 0 for x &lt; 0 or a non-positive parameter; at x = 0 the density is 1/scale when shape = 1 and 0 otherwise.",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/try-an-example.html",
+    "href": "docs/recipes/try-an-example.html",
+    "title": "“Try an example” dropdown",
+    "section": "",
+    "text": "A page whose inputs commit on a button (so a half-typed expression doesn’t redraw on every keystroke) wants a way to load a worked example: fill every field, then press the button. VM.ui.applyExampleParams does exactly that – but Observable’s runtime punishes two natural ways of wiring it, so this recipe is as much about the wiring as the call.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Recipes",
+      "\"Try an example\" dropdown"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/try-an-example.html#the-fields-tagged",
+    "href": "docs/recipes/try-an-example.html#the-fields-tagged",
+    "title": "“Try an example” dropdown",
+    "section": "The fields, tagged",
+    "text": "The fields, tagged\nEach targetable field gets a stable data-example-field attribute from the cell that creates it. The text fields also submit on Enter by clicking the button – found by its own tag, not by a reactive reference.\n\n\nviewof exF = {\n  const view = Inputs.text({label: \"f(x)\", value: \"sin(x)\"})\n  view.dataset.exampleField = \"f\"\n  view.classList.add(\"ojs-fill\")\n  view.addEventListener(\"keydown\", e =&gt; { if (e.key === \"Enter\") document.querySelector('[data-example-field=\"plot\"] button')?.click() })\n  return view\n}\n\n\n\n\n\n\n\nviewof exLo = {\n  const view = Inputs.text({label: \"from\", value: \"-6\"})\n  view.dataset.exampleField = \"lo\"\n  return view\n}\n\n\n\n\n\n\n\nviewof exHi = {\n  const view = Inputs.text({label: \"to\", value: \"6\"})\n  view.dataset.exampleField = \"hi\"\n  return view\n}\n\n\n\n\n\n\n\nviewof exPlot = {\n  const view = Inputs.button(\"Plot\")\n  view.dataset.exampleField = \"plot\"\n  return view\n}",
+    "crumbs": [
+      "Recipes",
+      "\"Try an example\" dropdown"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/try-an-example.html#commit-on-click",
+    "href": "docs/recipes/try-an-example.html#commit-on-click",
+    "title": "“Try an example” dropdown",
+    "section": "Commit on click",
+    "text": "Commit on click\nThe result cell depends on the button’s click count and reads the fields through their views (viewof exF.value), which is not a reactive dependency on their values – so typing doesn’t redraw; clicking does.\n\ncommitted = {\n  exPlot   // the click count: this cell re-runs on each click and on nothing else\n  return {f: viewof exF.value, lo: viewof exLo.value, hi: viewof exHi.value}\n}",
+    "crumbs": [
+      "Recipes",
+      "\"Try an example\" dropdown"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/try-an-example.html#the-dropdown",
+    "href": "docs/recipes/try-an-example.html#the-dropdown",
+    "title": "“Try an example” dropdown",
+    "section": "The dropdown",
+    "text": "The dropdown\nTwo rules, both from applyExampleParams’s own contract:\n\nSelectors, not viewof references. A cell that references a view whose element gets recreated becomes reactive on it; since applying an example is what recreates downstream views, a direct-reference version re-triggers itself without end.\nOne DOM listener, not a reactive cell. A &lt;select&gt; fires input and change per pick; a cell reactive on its value runs twice and the two overlapping applications race. The cell below creates the &lt;select&gt; and attaches a single listener; it depends on nothing reactive, so it never re-runs.\n\n\nexamples = [\n  {label: \"sine on a period\", params: {f: \"sin(x)\", lo: \"0\", hi: \"2pi\"}},\n  {label: \"damped oscillation\", params: {f: \"e^(-x/4) cos(3x)\", lo: \"0\", hi: \"12\"}},\n  {label: \"runge's function\", params: {f: \"1/(1 + 25x^2)\", lo: \"-1\", hi: \"1\"}},\n  {label: \"a pole\", params: {f: \"1/(x - 1)\", lo: \"-2\", hi: \"4\"}}\n]\n\n\n\n\n\n\n\nfieldSelectors = ({\n  f: '[data-example-field=\"f\"]',\n  lo: '[data-example-field=\"lo\"]',\n  hi: '[data-example-field=\"hi\"]'\n})\n\n\n\n\n\n\n\n{\n  const select = document.createElement(\"select\")\n  select.className = \"form-select form-select-sm\"\n  select.style.maxWidth = \"22em\"\n  select.setAttribute(\"aria-label\", \"Try an example\")\n  const first = document.createElement(\"option\")\n  first.textContent = \"Try an example…\"\n  first.value = \"\"\n  select.appendChild(first)\n  for (let i = 0; i &lt; examples.length; i++) {\n    const option = document.createElement(\"option\")\n    option.value = String(i)\n    option.textContent = examples[i].label\n    select.appendChild(option)\n  }\n  select.addEventListener(\"change\", () =&gt; {\n    if (select.value === \"\") return\n    const example = examples[Number(select.value)]\n    const trigger = document.querySelector('[data-example-field=\"plot\"]')\n    VM.ui.applyExampleParams(fieldSelectors, example.params, trigger)\n    select.value = \"\"\n  })\n  return select\n}",
+    "crumbs": [
+      "Recipes",
+      "\"Try an example\" dropdown"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/try-an-example.html#the-chart",
+    "href": "docs/recipes/try-an-example.html#the-chart",
+    "title": "“Try an example” dropdown",
+    "section": "The chart",
+    "text": "The chart\n\n\n{\n  const f = VM.expressions.makeFunction(math, committed.f)\n  const lo = VM.expressions.makeNumber(math, committed.lo)\n  const hi = VM.expressions.makeNumber(math, committed.hi)\n  const ok = f !== null && lo !== null && hi !== null && hi &gt; lo\n  const xs = [], ys = []\n  if (ok) for (let i = 0; i &lt;= 500; i++) { const x = lo + (hi - lo) * i / 500; xs.push(x); ys.push(f(x)) }\n  const div = document.createElement(\"div\")\n  div.style.height = \"340px\"\n  Plotly.newPlot(div, [{x: xs, y: ys, line: {color: chartColors.fn, width: 2.5}, showlegend: false}], VM.plotting.layout({\n    xaxis: {title: \"x\"},\n    annotations: ok ? [] : VM.plotting.emptyState(\"Check the inputs, then press Plot\")\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}",
+    "crumbs": [
+      "Recipes",
+      "\"Try an example\" dropdown"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/try-an-example.html#order-matters-in-params",
+    "href": "docs/recipes/try-an-example.html#order-matters-in-params",
+    "title": "“Try an example” dropdown",
+    "section": "Order matters in params",
+    "text": "Order matters in params\napplyExampleParams applies keys in insertion order with a 100 ms wait after each. If a field’s bounds depend on another (a step slider capped by a “max” field), list the upstream field first, or the later one is applied to a view that’s about to be replaced and its value silently discarded. The examples above have no such dependency; the step-slider recipe’s step slider would.",
+    "crumbs": [
+      "Recipes",
+      "\"Try an example\" dropdown"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/ode-convergence.html",
+    "href": "docs/recipes/ode-convergence.html",
+    "title": "ODE with a convergence plot",
+    "section": "",
+    "text": "A Plotly chart of the numerical solution against the exact one, and beneath it an Observable Plot chart of error against step size on log axes – two libraries, one theme. The slope of the fitted line is the observed order of the method.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Recipes",
+      "ODE with a convergence plot"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/ode-convergence.html#inputs",
+    "href": "docs/recipes/ode-convergence.html#inputs",
+    "title": "ODE with a convergence plot",
+    "section": "Inputs",
+    "text": "Inputs\nThe exact solution is typed too, so the page can draw the error. (For y' = y − t² + 1, y(0) = 0.5 it is (t + 1)² − e^t / 2.)\n\n\nviewof odeRhs = Inputs.text({label: \"y′ = f(t, y)\", value: \"y - t^2 + 1\"})\n\n\n\n\n\n\n\nviewof odeExact = Inputs.text({label: \"exact y(t)\", value: \"(t + 1)^2 - e^t / 2\"})\n\n\n\n\n\n\n\nviewof odeY0 = Inputs.text({label: \"y(0)\", value: \"0.5\"})\n\n\n\n\n\n\n\nviewof odeMethod = Inputs.radio([\"Euler\", \"RK4\"], {label: \"method\", value: \"RK4\"})",
+    "crumbs": [
+      "Recipes",
+      "ODE with a convergence plot"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/ode-convergence.html#solving",
+    "href": "docs/recipes/ode-convergence.html#solving",
+    "title": "ODE with a convergence plot",
+    "section": "Solving",
+    "text": "Solving\nmakeFunction2 compiles the right-hand side as (t, y) =&gt; number; makeFunctionOfT compiles the exact solution in t. The two steppers share a signature, so the method choice is a function reference.\n\node = {\n  const f = VM.expressions.makeFunction2(math, odeRhs)\n  const exact = VM.expressions.makeFunctionOfT(math, odeExact)\n  const y0 = VM.expressions.makeNumber(math, odeY0)\n  if (f === null || exact === null || y0 === null) return null\n  const solve = odeMethod === \"Euler\" ? VM.numerical.eulerSolve : VM.numerical.rk4Solve\n  return {f, exact, y0, solve}\n}",
+    "crumbs": [
+      "Recipes",
+      "ODE with a convergence plot"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/ode-convergence.html#the-solution",
+    "href": "docs/recipes/ode-convergence.html#the-solution",
+    "title": "ODE with a convergence plot",
+    "section": "The solution",
+    "text": "The solution\n\n\n\nviewof odeN = Inputs.range([2, 64], {label: \"steps n\", step: 1, value: 8})\n\n\n\n\n\n\n\n\n{\n  const data = []\n  if (ode !== null) {\n    const sol = ode.solve(ode.f, 0, ode.y0, 2, odeN)\n    const et = [], ey = []\n    for (let i = 0; i &lt;= 200; i++) { const t = 2 * i / 200; et.push(t); ey.push(ode.exact(t)) }\n    data.push({x: et, y: ey, name: \"exact\", line: {color: chartColors.muted, width: 2, dash: \"dot\"}})\n    data.push({x: sol.ts, y: sol.ys, name: odeMethod, mode: \"lines+markers\", line: {color: chartColors.fn, width: 2}, marker: {size: 6, line: {color: chartColors.halo, width: 1.5}}})\n  }\n  const div = document.createElement(\"div\")\n  div.style.height = \"360px\"\n  Plotly.newPlot(div, data, VM.plotting.layout({\n    xaxis: {title: \"t\"}, yaxis: {title: \"y\"},\n    legend: {x: 0.02, y: 0.98},\n    annotations: ode ? [] : VM.plotting.emptyState(\"Check the inputs\")\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}",
+    "crumbs": [
+      "Recipes",
+      "ODE with a convergence plot"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/ode-convergence.html#the-convergence-plot",
+    "href": "docs/recipes/ode-convergence.html#the-convergence-plot",
+    "title": "ODE with a convergence plot",
+    "section": "The convergence plot",
+    "text": "The convergence plot\nRun the solver at n = 4, 8, 16, …, record the error at t = 2, fit a line to (log h, log error). linearRegression returns the slope – the order – and xlo/xhi (the first and last point’s x, in the order given) for drawing the fitted segment.\n\nconvergence = {\n  if (ode === null) return null\n  const points = []\n  for (let n = 4; n &lt;= 1024; n *= 2) {\n    const sol = ode.solve(ode.f, 0, ode.y0, 2, n)\n    const err = Math.abs(sol.ys[n] - ode.exact(2))\n    if (err &gt; 0 && Number.isFinite(err)) points.push({x: Math.log10(2 / n), y: Math.log10(err), h: 2 / n, err})\n  }\n  return {points, fit: VM.numerical.linearRegression(points)}\n}\n\n\n\n\n\n\n\n{\n  if (convergence === null || convergence.fit === null) return html`&lt;em&gt;Not enough data for a fit.&lt;/em&gt;`\n  const {points, fit} = convergence\n  const line = [{x: fit.xlo, y: fit.slope * fit.xlo + fit.intercept}, {x: fit.xhi, y: fit.slope * fit.xhi + fit.intercept}]\n  return Plot.plot(VM.plotting.plotOptions({\n    height: 300,\n    x: {label: \"log₁₀ h\"}, y: {label: \"log₁₀ |error at t = 2|\"},\n    marks: [\n      Plot.line(line, {x: \"x\", y: \"y\", stroke: chartColors.alt, strokeWidth: 1.5, strokeDasharray: \"4 3\"}),\n      Plot.dot(points, {x: \"x\", y: \"y\", fill: chartColors.fn, r: 4, stroke: chartColors.halo}),\n      Plot.text([{x: fit.xhi, y: fit.slope * fit.xhi + fit.intercept}], {x: \"x\", y: \"y\", text: () =&gt; `slope ≈ ${fit.slope.toFixed(2)}`, dx: 8, dy: -10, textAnchor: \"end\", fill: chartColors.ink})\n    ]\n  }))\n}\n\n\n\n\n\n\nEuler’s slope sits near 1, RK4’s near 4 – until the error floors out in floating point at the smallest steps, which drags the fitted slope down. l1Regression would shrug off those last points; that swap is one identifier.",
+    "crumbs": [
+      "Recipes",
+      "ODE with a convergence plot"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/index.html",
+    "href": "docs/recipes/index.html",
+    "title": "Recipes",
+    "section": "",
+    "text": "Each recipe is a whole working page: the markup, every cell, and the reasoning. The code shown is the code running on the page, so what you read is what you’d paste into a .qmd of your own. They build on one another roughly in this order.\n\n\n\nRecipe\nShows\n\n\n\n\nFunction explorer\nA text field driving a chart; makeFunction / makeDerivative; a legend overlay toggling traces; emptyState and vm-invalid for bad input\n\n\nStep slider with playback\nojs-chart-controls above the chart; an iteration slider with the play button; the chart tween; renderTable\n\n\nODE with a convergence plot\nmakeFunction2 + eulerSolve / rk4Solve; a Plotly main chart and an Observable Plot log-log chart sharing the theme; linearRegression to read off the order\n\n\nDistribution explorer\nsampleCurve for the exact curve, seeded samples through histogramBins under it, alpha for the fill\n\n\n“Try an example” dropdown\napplyExampleParams, data-example-field, and the one-DOM-listener wiring that avoids the double-fire\n\n\nObservable Plot in an SVG block\nplotOptions, ojs-svg-block for a fullscreen button, colors read at draw time\n\n\n\nEvery page starts with the same three lines, which the recipes don’t repeat in their explanations:\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nVM = window.VM brings the global into OJS’s namespace; the other two are the theme pair.",
+    "crumbs": [
+      "Recipes"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/distribution-explorer.html",
+    "href": "docs/recipes/distribution-explorer.html",
+    "title": "Distribution explorer",
+    "section": "",
+    "text": "The curve is exact (sampleCurve over a closed-form density – it never jitters when a slider moves); the bars are draws from a seeded generator, binned by histogramBins into densities so their area is ~1 and they sit under the curve on the same axis. Change the seed and only the bars change.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Recipes",
+      "Distribution explorer"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/distribution-explorer.html#samples",
+    "href": "docs/recipes/distribution-explorer.html#samples",
+    "title": "Distribution explorer",
+    "section": "Samples",
+    "text": "Samples\nseededRandom gives a uniform generator; gaussianRandom wraps it as a standard normal; scale and shift for the chosen mean and sd. The seed is part of the page’s state, so a shared URL (if your page syncs inputs to it) reproduces the same bars.\n\ndraws = {\n  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(distSeed))\n  const out = []\n  for (let i = 0; i &lt; distCount; i++) out.push(distMean + distSd * gaussian())\n  return out\n}",
+    "crumbs": [
+      "Recipes",
+      "Distribution explorer"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/distribution-explorer.html#the-chart",
+    "href": "docs/recipes/distribution-explorer.html#the-chart",
+    "title": "Distribution explorer",
+    "section": "The chart",
+    "text": "The chart\nThe histogram range is fixed to the axis range rather than the samples’ own min/max, so the bins don’t shift as the seed changes; samples beyond it are clamped into the end bins. alpha makes the fill translucent in a way that follows the theme.\n\n\n{\n  const lo = -8, hi = 8\n  const curve = VM.distributions.sampleCurve(x =&gt; VM.distributions.normalPdf(x, distMean, distSd * distSd), lo, hi)\n  const bins = VM.distributions.histogramBins(draws, 48, {lo, hi})\n  const div = document.createElement(\"div\")\n  div.style.height = \"380px\"\n  Plotly.newPlot(div, [\n    {type: \"bar\", x: bins.centers, y: bins.densities, name: `${distCount} draws`, width: bins.edges[1] - bins.edges[0],\n      marker: {color: VM.plotting.alpha(\"fn\", 0.35), line: {color: chartColors.fn, width: 1}}},\n    {x: curve.xs, y: curve.ys, name: \"normalPdf\", line: {color: chartColors.alt, width: 2.5}}\n  ], VM.plotting.layout({\n    xaxis: {title: \"x\", range: [lo, hi]}, yaxis: {title: \"density\", rangemode: \"tozero\"},\n    legend: {x: 0.02, y: 0.98}, bargap: 0\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}",
+    "crumbs": [
+      "Recipes",
+      "Distribution explorer"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/distribution-explorer.html#a-discrete-variant",
+    "href": "docs/recipes/distribution-explorer.html#a-discrete-variant",
+    "title": "Distribution explorer",
+    "section": "A discrete variant",
+    "text": "A discrete variant\nFor a PMF, sample the curve at the integers and align one bin per integer: range: {lo: min − 0.5, hi: max + 0.5} with binCount = max − min + 1, which auto-ranging can’t guarantee.\n\nviewof lambda = Inputs.range([0.5, 12], {label: \"Poisson λ\", step: 0.1, value: 4})\n\n\n\n\n\n\n\n{\n  // Poisson draws by inversion from the seeded uniform generator.\n  const rng = VM.sampling.seededRandom(distSeed)\n  const draws = []\n  for (let i = 0; i &lt; distCount; i++) {\n    let k = 0, p = Math.exp(-lambda), s = p\n    const u = rng()\n    while (u &gt; s && k &lt; 60) { k++; p *= lambda / k; s += p }\n    draws.push(k)\n  }\n  const max = 25\n  const pmf = VM.distributions.sampleCurve(k =&gt; VM.distributions.poissonPmf(k, lambda), 0, max, {discrete: true})\n  const bins = VM.distributions.histogramBins(draws, max + 1, {lo: -0.5, hi: max + 0.5})\n  const div = document.createElement(\"div\")\n  div.style.height = \"300px\"\n  Plotly.newPlot(div, [\n    {type: \"bar\", x: bins.centers, y: bins.densities, name: \"draws\", marker: {color: VM.plotting.alpha(\"fn\", 0.35), line: {color: chartColors.fn, width: 1}}},\n    {x: pmf.xs, y: pmf.ys, mode: \"markers\", name: \"poissonPmf\", marker: {color: chartColors.alt, size: 8, line: {color: chartColors.halo, width: 1.5}}}\n  ], VM.plotting.layout({xaxis: {title: \"k\", range: [-0.5, max + 0.5]}, yaxis: {title: \"P(K = k)\", rangemode: \"tozero\"}, legend: {x: 0.7, y: 0.98}}), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}",
+    "crumbs": [
+      "Recipes",
+      "Distribution explorer"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html",
+    "href": "docs/internals.html",
+    "title": "How it’s put together",
+    "section": "",
+    "text": "A short map of the repository and the handful of decisions that shape it. The working rules for contributors – headers, style, the release checklist – are in CONTRIBUTING.md; the deeper “why” behind each invariant, written as instructions for someone editing the code, is in CLAUDE.md.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#layout",
+    "href": "docs/internals.html#layout",
+    "title": "How it’s put together",
+    "section": "Layout",
+    "text": "Layout\n_extensions/mathviz/   the Quarto extension: _extension.yml, mathviz.lua, dist/ (copied by the build)\ndist/                  the generated bundle, committed (jsDelivr serves it by tag); never hand-edited\nsrc/manifest.mjs       THE load order, for the build and the tests\nsrc/js/&lt;category&gt;/     one VM.&lt;category&gt;.&lt;name&gt; per file; tests colocated as &lt;name&gt;.test.js\nsrc/css/               tokens.css first, then one file per concern\nscripts/               build.mjs (concatenate + syntax-check), load-vm.mjs (test loader)\ndocs/                  this site; example.qmd at the root is the CI smoke render",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#one-global-many-small-files",
+    "href": "docs/internals.html#one-global-many-small-files",
+    "title": "How it’s put together",
+    "section": "One global, many small files",
+    "text": "One global, many small files\nEvery file under src/js is an IIFE that adds one member (occasionally two or three that belong together) to window.VM:\n(function attachVM(globalThis) {\n  /** JSDoc … */\n  const simpsonEstimate = (f, lo, hi, n) =&gt; { … }\n\n  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, simpsonEstimate}}\n})(window)\nThe spread-merge means files can load in any order as far as attaching goes; the manifest exists for the few real load-time dependencies (every *Pmf/*Pdf reads logGamma; the discreteMath color helpers read VM.plotting; the SVG fullscreen button reuses the Plotly button’s icon). mustPrecede in src/manifest.mjs records them and src/manifest.test.js enforces them, along with “every file on disk is listed exactly once”.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#the-build-is-a-concatenation",
+    "href": "docs/internals.html#the-build-is-a-concatenation",
+    "title": "How it’s put together",
+    "section": "The build is a concatenation",
+    "text": "The build is a concatenation\nscripts/build.mjs reads the manifest, joins the files with a separator, syntax-checks the result with node --check, writes dist/mathviz.{js,css} and copies both into _extensions/mathviz/dist/. No bundler, no minifier, no dependencies: the output is the readable source with // ---- src/js/… ---- markers, so a stack trace in a consumer’s browser points at a recognizable file, and the JSDoc travels with it.\nThe one subtlety is the separator. For JS it is a lone ;. Each file ends in a call – })(window), or })() for a module with nothing to export – and two of those back to back parse as })(window)(function …): the first file’s return value called with the second file as its argument. That is syntactically valid, so node --check can’t catch it, and the page dies after the first file with (intermediate value)(...) is not a function. The semicolon makes each file its own statement.\ndist/ is committed because both distribution channels serve the repository as-is: quarto add downloads an archive and runs nothing, and jsDelivr serves files straight from a tag. CI rebuilds and fails on a diff, so src/ and dist/ can’t drift.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#tests-run-the-real-files",
+    "href": "docs/internals.html#tests-run-the-real-files",
+    "title": "How it’s put together",
+    "section": "Tests run the real files",
+    "text": "Tests run the real files\nscripts/load-vm.mjs evaluates every manifest entry, in order, into the Node process’s global scope (indirect eval, so the IIFEs see a window), with a minimal document and Plotly stub for the modules that touch them at load time. The *.test.js files import it and test VM.* – the production code, not re-implementations. node --test finds them; math.js is the only dev dependency, for the expression tests.\nTwo tests guard the documentation itself: manifest.test.js (above) and docs-coverage.test.js, which fails if any VM.* member lacks a ### VM.&lt;category&gt;.&lt;name&gt; heading in docs/reference/, or a heading names something that doesn’t exist.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#the-version-is-in-three-places",
+    "href": "docs/internals.html#the-version-is-in-three-places",
+    "title": "How it’s put together",
+    "section": "The version is in three places",
+    "text": "The version is in three places\npackage.json, _extensions/mathviz/_extension.yml and VERSION in mathviz.lua. The build refuses to run unless they agree. The Lua one names the site_libs/quarto-contrib/mathviz-&lt;version&gt;/ folder in a consumer’s output, which is what busts their browser cache on upgrade.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#the-lua-filters-odd-shape",
+    "href": "docs/internals.html#the-lua-filters-odd-shape",
+    "title": "How it’s put together",
+    "section": "The Lua filter’s odd shape",
+    "text": "The Lua filter’s odd shape\nmathviz.lua adds one HTML dependency per vendor &lt;script&gt; tag (mathviz-mathjs, mathviz-plotly, mathviz-referrer), each before the mathviz dependency that carries the bundle. Three facts about Quarto’s dependency handling, verified against Quarto 1.7’s source, force this:\n\nquarto.doc.include_text(\"in-header\", …) lands in header-includes, which is emitted below the whole dependency block – so a Plotly tag added that way loads after mathviz.js, and the patch finds no Plotly to patch.\nWithin one dependency, scripts entries are emitted before the head string, so the vendor tags can’t share the bundle’s dependency.\nQuarto’s injectHtml iterates a live children collection while moving nodes out of it, so a head string holding several tags loses every second one. One tag per dependency is the workaround.\n\nscripts/stylesheets entries must be local files (Quarto copies them into site_libs), hence raw &lt;script&gt; tags in head for the CDN URLs. A head-only dependency creates no site_libs folder.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#theme-detection",
+    "href": "docs/internals.html#theme-detection",
+    "title": "How it’s put together",
+    "section": "Theme detection",
+    "text": "Theme detection\nTwo places hold the dark-mode selector list and must stay identical: the :where(…) block in src/css/tokens.css, and settings.darkSelector in src/js/plotting/chart-theme.js. The CSS half declares the dark tokens; the JS half decides themeName(). The Theming page covers the consequences: why the tokens are read from &lt;body&gt;, why onThemeChange waits two frames and compares before firing, why the selectors are root-scoped.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#self-installing-modules",
+    "href": "docs/internals.html#self-installing-modules",
+    "title": "How it’s put together",
+    "section": "Self-installing modules",
+    "text": "Self-installing modules\nSlider playback, the draggable legend, the SVG fullscreen button and the slider-track fill share a pattern: a MutationObserver on document.body plus delegated document-level listeners, so they enhance elements Observable Inputs creates at runtime and recreates on every upstream change – there is no single moment at which “all the sliders exist” to wire them up individually. Each marks what it has enhanced (data-vm-play-ready, data-vm-draggable) to stay idempotent. plotly-fullscreen-button.js does the same job for Plotly by wrapping Plotly.newPlot/react, since there is no DOM to watch before the chart exists.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/internals.html#style",
+    "href": "docs/internals.html#style",
+    "title": "How it’s put together",
+    "section": "Style",
+    "text": "Style\nExplicit for/while loops and if/else over .map()/.filter()/.reduce() chains and ternaries, throughout src/js. The code is read by a mathematics audience more at home in Python than in functional JavaScript. Callbacks an API requires (Plotly config values, Plot accessors, addEventListener) are the exception.",
+    "crumbs": [
+      "Guide",
+      "How it's put together"
+    ]
+  },
+  {
+    "objectID": "docs/first-chart.html",
+    "href": "docs/first-chart.html",
+    "title": "Your first chart",
+    "section": "",
+    "text": "This is the whole of example.qmd, the page the repository renders in CI, with each cell explained. Read it once and the rest of the library will look familiar.",
+    "crumbs": [
+      "Guide",
+      "Your first chart"
+    ]
+  },
+  {
+    "objectID": "docs/first-chart.html#the-page",
+    "href": "docs/first-chart.html#the-page",
+    "title": "Your first chart",
+    "section": "The page",
+    "text": "The page\n\nVM = window.VM\n\n\n\n\n\n\n\n\nviewof fText = Inputs.text({label: \"f(x)\", value: \"sin(x) + x/3\"})\n\n\n\n\n\n\n\nviewof k = Inputs.range([1, 5], {label: \"Frequency\", step: 0.1, value: 1})\n\n\n\n\n\n\n\n\n\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmainPlot = {\n  const f = VM.expressions.makeFunction(math, fText)\n  const xs = [], ys = []\n  for (let i = 0; i &lt;= 400; i++) {\n    const x = -6 + 12 * i / 400\n    xs.push(x)\n    ys.push(f ? f(k * x) : NaN)\n  }\n  const div = document.createElement(\"div\")\n  div.className = \"plotly-box-large\"\n  Plotly.newPlot(div, [\n    {x: xs, y: ys, mode: \"lines\", name: fText, line: {color: chartColors.fn, width: 2.5}, showlegend: false}\n  ], VM.plotting.layout({\n    xaxis: {title: \"x\"},\n    yaxis: {title: \"f(kx)\"},\n    annotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\nType something unparseable into the field. Toggle the theme. Press ▶ on the slider.",
+    "crumbs": [
+      "Guide",
+      "Your first chart"
+    ]
+  },
+  {
+    "objectID": "docs/first-chart.html#cell-by-cell",
+    "href": "docs/first-chart.html#cell-by-cell",
+    "title": "Your first chart",
+    "section": "Cell by cell",
+    "text": "Cell by cell\n\nThe panel\n::: {.ojs-panel .ojs-row}\n```{ojs}\nviewof fText = Inputs.text({label: \"f(x)\", value: \"sin(x) + x/3\"})\n```\n```{ojs}\nviewof k = Inputs.range([1, 5], {label: \"Frequency\", step: 0.1, value: 1})\n```\n:::\nA Quarto div with two classes. ojs-panel is the chrome – border, background, radius, and restyling of every input inside it. ojs-row is the layout: a flex row that wraps, with the first control stretching to fill. Both are plain CSS from the bundle; the full list of classes is in the markup contract.\nThe slider gets its play button for free – the playback module finds every range slider inside a panel.\n\n\nThe theme pair\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nThe two most important lines on any chart page, and the ones most often left out.\nonThemeChange calls notify(\"light\") (or \"dark\") now and after every toggle, and returns a teardown – exactly the shape Generators.observe wants – so vmTheme is a reactive cell that changes value when the theme does. colors() ignores its argument; colors(vmTheme) is written that way so chartColors depends on vmTheme and re-runs too. And then so does mainPlot, because it reads chartColors.fn.\nWhy this is necessary: the chart’s chrome – background, axes, gridlines, tooltip – is re-themed for you (the Plotly patch runs a relayout on every chart when the theme flips). But chartColors.fn is a value the page baked into a trace. Nothing but re-running the cell can change it. Without these two lines the axes go dark and the line stays light-mode blue.\n\n\nThe function\nconst f = VM.expressions.makeFunction(math, fText)\nmath is the math.js global the extension loaded. makeFunction returns a (x) =&gt; number, or null if the text won’t parse; it never throws. The returned function gives NaN where evaluation fails (sqrt(x) at x = -1), which Plotly draws as a gap.\n\n\nThe sampling loop\nfor (let i = 0; i &lt;= 400; i++) {\n  const x = -6 + 12 * i / 400\n  xs.push(x)\n  ys.push(f ? f(k * x) : NaN)\n}\nAn explicit loop, on purpose. The library is written for readers more at home in Python than in functional JavaScript, and the pages that use it follow suit. (VM.distributions.sampleCurve does this loop for you when the function is a density.)\n\n\nThe chart\nconst div = document.createElement(\"div\")\ndiv.className = \"plotly-box-large\"\nPlotly.newPlot(div, [...], VM.plotting.layout({...}), VM.plotting.config())\nVM.plotting.autoResize(div)\nreturn div\nThe standard OJS idiom: build a detached div, draw into it, return it and let Observable put it on the page. Three library calls:\n\nVM.plotting.layout({...}) – the themed layout, with the page’s own xaxis/yaxis/annotations deep-merged on top. On a page rendered through the extension this is technically redundant (the patch merges it under every newPlot), but writing it makes the dependency visible and works on a page without the patch.\nVM.plotting.config() – {responsive: true, displaylogo: false}.\nVM.plotting.autoResize(div) – the chart is built detached, so Plotly measured 0×0. This resizes it once it lands, and stops when the div is replaced by a re-run (a bare ResizeObserver would outlive it and throw).\n\nplotly-box-large is the one size class the CSS ships: full width, 72vh tall with a 500px floor. Set your own height for anything else.\n\n\nThe empty state\nannotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\nWhen f is null every y is NaN and Plotly draws an empty grid – which looks identical to a valid function that happens to be off-screen. emptyState puts a message in the middle so the reader knows it’s their input.\n\n\nThe chart block\n::: {.ojs-chart-block}\n...\n:::\nThe wrapper around the chart cells. It is the positioning anchor for a floating legend, and it is what the fullscreen button fullscreens – so a legend or a controls bar inside it comes along. Every chart wants one, even a chart with neither, so that adding them later is a matter of dropping in a cell.",
+    "crumbs": [
+      "Guide",
+      "Your first chart"
+    ]
+  },
+  {
+    "objectID": "docs/first-chart.html#where-to-go-from-here",
+    "href": "docs/first-chart.html#where-to-go-from-here",
+    "title": "Your first chart",
+    "section": "Where to go from here",
+    "text": "Where to go from here\n\nAdd a step slider directly above the chart: ojs-chart-controls and the step-slider recipe.\nReplace Plotly’s legend with a draggable one: VM.ui.legendOverlay and the function-explorer recipe.\nMake the palette yours: Theming.",
+    "crumbs": [
+      "Guide",
+      "Your first chart"
+    ]
+  },
+  {
+    "objectID": "docs/index.html",
+    "href": "docs/index.html",
+    "title": "mathviz",
+    "section": "",
+    "text": "mathviz is the machinery behind Visual Math Lab, packaged so any site can use it: a Quarto extension that drops into an OJS page with one line of front matter, and the same code as a plain script bundle for everything else.\nEvery chart, panel and slider on this site is drawn by the library itself. Toggle the theme in the navbar and watch them follow.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Guide",
+      "mathviz"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#what-you-get",
+    "href": "docs/index.html#what-you-get",
+    "title": "mathviz",
+    "section": "What you get",
+    "text": "What you get\n\nThemed charts. Plotly and Observable Plot read the same fonts, grid, palette and tooltip style from CSS custom properties, live – so charts follow your site’s light/dark toggle and re-theme the instant it flips. The Plotly patch does this to every chart on the page with no per-page code.\nA modebar worth using. Fullscreen, gentler zoom steps, pan by default, no box/lasso select.\nControl-panel CSS that lays Observable Inputs.* out into a tidy panel, and keeps step sliders directly above a chart – also in fullscreen.\nSlider playback: every range slider in a panel gets a play/pause button with speed and loop/bounce options.\nA floating, draggable legend that toggles traces and remembers where you put it.\nNumerical helpers: safe expression parsing via math.js, ODE steppers, quadrature, least-squares, sixteen closed-form densities, seeded random numbers, 1-D filters, Sperner triangulations.",
+    "crumbs": [
+      "Guide",
+      "mathviz"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#install",
+    "href": "docs/index.html#install",
+    "title": "mathviz",
+    "section": "Install",
+    "text": "Install\n\nQuartoAny web page\n\n\nquarto add apurvanakade/mathviz\n# _quarto.yml\nfilters:\n  - mathviz\nThat’s it – math.js, Plotly, mathviz.js and mathviz.css are in every page’s &lt;head&gt;, in that order, served from your own site_libs/.\n\n\n&lt;link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.css\"&gt;\n&lt;script src=\"https://cdn.plot.ly/plotly-2.35.2.min.js\"&gt;&lt;/script&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.js\"&gt;&lt;/script&gt;\nLoad Plotly before the bundle.\n\n\n\nDetails, options and pinning: Installing.",
+    "crumbs": [
+      "Guide",
+      "mathviz"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#where-next",
+    "href": "docs/index.html#where-next",
+    "title": "mathviz",
+    "section": "Where next",
+    "text": "Where next\n\n\n\nYour first chart\nThe chart above, explained cell by cell – the pattern every page follows.\n\n\nTheming\nEvery --vm-* token, how dark mode is detected, how to make the palette yours.\n\n\nMarkup contract\nThe ojs-* classes and data attributes the CSS and self-installing modules look for.\n\n\nAPI reference\nEvery VM.* function, with live examples.\n\n\nRecipes\nComplete pages to copy: a function explorer, an ODE with a convergence plot, a distribution explorer, …\n\n\nTroubleshooting\nSymptom → cause → fix.",
+    "crumbs": [
+      "Guide",
+      "mathviz"
+    ]
+  },
+  {
+    "objectID": "docs/install.html",
+    "href": "docs/install.html",
+    "title": "Installing",
+    "section": "",
+    "text": "mathviz ships two ways from one source tree. Both give you the same window.VM, the same CSS, and the same self-installing behaviour.",
+    "crumbs": [
+      "Guide",
+      "Installing"
+    ]
+  },
+  {
+    "objectID": "docs/install.html#quarto-site-book-or-document",
+    "href": "docs/install.html#quarto-site-book-or-document",
+    "title": "Installing",
+    "section": "Quarto site, book or document",
+    "text": "Quarto site, book or document\nquarto add apurvanakade/mathviz\nThis copies the extension into _extensions/apurvanakade/mathviz/ in your project. Enable it project-wide in _quarto.yml, or per page in front matter:\nfilters:\n  - mathviz\nThe filter adds four things to every HTML page’s &lt;head&gt;, in this order:\n\n&lt;script src=\"https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js\"&gt; – the global math\n&lt;script src=\"https://cdn.plot.ly/plotly-2.35.2.min.js\"&gt; – the global Plotly\nmathviz.js, copied into site_libs/quarto-contrib/mathviz-&lt;version&gt;/\nmathviz.css, alongside it\n\nThe order matters: mathviz.js patches Plotly.newPlot the moment it runs, so Plotly must already be there. Both vendor tags come from CDNs (they’re pinned to the versions the library is tested against); the bundle is served from your own site.\n\nOptions\nAll optional, under a mathviz: key in _quarto.yml or a page’s front matter:\nmathviz:\n  plotly: false             # your pages draw with D3/canvas/Plot -- skip Plotly\n  mathjs: false             # ...or math.js. Either also accepts a URL string\n  css: false                # bring your own stylesheet\n  referrer: same-origin     # emit &lt;meta name=\"referrer\"&gt; ahead of the CDN tags\n\n\n\nKey\nValues\nEffect\n\n\n\n\nplotly\ntrue (default), false, or a URL\nWhether to add the Plotly tag, and from where. With false the Plotly patch is a silent no-op and the VM.plotting theme functions still work for Observable Plot.\n\n\nmathjs\ntrue (default), false, or a URL\nWhether to add the math.js tag, and from where. VM.expressions.* take the instance as an argument, so a page that loads math.js another way passes that.\n\n\ncss\ntrue (default) or false\nWhether to add mathviz.css. With false you supply the --vm-* tokens and the ojs-* rules yourself – see Theming.\n\n\nreferrer\na referrer policy string\nEmits &lt;meta name=\"referrer\" content=\"…\"&gt; before the CDN tags, so the third-party origins don’t see a page’s path or query string – which on a math page is the reader’s own input. Visual Math Lab uses same-origin.\n\n\n\n\n\nVersions and updating\nquarto update apurvanakade/mathviz            # latest tag\nquarto update apurvanakade/mathviz@v0.1.1     # a specific tag\nquarto add apurvanakade/mathviz@v0.1.1        # pin at install time\nThe version names the site_libs/quarto-contrib/mathviz-&lt;version&gt;/ folder in your rendered output, which is what invalidates a browser’s cached copy when you upgrade.\n\n\nTrying a local checkout\nTo test a change to the library in your own project before it’s published:\nquarto add /path/to/mathviz --no-prompt\nA local directory is accepted; Quarto copies _extensions/mathviz/ in. Re-run after each npm run build in the library. A symlink at _extensions/mathviz is not discovered – Quarto checks isDirectory() on the raw directory entry.",
+    "crumbs": [
+      "Guide",
+      "Installing"
+    ]
+  },
+  {
+    "objectID": "docs/install.html#any-other-web-page",
+    "href": "docs/install.html#any-other-web-page",
+    "title": "Installing",
+    "section": "Any other web page",
+    "text": "Any other web page\n&lt;link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.css\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js\"&gt;&lt;/script&gt;\n&lt;script src=\"https://cdn.plot.ly/plotly-2.35.2.min.js\"&gt;&lt;/script&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.js\"&gt;&lt;/script&gt;\n\nLoad Plotly before mathviz.js. The patch runs when the bundle loads and again on DOMContentLoaded; if Plotly arrives later than both (a dynamic import), call VM.plotting.installPlotlyPatch() yourself.\ndist/mathviz.js is a plain concatenation of the source files – readable, un-minified, ~170 kB with its documentation comments. A stack trace in your browser points at a recognizable file.\nPin the tag in the URL. jsDelivr also serves @main, but a tag is what you can reason about.\nWithout Quarto and Observable Inputs, some CSS has nothing to attach to; the markup contract says what degrades and what doesn’t.",
+    "crumbs": [
+      "Guide",
+      "Installing"
+    ]
+  },
+  {
+    "objectID": "docs/install.html#what-needs-what",
+    "href": "docs/install.html#what-needs-what",
+    "title": "Installing",
+    "section": "What needs what",
+    "text": "What needs what\nNothing here imports anything. Where a function needs a library, it takes it as an argument or finds it on window.\n\n\n\n\nNeeds\n\n\n\n\nVM.expressions.* (except makeRational), VM.numerical.polynomialFit\na math.js instance, passed as the first argument\n\n\nVM.numerical.*, VM.sampling.*, VM.filters.*, VM.distributions.*, VM.discreteMath.*\nnothing\n\n\nVM.plotting.colors / colorway / alpha / themeName / onThemeChange / configure / subscript / paddedRange / plotOptions\nnothing (a document to read tokens from; sensible fallbacks without)\n\n\nVM.plotting.layout / config / hoverLabel / emptyState / themePatch\nnothing – they build plain objects. You need Plotly to use them, of course\n\n\nVM.plotting.autoResize\nResizeObserver (returns null without); safe when Plotly is absent\n\n\nVM.plotting.installPlotlyPatch / fullscreenButton\nwindow.Plotly\n\n\nVM.plotting.svgAspectRatio / figureBounds, VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame\nnothing – pure helpers\n\n\nVM.ui.legendOverlay\nnothing – plain DOM. It implements Observable’s view contract; it doesn’t require Observable\n\n\nVM.ui.renderTable\nhtl’s html tag, passed in. Emits Bootstrap table classes\n\n\nVM.ui.applyExampleParams\nviews that follow Observable Inputs’ value + \"input\" protocol\n\n\nslider playback, draggable legend, SVG fullscreen button, slider fill\nnothing – self-installing on the markup they look for",
+    "crumbs": [
+      "Guide",
+      "Installing"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html",
+    "href": "docs/markup.html",
+    "title": "Markup contract",
+    "section": "",
+    "text": "mathviz has almost no JavaScript API for layout. You put a handful of classes on wrapper &lt;div&gt;s – in Quarto, a fenced div ::: {.ojs-panel} – and the CSS lays the controls out while the self-installing modules find what to enhance. This page is every class and attribute you are meant to write yourself, with a live example of each, followed by the ones you must not write because the library generates them.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#at-a-glance",
+    "href": "docs/markup.html#at-a-glance",
+    "title": "Markup contract",
+    "section": "At a glance",
+    "text": "At a glance\n\n\n\nClass / attribute\nPut it on\nEffect\n\n\n\n\nojs-panel\na div around Inputs.* cells\nthe control-panel chrome; restyles every input inside\n\n\nojs-row / ojs-grid\nthe same div, or a nested one\none wrapping flex row / an auto-fit grid\n\n\nojs-fill / ojs-auto / ojs-end\nan input’s wrapper (classList.add)\nfill the row / natural width / push to the right edge\n\n\nojs-chart-block\na div around the chart cell(s)\nanchor for the legend; what fullscreen enlarges\n\n\nojs-chart-controls\na div inside the block, holding sliders\na bar directly above the chart that comes along into fullscreen\n\n\nojs-svg-block\nalongside ojs-chart-block, for SVG charts\nadds the fullscreen button Plotly charts get from the modebar\n\n\nplotly-box-large\nthe Plotly graph div\nthe one shipped chart size\n\n\nvm-swatch vm-swatch-alt (-ok, -warn, -accent, -accent2)\na &lt;span&gt; in prose\ntints a color word with the matching palette color\n\n\nvm-invalid\nan &lt;input&gt;\nred border and tint for a field that failed validation\n\n\ndata-vm-play=\"off\"\na slider or any ancestor\nopt that slider out of the play button\n\n\ndata-example-field=\"…\"\na viewof element\na stable handle for applyExampleParams",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#panels",
+    "href": "docs/markup.html#panels",
+    "title": "Markup contract",
+    "section": "Panels",
+    "text": "Panels\n\nojs-panel\nThe chrome: padding, a --vm-border border, --vm-radius corners, --vm-surface background. It also restyles every &lt;input&gt;, &lt;select&gt;, &lt;button&gt; and Observable Inputs &lt;form&gt; inside it – consistent height, focus rings in --vm-accent, labels stacked above controls so a row of them bottom-aligns.\nIt is chrome only. Pair it with ojs-row or ojs-grid for layout. Don’t nest one panel inside another (the border and background double up); nest a bare ojs-row or ojs-grid div instead.\n\n\nojs-row\ndisplay: flex; flex-wrap: wrap; align-items: flex-end. The first child div gets flex: 1 1 200px and stretches; the last gets flex: 0 0 auto; anything between takes its natural width. That is the shape of most panels: a wide expression field, then a couple of small controls, then a button.\n\n\nviewof rowF = Inputs.text({label: \"f(x)\", value: \"x^2 - 2\"})\n\n\n\n\n\n\n\nviewof rowX0 = Inputs.text({label: \"x₀\", value: \"1\"})\n\n\n\n\n\n\n\nviewof rowGo = Inputs.button(\"Plot\")\n\n\n\n\n\n\n\n::: {.ojs-panel .ojs-row}\n```{ojs}\nviewof f = Inputs.text({label: \"f(x)\", value: \"x^2 - 2\"})\n```\n```{ojs}\nviewof x0 = Inputs.text({label: \"x₀\", value: \"1\"})\n```\n```{ojs}\nviewof go = Inputs.button(\"Plot\")\n```\n:::\n\n\nojs-grid\ngrid-template-columns: repeat(auto-fit, minmax(250px, 1fr)), bottom-aligned; two columns at ≤ 768 px, one at ≤ 480 px. For a panel of several similar controls where none should dominate.\n\n\nviewof gridA = Inputs.range([0, 1], {label: \"alpha\", step: 0.01, value: 0.5})\n\n\n\n\n\n\n\nviewof gridB = Inputs.range([1, 50], {label: \"n\", step: 1, value: 10})\n\n\n\n\n\n\n\nviewof gridC = Inputs.select([\"Euler\", \"RK4\"], {label: \"method\"})\n\n\n\n\n\n\n\nviewof gridD = Inputs.checkbox([\"show error\", \"show exact\"], {label: \"overlay\", value: [\"show exact\"]})\n\n\n\n\n\n\n\n\n\nojs-fill, ojs-auto, ojs-end\nPer-control overrides, added to the viewof element from the cell that creates it:\nviewof expr = {\n  const view = Inputs.text({label: \"f(x)\", value: \"sin(x)\"})\n  view.classList.add(\"ojs-fill\")\n  return view\n}\n\n\n\n\n\n\n\nClass\nEffect\n\n\n\n\nojs-fill\nwidth: 100%. On a &lt;form&gt; it also makes a contained text input a 20 em box that the reader can drag wider – for a long expression.\n\n\nojs-auto\nwidth: auto; flex: none – natural width in a row that would otherwise stretch it.\n\n\nojs-end\nwidth: fit-content; margin-left: auto – pushes the control to the right edge, in a row or a grid.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#charts",
+    "href": "docs/markup.html#charts",
+    "title": "Markup contract",
+    "section": "Charts",
+    "text": "Charts\n\nojs-chart-block\nThe wrapper around a chart and its companions. Three things depend on it:\n\nit is position: relative, the anchor a floating legendOverlay is positioned against\nit is what the fullscreen button fullscreens (the Plotly modebar’s, or the SVG block’s), so a controls bar and legend inside it come along – the Fullscreen API hides everything outside the fullscreened element\nit carries the letterboxing rules that keep the chart’s aspect ratio in fullscreen\n\nEvery chart wants one, even a chart that has neither a legend nor controls today. It also sets min-width: 0 on Quarto’s .quarto-layout-cell, so a chart in a layout-ncol column shrinks with the column instead of forcing it wide.\n\n\nojs-chart-controls\nA direct child of the chart block, holding the sliders that drive the chart – an iteration count, a step size. It renders as a solid bar (panel chrome) directly above the chart (order: -2, so it wins over the legend cell at -1), stays with the chart in fullscreen, and lays its controls out for that width: fluid range tracks, 5.5em number fields, radio/checkbox groups on one wrapped row, labels beside controls.\nSliders in it get the play button. Combine with ojs-grid (class=\"ojs-chart-controls ojs-grid\") for several sliders side by side; the grid floor rises to 320px so each track has room.\n\n\n\nviewof ctrlN = Inputs.range([1, 12], {label: \"iterations n\", step: 1, value: 4})\n\n\n\n\n\n\n\n\n{\n  const g = x =&gt; Math.cos(x)\n  let x = 1\n  const xs = [x], ys = [0]\n  for (let i = 0; i &lt; ctrlN; i++) { const gx = g(x); xs.push(x, gx); ys.push(gx, gx); x = gx }\n  const curveX = [], curveY = []\n  for (let i = 0; i &lt;= 100; i++) { const t = i / 100 * 1.6; curveX.push(t); curveY.push(g(t)) }\n  const div = document.createElement(\"div\")\n  div.style.height = \"300px\"\n  Plotly.newPlot(div, [\n    {x: curveX, y: curveY, name: \"cos x\", line: {color: chartColors.fn}},\n    {x: [0, 1.6], y: [0, 1.6], name: \"y = x\", line: {color: chartColors.muted, dash: \"dot\"}},\n    {x: xs, y: ys, name: \"cobweb\", line: {color: chartColors.alt, width: 1.5}, mode: \"lines+markers\", marker: {size: 5}}\n  ], {showlegend: false, xaxis: {range: [0, 1.6]}, yaxis: {range: [0, 1.1]}, margin: {t: 8}})\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\n::: {.ojs-chart-block}\n::: {.ojs-chart-controls}\n```{ojs}\nviewof n = Inputs.range([1, 12], {label: \"iterations n\", step: 1, value: 4})\n```\n:::\n```{ojs}\nmainPlot = { ... }\n```\n:::\n\n\nojs-svg-block\nFor a chart drawn as inline SVG – Observable Plot, or a hand-built &lt;svg&gt; – which has no Plotly modebar. Put it on the same element as ojs-chart-block and nothing else: the library appends one persistent fullscreen button as a direct child of the block (outside every cell’s output, so a re-run that rebuilds the SVG doesn’t rebuild the button), pins it to the top-right corner of the figure (the union of the block’s SVGs at least 64 px wide, skipping the controls bar, the legend and button icons), and re-measures on resize, on re-runs and on fullscreenchange. The figure SVG is centered in the block and letterboxed in fullscreen by its viewBox ratio.\nThe VM.discreteMath page and the Observable Plot recipe use it. Hover the chart there to see the button.\n\n\nplotly-box-large\nwidth: 100%; height: 72vh; min-height: 500px (65vh / 400px at ≤ 768 px). It is the only size class shipped – there is no -small or -medium. For another height set div.style.height yourself, as the examples on this site do.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#prose",
+    "href": "docs/markup.html#prose",
+    "title": "Markup contract",
+    "section": "Prose",
+    "text": "Prose\n\nvm-swatch\nTints a word to match a trace: &lt;span class=\"vm-swatch vm-swatch-alt\"&gt;red&lt;/span&gt; gives red. The modifier is required; vm-swatch alone sets no color.\n\n\n\n\n\n\n\n\nModifier\nToken\n\n\n\n\n\nvm-swatch-alt\n--vm-color-alt\nalt\n\n\nvm-swatch-ok\n--vm-color-ok\nok\n\n\nvm-swatch-warn\n--vm-color-warn\nwarn\n\n\nvm-swatch-accent2\n--vm-color-accent2\naccent2\n\n\nvm-swatch-accent\n--vm-accent (the UI accent, not a palette color)\naccent\n\n\n\nThere is no swatch for fn, muted, ink, accent3 or halo.\n\n\nvm-invalid\nA red (--vm-color-alt) border and 7% tint on an &lt;input&gt;, with a matching focus ring – for a field whose value failed to parse. Nothing in the library adds it; a page toggles it from the cell that validates:\nviewof x0 = {\n  const view = Inputs.text({label: \"x₀\", value: \"1\"})\n  view.addEventListener(\"input\", () =&gt; {\n    const ok = VM.expressions.makeNumber(math, view.value) !== null\n    view.querySelector(\"input\").classList.toggle(\"vm-invalid\", !ok)\n  })\n  return view\n}\nIt pairs with emptyState: the field says what is wrong, the chart says that something is.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#data-attributes",
+    "href": "docs/markup.html#data-attributes",
+    "title": "Markup contract",
+    "section": "Data attributes",
+    "text": "Data attributes\n\ndata-vm-play=\"off\"\nOn a range slider or any ancestor: opt out of the play button. Useful for a slider that isn’t a parameter sweep (a zoom level, a seed).\n\n\ndata-example-field=\"&lt;name&gt;\"\nOn a viewof element, set by the cell that creates it, as a stable handle for applyExampleParams:\nviewof fx = {\n  const view = Inputs.text({label: \"f(x)\", value: \"sin(x)\"})\n  view.dataset.exampleField = \"fx\"\n  return view\n}\nThe page’s fieldSelectors map is then {fx: '[data-example-field=\"fx\"]', …}. Selectors rather than references, for a reason that page explains.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#generated-by-the-library-never-author-these",
+    "href": "docs/markup.html#generated-by-the-library-never-author-these",
+    "title": "Markup contract",
+    "section": "Generated by the library – never author these",
+    "text": "Generated by the library – never author these\n\n\n\n\n\n\n\nClass / property\nWritten by\n\n\n\n\nojs-legend-overlay, ojs-legend-item, ojs-legend-swatch\nVM.ui.legendOverlay\n\n\nvm-overlay-grip, vm-overlay-dragging, data-vm-draggable\nthe draggable-legend module\n\n\nvm-play, vm-play-button, vm-play-more, vm-play-panel, vm-play-group, vm-play-pills, vm-play-pill, vm-play-pill-on, vm-playing, vm-has-play, data-vm-play-ready\nslider playback\n\n\nvm-fullscreen-toggle, vm-fs-figure\nthe SVG fullscreen button\n\n\nojs-table-toolbar, ojs-table-container\nVM.ui.renderTable\n\n\n--sx, --vm-plot-aspect-ratio, --vm-fs-plot-width, --vm-svg-aspect, --vm-swatch\nruntime layout state\n\n\n\nvm-dark is neither: it is a theme hook you may put on &lt;html&gt; or &lt;body&gt; to tell the library your site is in dark mode – see Theming. It styles nothing by itself.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#host-markup",
+    "href": "docs/markup.html#host-markup",
+    "title": "Markup contract",
+    "section": "Host markup the CSS depends on",
+    "text": "Host markup the CSS depends on\nQuarto OJS is the primary host, and several rules target markup mathviz doesn’t own. They are harmless elsewhere, but on a non-Quarto page the corresponding behaviour is simply absent:\n\n\n\n\n\n\n\nSelector\nWhat it fixes\n\n\n\n\n.cell-output-display, [id^=\"ojs-cell-\"]\nQuarto wraps every OJS output in a scroll container (overflow: auto). The legend rules set overflow: visible on the ones inside a chart block, or the floating legend would be clipped to a zero-height box. The same clip is why the playback popover is a top-layer [popover].\n\n\n.quarto-layout-cell { min-width: 0 }\nlets a chart in a layout-ncol column shrink with it\n\n\nform[class^=\"oi-\"]\nObservable Inputs’ generated forms carry a hashed class. The panel rules override their fixed 360px width and 120px label column, and theme their buttons. Observable injects its own .oi-&lt;hash&gt; rules into &lt;head&gt; at runtime, after any stylesheet, so a mathviz rule that ties on specificity loses silently – the shipped rules out-specify them or use !important. Bear this in mind if you add rules of your own.\n\n\n.js-plotly-plot .modebar*\nPlotly’s modebar DOM; the pill, blur and hover-fade live here\n\n\n\nWith plain &lt;input&gt;s in a &lt;div class=\"ojs-panel ojs-row\"&gt; everything panel-related still works – the form[class^=\"oi-\"] rules just find nothing to match.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/function-explorer.html",
+    "href": "docs/recipes/function-explorer.html",
+    "title": "Function explorer",
+    "section": "",
+    "text": "Type a function; see it, its derivative, and the tangent at a point. The legend floats over the chart and can be dragged. A bad expression marks the field red and puts a message in the plot.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Recipes",
+      "Function explorer"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/function-explorer.html#the-panel",
+    "href": "docs/recipes/function-explorer.html#the-panel",
+    "title": "Function explorer",
+    "section": "The panel",
+    "text": "The panel\nThe expression field validates itself on every keystroke: makeFunction returns null for anything unparseable, and the field toggles vm-invalid to say so. The x₀ field accepts any constant expression – pi/2, sqrt(2) – through makeNumber.\n\n\nviewof fxText = {\n  const view = Inputs.text({label: \"f(x)\", value: \"x^3 - 3x\", placeholder: \"an expression in x\"})\n  view.classList.add(\"ojs-fill\")\n  const input = view.querySelector(\"input\")\n  const check = () =&gt; input.classList.toggle(\"vm-invalid\", VM.expressions.makeFunction(math, input.value) === null)\n  view.addEventListener(\"input\", check)\n  check()\n  return view\n}\n\n\n\n\n\n\n\nviewof x0Text = Inputs.text({label: \"tangent at x₀\", value: \"1\"})",
+    "crumbs": [
+      "Recipes",
+      "Function explorer"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/function-explorer.html#the-result-cell",
+    "href": "docs/recipes/function-explorer.html#the-result-cell",
+    "title": "Function explorer",
+    "section": "The result cell",
+    "text": "The result cell\nOne cell turns text into numbers, so the chart cell has nothing to parse. Returning null here is what the chart branches on.\n\nresult = {\n  const f = VM.expressions.makeFunction(math, fxText)\n  const df = VM.expressions.makeDerivative(math, fxText)\n  const x0 = VM.expressions.makeNumber(math, x0Text)\n  if (f === null || df === null || x0 === null) return null\n  const xs = [], ys = [], dys = []\n  for (let i = 0; i &lt;= 400; i++) {\n    const x = -4 + 8 * i / 400\n    xs.push(x); ys.push(f(x)); dys.push(df(x))\n  }\n  const slope = df(x0)\n  const y0 = f(x0)\n  return {xs, ys, dys, x0, y0, slope}\n}",
+    "crumbs": [
+      "Recipes",
+      "Function explorer"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/function-explorer.html#the-chart-block",
+    "href": "docs/recipes/function-explorer.html#the-chart-block",
+    "title": "Function explorer",
+    "section": "The chart block",
+    "text": "The chart block\nThe legend is a viewof cell inside the chart block, before the chart cell – CSS gives it order: -1 and floats it over the chart’s top-left corner. Its value is the list of checked labels; the chart cell maps each trace’s visible off that list, so clicking a legend row re-runs only the chart cell.\n\n\nviewof shown = VM.ui.legendOverlay([\n  {label: \"f(x)\", color: chartColors.fn},\n  {label: \"f′(x)\", color: chartColors.alt},\n  {label: \"tangent at x₀\", color: chartColors.ok}\n])\n\n\n\n\n\n\n\nmainPlot = {\n  const data = []\n  if (result !== null) {\n    const {xs, ys, dys, x0, y0, slope} = result\n    data.push({name: \"f(x)\", x: xs, y: ys, line: {color: chartColors.fn, width: 2.5}})\n    data.push({name: \"f′(x)\", x: xs, y: dys, line: {color: chartColors.alt, width: 1.5, dash: \"dot\"}})\n    data.push({name: \"tangent at x₀\", x: [x0 - 1.5, x0 + 1.5], y: [y0 - 1.5 * slope, y0 + 1.5 * slope], line: {color: chartColors.ok, width: 2}})\n    data.push({name: \"x₀\", x: [x0], y: [y0], mode: \"markers\", marker: {color: chartColors.ok, size: 11, line: {color: chartColors.halo, width: 2}}, showlegend: false, hovertemplate: \"x₀ = %{x}&lt;br&gt;f(x₀) = %{y:.4f}&lt;extra&gt;&lt;/extra&gt;\"})\n  }\n  for (const trace of data) {\n    if (trace.name === \"x₀\") trace.visible = shown.includes(\"tangent at x₀\")\n    else trace.visible = shown.includes(trace.name) ? true : \"legendonly\"\n  }\n  const yRange = VM.plotting.paddedRange(result ? result.ys : [], {emptyRange: [-4, 4]})\n  const div = document.createElement(\"div\")\n  div.className = \"plotly-box-large\"\n  div.style.height = \"420px\"; div.style.minHeight = \"0\"\n  Plotly.newPlot(div, data, VM.plotting.layout({\n    showlegend: false,\n    xaxis: {title: \"x\", range: [-4, 4]},\n    yaxis: {range: [yRange.lo, yRange.hi]},\n    annotations: result ? [] : VM.plotting.emptyState(\"Couldn't parse the expression or x₀\")\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\nWhy showlegend: false\n\n\n\nPlotly’s own legend would duplicate the overlay. The overlay controls visibility through visible: \"legendonly\" – the same state Plotly’s legend uses – so hovering and autoscale behave as if the trace were legend-hidden.",
+    "crumbs": [
+      "Recipes",
+      "Function explorer"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/function-explorer.html#the-markup",
+    "href": "docs/recipes/function-explorer.html#the-markup",
+    "title": "Function explorer",
+    "section": "The markup",
+    "text": "The markup\n::: {.ojs-panel .ojs-row}\n```{ojs}\nviewof fxText = ...\n```\n```{ojs}\nviewof x0Text = ...\n```\n:::\n\n```{ojs}\nresult = { ... }\n```\n\n::: {.ojs-chart-block}\n```{ojs}\nviewof shown = VM.ui.legendOverlay([...])\n```\n```{ojs}\nmainPlot = { ... }\n```\n:::",
+    "crumbs": [
+      "Recipes",
+      "Function explorer"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/observable-plot.html",
+    "href": "docs/recipes/observable-plot.html",
+    "title": "Observable Plot in an SVG block",
+    "section": "",
+    "text": "Observable Plot draws inline SVG. VM.plotting.plotOptions() gives it the same font, grid color and palette as the Plotly charts, and ojs-svg-block on the wrapper gives it the fullscreen button the Plotly modebar provides – hover the chart to see it, top right of the figure.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nfitData = {\n  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(11))\n  const points = []\n  for (let i = 0; i &lt;= 24; i++) {\n    const x = -2 + 4 * i / 24\n    points.push({x, y: Math.sin(1.5 * x) + plotNoise * gaussian()})\n  }\n  const fit = VM.numerical.polynomialFit(math, points, plotDegree)\n  const curve = []\n  if (fit !== null) for (let i = 0; i &lt;= 200; i++) { const x = -2 + 4 * i / 200; curve.push({x, y: fit.evaluate(x)}) }\n  return {points, fit, curve}\n}",
+    "crumbs": [
+      "Recipes",
+      "Observable Plot in an SVG block"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/observable-plot.html#the-block",
+    "href": "docs/recipes/observable-plot.html#the-block",
+    "title": "Observable Plot in an SVG block",
+    "section": "The block",
+    "text": "The block\nBoth classes go on the same div. The chart cell reads chartColors so it repaints on a theme toggle; the button outside the cell survives every re-run.\n\n\n{\n  const {points, fit, curve} = fitData\n  const title = fit === null ? \"not enough points for that degree\" : `degree ${plotDegree}, total squared error ${fit.totalSquaredError.toFixed(3)}`\n  return Plot.plot(VM.plotting.plotOptions({\n    width: 640, height: 400,\n    x: {label: \"x\"}, y: {label: \"y\", domain: [-2.5, 2.5]},\n    marks: [\n      Plot.line(curve, {x: \"x\", y: \"y\", stroke: chartColors.fn, strokeWidth: 2.5}),\n      Plot.dot(points, {x: \"x\", y: \"y\", fill: chartColors.alt, stroke: chartColors.halo, r: 4}),\n      Plot.text([title], {frameAnchor: \"top-left\", dx: 8, dy: 8, fill: chartColors.ink})\n    ]\n  }))\n}\n\n\n\n\n\n\n\nA Plot chart has a fixed width, so it’s narrower than its column; the block centers it and pins the button to the figure’s corner rather than the column’s. In fullscreen the figure is letterboxed by its viewBox ratio.",
+    "crumbs": [
+      "Recipes",
+      "Observable Plot in an SVG block"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/observable-plot.html#what-plotoptions-sets",
+    "href": "docs/recipes/observable-plot.html#what-plotoptions-sets",
+    "title": "Observable Plot in an SVG block",
+    "section": "What plotOptions sets",
+    "text": "What plotOptions sets\n\nVM.plotting.plotOptions({x: {label: \"x\"}})\n\n\n\n\n\n\nstyle (font, size, color), color.range (the colorway) and grid: true, deep-merged with what you pass; for any x/y scale you name without a stroke, the axis is stroked in --vm-border. It doesn’t create scales you don’t mention. Everything else is Plot’s own options, passed through.",
+    "crumbs": [
+      "Recipes",
+      "Observable Plot in an SVG block"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/observable-plot.html#the-markup",
+    "href": "docs/recipes/observable-plot.html#the-markup",
+    "title": "Observable Plot in an SVG block",
+    "section": "The markup",
+    "text": "The markup\n::: {.ojs-chart-block .ojs-svg-block}\n```{ojs}\nPlot.plot(VM.plotting.plotOptions({ ... }))\n```\n:::\nNothing else – no button to add, nothing to call. The same two classes work for a hand-built &lt;svg&gt;.",
+    "crumbs": [
+      "Recipes",
+      "Observable Plot in an SVG block"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/step-slider.html",
+    "href": "docs/recipes/step-slider.html",
+    "title": "Step slider with playback",
+    "section": "",
+    "text": "The slider that steps through an iterative method belongs above the chart, not in the panel with the problem’s inputs – it’s what the reader scrubs while watching. ojs-chart-controls puts it there and keeps it there in fullscreen; the playback module gives it a ▶; and because layout() reads the sweep’s pace, the chart tweens smoothly from one iterate to the next.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Recipes",
+      "Step slider with playback"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/step-slider.html#inputs",
+    "href": "docs/recipes/step-slider.html#inputs",
+    "title": "Step slider with playback",
+    "section": "Inputs",
+    "text": "Inputs\n\n\nviewof newtonF = Inputs.text({label: \"f(x)\", value: \"cos(x) - x\"})\n\n\n\n\n\n\n\nviewof newtonX0 = Inputs.text({label: \"x₀\", value: \"3\"})\n\n\n\n\n\n\n\nviewof newtonMax = Inputs.text({label: \"max iterations\", value: \"12\"})",
+    "crumbs": [
+      "Recipes",
+      "Step slider with playback"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/step-slider.html#all-the-iterates-computed-once",
+    "href": "docs/recipes/step-slider.html#all-the-iterates-computed-once",
+    "title": "Step slider with playback",
+    "section": "All the iterates, computed once",
+    "text": "All the iterates, computed once\nCompute the whole sequence in one cell; the slider then only chooses how many to show. This keeps the slider cell cheap (it re-runs on every tick of a sweep) and makes the table trivial.\n\niterates = {\n  const f = VM.expressions.makeFunction(math, newtonF)\n  const df = VM.expressions.makeDerivative(math, newtonF)\n  const x0 = VM.expressions.makeNumber(math, newtonX0)\n  const max = VM.expressions.makeNumber(math, newtonMax)\n  if (f === null || df === null || x0 === null || max === null) return null\n  const xs = [x0]\n  for (let n = 0; n &lt; Math.min(max, 60); n++) {\n    const x = xs[xs.length - 1]\n    const d = df(x)\n    if (!Number.isFinite(d) || d === 0) break\n    const next = x - f(x) / d\n    if (!Number.isFinite(next)) break\n    xs.push(next)\n  }\n  return {f, xs}\n}",
+    "crumbs": [
+      "Recipes",
+      "Step slider with playback"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/step-slider.html#the-chart-block",
+    "href": "docs/recipes/step-slider.html#the-chart-block",
+    "title": "Step slider with playback",
+    "section": "The chart block",
+    "text": "The chart block\nThe slider’s range depends on how many iterates exist, so its viewof is recreated whenever iterates changes – which is exactly the situation applyExampleParams warns about, and why that function takes selectors. Nothing to do here; just be aware the element isn’t stable.\n\n\n\nviewof step = Inputs.range([0, iterates ? iterates.xs.length - 1 : 0], {label: \"iteration n\", step: 1, value: 0})\n\n\n\n\n\n\n\n\nmainPlot = {\n  const data = []\n  if (iterates !== null) {\n    const {f, xs} = iterates\n    const shown = xs.slice(0, step + 1)\n    const range = VM.plotting.paddedRange(shown, {minPadding: 1})\n    const cx = [], cy = []\n    for (let i = 0; i &lt;= 300; i++) { const x = range.lo + (range.hi - range.lo) * i / 300; cx.push(x); cy.push(f(x)) }\n    data.push({x: cx, y: cy, name: \"f(x)\", line: {color: chartColors.fn, width: 2.5}})\n    // Tangent from the current iterate to the next: the picture of one Newton step.\n    if (step &lt; xs.length - 1) {\n      const x = xs[step]\n      data.push({x: [x, xs[step + 1]], y: [f(x), 0], name: \"tangent\", line: {color: chartColors.alt, width: 1.5, dash: \"dot\"}})\n    }\n    const labels = []\n    for (let n = 0; n &lt;= step; n++) labels.push(\"x\" + VM.plotting.subscript(n))\n    data.push({x: shown, y: shown.map(() =&gt; 0), mode: \"markers+text\", text: labels, textposition: \"bottom center\", name: \"iterates\",\n      marker: {color: chartColors.muted, size: 8, line: {color: chartColors.halo, width: 1.5}}})\n    data.push({x: [xs[step]], y: [f(xs[step])], mode: \"markers\", name: \"current\", marker: {color: chartColors.ok, size: 12, line: {color: chartColors.halo, width: 2}}})\n  }\n  const div = document.createElement(\"div\")\n  div.className = \"plotly-box-large\"\n  div.style.height = \"400px\"; div.style.minHeight = \"0\"\n  Plotly.newPlot(div, data, VM.plotting.layout({\n    showlegend: false,\n    xaxis: {title: \"x\"},\n    yaxis: {zeroline: true},\n    annotations: iterates ? [] : VM.plotting.emptyState(\"Check the inputs\")\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\nPress ▶. The tween length comes from VM.ui.playbackTweenMs, which the playback module publishes and layout() reads – so at 4× the chart still lands each frame before the next arrives, instead of a fixed 300 ms tween being cut off every time.",
+    "crumbs": [
+      "Recipes",
+      "Step slider with playback"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/step-slider.html#the-table",
+    "href": "docs/recipes/step-slider.html#the-table",
+    "title": "Step slider with playback",
+    "section": "The table",
+    "text": "The table\nrenderTable takes header cells that may be KaTeX nodes (tex is an OJS global) and separate plain-text headers for the CSV.\n\n{\n  if (iterates === null) return html`&lt;em&gt;No iterates.&lt;/em&gt;`\n  const rows = []\n  for (let n = 0; n &lt;= step; n++) {\n    const x = iterates.xs[n]\n    rows.push([n, x.toPrecision(10), Math.abs(iterates.f(x)).toExponential(3)])\n  }\n  return VM.ui.renderTable({html, headers: [\"n\", tex`x_n`, tex`|f(x_n)|`], rows, csvHeaders: [\"n\", \"x_n\", \"|f(x_n)|\"], filename: \"newton-iterates.csv\"})\n}",
+    "crumbs": [
+      "Recipes",
+      "Step slider with playback"
+    ]
+  },
+  {
+    "objectID": "docs/recipes/step-slider.html#the-markup",
+    "href": "docs/recipes/step-slider.html#the-markup",
+    "title": "Step slider with playback",
+    "section": "The markup",
+    "text": "The markup\n::: {.ojs-panel .ojs-row}\n... problem inputs ...\n:::\n\n```{ojs}\niterates = { ... }\n```\n\n::: {.ojs-chart-block}\n::: {.ojs-chart-controls}\n```{ojs}\nviewof step = Inputs.range([0, iterates ? iterates.xs.length - 1 : 0], {label: \"iteration n\", step: 1, value: 0})\n```\n:::\n```{ojs}\nmainPlot = { ... }\n```\n:::",
+    "crumbs": [
+      "Recipes",
+      "Step slider with playback"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html",
+    "href": "docs/reference/discrete-math.html",
+    "title": "VM.discreteMath",
+    "section": "",
+    "text": "The combinatorics behind a Sperner’s-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color names into palette colors at the moment of drawing.\nEvery helper works in the names 'red', 'green', 'blue' – those are the keys the logic compares – and only the three *Color functions at the end touch the actual palette. Keep that split: fill: d =&gt; VM.discreteMath.vertexColor(d.color), never fill: \"red\", which is not the site’s red and doesn’t lighten in dark mode.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#live",
+    "href": "docs/reference/discrete-math.html#live",
+    "title": "VM.discreteMath",
+    "section": "Live",
+    "text": "Live\n\n\nviewof N = Inputs.range([1, 12], {label: \"order N\", step: 1, value: 5})\n\n\n\n\n\n\n\nviewof recolor = Inputs.button(\"Recolor\")\n\n\n\n\n\n\n\n\n\n{\n  recolor; chartColors   // re-run on the button and on a theme toggle\n  const toXY = ([i, j, k]) =&gt; ({x: (j + k / 2) / N, y: (Math.sqrt(3) / 2) * k / N})\n  const coloring = new Map()\n  for (const t of VM.discreteMath.barycentricTriples(N)) coloring.set(t.join(\",\"), VM.discreteMath.spernerColor(...t))\n  const colorOf = t =&gt; coloring.get(t.join(\",\"))\n  const triangles = []\n  for (const tri of VM.discreteMath.subTriangleTriples(N)) {\n    const fill = VM.discreteMath.triangleFillColor(tri.map(colorOf))\n    triangles.push({points: tri.map(toXY), fill})\n  }\n  const edges = []\n  for (const {a, b} of VM.discreteMath.triangulationEdges(N)) {\n    edges.push({...toXY(a), x2: toXY(b).x, y2: toXY(b).y, stroke: VM.discreteMath.pairColor(colorOf(a), colorOf(b)) ?? chartColors.muted})\n  }\n  const dots = []\n  for (const t of VM.discreteMath.barycentricTriples(N)) dots.push({...toXY(t), color: colorOf(t)})\n  const rainbow = triangles.filter(t =&gt; t.fill !== \"none\").length\n  return Plot.plot(VM.plotting.plotOptions({\n    width: 520, height: 470, axis: null, grid: false, x: {domain: [-0.05, 1.05]}, y: {domain: [-0.05, 0.92]},\n    marks: [\n      ...triangles.map(t =&gt; Plot.line(t.points.concat([t.points[0]]), {x: \"x\", y: \"y\", fill: t.fill, stroke: \"none\"})),\n      Plot.link(edges, {x1: \"x\", y1: \"y\", x2: \"x2\", y2: \"y2\", stroke: \"stroke\", strokeWidth: 2}),\n      Plot.dot(dots, {x: \"x\", y: \"y\", fill: d =&gt; VM.discreteMath.vertexColor(d.color), r: N &gt; 8 ? 4 : 6, stroke: chartColors.halo}),\n      Plot.text([{x: 0.5, y: -0.03, t: `${rainbow} rainbow triangle${rainbow === 1 ? \"\" : \"s\"} (Sperner: always odd)`}], {x: \"x\", y: \"y\", text: \"t\", fill: chartColors.ink})\n    ]\n  }))\n}",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#triangulation",
+    "href": "docs/reference/discrete-math.html#triangulation",
+    "title": "VM.discreteMath",
+    "section": "Triangulation",
+    "text": "Triangulation\nA uniform order-N triangulation has (N+1)(N+2)/2 vertices, each a triple [i, j, k] of non-negative integers with i + j + k = N; a vertex is a corner when two coordinates are zero and on an edge when one is.\n\nVM.discreteMath.barycentricTriples(N)\nEvery vertex, i-major.\nReturns number[][] – (N+1)(N+2)/2 triples. [[0,0,0]] for N = 0; empty for negative N.\n\nVM.discreteMath.barycentricTriples(2)\n\n\n\n\n\n\n\n\nVM.discreteMath.subTriangleTriples(N)\nThe N² small triangles, each as a triple of vertex triples: the N(N+1)/2 “upward” ones first, then the N(N−1)/2 “downward” ones.\nReturns number[][][].\n\nVM.discreteMath.subTriangleTriples(2)\n\n\n\n\n\n\n\n\nVM.discreteMath.triangulationEdges(N)\nEvery edge exactly once, derived from subTriangleTriples with each interior edge (shared by two triangles) deduplicated.\nReturns {a: number[], b: number[]}[].\n\nVM.discreteMath.triangulationEdges(2).length   // 3N(N+1)/2 = 9",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#coloring",
+    "href": "docs/reference/discrete-math.html#coloring",
+    "title": "VM.discreteMath",
+    "section": "Coloring",
+    "text": "Coloring\n\nVM.discreteMath.spernerColor(a, b, c)\nColors one vertex so the whole labelling satisfies Sperner’s condition: the corners get fixed colors – (0,0,N) red, (N,0,0) green, (0,N,0) blue – a vertex on a boundary edge gets one of that edge’s two corner colors uniformly at random, and an interior vertex any of the three uniformly at random.\nReturns 'red' | 'green' | 'blue'.\nUses Math.random(), so it isn’t reproducible from a seed; a page that needs a URL-shareable coloring draws its own randomness from seededRandom and applies the same three rules.\n\n\nVM.discreteMath.randomColor()\nOne of the three names uniformly at random, ignoring position – for showing what breaks when the boundary condition is violated.\nReturns 'red' | 'green' | 'blue'.",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#drawing",
+    "href": "docs/reference/discrete-math.html#drawing",
+    "title": "VM.discreteMath",
+    "section": "Drawing",
+    "text": "Drawing\nThese read VM.plotting.colors() / alpha() when called. A cell that stores their output (an array of colored edges, a triangle’s fillColor) must itself depend on chartColors – a bare chartColors; line at the top, as in the live example above – or the stored colors go stale on a toggle.\n\nVM.discreteMath.vertexColor(name)\n'red' → colors().alt, 'green' → colors().ok, 'blue' → colors().fn. The prose swatches .vm-swatch-alt / -ok / -accent use the same tokens, so a word and a dot agree.\nReturns a CSS color, or null for any other name.\n\n\nVM.discreteMath.pairColor(colorA, colorB)\nThe shared color for a pair of distinct names, at 80% opacity: red+green → warn (amber), green+blue → accent3 (teal), red+blue → accent2 (purple). Order doesn’t matter.\nReturns an rgba(...) string, or null when the names are equal or the pair isn’t one of the three.\n\n\nVM.discreteMath.triangleFillColor(colors)\nThe fill for a small triangle given its vertex names: translucent accent2 (55%) when all three are distinct – a “rainbow” triangle, the object of the lemma – and the string 'none' otherwise.\nReturns string.\n\n[VM.discreteMath.vertexColor(\"red\"), VM.discreteMath.pairColor(\"green\", \"blue\"), VM.discreteMath.triangleFillColor([\"red\", \"green\", \"blue\"]), VM.discreteMath.triangleFillColor([\"red\", \"red\", \"blue\"])]",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/expressions.html",
+    "href": "docs/reference/expressions.html",
+    "title": "VM.expressions",
+    "section": "",
+    "text": "Every function here takes a math.js instance as its first argument – on a page rendered through the extension that is the global math – and an expression string as typed by a reader. The string is normalized first (trimmed, π replaced by pi), then compiled. Nothing here throws on bad input: an expression that can’t be parsed gives null, and a compiled function that fails at a point (a domain error, say) gives NaN there. Branch on the null and draw an emptyState rather than an empty grid.\nThe one exception to the pattern is makeRational, which takes no math.js instance and parses only literals.\n\nVM = window.VM\n\n\n\n\n\n\n\nVM.expressions.makeFunction(mathjs, expr)\nCompiles an expression in x into a plain (x) =&gt; number.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\nThe global math on a page that loads it.\n\n\nexpr\nstring\nAn expression in x, e.g. \"sin(x) + x^2/4\".\n\n\n\nReturns ((x: number) =&gt; number) | null – null if the expression can’t be parsed. The returned function yields NaN (never throws) where evaluation fails.\n\nviewof fxText = Inputs.text({label: \"f(x) =\", value: \"sin(x) + x^2/4\"})\n\n\n\n\n\n\n\n{\n  const f = VM.expressions.makeFunction(math, fxText)\n  if (f === null) return html`&lt;em&gt;Couldn't parse that.&lt;/em&gt;`\n  return html`f(0) = &lt;b&gt;${f(0)}&lt;/b&gt;, f(π) = &lt;b&gt;${f(Math.PI).toFixed(4)}&lt;/b&gt;, f(\"a\") = &lt;b&gt;${f(\"a\")}&lt;/b&gt;`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeDerivative(mathjs, expr)\nLike makeFunction, but compiles the symbolic derivative df/dx via math.derivative.\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in x.\n\n\n\nReturns ((x: number) =&gt; number) | null – null if the expression can’t be parsed or differentiated.\n\n{\n  const df = VM.expressions.makeDerivative(math, \"x^3 - 2x\")\n  return html`d/dx (x³ − 2x) at x = 2: &lt;b&gt;${df(2)}&lt;/b&gt; (expect 10)`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeNumber(mathjs, expr)\nEvaluates a constant expression to a JavaScript number. Use it for every numeric field on a page – an initial guess, an endpoint, a step count – so readers can type pi/4 or 2^10, not only literals.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nA constant expression, e.g. \"1 + 2*3 + pi - e\".\n\n\n\nReturns number | null – null if the expression can’t be parsed, references a free variable, or doesn’t evaluate to a finite number.\n\n[VM.expressions.makeNumber(math, \"1 + 2*3 + pi - e\"), VM.expressions.makeNumber(math, \"x + 1\"), VM.expressions.makeNumber(math, \"1/0\")]\n\n\n\n\n\n\n\n\nVM.expressions.makeFunction2(mathjs, expr)\nCompiles an expression in t and y into a two-argument (t, y) =&gt; number: the right-hand side of a first-order ODE y' = f(t, y), in the shape eulerSolve and rk4Solve take.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in t and y, e.g. \"y - t^2 + 1\".\n\n\n\nReturns ((t: number, y: number) =&gt; number) | null.\n\n{\n  const f = VM.expressions.makeFunction2(math, \"y - t^2 + 1\")\n  return html`f(t = 0, y = 0.5) = &lt;b&gt;${f(0, 0.5)}&lt;/b&gt;`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeFunctionOfT(mathjs, expr)\nLike makeFunction, but the free variable is t – for a parametric curve x(t), y(t) or anything else where time is the natural parameter.\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in t, e.g. \"cos(2t)\".\n\n\n\nReturns ((t: number) =&gt; number) | null.\n\n\nVM.expressions.makeRational(expr)\nParses a rational-number literal into an exact reduced fraction – for displaying a Butcher-tableau coefficient as 1/6 rather than 0.16666666666666666.\nUnlike its siblings this takes no math.js instance and evaluates nothing. Only three forms are accepted:\n\n\n\nForm\nExamples\n\n\n\n\ninteger\n\"3\", \"-3\"\n\n\nfraction of integers\n\"1/2\", \"-1 / 3\"\n\n\ndecimal\n\"0.25\", \".5\", \"-2.75\"\n\n\n\nReturns {num: number, den: number} | null – numerator and denominator in lowest terms with den &gt; 0; null for an empty string, a zero denominator, or anything else (\"1/2 + 1\", \"pi\", \"1e3\", \"1.\" all return null).\n\n[\"6/-8\", \"0.125\", \"-3\", \"1/2 + 1\", \"1/0\"].map(s =&gt; [s, VM.expressions.makeRational(s)])",
+    "crumbs": [
+      "Reference",
+      "VM.expressions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/index.html",
+    "href": "docs/reference/index.html",
+    "title": "API reference",
+    "section": "",
+    "text": "The bundle attaches one global, VM, with a namespace per concern. Each source file adds one function (a few add two or three that belong together) and nothing here has hidden state beyond what’s noted – the theme functions read CSS at call time, the self-installing UI modules keep track of what they’ve enhanced.",
+    "crumbs": [
+      "Reference",
+      "API reference"
+    ]
+  },
+  {
+    "objectID": "docs/reference/index.html#conventions",
+    "href": "docs/reference/index.html#conventions",
+    "title": "API reference",
+    "section": "Conventions",
+    "text": "Conventions\nThese hold across the whole surface, so each page states only its exceptions.\nBad input gives null, not an exception. Anything that parses reader-typed text (makeFunction, makeNumber, makeRational) returns null when it can’t; a fit with too few points returns null. Branch on it and draw an emptyState.\nOutside a distribution’s support you get 0. Never NaN, so a slider at an invalid parameter flattens a curve rather than breaking the chart.\nmath.js is passed in, not imported. VM.expressions.* and polynomialFit take the math.js instance as their first argument – the global math on a page rendered through the extension. The one exception is makeRational, which parses literals only and takes no instance.\nColors are read when you ask, not when the page loads. colors(), alpha() and the three discreteMath color helpers return whatever the active theme says right now. Call them inside the cell that builds the traces, and make that cell depend on vmTheme so it re-runs on a toggle – see onThemeChange.\nSelf-installing modules take no call. The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the markup contract.",
+    "crumbs": [
+      "Reference",
+      "API reference"
+    ]
+  },
+  {
+    "objectID": "docs/reference/index.html#where-the-signatures-live",
+    "href": "docs/reference/index.html#where-the-signatures-live",
+    "title": "API reference",
+    "section": "Where the signatures live",
+    "text": "Where the signatures live\nEvery function’s JSDoc in src/js/&lt;category&gt;/&lt;name&gt;.js is the authoritative signature; these pages restate it with context and a live example. A test (src/docs-coverage.test.js) fails the build if a VM.* member exists without a heading here, or vice versa, so the two can’t drift.",
+    "crumbs": [
+      "Reference",
+      "API reference"
+    ]
+  },
+  {
+    "objectID": "docs/reference/plotting.html",
+    "href": "docs/reference/plotting.html",
+    "title": "VM.plotting",
+    "section": "",
+    "text": "Everything a chart needs to look like part of the page: one theme read live from the --vm-* tokens, applied to Plotly and Observable Plot alike, and following the light/dark toggle the moment it flips.\nTwo things to hold onto:\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Reference",
+      "VM.plotting"
+    ]
+  },
+  {
+    "objectID": "docs/reference/plotting.html#palette",
+    "href": "docs/reference/plotting.html#palette",
+    "title": "VM.plotting",
+    "section": "Palette",
+    "text": "Palette\n\nVM.plotting.colors()\nA fresh snapshot of the chart palette for whichever theme is active right now, read from the --vm-color-&lt;name&gt; tokens. Keyed by role, not hue, so a page reads colors.fn rather than repeating \"#2563eb\".\n\n\n\n\n\n\n\n\n\nKey\nRole on a chart\nLight default\nDark default\n\n\n\n\nfn\nthe function itself, the primary trace\n#2563eb\n#8ab4ff\n\n\nalt\nan alternate or reference trace\n#dc2626\n#f87171\n\n\nok\na converged / correct / “good” marker\n#16a34a\n#4ade80\n\n\nmuted\nde-emphasized data, history\n#94a3b8\n#7d8aa3\n\n\nink\nstrokes and labels that should read as text\n#111827\n#c9cedb\n\n\nwarn\na warning, a diverging iterate\n#f59e0b\n#fbbf24\n\n\naccent2\na third series\n#9333ea\n#c084fc\n\n\naccent3\na fourth series\n#0d9488\n#2dd4bf\n\n\nhalo\nthe ring around a marker – white on light, the page background on dark. Use it instead of \"white\".\n#ffffff\n#171b29\n\n\n\nReturns {fn, alt, ok, muted, ink, warn, accent2, accent3, halo} as CSS color strings. Falls back to the light hexes when no stylesheet is loaded.\nAny argument is ignored. The idiom VM.plotting.colors(vmTheme) exists purely to make the OJS cell depend on vmTheme – see onThemeChange.\n\nchartColors\n\n\n\n\n\n\n\n{\n  const row = document.createElement(\"div\")\n  row.style.cssText = \"display:flex;gap:.5rem;flex-wrap:wrap\"\n  for (const name of Object.keys(chartColors)) {\n    const chip = document.createElement(\"div\")\n    chip.style.cssText = `width:5.5rem;padding:.4rem .5rem;border-radius:6px;border:1px solid var(--vm-border);background:${VM.plotting.alpha(chartColors[name], 0.25)};font:12px var(--vm-font-sans)`\n    chip.innerHTML = `&lt;span style=\"display:inline-block;width:.8rem;height:.8rem;border-radius:50%;background:${chartColors[name]};vertical-align:-1px;margin-right:.3rem\"&gt;&lt;/span&gt;${name}`\n    row.appendChild(chip)\n  }\n  return row\n}\n\n\n\n\n\n\n\n\nVM.plotting.colorway()\nThe trace color cycle – colors() in role order minus halo, so a trace Plotly or Plot colors automatically never lands on the background color. Already set on layout() and plotOptions().\nReturns string[]: [fn, alt, ok, muted, ink, warn, accent2, accent3].\n\n\nVM.plotting.alpha(token, opacity)\nThe same hue as a palette token (or any color string) at a given opacity, for a translucent fill that pairs with a solid stroke. An rgba(...) literal stays light-mode-colored after a toggle while its own stroke lightens, so fill and stroke drift apart; this doesn’t.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\ntoken\nstring\nA palette role (\"fn\", \"ok\", …) resolved through colors(), or a #rgb / #rrggbb / rgb(...) / rgba(...) string.\n\n\nopacity\nnumber\n0..1; not clamped.\n\n\n\nReturns \"rgba(r, g, b, opacity)\". An input that can’t be parsed (a CSS named color, hsl(...), a non-string) is returned unchanged.\n\n[VM.plotting.alpha(\"ok\", 0.2), VM.plotting.alpha(\"#ff0000\", 0.5), VM.plotting.alpha(\"rebeccapurple\", 0.5)]\n\n\n\n\n\n\n\n\nVM.plotting.subscript(value)\nReplaces each digit with its Unicode subscript, for iteration labels in Plotly trace text – which is plain text with no markup, so \"x_0\" renders with a literal underscore.\nReturns string; non-digit characters pass through.\n\n[\"x\" + VM.plotting.subscript(0), \"x\" + VM.plotting.subscript(12), VM.plotting.subscript(\"n=3\")]",
+    "crumbs": [
+      "Reference",
+      "VM.plotting"
+    ]
+  },
+  {
+    "objectID": "docs/reference/plotting.html#theme-detection",
+    "href": "docs/reference/plotting.html#theme-detection",
+    "title": "VM.plotting",
+    "section": "Theme detection",
+    "text": "Theme detection\n\nVM.plotting.themeName()\nWhich theme is active right now, by testing the dark selector against &lt;body&gt; and then &lt;html&gt;.\nReturns \"light\" | \"dark\" (\"light\" when there is no document).\n\nvmTheme   // this cell re-runs on every toggle -- try it\n\n\n\n\n\n\n\n\nVM.plotting.onThemeChange(callback)\nCalls callback(themeName()) now, synchronously, and again after every real theme change. It observes class and data-bs-theme on both &lt;body&gt; and &lt;html&gt;, waits two animation frames (Quarto flips the class and swaps the stylesheet as separate steps, class first), and compares the theme name before calling – so unrelated body-class churn (a sidebar opening) fires nothing.\n\n\n\nParameter\nType\nDescription\n\n\n\n\ncallback\n(theme: \"light\" \\| \"dark\") =&gt; void\n\n\n\n\nReturns () =&gt; void, a teardown that disconnects the observer (a no-op when there’s no document.body or MutationObserver; the initial call still happens).\nThe shape is exactly what Generators.observe wants, which gives the two-line pattern every chart page needs:\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nNow any cell that reads chartColors re-runs on a toggle. This is what makes trace colors follow the theme. Chart chrome (axes, grid, tooltip) is re-themed for you by a relayout the patch performs, but a color you baked into a trace is a value the page chose, and only re-running the cell changes it.\n\n\nVM.plotting.configure(overrides?)\nAdjusts the module’s settings. The only setting is darkSelector: the selector list that means “dark mode”, tested against &lt;body&gt; and &lt;html&gt;. Default:\nbody.quarto-dark, html[data-bs-theme=\"dark\"], body[data-bs-theme=\"dark\"], html.vm-dark, body.vm-dark\nA site whose toggle uses none of these calls VM.plotting.configure({darkSelector: \".my-dark\"}) once at load, and declares its dark --vm-* tokens under that same selector. Keep the selectors root-scoped (html/body); an unscoped [data-bs-theme=\"dark\"] matches Quarto’s &lt;nav&gt; and leaks the dark palette into the navbar.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\noverrides\n{darkSelector?: string}\nMerged in when it’s an object; anything else is ignored. Keys are not validated.\n\n\n\nReturns a copy of the settings now in effect.",
+    "crumbs": [
+      "Reference",
+      "VM.plotting"
+    ]
+  },
+  {
+    "objectID": "docs/reference/plotting.html#building-a-chart",
+    "href": "docs/reference/plotting.html#building-a-chart",
+    "title": "VM.plotting",
+    "section": "Building a chart",
+    "text": "Building a chart\n\nVM.plotting.layout(overrides?)\nThe shared Plotly layout, themed from the live tokens:\n\ntransparent paper_bgcolor / plot_bgcolor, so the page’s own background shows through (no #E5ECF6 plate, no white box in dark mode)\nfont in --vm-font-sans, --vm-text; axes, ticks, gridlines in --vm-text-soft / --vm-border / --vm-grid, automargin: true\ncolorway(), hoverLabel(), themed modebar colors, textfont for trace labels\na transition of 300 ms cubic-in-out (0 under prefers-reduced-motion; while a slider playback sweep runs, shortened to the gap between values so the tween lands before the next one arrives)\nsmall non-zero margin ({l: 8, r: 12, t: 12, b: 8}) that automargin grows as needed\n\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\noverrides\nobject (optional)\nDeep-merged on top, so {xaxis: {title: \"x\", range: [0, 1]}} extends the shared axis chrome rather than replacing it. Arrays and primitives replace wholesale.\n\n\n\nReturns a Plotly layout object.\n\n\n\n\n\n\nDon’t pass margin: {l: 0, r: 0, t: 0, b: 0}\n\n\n\nIt was a common convention and it defeats automargin: the rotated y-title and tick labels end up jammed against the container edge.\n\n\nWith the patch installed this is merged under every newPlot/react layout automatically. Calling it explicitly is harmless and makes the dependency visible.\n\n\nVM.plotting.config(overrides?)\n{responsive: true, displaylogo: false}, deep-merged with overrides. The patch also applies this and then sets the modebar button list on top.\n\n\nVM.plotting.hoverLabel()\nThe themed tooltip style: --vm-surface background, --vm-border border, left-aligned, 12 px --vm-font-sans in --vm-text.\nIt has to be set on each trace, not only the layout – Plotly derives a trace’s tooltip background from that trace’s own color unless the trace sets hoverlabel itself, so a layout-level default never actually shows. The patch injects it onto every trace that doesn’t set one. Call it yourself only for a chart built outside the patch.\n\n\nVM.plotting.emptyState(message)\nA centered message for an empty plot area, as an annotations array. Use it whenever the page’s computation bailed out; without it an unparseable input draws an empty grid indistinguishable from a valid-but-empty result.\nannotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\nReturns a one-element Plotly annotations array at paper coordinates (0.5, 0.5) in --vm-text-soft.\n\n\nVM.plotting.autoResize(div)\nKeeps a graph div sized to its container, and stops once the div leaves the document. Every chart built detached (the usual OJS pattern: create a div, Plotly.newPlot into it, return it) needs this, because Plotly measures 0×0 at newPlot time. A bare ResizeObserver outlives its div and throws \"Resize must be passed a displayed plot div element.\" once a re-run replaces it; this one disconnects itself.\nReturns the ResizeObserver, or null where ResizeObserver doesn’t exist. Skips resizing while the div is hidden (display: none) and is safe when Plotly isn’t loaded.\n\n\nVM.plotting.paddedRange(values, opts?)\nA {lo, hi} axis range covering an array of values with some breathing room.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nvalues\nnumber[]\n\nNon-finite entries are ignored.\n\n\nopts.emptyRange\n[number, number]\n[-1, 1]\nReturned when values has no finite entry.\n\n\nopts.relativePadding\nnumber\n0.1\nPadding as a fraction of the span hi − lo.\n\n\nopts.minPadding\nnumber\n0.5\nFloor on the padding, for small or zero spans (every value identical).\n\n\n\nReturns {lo, hi}.\n\n[VM.plotting.paddedRange([1, 2, 3, NaN, 10]), VM.plotting.paddedRange([5, 5, 5]), VM.plotting.paddedRange([])]\n\n\n\n\n\n\n\n\nVM.plotting.plotOptions(overrides?)\nThe Observable Plot equivalent of layout(): same font, grid color and colorway, so a Plot.plot under a Plotly chart reads as the same chart system.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\noverrides\nobject (optional)\nDeep-merged on top. If it names an x or y scale without a stroke, that axis is stroked in --vm-border; scales it doesn’t name are left for Plot to default.\n\n\n\nReturns options for Plot.plot(...).\n\n{\n  const pts = []\n  for (let i = 0; i &lt;= 40; i++) pts.push({x: i / 4, y: Math.exp(-i / 16) * Math.cos(i / 3)})\n  return Plot.plot(VM.plotting.plotOptions({\n    height: 220, x: {label: \"t\"}, y: {label: \"damped\"},\n    marks: [Plot.line(pts, {x: \"x\", y: \"y\", stroke: chartColors.fn, strokeWidth: 2}), Plot.ruleY([0])]\n  }))\n}\n\n\n\n\n\n\n\n\nVM.plotting.themePatch()\nThe theme-dependent style attributes as a flat, dotted-path object for Plotly.relayout – {\"xaxis.gridcolor\": …, \"hoverlabel.bgcolor\": …, colorway: […]}. relayout replaces whatever attribute each key names wholesale, so a nested {xaxis: {...}} would wipe the page’s own xaxis.title/range; dotted keys patch only the one sub-property. The patch runs this over every live .js-plotly-plot on each theme flip. A page shouldn’t need to call it.\nReturns an object with 24 keys.",
+    "crumbs": [
+      "Reference",
+      "VM.plotting"
+    ]
+  },
+  {
+    "objectID": "docs/reference/plotting.html#the-plotly-patch",
+    "href": "docs/reference/plotting.html#the-plotly-patch",
+    "title": "VM.plotting",
+    "section": "The Plotly patch",
+    "text": "The Plotly patch\nOn load (and again on DOMContentLoaded) the library wraps Plotly.newPlot and Plotly.react. Every chart on the page then gets, with no per-page code:\n\nlayout() merged under the page’s layout\nhoverLabel() on every trace that lacks a hoverlabel\ndragmode: \"pan\", unless the page set its own\nconfig() merged under the page’s config, then this modebar:\n\n\n\n\n\n\n\nGroup\nButtons\n\n\n\n\n1\ndownload PNG\n\n\n2\nbox zoom, pan\n\n\n3\nzoom in, zoom out (each step scales the visible span by 1.25×, not Plotly’s 2×, which overshoots when framing a curve), autoscale, reset\n\n\n4\nfullscreen\n\n\n\nBox select and lasso are absent. The list is spelled out as config.modeBarButtons, replacing whatever a page passes there – which is safe only because every chart the library targets is 2-D cartesian.\na relayout(themePatch()) on every theme flip\n\nThe patch is idempotent and a silent no-op when Plotly isn’t on the page (mathviz: {plotly: false}).\n\nVM.plotting.installPlotlyPatch()\nRuns the patch. Only needed when Plotly arrives later than the bundle and DOMContentLoaded – a dynamic import, say.\nReturns true once patched (also when already patched); false when Plotly isn’t on the page.\n\n\nVM.plotting.fullscreenButton\nThe fullscreen modebar button, as a Plotly custom-button object: {name: \"fullscreen\", title, icon: {width, height, path}, click(gd)}. The patch adds it to every chart; a page touches this only to reuse its glyph (VM.plotting.fullscreenButton.icon – Bootstrap Icons’ arrows-fullscreen), or to add it to a chart built outside the patch via modeBarButtonsToAdd.\nClicking fullscreens the nearest .ojs-chart-block – so the controls bar and legend come along – or, without one, the graph div itself; a second click exits. Before entering it records the chart’s aspect ratio as --vm-plot-aspect-ratio on the div so the CSS can letterbox it.",
+    "crumbs": [
+      "Reference",
+      "VM.plotting"
+    ]
+  },
+  {
+    "objectID": "docs/reference/plotting.html#svg-fullscreen-helpers",
+    "href": "docs/reference/plotting.html#svg-fullscreen-helpers",
+    "title": "VM.plotting",
+    "section": "SVG fullscreen helpers",
+    "text": "SVG fullscreen helpers\nCharts drawn as inline SVG (Observable Plot, hand-built &lt;svg&gt;) have no modebar. Give the wrapper class=\"ojs-chart-block ojs-svg-block\" and the library appends one persistent fullscreen button pinned to the figure’s top-right corner – see the markup contract. These two pure helpers are what it measures with; they’re exported for unit tests and for a page that wants to do the same arithmetic.\n\nVM.plotting.svgAspectRatio({…})\nTakes {viewBox, width, height}. The width/height ratio an &lt;svg&gt; draws at, from its attributes: a four-part viewBox when it has one, else width/height when both are positive.\nReturns number | null (null means “measure it”).\n\n[VM.plotting.svgAspectRatio({viewBox: \"0 0 640 400\"}), VM.plotting.svgAspectRatio({width: \"300\", height: \"150\"}), VM.plotting.svgAspectRatio({})]\n\n\n\n\n\n\n\n\nVM.plotting.figureBounds(rects)\nThe smallest box containing every given {left, top, right, bottom}.\nReturns {left, top, right, bottom} | null (null for an empty list).",
+    "crumbs": [
+      "Reference",
+      "VM.plotting"
+    ]
+  },
+  {
+    "objectID": "docs/reference/ui.html",
+    "href": "docs/reference/ui.html",
+    "title": "VM.ui",
+    "section": "",
+    "text": "Most of what VM.ui does needs no call at all. Three modules are self-installing: they watch the page for the markup they enhance and attach themselves to it whenever it appears, including elements Observable Inputs recreates on a re-run.\nThe callable API is four functions: a legend that is also an Observable view, a table renderer, an “apply this example” helper, and the pure arithmetic behind playback (exported for tests and for anyone building their own).\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Reference",
+      "VM.ui"
+    ]
+  },
+  {
+    "objectID": "docs/reference/ui.html#legend",
+    "href": "docs/reference/ui.html#legend",
+    "title": "VM.ui",
+    "section": "Legend",
+    "text": "Legend\n\nVM.ui.legendOverlay(items, options?)\nA floating legend of clickable swatch+label rows that toggles which traces a chart shows, replacing Plotly’s built-in legend. It implements Observable Inputs’ view contract (a value property, an \"input\" event on change), so it slots into viewof exactly like an Inputs.checkbox:\nviewof shown = VM.ui.legendOverlay([{label: \"f(x)\", color: chartColors.fn}, {label: \"f'(x)\", color: chartColors.alt}])\nand shown is the array of checked labels. Put the cell inside the chart’s .ojs-chart-block: the CSS floats it over the chart’s top-left corner, and the draggable-legend module picks it up.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nitems\n{label, color}[]\n\nRows, in display order.\n\n\noptions.value\nstring[]\nevery label\nThe initially checked labels.\n\n\n\nReturns an HTMLDivElement (div.ojs-legend-overlay) with:\n\na value accessor – getter returns the checked labels in items order (string[]); the setter accepts any iterable (null clears all) and re-renders\na bubbling \"input\" event on each user toggle (click, Enter, Space) – not on a programmatic value set, matching Observable Inputs and the set-then-dispatch protocol applyExampleParams uses\n\nIt uses only DOM APIs – no htl or Inputs dependency – so it works on a plain page too.\n\n\nviewof legendShown = VM.ui.legendOverlay([\n  {label: \"sin\", color: chartColors.fn},\n  {label: \"cos\", color: chartColors.alt},\n  {label: \"sin·cos\", color: chartColors.ok}\n])\n\n\n\n\n\n\n\n{\n  const xs = [], s = [], c = [], sc = []\n  for (let i = 0; i &lt;= 200; i++) { const x = -Math.PI + 2 * Math.PI * i / 200; xs.push(x); s.push(Math.sin(x)); c.push(Math.cos(x)); sc.push(Math.sin(x) * Math.cos(x)) }\n  const data = [\n    {name: \"sin\", x: xs, y: s, line: {color: chartColors.fn}},\n    {name: \"cos\", x: xs, y: c, line: {color: chartColors.alt}},\n    {name: \"sin·cos\", x: xs, y: sc, line: {color: chartColors.ok}}\n  ]\n  for (const trace of data) trace.visible = legendShown.includes(trace.name) ? true : \"legendonly\"\n  const div = document.createElement(\"div\")\n  div.style.height = \"300px\"\n  Plotly.newPlot(div, data, {showlegend: false, xaxis: {title: \"x\"}})\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\n\nlegendShown\n\n\n\n\n\n\nTry dragging the legend by its grip (appears on hover), then reload – the position is remembered.\n\n\nDraggable legend\nThe grip on the legend above is added by a self-installing module. It clamps the panel to the chart block, re-clamps on resize and fullscreen, supports the keyboard (arrows move 10 px, Shift+arrow 1 px, Home resets) and double-click to reset, and persists the offset in localStorage. It deliberately does not touch .ojs-chart-controls, which sits in normal flow above the chart and has nothing to be dragged clear of. The two pure helpers behind it:\n\n\nVM.ui.clampOverlayOffset({…})\nClamps a proposed drag offset so no part of the panel leaves its container. Takes one object: {dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight}. dx/dy are the proposed offset; offsetLeft/offsetTop the panel’s layout position (transforms don’t affect layout, so they stay a fixed reference); width/height the panel’s size; containerWidth/containerHeight the block’s.\nReturns {dx, dy}. A panel larger than its container is pinned to the near edge rather than given a crossed range.\n\n\nVM.ui.overlayStorageKey(pathname, role, index)\nThe localStorage key a dragged panel’s offset is kept under: `vml-overlay-pos:${pathname}:${role}:${index}`. The module uses location.pathname, \"legend\", and the panel’s .ojs-chart-block index on the page; the stored value is JSON.stringify({dx, dy}).\n\nVM.ui.overlayStorageKey(\"/apps/newton-method/\", \"legend\", 0)",
+    "crumbs": [
+      "Reference",
+      "VM.ui"
+    ]
+  },
+  {
+    "objectID": "docs/reference/ui.html#table",
+    "href": "docs/reference/ui.html#table",
+    "title": "VM.ui",
+    "section": "Table",
+    "text": "Table\n\nVM.ui.renderTable({html, headers, rows, csvHeaders?, filename?})\nA compact, horizontally scrollable results table with a “Download csv” link above it.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nhtml\nfunction\n\nhtl’s html tag – an OJS global.\n\n\nheaders\nArray\n\nHeader cells. May be DOM nodes (a tex template’s output) as well as strings.\n\n\nrows\nArray[]\n\nBody rows. The first column is centered, the rest right-aligned, all nowrap.\n\n\ncsvHeaders\nstring[]\nheaders\nPlain-text labels for the download, for when headers holds KaTeX nodes that don’t serialize.\n\n\nfilename\nstring\n\"iteration-table.csv\"\nThe download’s name.\n\n\n\nReturns one fragment: &lt;div class=\"ojs-table-toolbar\"&gt; (the link) then &lt;div class=\"ojs-table-container\"&gt;&lt;table class=\"table table-sm table-bordered small\"&gt;. The table classes are Bootstrap’s, so it inherits the Quarto theme’s table styling.\n\n{\n  const rows = []\n  let x = 1\n  for (let n = 0; n &lt; 6; n++) { rows.push([n, x.toFixed(10), Math.abs(x - Math.SQRT2).toExponential(2)]); x = x - (x * x - 2) / (2 * x) }\n  return VM.ui.renderTable({html, headers: [\"n\", tex`x_n`, tex`|x_n - \\sqrt2|`], rows, csvHeaders: [\"n\", \"x_n\", \"error\"], filename: \"newton-sqrt2.csv\"})\n}",
+    "crumbs": [
+      "Reference",
+      "VM.ui"
+    ]
+  },
+  {
+    "objectID": "docs/reference/ui.html#example-presets",
+    "href": "docs/reference/ui.html#example-presets",
+    "title": "VM.ui",
+    "section": "Example presets",
+    "text": "Example presets\n\nVM.ui.applyExampleParams(fieldSelectors, params, triggerEl)\nApplies an example’s parameter values to the page’s viewof fields, then clicks the page’s own “plot”/“run” button so the normal commit flow runs – no reload, no scroll jump. This is what a “Try an example” dropdown calls.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nfieldSelectors\n{paramKey: cssSelector}\nPlain strings, looked up fresh with document.querySelector each time – e.g. {fx: '[data-example-field=\"fx\"]'}. Tag each targetable field with a stable data-example-field attribute in the cell that owns it.\n\n\nparams\n{paramKey: value}\nApplied in insertion order with a 100 ms wait after each (including the last), so a field whose bounds depend on an earlier one sees its freshly recreated view. Order upstream fields first. Keys with no selector, or whose element isn’t on the page, are skipped.\n\n\ntriggerEl\nElement\nAn element containing the &lt;button&gt; to click at the end. Must not be null (throws); the click is skipped if it holds no button.\n\n\n\nReturns Promise&lt;void&gt;.\nTwo rules that come from how Observable’s runtime behaves, both learned the hard way:\n\n\n\n\n\n\nPass selectors, not viewof references\n\n\n\nA cell that references a view whose identity is reactively recreated – a step slider capped by a “max” field – becomes reactive on it. Since this function is what changes that upstream field, a version taking direct references re-triggers itself in a loop with no natural end. A querySelector at the moment of use carries no reactive dependency.\n\n\n\n\n\n\n\n\nCall it from a plain DOM listener, never from a cell reactive on a &lt;select&gt;\n\n\n\nA native &lt;select&gt; fires both input and change per selection, so a reactive cell runs twice, and two overlapping calls race – observed corrupting a field’s final value when the second cascade landed after the first. Attach one listener to a stable element instead. The try-an-example recipe shows the full wiring.",
+    "crumbs": [
+      "Reference",
+      "VM.ui"
+    ]
+  },
+  {
+    "objectID": "docs/reference/ui.html#slider-playback",
+    "href": "docs/reference/ui.html#slider-playback",
+    "title": "VM.ui",
+    "section": "Slider playback",
+    "text": "Slider playback\nEvery range slider inside an .ojs-panel or .ojs-chart-controls gets a play/pause button and a small caret that opens a popover of speed presets (¼× – 4×) and a mode (Once / Loop / Bounce). Playback is requestAnimationFrame-driven, so the motion is smooth rather than a stepped jump; it stops when the reader grabs the slider, when the tab is hidden, when a re-run detaches the slider, and at the end of a Once sweep (the button becomes a replay glyph). At most one sweep runs per page.\n\n\n\nviewof playDemo = Inputs.range([0, 2 * Math.PI], {label: \"phase (press ▶)\", step: 0.05, value: 0})\n\n\n\n\n\n\n\n\n{\n  const xs = [], ys = []\n  for (let i = 0; i &lt;= 300; i++) { const x = 4 * Math.PI * i / 300; xs.push(x); ys.push(Math.sin(x - playDemo)) }\n  const div = document.createElement(\"div\")\n  div.style.height = \"220px\"\n  Plotly.newPlot(div, [{x: xs, y: ys, line: {color: chartColors.fn, width: 2.5}}], {showlegend: false, yaxis: {range: [-1.2, 1.2]}, margin: {t: 8}})\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\nThe chosen speed and mode are a viewing preference, shared by every slider on the site and stored in localStorage[\"vm-playback\"] as {speed, mode} – deliberately not URL-synced like the page’s inputs, since they’re not part of the computation a shared link reproduces.\nThe sweep’s length scales with the slider’s own stop count – about 350 ms per stop, clamped to 2–10 s – which is what lets the module enhance every slider with no per-page tuning. A page opts a slider out with data-vm-play=\"off\" on the input or an ancestor:\n\n\n{\n  const wrap = document.createElement(\"div\")\n  wrap.dataset.vmPlay = \"off\"\n  wrap.appendChild(Inputs.range([0, 10], {label: \"data-vm-play=\\\"off\\\": no play button\", step: 1, value: 3}))\n  return wrap\n}\n\n\n\n\n\n\n\nInputs.range([0, 10], {label: \"a sibling without it\", step: 1, value: 3})\n\n\n\n\n\n\n\n\n\n\n\n\n\nWhy the popover is a native [popover]\n\n\n\nIt renders in the browser’s top layer. Quarto wraps every OJS output in .cell-output-display with overflow: auto, which clips any descendant that escapes its box – a panel opening above a 37 px cell was cut to a sliver. No z-index fixes a clip; only leaving it does, and the top layer is outside every ancestor’s clip. This applies to any floating UI inside any OJS cell: reach for [popover], not a nested absolute box.\n\n\n\nVM.ui.playbackDuration({…})\nTakes one object: {min, max, step, speed}. Total length of one end-to-end sweep, in ms: 350 ms × stops, clamped to [2000, 10000], divided by speed. A non-finite or non-positive step (a slider with step=\"any\") counts as 100 stops; a non-finite or non-positive speed as 1.\nReturns number; 0 when the slider can’t be swept (max ≤ min, or a non-finite bound).\n\n[VM.ui.playbackDuration({min: 0, max: 10, step: 1, speed: 1}), VM.ui.playbackDuration({min: 0, max: 100, step: 1, speed: 2}), VM.ui.playbackDuration({min: 0, max: 0, step: 1, speed: 1})]\n\n\n\n\n\n\n\n\nVM.ui.playbackFrame({…})\nTakes one object: {min, max, step, elapsed, duration, mode, start}. Where the thumb should be after elapsed ms of a sweep of length duration that began at fraction start of the track. mode is \"once\", \"loop\" (sawtooth) or \"bounce\" (triangle wave); anything else behaves as \"once\".\nReturns {value, direction, done} – value snapped to the step grid (by whole-step count from min, then trimmed to 12 significant digits, then clamped into [min, max]); direction is −1 only on a bounce’s return leg; done is true once a \"once\" sweep reaches the end, and for any degenerate input.\n\nVM.ui.playbackFrame({min: 0, max: 10, step: 0.5, elapsed: 750, duration: 3000, mode: \"bounce\", start: 0})\n\n\n\n\n\n\n\n\nVM.ui.playbackTweenMs\nA number, not a function: the chart transition length VM.plotting.layout() should use right now. 0 while no sweep is running; during one, 90% of the gap between consecutive slider values, capped at 300 ms, so each tween settles just before the next value arrives instead of a flat 300 ms overrunning a faster gap and leaving the chart permanently mid-tween. Read it if you build your own layout; don’t set it.\n\nVM.ui.playbackTweenMs",
+    "crumbs": [
+      "Reference",
+      "VM.ui"
+    ]
+  },
+  {
+    "objectID": "docs/troubleshooting.html",
+    "href": "docs/troubleshooting.html",
+    "title": "Troubleshooting",
+    "section": "",
+    "text": "Each of these has happened on a real page. The cause is usually one of three things: a token read from the wrong element, a value baked in at build time that should have been read at draw time, or a wrapper class missing from the markup.",
+    "crumbs": [
+      "Guide",
+      "Troubleshooting"
+    ]
+  },
+  {
+    "objectID": "docs/troubleshooting.html#charts-and-theme",
+    "href": "docs/troubleshooting.html#charts-and-theme",
+    "title": "Troubleshooting",
+    "section": "Charts and theme",
+    "text": "Charts and theme\nThe chart has a pale blue plot area, or a white box, on the dark theme. The layout isn’t themed. On a page rendered through the extension the Plotly patch merges layout() under every chart, so this means either Plotly loaded after mathviz.js (a hand-written &lt;script&gt; order; the extension gets it right) or the page passed mathviz: {plotly: false} and loads Plotly itself. Fix the order, or call VM.plotting.installPlotlyPatch() after Plotly is available.\nThe axes and grid follow the toggle but the traces stay light-mode colored. Trace colors are values the page baked in; only re-running the cell changes them. Add the two-line pattern at the top of the page and read chartColors.fn in the chart cell – Theming: following the theme.\nA translucent fill stays light-mode colored while its stroke lightens. An rgba(...) literal. Use VM.plotting.alpha(\"ok\", 0.2) and make the cell depend on chartColors.\nThe hover tooltip is a white box with unreadable text on the dark theme. Two possible causes. If it’s your own token-reading code: you read from document.documentElement; the dark tokens are declared on selectors matching &lt;body&gt;, so &lt;html&gt; reports light values – read from document.body (why). If it’s a chart built outside the patch: Plotly derives a trace’s tooltip background from the trace’s own color unless the trace sets hoverlabel; set hoverLabel() on each trace, not only on the layout.\nA marker’s white ring is invisible in dark mode / glaring in light mode. line: {color: \"white\"}. Use chartColors.halo – white on light, the page background on dark.\nColors read in a cell are correct after a toggle, but a stored array of colored things isn’t. The storing cell ran before the toggle and doesn’t depend on the theme. Add a bare chartColors; line at the top of it.\nThe theme toggles but my onThemeChange callback sees the old colors. You aren’t using onThemeChange. Quarto flips the body class and swaps the stylesheet as separate steps; a synchronous observer reads the outgoing theme. onThemeChange waits two frames for this reason.\nThe whole chart rebuilds when the sidebar opens, or on some unrelated interaction. A body-class observer with no theme comparison. onThemeChange compares themeName() inside its deferred callback and fires only on a real change; use it rather than a bare MutationObserver.\nThe dark palette leaks into the navbar on a light page. A dark selector that isn’t root-scoped – a bare [data-bs-theme=\"dark\"]. Quarto sets that attribute on its &lt;nav&gt;. Match on html/body only, in both tokens.css and configure({darkSelector}).\nResize must be passed a displayed plot div element. A ResizeObserver outliving its div: the cell re-ran, built a new div, and the old observer kept firing on the detached one. Use autoResize, which disconnects itself.\nThe y-axis title and tick labels are jammed against the container edge. margin: {l: 0, r: 0, t: 0, b: 0} in the page’s layout, which defeats automargin. Remove it; layout() provides small non-zero margins that automargin grows.\nAn unparseable formula draws an empty grid. Branch on the null from makeFunction and pass emptyState as the annotations.\nThe chart is 0 px tall / doesn’t appear. The graph div has no height. Give it plotly-box-large or a style.height, and call autoResize – the div was built detached, so Plotly measured 0×0.\nZoom in/out jumps too far; there’s a box-select button I don’t want. The patch isn’t installed (see the first item). It replaces the modebar with 1.25× zoom steps and no select tools.",
+    "crumbs": [
+      "Guide",
+      "Troubleshooting"
+    ]
+  },
+  {
+    "objectID": "docs/troubleshooting.html#panels-and-controls",
+    "href": "docs/troubleshooting.html#panels-and-controls",
+    "title": "Troubleshooting",
+    "section": "Panels and controls",
+    "text": "Panels and controls\nThe legend disappeared / appears as a thin strip. The legend cell isn’t inside an .ojs-chart-block. Quarto’s .cell-output-display is a scroll container that clips escaping descendants; the block’s rules turn that off for the cells inside it.\nA floating panel I built is cut in half. Same clip. No z-index fixes it; only leaving the clip does. Render floating UI as a native [popover] (top layer), as the playback popover does.\nTwo-column grid overflows the right edge by ~70 px. Observable Inputs’ forms have a fixed 360px width. The ojs-panel rules override it – the controls aren’t inside a panel.\nLabels wrap onto three lines above a slider. Observable’s 120px label column. Inside .ojs-panel or .ojs-chart-controls labels are freed; outside them they aren’t.\nDoubled border and background around a panel. An ojs-panel nested inside another. Nest a bare ojs-row/ojs-grid div instead.\nA slider has no play button. It isn’t inside .ojs-panel or .ojs-chart-controls, or something above it has data-vm-play=\"off\", or it has no &lt;form&gt; ancestor (a raw &lt;input type=\"range\"&gt; outside Observable Inputs).\nThe playback popover opens under the navbar / off the right edge. Shouldn’t happen – it clears #quarto-header, .navbar.fixed-top and the window edge. If your site’s fixed header uses another selector, the panel may open under it; file an issue with the selector.\napplyExampleParams applies the first fields and then a later one snaps back. Field order: a field whose bounds depend on an earlier one (a step slider capped by “max”) must come after it in params. Or: you called it from a cell reactive on a &lt;select&gt;, which fires twice per selection; call it from one DOM listener on a stable element.\napplyExampleParams loops forever / the page freezes with history-API throttling. fieldSelectors holds viewof references instead of selector strings. See why.\nA table renders unstyled. renderTable emits Bootstrap classes (table table-sm table-bordered). On a non-Bootstrap page bring your own table styles or target .ojs-table-container table.",
+    "crumbs": [
+      "Guide",
+      "Troubleshooting"
+    ]
+  },
+  {
+    "objectID": "docs/troubleshooting.html#build-and-install",
+    "href": "docs/troubleshooting.html#build-and-install",
+    "title": "Troubleshooting",
+    "section": "Build and install",
+    "text": "Build and install\nquarto add says the extension isn’t found, or a symlinked _extensions/mathviz isn’t used. Quarto checks isDirectory() on the raw directory entry, so a symlink is skipped. Use quarto add /path/to/mathviz --no-prompt, which copies.\nVersion mismatch: package.json=… _extension.yml=… mathviz.lua=… The build refuses to run until the three agree. Bump all three.\nCI fails with “dist/ is out of date”. A change under src/ without npm run build. Run it and commit dist/ and _extensions/mathviz/dist/.\n(intermediate value)(...) is not a function on page load. Two source files concatenated without a ; between them (})(window) followed by (function parses as a call). The build inserts the separator; this only appears if dist/ was hand-edited or built another way.\nA new function isn’t in window.VM in the browser. Its file isn’t listed in src/manifest.mjs – npm test fails with the name. Add it after anything it reads at load time.\nnpm test fails with “documents … but exported …”. The docs-coverage test: a VM.* member exists without a ### VM.&lt;category&gt;.&lt;name&gt; heading in docs/reference/&lt;category&gt;.qmd, or a heading names something that doesn’t exist. Add or fix the entry.",
+    "crumbs": [
+      "Guide",
+      "Troubleshooting"
+    ]
+  }
+]
