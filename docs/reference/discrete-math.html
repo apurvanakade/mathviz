@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>VM.discreteMath – mathviz</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -71,14 +77,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ef56b68f8fa1e9d2ba328e99e439f80.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-268b9611d5c32c6cc39e13a48e7764dc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-a7a2be4e73e1fe05966052a9ea2de6a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
@@ -456,9 +462,9 @@ Authors: Apurva Nakade
 <p>The combinatorics behind a Sperner’s-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color <strong>names</strong> into palette colors at the moment of drawing.</p>
 <p>Every helper works in the names <code>'red'</code>, <code>'green'</code>, <code>'blue'</code> – those are the keys the logic compares – and only the three <code>*Color</code> functions at the end touch the actual palette. Keep that split: <code>fill: d =&gt; VM.discreteMath.vertexColor(d.color)</code>, never <code>fill: "red"</code>, which is not the site’s red and doesn’t lighten in dark mode.</p>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="18" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 17;"><span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="18" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 17;"><span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -485,7 +491,7 @@ Authors: Apurva Nakade
 <h2 class="anchored" data-anchor-id="live">Live</h2>
 <div class="ojs-panel ojs-row">
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb2" data-startfrom="27" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 26;"><span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>viewof N <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">12</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"order N"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">5</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="27" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 26;"><span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>viewof N <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">12</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"order N"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">5</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-2" data-nodetype="declaration">
 
@@ -493,7 +499,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb3" data-startfrom="31" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 30;"><span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>viewof recolor <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Recolor"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="31" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 30;"><span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>viewof recolor <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Recolor"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="declaration">
 
@@ -503,7 +509,7 @@ Authors: Apurva Nakade
 </div>
 <div class="ojs-chart-block ojs-svg-block">
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb4" data-startfrom="38" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 37;"><span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>{</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="38" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 37;"><span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  recolor<span class="op">;</span> chartColors   <span class="co">// re-run on the button and on a theme toggle</span></span>
 <span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> toXY <span class="op">=</span> ([i<span class="op">,</span> j<span class="op">,</span> k]) <span class="kw">=&gt;</span> ({<span class="dt">x</span><span class="op">:</span> (j <span class="op">+</span> k <span class="op">/</span> <span class="dv">2</span>) <span class="op">/</span> N<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">sqrt</span>(<span class="dv">3</span>) <span class="op">/</span> <span class="dv">2</span>) <span class="op">*</span> k <span class="op">/</span> N})</span>
 <span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> coloring <span class="op">=</span> <span class="kw">new</span> <span class="bu">Map</span>()</span>
@@ -530,7 +536,7 @@ Authors: Apurva Nakade
 <span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">text</span>([{<span class="dt">x</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.03</span><span class="op">,</span> <span class="dt">t</span><span class="op">:</span> <span class="vs">`</span><span class="sc">${</span>rainbow<span class="sc">}</span><span class="vs"> rainbow triangle</span><span class="sc">${</span>rainbow <span class="op">===</span> <span class="dv">1</span> <span class="op">?</span> <span class="st">""</span> <span class="op">:</span> <span class="st">"s"</span><span class="sc">}</span><span class="vs"> (Sperner: always odd)`</span>}]<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">text</span><span class="op">:</span> <span class="st">"t"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">ink</span>})</span>
 <span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    ]</span>
 <span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>  }))</span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-4" data-nodetype="expression">
 
@@ -547,7 +553,7 @@ Authors: Apurva Nakade
 <p>Every vertex, <code>i</code>-major.</p>
 <p><strong>Returns</strong> <code>number[][]</code> – <code>(N+1)(N+2)/2</code> triples. <code>[[0,0,0]]</code> for <code>N = 0</code>; empty for negative <code>N</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5" data-startfrom="80" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 79;"><span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">barycentricTriples</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-startfrom="80" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 79;"><span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">barycentricTriples</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-5" data-nodetype="expression">
 
@@ -560,7 +566,7 @@ Authors: Apurva Nakade
 <p>The <code>N²</code> small triangles, each as a triple of vertex triples: the <code>N(N+1)/2</code> “upward” ones first, then the <code>N(N−1)/2</code> “downward” ones.</p>
 <p><strong>Returns</strong> <code>number[][][]</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6" data-startfrom="90" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 89;"><span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">subTriangleTriples</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-startfrom="90" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 89;"><span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">subTriangleTriples</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-6" data-nodetype="expression">
 
@@ -573,7 +579,7 @@ Authors: Apurva Nakade
 <p>Every edge exactly once, derived from <code>subTriangleTriples</code> with each interior edge (shared by two triangles) deduplicated.</p>
 <p><strong>Returns</strong> <code>{a: number[], b: number[]}[]</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7" data-startfrom="100" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 99;"><span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">triangulationEdges</span>(<span class="dv">2</span>)<span class="op">.</span><span class="at">length</span>   <span class="co">// 3N(N+1)/2 = 9</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-startfrom="100" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 99;"><span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">triangulationEdges</span>(<span class="dv">2</span>)<span class="op">.</span><span class="at">length</span>   <span class="co">// 3N(N+1)/2 = 9</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-7" data-nodetype="expression">
 
@@ -614,7 +620,7 @@ Authors: Apurva Nakade
 <p>The fill for a small triangle given its vertex names: translucent <code>accent2</code> (55%) when all three are distinct – a “rainbow” triangle, the object of the lemma – and the string <code>'none'</code> otherwise.</p>
 <p><strong>Returns</strong> <code>string</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8" data-startfrom="142" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 141;"><span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">vertexColor</span>(<span class="st">"red"</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">pairColor</span>(<span class="st">"green"</span><span class="op">,</span> <span class="st">"blue"</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">triangleFillColor</span>([<span class="st">"red"</span><span class="op">,</span> <span class="st">"green"</span><span class="op">,</span> <span class="st">"blue"</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">triangleFillColor</span>([<span class="st">"red"</span><span class="op">,</span> <span class="st">"red"</span><span class="op">,</span> <span class="st">"blue"</span>])]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-startfrom="142" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 141;"><span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">vertexColor</span>(<span class="st">"red"</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">pairColor</span>(<span class="st">"green"</span><span class="op">,</span> <span class="st">"blue"</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">triangleFillColor</span>([<span class="st">"red"</span><span class="op">,</span> <span class="st">"green"</span><span class="op">,</span> <span class="st">"blue"</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">triangleFillColor</span>([<span class="st">"red"</span><span class="op">,</span> <span class="st">"red"</span><span class="op">,</span> <span class="st">"blue"</span>])]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-8" data-nodetype="expression">
 
@@ -702,13 +708,14 @@ window._ojs.runtime.interpretFromScriptTags();
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

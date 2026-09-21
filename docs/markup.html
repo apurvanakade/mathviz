@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Markup contract – mathviz</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -71,14 +77,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ef56b68f8fa1e9d2ba328e99e439f80.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-268b9611d5c32c6cc39e13a48e7764dc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-a7a2be4e73e1fe05966052a9ea2de6a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
@@ -452,9 +458,9 @@ Authors: Apurva Nakade
 -->
 <p>mathviz has almost no JavaScript API for layout. You put a handful of classes on wrapper <code>&lt;div&gt;</code>s – in Quarto, a fenced div <code>::: {.ojs-panel}</code> – and the CSS lays the controls out while the self-installing modules find what to enhance. This page is every class and attribute you are meant to write yourself, with a live example of each, followed by the ones you must <strong>not</strong> write because the library generates them.</p>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="16" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 15;"><span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="16" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 15;"><span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -558,7 +564,7 @@ Authors: Apurva Nakade
 <p><code>display: flex; flex-wrap: wrap; align-items: flex-end</code>. The <strong>first</strong> child div gets <code>flex: 1 1 200px</code> and stretches; the <strong>last</strong> gets <code>flex: 0 0 auto</code>; anything between takes its natural width. That is the shape of most panels: a wide expression field, then a couple of small controls, then a button.</p>
 <div class="ojs-panel ojs-row">
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb2" data-startfrom="51" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 50;"><span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>viewof rowF <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"x^2 - 2"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="51" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 50;"><span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>viewof rowF <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"x^2 - 2"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-2" data-nodetype="declaration">
 
@@ -566,7 +572,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb3" data-startfrom="55" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 54;"><span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>viewof rowX0 <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"x₀"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"1"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="55" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 54;"><span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>viewof rowX0 <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"x₀"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"1"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="declaration">
 
@@ -574,7 +580,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb4" data-startfrom="59" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 58;"><span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>viewof rowGo <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="59" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 58;"><span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>viewof rowGo <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Plot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-4" data-nodetype="declaration">
 
@@ -582,7 +588,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 </div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>::: {.ojs-panel .ojs-row}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>::: {.ojs-panel .ojs-row}</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>viewof f <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"x^2 - 2"</span>})</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
@@ -592,14 +598,14 @@ Authors: Apurva Nakade
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>viewof go <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Plot"</span>)</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>:::</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="ojs-grid" class="level3">
 <h3 class="anchored" data-anchor-id="ojs-grid"><code>ojs-grid</code></h3>
 <p><code>grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))</code>, bottom-aligned; two columns at ≤ 768 px, one at ≤ 480 px. For a panel of several similar controls where none should dominate.</p>
 <div class="ojs-panel ojs-grid">
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb6" data-startfrom="67" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 66;"><span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>viewof gridA <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"alpha"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="67" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 66;"><span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>viewof gridA <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"alpha"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-5" data-nodetype="declaration">
 
@@ -607,7 +613,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb7" data-startfrom="70" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 69;"><span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>viewof gridB <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">50</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">10</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="70" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 69;"><span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>viewof gridB <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">50</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">10</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-6" data-nodetype="declaration">
 
@@ -615,7 +621,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb8" data-startfrom="73" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 72;"><span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>viewof gridC <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>([<span class="st">"Euler"</span><span class="op">,</span> <span class="st">"RK4"</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"method"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="73" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 72;"><span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>viewof gridC <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>([<span class="st">"Euler"</span><span class="op">,</span> <span class="st">"RK4"</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"method"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-7" data-nodetype="declaration">
 
@@ -623,7 +629,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb9" data-startfrom="84" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 83;"><span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>viewof gridD <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">checkbox</span>([<span class="st">"show error"</span><span class="op">,</span> <span class="st">"show exact"</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"overlay"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> [<span class="st">"show exact"</span>]})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="84" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 83;"><span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>viewof gridD <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">checkbox</span>([<span class="st">"show error"</span><span class="op">,</span> <span class="st">"show exact"</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"overlay"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> [<span class="st">"show exact"</span>]})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-8" data-nodetype="declaration">
 
@@ -635,11 +641,11 @@ Authors: Apurva Nakade
 <section id="ojs-fill" class="level3">
 <h3 class="anchored" data-anchor-id="ojs-fill"><code>ojs-fill</code>, <code>ojs-auto</code>, <code>ojs-end</code></h3>
 <p>Per-control overrides, added to the <code>viewof</code> element from the cell that creates it:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>viewof expr <span class="op">=</span> {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>viewof expr <span class="op">=</span> {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> view <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"sin(x)"</span>})</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  view<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">add</span>(<span class="st">"ojs-fill"</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> view</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -687,7 +693,7 @@ Authors: Apurva Nakade
 <div class="ojs-chart-block">
 <div class="ojs-chart-controls">
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb11" data-startfrom="88" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 87;"><span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>viewof ctrlN <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">12</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"iterations n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="88" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 87;"><span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>viewof ctrlN <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">12</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"iterations n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-9" data-nodetype="declaration">
 
@@ -696,7 +702,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb12" data-startfrom="92" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 91;"><span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>{</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="92" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 91;"><span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> g <span class="op">=</span> x <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(x)</span>
 <span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> x <span class="op">=</span> <span class="dv">1</span></span>
 <span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xs <span class="op">=</span> [x]<span class="op">,</span> ys <span class="op">=</span> [<span class="dv">0</span>]</span>
@@ -712,7 +718,7 @@ Authors: Apurva Nakade
 <span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span> {<span class="dt">showlegend</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">xaxis</span><span class="op">:</span> {<span class="dt">range</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="fl">1.6</span>]}<span class="op">,</span> <span class="dt">yaxis</span><span class="op">:</span> {<span class="dt">range</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="fl">1.1</span>]}<span class="op">,</span> <span class="dt">margin</span><span class="op">:</span> {<span class="dt">t</span><span class="op">:</span> <span class="dv">8</span>}})</span>
 <span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>  VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">autoResize</span>(div)</span>
 <span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> div</span>
-<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-10" data-nodetype="expression">
 
@@ -720,7 +726,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 </div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>::: {.ojs-chart-block}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>::: {.ojs-chart-block}</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>::: {.ojs-chart-controls}</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>viewof n <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">12</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"iterations n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span>})</span>
@@ -729,7 +735,7 @@ Authors: Apurva Nakade
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="in">```{ojs}</span></span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>mainPlot <span class="op">=</span> { <span class="op">...</span> }</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>:::</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="ojs-svg-block" class="level3">
 <h3 class="anchored" data-anchor-id="ojs-svg-block"><code>ojs-svg-block</code></h3>
@@ -792,14 +798,14 @@ Authors: Apurva Nakade
 <section id="vm-invalid" class="level3">
 <h3 class="anchored" data-anchor-id="vm-invalid"><code>vm-invalid</code></h3>
 <p>A red (<code>--vm-color-alt</code>) border and 7% tint on an <code>&lt;input&gt;</code>, with a matching focus ring – for a field whose value failed to parse. <strong>Nothing in the library adds it</strong>; a page toggles it from the cell that validates:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>viewof x0 <span class="op">=</span> {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>viewof x0 <span class="op">=</span> {</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> view <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"x₀"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"1"</span>})</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  view<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">"input"</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> ok <span class="op">=</span> VM<span class="op">.</span><span class="at">expressions</span><span class="op">.</span><span class="fu">makeNumber</span>(math<span class="op">,</span> view<span class="op">.</span><span class="at">value</span>) <span class="op">!==</span> <span class="kw">null</span></span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    view<span class="op">.</span><span class="fu">querySelector</span>(<span class="st">"input"</span>)<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">toggle</span>(<span class="st">"vm-invalid"</span><span class="op">,</span> <span class="op">!</span>ok)</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  })</span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> view</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>It pairs with <a href="../docs/reference/plotting.html#emptyState"><code>emptyState</code></a>: the field says <em>what</em> is wrong, the chart says <em>that</em> something is.</p>
 <p><input class="vm-invalid" value="1/0 + " readonly="" style="max-width: 12em" aria-label="an input with vm-invalid"></p>
 </section>
@@ -813,11 +819,11 @@ Authors: Apurva Nakade
 <section id="data-example-field" class="level3">
 <h3 class="anchored" data-anchor-id="data-example-field"><code>data-example-field="&lt;name&gt;"</code></h3>
 <p>On a <code>viewof</code> element, set by the cell that creates it, as a stable handle for <a href="../docs/reference/ui.html#applyExampleParams"><code>applyExampleParams</code></a>:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>viewof fx <span class="op">=</span> {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>viewof fx <span class="op">=</span> {</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> view <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"sin(x)"</span>})</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  view<span class="op">.</span><span class="at">dataset</span><span class="op">.</span><span class="at">exampleField</span> <span class="op">=</span> <span class="st">"fx"</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> view</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The page’s <code>fieldSelectors</code> map is then <code>{fx: '[data-example-field="fx"]', …}</code>. Selectors rather than references, for a reason that page explains.</p>
 </section>
 </section>
@@ -977,13 +983,14 @@ window._ojs.runtime.interpretFromScriptTags();
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

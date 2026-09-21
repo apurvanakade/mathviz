@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Theming – mathviz</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -71,14 +77,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ef56b68f8fa1e9d2ba328e99e439f80.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-268b9611d5c32c6cc39e13a48e7764dc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-a7a2be4e73e1fe05966052a9ea2de6a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
@@ -435,9 +441,9 @@ Authors: Apurva Nakade
 -->
 <p>Everything mathviz draws – panel chrome, slider tracks, the legend, chart axes and gridlines, the chart palette – is a CSS custom property with a <code>--vm-</code> prefix. The CSS reads them the ordinary way; the JavaScript reads them with <code>getComputedStyle</code> <strong>at call time</strong>, so a chart built after a theme toggle sees the new values. To re-theme the library you redeclare tokens. There is no JavaScript configuration for colors.</p>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="16" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 15;"><span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="16" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 15;"><span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -463,7 +469,7 @@ Authors: Apurva Nakade
 <section id="overriding-tokens" class="level2">
 <h2 class="anchored" data-anchor-id="overriding-tokens">Overriding tokens</h2>
 <p>The defaults live in <a href="https://github.com/apurvanakade/mathviz/blob/main/src/css/tokens.css"><code>src/css/tokens.css</code></a>, and every one of them is wrapped in <code>:where()</code>, which has <strong>zero specificity</strong>. That is the whole trick: a plain declaration in your own stylesheet wins no matter which file loads first.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* your styles.css */</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* your styles.css */</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-accent</span><span class="ch">:</span> <span class="cn">#b45309</span><span class="op">;</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-color-fn</span><span class="ch">:</span> <span class="cn">#b45309</span><span class="op">;</span></span>
@@ -472,7 +478,7 @@ Authors: Apurva Nakade
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>body<span class="fu">.quarto-dark</span> {</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-accent</span><span class="ch">:</span> <span class="cn">#fbbf24</span><span class="op">;</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">--vm-color-fn</span><span class="ch">:</span> <span class="cn">#fbbf24</span><span class="op">;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Why it matters in Quarto specifically: an extension’s stylesheet is injected <strong>before</strong> a project’s <code>css:</code> files but <strong>after</strong> its compiled theme SCSS. Without <code>:where()</code> the library’s <code>:root { --vm-x }</code> would beat a theme’s own <code>:root</code> declarations. Don’t unwrap them if you fork the CSS.</p>
 <p>Declare dark values under one of the <a href="#dark-mode">dark selectors</a> below. Tokens that don’t change between themes (<code>--vm-radius</code>, <code>--vm-font-sans</code>) need declaring only once.</p>
 </section>
@@ -480,7 +486,7 @@ Authors: Apurva Nakade
 <h2 class="anchored" data-anchor-id="the-tokens">The tokens</h2>
 <p>Live: each swatch is the value your browser computes for the token <strong>right now</strong>. Toggle the theme and watch the column change.</p>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb3" data-startfrom="47" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 46;"><span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>{</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="47" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 46;"><span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  vmTheme</span>
 <span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> [</span>
 <span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Chrome"</span><span class="op">,</span> <span class="kw">null</span>]<span class="op">,</span></span>
@@ -524,7 +530,7 @@ Authors: Apurva Nakade
 <span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>  table<span class="op">.</span><span class="fu">appendChild</span>(body)</span>
 <span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> table</span>
-<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-2" data-nodetype="expression">
 
@@ -537,14 +543,14 @@ Authors: Apurva Nakade
 <section id="dark-mode" class="level2">
 <h2 class="anchored" data-anchor-id="dark-mode">Dark mode</h2>
 <p>The library decides “dark” by testing one selector list against <code>&lt;body&gt;</code> and then <code>&lt;html&gt;</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>body<span class="fu">.quarto-dark</span><span class="op">,</span> html<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> body<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> html<span class="fu">.vm-dark</span><span class="op">,</span> body<span class="fu">.vm-dark</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>body<span class="fu">.quarto-dark</span><span class="op">,</span> html<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> body<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> html<span class="fu">.vm-dark</span><span class="op">,</span> body<span class="fu">.vm-dark</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>body.quarto-dark</code> – what Quarto’s built-in light/dark toggle sets</li>
 <li><code>[data-bs-theme="dark"]</code> on <code>html</code> or <code>body</code> – Bootstrap 5.3’s convention</li>
 <li><code>.vm-dark</code> on <code>html</code> or <code>body</code> – for a site with its own toggle: add the class and the library follows</li>
 </ul>
 <p>The same list appears in two places – the dark block in <code>tokens.css</code>, and <code>settings.darkSelector</code> in <code>chart-theme.js</code> – and they must stay identical. If your toggle uses none of these, either add <code>.vm-dark</code> to <code>&lt;html&gt;</code> when it flips, or name your own selector:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">configure</span>({<span class="dt">darkSelector</span><span class="op">:</span> <span class="st">"html.theme-dark"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">configure</span>({<span class="dt">darkSelector</span><span class="op">:</span> <span class="st">"html.theme-dark"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>and declare your dark tokens under that same selector.</p>
 <div class="callout callout-style-default callout-warning callout-titled" title="Keep the selector root-scoped">
 <div class="callout-header d-flex align-content-center">
@@ -552,7 +558,7 @@ Authors: Apurva Nakade
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Keep the selector root-scoped
+<span class="screen-reader-only">Warning</span>Keep the selector root-scoped
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -572,12 +578,12 @@ Keep the selector root-scoped
 <h2 class="anchored" data-anchor-id="following-the-theme-in-a-chart">Following the theme in a chart</h2>
 <p>Chart <strong>chrome</strong> – background, axes, gridlines, tooltip – re-themes itself: the Plotly patch subscribes to <code>onThemeChange</code> and runs <code>Plotly.relayout(gd, VM.plotting.themePatch())</code> on every chart when the theme flips. Nothing to do.</p>
 <p>Chart <strong>traces</strong> don’t, because their colors are values your page baked in. The fix is two cells at the top of the page:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Any cell that reads <code>chartColors</code> re-runs on a toggle. If a cell stores a color in a data structure rather than reading it at draw time (a <code>mixedEdges</code> array, a feature’s <code>fillColor</code>) it must depend on <code>chartColors</code> too – a bare <code>chartColors;</code> line at the top of the cell is enough.</p>
 <p>For translucent fills use <code>VM.plotting.alpha("ok", 0.2)</code> rather than an <code>rgba(...)</code> literal: the literal stays light-mode green after a toggle while the stroke next to it lightens.</p>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb7" data-startfrom="147" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 146;"><span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>{</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="147" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 146;"><span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> div <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
 <span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>  div<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">height</span> <span class="op">=</span> <span class="st">"240px"</span></span>
 <span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xs <span class="op">=</span> []<span class="op">,</span> ys <span class="op">=</span> []</span>
@@ -588,7 +594,7 @@ Keep the selector root-scoped
 <span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span> {<span class="dt">legend</span><span class="op">:</span> {<span class="dt">x</span><span class="op">:</span> <span class="fl">0.55</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="fl">0.98</span>}<span class="op">,</span> <span class="dt">margin</span><span class="op">:</span> {<span class="dt">t</span><span class="op">:</span> <span class="dv">8</span>}})</span>
 <span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>  VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">autoResize</span>(div)</span>
 <span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> div</span>
-<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="expression">
 
@@ -683,13 +689,14 @@ window._ojs.runtime.interpretFromScriptTags();
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>VM.plotting – mathviz</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -71,14 +77,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ef56b68f8fa1e9d2ba328e99e439f80.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-268b9611d5c32c6cc39e13a48e7764dc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-3f4f584804750465d53763d0dde87c74.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-a7a2be4e73e1fe05966052a9ea2de6a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
@@ -476,9 +482,9 @@ Authors: Apurva Nakade
 <li><strong>On a page rendered through the extension, the Plotly patch is already installed.</strong> <code>Plotly.newPlot(div, data, {xaxis: {title: "x"}}, {})</code> gets the full theme, tooltip style, pan-by-default and the shared modebar with no <code>VM.plotting.*</code> call at all. The theme functions are for what the patch can’t reach: the colors you bake into traces, and Observable Plot.</li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="21" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 20;"><span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="21" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 20;"><span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -581,7 +587,7 @@ Authors: Apurva Nakade
 <p><strong>Returns</strong> <code>{fn, alt, ok, muted, ink, warn, accent2, accent3, halo}</code> as CSS color strings. Falls back to the light hexes when no stylesheet is loaded.</p>
 <p>Any argument is ignored. The idiom <code>VM.plotting.colors(vmTheme)</code> exists purely to make the OJS cell depend on <code>vmTheme</code> – see <a href="#onThemeChange"><code>onThemeChange</code></a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2" data-startfrom="48" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 47;"><span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>chartColors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" data-startfrom="48" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 47;"><span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>chartColors</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-2" data-nodetype="expression">
 
@@ -589,7 +595,7 @@ Authors: Apurva Nakade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb3" data-startfrom="53" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 52;"><span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>{</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="53" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 52;"><span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> row <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
 <span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  row<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">cssText</span> <span class="op">=</span> <span class="st">"display:flex;gap:.5rem;flex-wrap:wrap"</span></span>
 <span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> name <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(chartColors)) {</span>
@@ -599,7 +605,7 @@ Authors: Apurva Nakade
 <span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    row<span class="op">.</span><span class="fu">appendChild</span>(chip)</span>
 <span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> row</span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="expression">
 
@@ -643,7 +649,7 @@ Authors: Apurva Nakade
 </table>
 <p><strong>Returns</strong> <code>"rgba(r, g, b, opacity)"</code>. An input that can’t be parsed (a CSS named color, <code>hsl(...)</code>, a non-string) is returned <strong>unchanged</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4" data-startfrom="84" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 83;"><span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"ok"</span><span class="op">,</span> <span class="fl">0.2</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"#ff0000"</span><span class="op">,</span> <span class="fl">0.5</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"rebeccapurple"</span><span class="op">,</span> <span class="fl">0.5</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" data-startfrom="84" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 83;"><span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"ok"</span><span class="op">,</span> <span class="fl">0.2</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"#ff0000"</span><span class="op">,</span> <span class="fl">0.5</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(<span class="st">"rebeccapurple"</span><span class="op">,</span> <span class="fl">0.5</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-4" data-nodetype="expression">
 
@@ -656,7 +662,7 @@ Authors: Apurva Nakade
 <p>Replaces each digit with its Unicode subscript, for iteration labels in Plotly trace <code>text</code> – which is plain text with no markup, so <code>"x_0"</code> renders with a literal underscore.</p>
 <p><strong>Returns</strong> <code>string</code>; non-digit characters pass through.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5" data-startfrom="94" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 93;"><span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>[<span class="st">"x"</span> <span class="op">+</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="dv">0</span>)<span class="op">,</span> <span class="st">"x"</span> <span class="op">+</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="dv">12</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="st">"n=3"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-startfrom="94" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 93;"><span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>[<span class="st">"x"</span> <span class="op">+</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="dv">0</span>)<span class="op">,</span> <span class="st">"x"</span> <span class="op">+</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="dv">12</span>)<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">subscript</span>(<span class="st">"n=3"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-5" data-nodetype="expression">
 
@@ -672,7 +678,7 @@ Authors: Apurva Nakade
 <p>Which theme is active right now, by testing the dark selector against <code>&lt;body&gt;</code> and then <code>&lt;html&gt;</code>.</p>
 <p><strong>Returns</strong> <code>"light" | "dark"</code> (<code>"light"</code> when there is no <code>document</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6" data-startfrom="106" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 105;"><span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>vmTheme   <span class="co">// this cell re-runs on every toggle -- try it</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-startfrom="106" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 105;"><span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>vmTheme   <span class="co">// this cell re-runs on every toggle -- try it</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-6" data-nodetype="expression">
 
@@ -701,14 +707,14 @@ Authors: Apurva Nakade
 </table>
 <p><strong>Returns</strong> <code>() =&gt; void</code>, a teardown that disconnects the observer (a no-op when there’s no <code>document.body</code> or <code>MutationObserver</code>; the initial call still happens).</p>
 <p>The shape is exactly what <code>Generators.observe</code> wants, which gives the two-line pattern every chart page needs:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Now any cell that reads <code>chartColors</code> re-runs on a toggle. <strong>This is what makes trace colors follow the theme.</strong> Chart chrome (axes, grid, tooltip) is re-themed for you by a <code>relayout</code> the patch performs, but a color you baked into a trace is a value the page chose, and only re-running the cell changes it.</p>
 </section>
 <section id="configure" class="level3">
 <h3 class="anchored" data-anchor-id="configure">VM.plotting.configure(overrides?)</h3>
 <p>Adjusts the module’s settings. The only setting is <code>darkSelector</code>: the selector list that means “dark mode”, tested against <code>&lt;body&gt;</code> and <code>&lt;html&gt;</code>. Default:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>body<span class="fu">.quarto-dark</span><span class="op">,</span> html<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> body<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> html<span class="fu">.vm-dark</span><span class="op">,</span> body<span class="fu">.vm-dark</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>body<span class="fu">.quarto-dark</span><span class="op">,</span> html<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> body<span class="ex">[</span><span class="ss">data-bs-theme</span><span class="op">=</span><span class="st">"dark"</span><span class="ex">]</span><span class="op">,</span> html<span class="fu">.vm-dark</span><span class="op">,</span> body<span class="fu">.vm-dark</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A site whose toggle uses none of these calls <code>VM.plotting.configure({darkSelector: ".my-dark"})</code> once at load, and declares its dark <code>--vm-*</code> tokens under that same selector. Keep the selectors root-scoped (<code>html</code>/<code>body</code>); an unscoped <code>[data-bs-theme="dark"]</code> matches Quarto’s <code>&lt;nav&gt;</code> and leaks the dark palette into the navbar.</p>
 <table class="caption-top table">
 <colgroup>
@@ -774,7 +780,7 @@ Authors: Apurva Nakade
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Don’t pass <code>margin: {l: 0, r: 0, t: 0, b: 0}</code>
+<span class="screen-reader-only">Warning</span>Don’t pass <code>margin: {l: 0, r: 0, t: 0, b: 0}</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -795,7 +801,7 @@ Don’t pass <code>margin: {l: 0, r: 0, t: 0, b: 0}</code>
 <section id="emptyState" class="level3">
 <h3 class="anchored" data-anchor-id="emptyState">VM.plotting.emptyState(message)</h3>
 <p>A centered message for an empty plot area, as an <code>annotations</code> array. Use it whenever the page’s computation bailed out; without it an unparseable input draws an empty grid indistinguishable from a valid-but-empty result.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>annotations<span class="op">:</span> f <span class="op">?</span> [] <span class="op">:</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">emptyState</span>(<span class="st">"Couldn't parse that expression"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>annotations<span class="op">:</span> f <span class="op">?</span> [] <span class="op">:</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">emptyState</span>(<span class="st">"Couldn't parse that expression"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><strong>Returns</strong> a one-element Plotly <code>annotations</code> array at paper coordinates <code>(0.5, 0.5)</code> in <code>--vm-text-soft</code>.</p>
 </section>
 <section id="autoResize" class="level3">
@@ -850,7 +856,7 @@ Don’t pass <code>margin: {l: 0, r: 0, t: 0, b: 0}</code>
 </table>
 <p><strong>Returns</strong> <code>{lo, hi}</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10" data-startfrom="208" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 207;"><span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="kw">NaN</span><span class="op">,</span> <span class="dv">10</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">5</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">5</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([])]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" data-startfrom="208" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 207;"><span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="kw">NaN</span><span class="op">,</span> <span class="dv">10</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">5</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">5</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([])]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-7" data-nodetype="expression">
 
@@ -884,14 +890,14 @@ Don’t pass <code>margin: {l: 0, r: 0, t: 0, b: 0}</code>
 </table>
 <p><strong>Returns</strong> options for <code>Plot.plot(...)</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11" data-startfrom="222" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 221;"><span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a>{</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" data-startfrom="222" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 221;"><span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pts <span class="op">=</span> []</span>
 <span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">40</span><span class="op">;</span> i<span class="op">++</span>) pts<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> i <span class="op">/</span> <span class="dv">4</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">exp</span>(<span class="op">-</span>i <span class="op">/</span> <span class="dv">16</span>) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(i <span class="op">/</span> <span class="dv">3</span>)})</span>
 <span id="cb11-225"><a href="#cb11-225" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
 <span id="cb11-226"><a href="#cb11-226" aria-hidden="true" tabindex="-1"></a>    <span class="dt">height</span><span class="op">:</span> <span class="dv">220</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"t"</span>}<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"damped"</span>}<span class="op">,</span></span>
 <span id="cb11-227"><a href="#cb11-227" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [Plot<span class="op">.</span><span class="fu">line</span>(pts<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">fn</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span> Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])]</span>
 <span id="cb11-228"><a href="#cb11-228" aria-hidden="true" tabindex="-1"></a>  }))</span>
-<span id="cb11-229"><a href="#cb11-229" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-229"><a href="#cb11-229" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-8" data-nodetype="expression">
 
@@ -966,7 +972,7 @@ Don’t pass <code>margin: {l: 0, r: 0, t: 0, b: 0}</code>
 <p>Takes <code>{viewBox, width, height}</code>. The width/height ratio an <code>&lt;svg&gt;</code> draws at, from its attributes: a four-part <code>viewBox</code> when it has one, else <code>width</code>/<code>height</code> when both are positive.</p>
 <p><strong>Returns</strong> <code>number | null</code> (<code>null</code> means “measure it”).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12" data-startfrom="283" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 282;"><span id="cb12-283"><a href="#cb12-283" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">viewBox</span><span class="op">:</span> <span class="st">"0 0 640 400"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">width</span><span class="op">:</span> <span class="st">"300"</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="st">"150"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({})]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" data-startfrom="283" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 282;"><span id="cb12-283"><a href="#cb12-283" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">viewBox</span><span class="op">:</span> <span class="st">"0 0 640 400"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">width</span><span class="op">:</span> <span class="st">"300"</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="st">"150"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({})]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-9" data-nodetype="expression">
 
@@ -1059,13 +1065,14 @@ window._ojs.runtime.interpretFromScriptTags();
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
