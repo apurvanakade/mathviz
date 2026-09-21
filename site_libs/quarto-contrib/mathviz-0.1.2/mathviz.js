@@ -4328,8 +4328,10 @@
   // This maps each name onto the shared chart palette
   // (js/plotting/chart-theme.js), read at CALL time so a cell that re-runs
   // on a theme toggle repaints: red -> alt, green -> ok, blue -> fn. The
-  // prose swatches in swatch.css (.vm-swatch-alt / -ok / -accent) use the
-  // same three tokens, so a swatch and a dot agree.
+  // prose swatches in swatch.css (.vm-swatch-alt / -ok / -fn) use the
+  // same three tokens, so a swatch and a dot agree. (Not -accent: that is
+  // the UI accent token, which only happens to equal --vm-color-fn in the
+  // default palette.)
   /**
    * The display color for a Sperner color **name**, read from the live
    * chart palette at call time: `'red'` → `colors().alt`, `'green'` →

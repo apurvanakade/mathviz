@@ -522,7 +522,7 @@ Authors: Apurva Nakade
 <td>the one shipped chart size</td>
 </tr>
 <tr class="even">
-<td><a href="#vm-swatch"><code>vm-swatch vm-swatch-alt</code></a> (<code>-ok</code>, <code>-warn</code>, <code>-accent</code>, <code>-accent2</code>)</td>
+<td><a href="#vm-swatch"><code>vm-swatch vm-swatch-alt</code></a> (one modifier per palette color, plus <code>-accent</code>)</td>
 <td>a <code>&lt;span&gt;</code> in prose</td>
 <td>tints a color word with the matching palette color</td>
 </tr>
@@ -754,24 +754,44 @@ Authors: Apurva Nakade
 </thead>
 <tbody>
 <tr class="odd">
+<td><code>vm-swatch-fn</code></td>
+<td><code>--vm-color-fn</code></td>
+<td><span class="vm-swatch vm-swatch-fn">fn</span></td>
+</tr>
+<tr class="even">
 <td><code>vm-swatch-alt</code></td>
 <td><code>--vm-color-alt</code></td>
 <td><span class="vm-swatch vm-swatch-alt">alt</span></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>vm-swatch-ok</code></td>
 <td><code>--vm-color-ok</code></td>
 <td><span class="vm-swatch vm-swatch-ok">ok</span></td>
 </tr>
+<tr class="even">
+<td><code>vm-swatch-muted</code></td>
+<td><code>--vm-color-muted</code></td>
+<td><span class="vm-swatch vm-swatch-muted">muted</span></td>
+</tr>
 <tr class="odd">
+<td><code>vm-swatch-ink</code></td>
+<td><code>--vm-color-ink</code></td>
+<td><span class="vm-swatch vm-swatch-ink">ink</span></td>
+</tr>
+<tr class="even">
 <td><code>vm-swatch-warn</code></td>
 <td><code>--vm-color-warn</code></td>
 <td><span class="vm-swatch vm-swatch-warn">warn</span></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>vm-swatch-accent2</code></td>
 <td><code>--vm-color-accent2</code></td>
 <td><span class="vm-swatch vm-swatch-accent2">accent2</span></td>
+</tr>
+<tr class="even">
+<td><code>vm-swatch-accent3</code></td>
+<td><code>--vm-color-accent3</code></td>
+<td><span class="vm-swatch vm-swatch-accent3">accent3</span></td>
 </tr>
 <tr class="odd">
 <td><code>vm-swatch-accent</code></td>
@@ -780,7 +800,7 @@ Authors: Apurva Nakade
 </tr>
 </tbody>
 </table>
-<p>There is no swatch for <code>fn</code>, <code>muted</code>, <code>ink</code>, <code>accent3</code> or <code>halo</code>.</p>
+<p>One modifier per palette color, matching the keys of <a href="../docs/reference/plotting.html#colors"><code>VM.plotting.colors()</code></a>, so a swatch in a sentence and the trace it describes always agree. There is no <code>-halo</code>: it is the page background, and a tint of it is invisible.</p>
 </section>
 <section id="vm-invalid" class="level3">
 <h3 class="anchored" data-anchor-id="vm-invalid"><code>vm-invalid</code></h3>
