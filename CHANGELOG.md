@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-09-21
+
 ### Added
 
 - Prose swatch modifiers for every palette color: `vm-swatch-fn`, `-muted`, `-ink` and `-accent3` join `-alt`, `-ok`, `-warn`, `-accent2` (and `-accent`). Blue Sperner vertices should now be described with `-fn`, which reads the same token `vertexColor('blue')` does; `-accent` reads the UI accent, which only equals it in the default palette.
@@ -60,7 +62,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/apurvanakade/mathviz/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/apurvanakade/mathviz/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/apurvanakade/mathviz/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/apurvanakade/mathviz/releases/tag/v0.1.0
