@@ -50,15 +50,15 @@ mathviz:
   referrer: same-origin     # emit <meta name="referrer"> before the CDN tags
 ```
 
-Update later with `quarto update apurvanakade/mathviz`. Pin a version with `quarto add apurvanakade/mathviz@v0.1.1`.
+Update later with `quarto update apurvanakade/mathviz`. Pin a version with `quarto add apurvanakade/mathviz@v0.1.2`.
 
 ### Any other web page
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.css">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.js"></script>
 ```
 
 Load Plotly **before** `mathviz.js` (the modebar patch runs when the bundle loads; if Plotly arrives later, call `VM.plotting.installPlotlyPatch()` yourself). `dist/mathviz.js` is a plain concatenation of the documented source files -- readable, un-minified, ~170 kB.

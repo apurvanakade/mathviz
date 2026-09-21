@@ -56,8 +56,8 @@ mathviz:
 
 ```sh
 quarto update apurvanakade/mathviz            # latest tag
-quarto update apurvanakade/mathviz@v0.1.1     # a specific tag
-quarto add apurvanakade/mathviz@v0.1.1        # pin at install time
+quarto update apurvanakade/mathviz@v0.1.2     # a specific tag
+quarto add apurvanakade/mathviz@v0.1.2        # pin at install time
 ```
 
 The version names the `site_libs/quarto-contrib/mathviz-<version>/` folder in your rendered output, which is what invalidates a browser's cached copy when you upgrade.
@@ -75,10 +75,10 @@ A local directory is accepted; Quarto copies `_extensions/mathviz/` in. Re-run a
 ## Any other web page
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.css">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.js"></script>
 ```
 
 - Load **Plotly before `mathviz.js`**. The patch runs when the bundle loads and again on `DOMContentLoaded`; if Plotly arrives later than both (a dynamic import), call [`VM.plotting.installPlotlyPatch()`](reference/plotting.qmd#installPlotlyPatch) yourself.

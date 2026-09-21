@@ -92,9 +92,9 @@ That's it -- math.js, Plotly, `mathviz.js` and `mathviz.css` are in every page's
 ## Any web page
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.css">
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.1/dist/mathviz.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.js"></script>
 ```
 
 Load Plotly **before** the bundle.

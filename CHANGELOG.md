@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-21
+
 ### Added
 
 - A documentation site (`docs/`, rendered with Quarto and published to GitHub Pages): guides for installing, a first chart, theming, the markup contract and troubleshooting; an API reference page per `VM.*` namespace with live examples; six complete recipe pages.
@@ -31,6 +33,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 - Documentation that had drifted from the code: `VM.numerical.polynomialFit` returns `{coeffs, evaluate, totalSquaredError}` (not a bare coefficient array); `VM.expressions.makeRational(expr)` takes no math.js instance and parses literals only; `VM.numerical.l1Regression` also returns `iterations`; `VM.ui.renderTable` accepts `csvHeaders` and `filename`; the table classes are `ojs-table-toolbar`/`ojs-table-container` (there is no `ojs-table`); `VM.plotting.themeName()` exists.
 - `src/js/ui/slider-play.js` now ends in `})(window)` like every other module (it ended in `})(globalThis);`; behaviour unchanged).
+- `.github/workflows/ci.yml` was not valid YAML (an unquoted `run:` containing `: `), so CI had never run; and `npm ci` had no `package-lock.json` to install from. Both fixed, and CI is green.
 - Two dead statements in `chart-theme.js` (an unused `surface` read in `layout()`, a no-op in `plotOptions()`) and a stale comment in `gamma-pdf.js` referring to a function that isn't in this library.
 
 ## [0.1.1] - 2026-09-20
@@ -48,6 +51,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/apurvanakade/mathviz/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/apurvanakade/mathviz/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/apurvanakade/mathviz/releases/tag/v0.1.0
