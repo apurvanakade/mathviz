@@ -59,4 +59,4 @@ Box-Muller transform: turns a uniform generator into a standard-normal one (mean
 }
 ```
 
-See the [distribution explorer recipe](../recipes/distribution-explorer.qmd) for these feeding a histogram under a theoretical curve.
+See the starter's [distribution-explorer.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd) for these feeding a histogram under a theoretical curve.

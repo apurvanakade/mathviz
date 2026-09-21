@@ -149,7 +149,7 @@ A cell that references a view whose identity is reactively recreated -- a step s
 :::
 
 ::: {.callout-important title="Call it from a plain DOM listener, never from a cell reactive on a `<select>`"}
-A native `<select>` fires both `input` and `change` per selection, so a reactive cell runs twice, and two overlapping calls race -- observed corrupting a field's final value when the second cascade landed after the first. Attach one listener to a stable element instead. The [try-an-example recipe](../recipes/try-an-example.qmd) shows the full wiring.
+A native `<select>` fires both `input` and `change` per selection, so a reactive cell runs twice, and two overlapping calls race -- observed corrupting a field's final value when the second cascade landed after the first. Attach one listener to a stable element instead. The starter's [try-an-example.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/try-an-example.qmd) shows the full wiring.
 :::
 
 ## Slider playback {#slider-playback}

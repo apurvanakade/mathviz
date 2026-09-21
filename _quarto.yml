@@ -6,18 +6,18 @@
 # -- this file sits next to _extensions/, so every docs page exercises the
 # real filter with no install step, and `quarto render` doubles as CI's
 # smoke test. Output goes to _site/ (gitignored); .github/workflows/docs.yml
-# publishes it to the gh-pages branch.
+# publishes it to the gh-pages branch. starter/ is a separate Quarto
+# project (its own _quarto.yml) and is not part of this one.
 project:
   type: website
   output-dir: _site
   # An explicit allowlist, not "everything renderable": without it Quarto
-  # compiles README.md, CLAUDE.md and CONTRIBUTING.md into site pages too.
-  # docs/index.qmd first: Quarto redirects the site root to whichever
-  # file the list renders first.
+  # compiles README.md, CLAUDE.md, CONTRIBUTING.md and starter/ into site
+  # pages too. docs/index.qmd first: Quarto redirects the site root to
+  # whichever file the list renders first.
   render:
     - docs/index.qmd
     - "docs/**/*.qmd"
-    - example.qmd
 
 filters:
   - mathviz
@@ -42,8 +42,8 @@ website:
         href: docs/index.qmd
       - text: Reference
         href: docs/reference/index.qmd
-      - text: Recipes
-        href: docs/recipes/index.qmd
+      - text: Starter
+        href: https://github.com/apurvanakade/mathviz/tree/main/starter
     right:
       - icon: github
         href: https://github.com/apurvanakade/mathviz
@@ -53,12 +53,11 @@ website:
       style: docked
       contents:
         - docs/index.qmd
-        - docs/install.qmd
         - docs/first-chart.qmd
         - docs/theming.qmd
         - docs/markup.qmd
+        - docs/install.qmd
         - docs/troubleshooting.qmd
-        - docs/internals.qmd
     - id: reference
       title: Reference
       style: docked
@@ -72,17 +71,7 @@ website:
         - docs/reference/plotting.qmd
         - docs/reference/ui.qmd
         - docs/reference/discrete-math.qmd
-    - id: recipes
-      title: Recipes
-      style: docked
-      contents:
-        - docs/recipes/index.qmd
-        - docs/recipes/function-explorer.qmd
-        - docs/recipes/step-slider.qmd
-        - docs/recipes/ode-convergence.qmd
-        - docs/recipes/distribution-explorer.qmd
-        - docs/recipes/try-an-example.qmd
-        - docs/recipes/observable-plot.qmd
+        - docs/reference/internals.qmd
   page-footer:
     left: "Apache-2.0 · Copyright (c) 2026 Apurva Nakade"
 

@@ -36,6 +36,24 @@ These hold across the whole surface, so each page states only its exceptions.
 
 **Self-installing modules take no call.** The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the [markup contract](../markup.qmd).
 
+## What needs what
+
+Nothing here imports anything. Where a function needs a library, it takes it as an argument or finds it on `window`.
+
+| | Needs |
+|---|---|
+| `VM.expressions.*` (except `makeRational`), `VM.numerical.polynomialFit` | a math.js instance, **passed as the first argument** |
+| `VM.numerical.*`, `VM.sampling.*`, `VM.filters.*`, `VM.distributions.*`, `VM.discreteMath.*` | nothing |
+| `VM.plotting.colors / colorway / alpha / themeName / onThemeChange / configure / subscript / paddedRange / plotOptions` | nothing (a `document` to read tokens from; sensible fallbacks without) |
+| `VM.plotting.layout / config / hoverLabel / emptyState / themePatch` | nothing -- they build plain objects. You need Plotly to *use* them, of course |
+| `VM.plotting.autoResize` | `ResizeObserver` (returns `null` without); safe when Plotly is absent |
+| `VM.plotting.installPlotlyPatch / fullscreenButton` | `window.Plotly` |
+| `VM.plotting.svgAspectRatio / figureBounds`, `VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame` | nothing -- pure helpers |
+| `VM.ui.legendOverlay` | nothing -- plain DOM. It *implements* Observable's view contract; it doesn't require Observable |
+| `VM.ui.renderTable` | htl's `html` tag, passed in. Emits Bootstrap table classes |
+| `VM.ui.applyExampleParams` | views that follow Observable Inputs' `value` + `"input"` protocol |
+| slider playback, draggable legend, SVG fullscreen button, slider fill | nothing -- self-installing on the [markup](../markup.qmd) they look for |
+
 ## Where the signatures live
 
 Every function's JSDoc in `src/js/<category>/<name>.js` is the authoritative signature; these pages restate it with context and a live example. A test (`src/docs-coverage.test.js`) fails the build if a `VM.*` member exists without a heading here, or vice versa, so the two can't drift.

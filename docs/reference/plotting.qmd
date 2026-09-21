@@ -124,7 +124,7 @@ vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
 chartColors = VM.plotting.colors(vmTheme)
 ```
 
-Now any cell that reads `chartColors` re-runs on a toggle. **This is what makes trace colors follow the theme.** Chart chrome (axes, grid, tooltip) is re-themed for you by a `relayout` the patch performs, but a color you baked into a trace is a value the page chose, and only re-running the cell changes it.
+Now any cell that reads `chartColors` re-runs on a toggle. **This is what makes trace colors follow the theme.** Chart chrome (axes, grid, tooltip) is re-themed for you by a `relayout` the patch performs, but a color you baked into a trace is a value the page chose, and only re-running the cell changes it. `colors()` ignores its argument; `colors(vmTheme)` is written that way purely so that `chartColors` depends on `vmTheme` in Observable's dependency graph.
 
 ### VM.plotting.configure(overrides?) {#configure}
 

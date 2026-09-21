@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `starter/`: a complete, clone-and-go Quarto website -- a first page plus one page per pattern (function explorer, step slider with playback, ODE with a convergence plot, distribution explorer, "try an example" dropdown, Observable Plot) -- with the extension mirrored in by `npm run build` and rendered by CI.
+
+### Changed
+
+- The documentation is restructured around getting a page built: the guide (landing page with a quick start, Building a page, Theming, Markup, Installing, Troubleshooting) says only what to write; every mechanism it used to explain in passing is now under Reference › Internals. The recipe pages moved into `starter/` as app pages, and `example.qmd` is replaced by `starter/index.qmd`.
+
 ## [0.1.2] - 2026-09-21
 
 ### Added

@@ -1,14 +1,5 @@
 ---
-title: "mathviz example"
-filters:
-  - mathviz
-mathviz:
-  referrer: same-origin
-format:
-  html:
-    theme:
-      light: cosmo
-      dark: superhero
+title: "A first chart"
 ---
 
 <!--
@@ -17,38 +8,41 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-A minimal page that uses the extension in place (this file sits next to
-`_extensions/`, so no `quarto add` is needed). `quarto render example.qmd`
-writes `_site/example.html`; open it and toggle the theme in the navbar to
-see the chart, the panel and the <span class="vm-swatch vm-swatch-alt">red</span>
-swatch follow. The [documentation site](docs/index.qmd) walks through this
-page cell by cell.
+<!--
+THE SMALLEST PAGE: a panel with a text field and a slider, and a chart that
+redraws when either changes. Copy this file to start a new page.
+
+Everything named VM.* and every ojs-* class comes from the mathviz extension
+in _extensions/ -- nothing to load. The guide walks through this page cell by
+cell: https://apurvanakade.github.io/mathviz/docs/first-chart.html
+-->
+
+Type a function, drag the frequency, toggle the theme in the navbar, press ▶ on the slider.
 
 ```{ojs}
-//| echo: false
 VM = window.VM
+```
+
+```{ojs}
+// The theme pair. Every page has these two lines: any cell that reads
+// chartColors re-runs on a light/dark toggle, which is what recolors traces.
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
 ```
 
 ::: {.ojs-panel .ojs-row}
 ```{ojs}
-//| echo: false
 viewof fText = Inputs.text({label: "f(x)", value: "sin(x) + x/3"})
 ```
 ```{ojs}
-//| echo: false
 viewof k = Inputs.range([1, 5], {label: "Frequency", step: 0.1, value: 1})
 ```
 :::
 
 ::: {.ojs-chart-block}
 ```{ojs}
-//| echo: false
-vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
-chartColors = VM.plotting.colors(vmTheme)
-```
-```{ojs}
-//| echo: false
 mainPlot = {
+  // null if the text won't parse -- never throws.
   const f = VM.expressions.makeFunction(math, fText)
   const xs = [], ys = []
   for (let i = 0; i <= 400; i++) {

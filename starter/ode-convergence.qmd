@@ -1,6 +1,5 @@
 ---
 title: "ODE with a convergence plot"
-subtitle: "Euler and RK4 on the same problem, and the order read off a log-log fit"
 ---
 
 <!--
@@ -9,17 +8,24 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-A Plotly chart of the numerical solution against the exact one, and beneath it an Observable Plot chart of error against step size on log axes -- two libraries, one theme. The slope of the fitted line is the observed order of the method.
+<!--
+Shows: a typed right-hand side compiled with makeFunction2, the Euler and
+RK4 steppers, a Plotly chart of the solution and -- below it -- an
+Observable Plot chart of error against step size on log axes, sharing the
+theme. linearRegression reads the order off the log-log points.
+
+  eulerSolve / rk4Solve: https://apurvanakade.github.io/mathviz/docs/reference/numerical.html#eulerSolve
+  linearRegression:      https://apurvanakade.github.io/mathviz/docs/reference/numerical.html#linearRegression
+  plotOptions:           https://apurvanakade.github.io/mathviz/docs/reference/plotting.html#plotOptions
+-->
+
+The numerical solution against the exact one, and the observed order of the method as the slope of a log-log fit. For `y' = y − t² + 1`, `y(0) = 0.5` the exact solution is `(t + 1)² − e^t / 2`.
 
 ```{ojs}
 VM = window.VM
 vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
 chartColors = VM.plotting.colors(vmTheme)
 ```
-
-## Inputs
-
-The exact solution is typed too, so the page can draw the error. (For `y' = y − t² + 1`, `y(0) = 0.5` it is `(t + 1)² − e^t / 2`.)
 
 ::: {.ojs-panel .ojs-grid}
 ```{ojs}
@@ -36,11 +42,8 @@ viewof odeMethod = Inputs.radio(["Euler", "RK4"], {label: "method", value: "RK4"
 ```
 :::
 
-## Solving
-
-`makeFunction2` compiles the right-hand side as `(t, y) => number`; `makeFunctionOfT` compiles the exact solution in `t`. The two steppers share a signature, so the method choice is a function reference.
-
 ```{ojs}
+// The two steppers share a signature, so the method choice is a function reference.
 ode = {
   const f = VM.expressions.makeFunction2(math, odeRhs)
   const exact = VM.expressions.makeFunctionOfT(math, odeExact)
@@ -50,8 +53,6 @@ ode = {
   return {f, exact, y0, solve}
 }
 ```
-
-## The solution
 
 ::: {.ojs-chart-block}
 ::: {.ojs-chart-controls}
@@ -82,11 +83,10 @@ viewof odeN = Inputs.range([2, 64], {label: "steps n", step: 1, value: 8})
 ```
 :::
 
-## The convergence plot
-
-Run the solver at `n = 4, 8, 16, …`, record the error at `t = 2`, fit a line to `(log h, log error)`. `linearRegression` returns the slope -- the order -- and `xlo`/`xhi` (the first and last point's x, in the order given) for drawing the fitted segment.
-
 ```{ojs}
+// Solve at n = 4, 8, 16, ..., record the error at t = 2, fit a line to
+// (log h, log error). The slope is the order. `xlo`/`xhi` are the first and
+// last point's x, for drawing the fitted segment.
 convergence = {
   if (ode === null) return null
   const points = []
@@ -100,6 +100,8 @@ convergence = {
 ```
 
 ```{ojs}
+// Observable Plot, themed by plotOptions(). Euler's slope sits near 1,
+// RK4's near 4 -- until floating point floors the error at the smallest steps.
 {
   if (convergence === null || convergence.fit === null) return html`<em>Not enough data for a fit.</em>`
   const {points, fit} = convergence
@@ -115,5 +117,3 @@ convergence = {
   }))
 }
 ```
-
-Euler's slope sits near 1, RK4's near 4 -- until the error floors out in floating point at the smallest steps, which drags the fitted slope down. `l1Regression` would shrug off those last points; that swap is one identifier.

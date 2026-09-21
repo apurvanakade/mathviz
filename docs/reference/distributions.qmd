@@ -144,7 +144,7 @@ Bins an array of draws into equal-width bins, normalized to **densities** so the
 }
 ```
 
-See the [distribution explorer recipe](../recipes/distribution-explorer.qmd) for the histogram-under-a-curve chart.
+See the starter's [distribution-explorer.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd) for the histogram-under-a-curve chart.
 
 ## Discrete masses
 

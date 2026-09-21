@@ -1,0 +1,120 @@
+---
+title: "Internals"
+subtitle: "How it's put together, and the mechanics behind the guide's rules"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+A map of the repository, the decisions that shape it, and the mechanics behind the rules the guide states without explaining. Nothing here is needed to build a page. The working rules for contributors -- headers, style, the release checklist -- are in [CONTRIBUTING.md](https://github.com/apurvanakade/mathviz/blob/main/CONTRIBUTING.md); the deeper "why" behind each invariant, written as instructions for someone editing the code, is in [CLAUDE.md](https://github.com/apurvanakade/mathviz/blob/main/CLAUDE.md).
+
+## Layout
+
+```
+_extensions/mathviz/   the Quarto extension: _extension.yml, mathviz.lua, dist/ (copied by the build)
+dist/                  the generated bundle, committed (jsDelivr serves it by tag); never hand-edited
+src/manifest.mjs       THE load order, for the build and the tests
+src/js/<category>/     one VM.<category>.<name> per file; tests colocated as <name>.test.js
+src/css/               tokens.css first, then one file per concern
+scripts/               build.mjs (concatenate + syntax-check), load-vm.mjs (test loader)
+docs/                  this site
+starter/               the clone-and-go site; its _extensions/mathviz/ is mirrored in by the build
+```
+
+## One global, many small files
+
+Every file under `src/js` is an IIFE that adds one member (occasionally two or three that belong together) to `window.VM`:
+
+```js
+(function attachVM(globalThis) {
+  /** JSDoc … */
+  const simpsonEstimate = (f, lo, hi, n) => { … }
+
+  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, simpsonEstimate}}
+})(window)
+```
+
+The spread-merge means files can load in any order *as far as attaching goes*; the manifest exists for the few real load-time dependencies (every `*Pmf`/`*Pdf` reads `logGamma`; the `discreteMath` color helpers read `VM.plotting`; the SVG fullscreen button reuses the Plotly button's icon). `mustPrecede` in `src/manifest.mjs` records them and `src/manifest.test.js` enforces them, along with "every file on disk is listed exactly once".
+
+## The build is a concatenation
+
+`scripts/build.mjs` reads the manifest, joins the files with a separator, syntax-checks the result with `node --check`, writes `dist/mathviz.{js,css}`, copies both into `_extensions/mathviz/dist/`, and mirrors the whole extension into `starter/_extensions/mathviz/` (what `quarto add` would install there), so the starter is committed working and tracks the working tree. No bundler, no minifier, no dependencies: the output is the readable source with `// ---- src/js/… ----` markers, so a stack trace in a consumer's browser points at a recognizable file, and the JSDoc travels with it.
+
+The one subtlety is the separator. For JS it is a lone `;`. Each file ends in a call -- `})(window)`, or `})()` for a module with nothing to export -- and two of those back to back parse as `})(window)(function …)`: the first file's return value called with the second file as its argument. That is syntactically valid, so `node --check` can't catch it, and the page dies after the first file with `(intermediate value)(...) is not a function`. The semicolon makes each file its own statement.
+
+`dist/` is committed because both distribution channels serve the repository as-is: `quarto add` downloads an archive and runs nothing, and jsDelivr serves files straight from a tag. CI rebuilds and fails on a diff, so `src/` and `dist/` can't drift.
+
+## Tests run the real files
+
+`scripts/load-vm.mjs` evaluates every manifest entry, in order, into the Node process's global scope (indirect `eval`, so the IIFEs see a `window`), with a minimal `document` and `Plotly` stub for the modules that touch them at load time. The `*.test.js` files import it and test `VM.*` -- the production code, not re-implementations. `node --test` finds them; math.js is the only dev dependency, for the expression tests.
+
+Two tests guard the documentation itself: `manifest.test.js` (above) and `docs-coverage.test.js`, which fails if any `VM.*` member lacks a `### VM.<category>.<name>` heading in `docs/reference/`, or a heading names something that doesn't exist.
+
+## The version is in three places
+
+`package.json`, `_extensions/mathviz/_extension.yml` and `VERSION` in `mathviz.lua`. The build refuses to run unless they agree. The Lua one names the `site_libs/quarto-contrib/mathviz-<version>/` folder in a consumer's output, which is what busts their browser cache on upgrade.
+
+## The Lua filter's odd shape
+
+`mathviz.lua` adds **one HTML dependency per vendor `<script>` tag** (`mathviz-mathjs`, `mathviz-plotly`, `mathviz-referrer`), each *before* the `mathviz` dependency that carries the bundle. Three facts about Quarto's dependency handling, verified against Quarto 1.7's source, force this:
+
+1. `quarto.doc.include_text("in-header", …)` lands in `header-includes`, which is emitted *below* the whole dependency block -- so a Plotly tag added that way loads after `mathviz.js`, and the patch finds no `Plotly` to patch.
+2. Within one dependency, `scripts` entries are emitted before the `head` string, so the vendor tags can't share the bundle's dependency.
+3. Quarto's `injectHtml` iterates a *live* `children` collection while moving nodes out of it, so a `head` string holding several tags loses every second one. One tag per dependency is the workaround.
+
+`scripts`/`stylesheets` entries must be local files (Quarto copies them into `site_libs`), hence raw `<script>` tags in `head` for the CDN URLs. A head-only dependency creates no `site_libs` folder.
+
+## Token specificity {#token-specificity}
+
+The CSS reads the `--vm-*` tokens the ordinary way; the JavaScript reads them with `getComputedStyle` **at call time**, so a chart built after a theme toggle sees the new values.
+
+The defaults live in [`src/css/tokens.css`](https://github.com/apurvanakade/mathviz/blob/main/src/css/tokens.css), and every one of them is wrapped in `:where()`, which has **zero specificity**. That is why a plain `:root { --vm-x: … }` in a consumer's stylesheet wins no matter which file loads first. It matters in Quarto specifically: an extension's stylesheet is injected **before** a project's `css:` files but **after** its compiled theme SCSS, so without `:where()` the library's `:root` block would beat a theme's own `:root` declarations. Don't unwrap them if you fork the CSS.
+
+## Dark-mode detection {#dark-mode-detection}
+
+Two places hold the dark-mode selector list and must stay identical: the `:where(…)` block in `src/css/tokens.css`, and `settings.darkSelector` in `src/js/plotting/chart-theme.js`. The CSS half declares the dark tokens; the JS half decides `themeName()` by testing the list against `<body>` and then `<html>`.
+
+**Root-scoped on purpose.** A bare `[data-bs-theme="dark"]` looks equivalent to `html[data-bs-theme="dark"], body[data-bs-theme="dark"]` but isn't: Quarto sets that attribute directly on its `<nav>` to force a dark navbar on an otherwise-light page, and custom properties inherit down the DOM -- so an unscoped match painted the entire dark palette into the navbar (shipped in v0.1.0, fixed in v0.1.1). Match on `html` or `body` only, including in a `configure({darkSelector})` override.
+
+**JS reads from `<body>`, never `<html>`.** The light tokens are declared on `:root`, but the dark ones under selectors that match `<body>` (Quarto flips a body class). So `getComputedStyle(document.documentElement)` returns the **light** value even in dark mode. Every `--vm-*` read in the library goes through `document.body`; if you write your own token-reading code, do the same. This exact mistake once turned every chart tooltip into a white box on the dark theme.
+
+**Toggles are two steps.** Quarto's toggle flips the body class and swaps the stylesheet as **separate steps**, class first. A callback that reads tokens synchronously on the class change sees the outgoing theme's values. [`onThemeChange`](plotting.qmd#onThemeChange) waits two animation frames before notifying for exactly this reason, and compares the theme name inside that wait so unrelated body-class changes (a sidebar opening) don't fire it. Use it rather than your own `MutationObserver`.
+
+## Self-installing modules
+
+Slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill share a pattern: a `MutationObserver` on `document.body` plus delegated document-level listeners, so they enhance elements Observable Inputs creates at runtime and recreates on every upstream change -- there is no single moment at which "all the sliders exist" to wire them up individually. Each marks what it has enhanced (`data-vm-play-ready`, `data-vm-draggable`) to stay idempotent. `plotly-fullscreen-button.js` does the same job for Plotly by wrapping `Plotly.newPlot`/`react`, since there is no DOM to watch before the chart exists.
+
+## Generated classes {#generated-classes}
+
+The library writes these itself; a page never authors them.
+
+| Class / property | Written by |
+|---|---|
+| `ojs-legend-overlay`, `ojs-legend-item`, `ojs-legend-swatch` | `VM.ui.legendOverlay` |
+| `vm-overlay-grip`, `vm-overlay-dragging`, `data-vm-draggable` | the draggable-legend module |
+| `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |
+| `vm-fullscreen-toggle`, `vm-fs-figure` | the SVG fullscreen button |
+| `ojs-table-toolbar`, `ojs-table-container` | `VM.ui.renderTable` |
+| `--sx`, `--vm-plot-aspect-ratio`, `--vm-fs-plot-width`, `--vm-svg-aspect`, `--vm-swatch` | runtime layout state: a slider's fill fraction, fullscreen letterboxing, a swatch's tint |
+
+`vm-dark` is neither: it is a **theme hook** you may put on `<html>` or `<body>` to tell the library your site is in dark mode -- see [Theming](../theming.qmd#dark-mode). It styles nothing by itself.
+
+## Host markup the CSS depends on {#host-markup}
+
+Quarto OJS is the primary host, and several rules target markup mathviz doesn't own. They are harmless elsewhere, but on a non-Quarto page the corresponding behaviour is simply absent:
+
+| Selector | What it fixes |
+|---|---|
+| `.cell-output-display`, `[id^="ojs-cell-"]` | Quarto wraps every OJS output in a scroll container (`overflow: auto`). The legend rules set `overflow: visible` on the ones inside a chart block, or the floating legend would be clipped to a zero-height box. The same clip is why the playback popover is a top-layer `[popover]`. |
+| `.quarto-layout-cell { min-width: 0 }` | lets a chart in a `layout-ncol` column shrink with it |
+| `form[class^="oi-"]` | Observable Inputs' generated forms carry a hashed class. The panel rules override their fixed `360px` width and `120px` label column, and theme their buttons. Observable injects its own `.oi-<hash>` rules into `<head>` at runtime, *after* any stylesheet, so a mathviz rule that ties on specificity loses silently -- the shipped rules out-specify them or use `!important`. Bear this in mind if you add rules of your own. |
+| `.js-plotly-plot .modebar*` | Plotly's modebar DOM; the pill, blur and hover-fade live here |
+
+With plain `<input>`s in a `<div class="ojs-panel ojs-row">` everything panel-related still works -- the `form[class^="oi-"]` rules just find nothing to match.
+
+## Style
+
+Explicit `for`/`while` loops and `if`/`else` over `.map()/.filter()/.reduce()` chains and ternaries, throughout `src/js`. The code is read by a mathematics audience more at home in Python than in functional JavaScript. Callbacks an API requires (Plotly config values, `Plot` accessors, `addEventListener`) are the exception.

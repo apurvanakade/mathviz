@@ -1,6 +1,5 @@
 ---
 title: "Observable Plot in an SVG block"
-subtitle: "The theme applied to Plot, and a fullscreen button for a chart with no modebar"
 ---
 
 <!--
@@ -9,7 +8,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Observable Plot draws inline SVG. `VM.plotting.plotOptions()` gives it the same font, grid color and palette as the Plotly charts, and `ojs-svg-block` on the wrapper gives it the fullscreen button the Plotly modebar provides -- hover the chart to see it, top right of the figure.
+<!--
+Shows: Observable Plot with the theme applied (VM.plotting.plotOptions), and
+ojs-svg-block on the wrapper for the fullscreen button an SVG chart has no
+modebar to provide. A polynomial fit (VM.numerical.polynomialFit) to noisy
+seeded points.
+
+  plotOptions:   https://apurvanakade.github.io/mathviz/docs/reference/plotting.html#plotOptions
+  ojs-svg-block: https://apurvanakade.github.io/mathviz/docs/markup.html#ojs-svg-block
+  polynomialFit: https://apurvanakade.github.io/mathviz/docs/reference/numerical.html#polynomialFit
+-->
+
+A least-squares polynomial through noisy points, drawn with Observable Plot. Hover the chart for the fullscreen button, top right of the figure.
 
 ```{ojs}
 VM = window.VM
@@ -41,12 +51,11 @@ fitData = {
 }
 ```
 
-## The block
-
-Both classes go on the **same** div. The chart cell reads `chartColors` so it repaints on a theme toggle; the button outside the cell survives every re-run.
-
 ::: {.ojs-chart-block .ojs-svg-block}
 ```{ojs}
+// Both classes go on the same div. The cell reads chartColors so it repaints
+// on a theme toggle; the fullscreen button lives outside the cell and
+// survives every re-run.
 {
   const {points, fit, curve} = fitData
   const title = fit === null ? "not enough points for that degree" : `degree ${plotDegree}, total squared error ${fit.totalSquaredError.toFixed(3)}`
@@ -62,25 +71,3 @@ Both classes go on the **same** div. The chart cell reads `chartColors` so it re
 }
 ```
 :::
-
-A Plot chart has a fixed width, so it's narrower than its column; the block centers it and pins the button to the **figure's** corner rather than the column's. In fullscreen the figure is letterboxed by its `viewBox` ratio.
-
-## What `plotOptions` sets
-
-```{ojs}
-VM.plotting.plotOptions({x: {label: "x"}})
-```
-
-`style` (font, size, color), `color.range` (the `colorway`) and `grid: true`, deep-merged with what you pass; for any `x`/`y` scale you name without a `stroke`, the axis is stroked in `--vm-border`. It doesn't create scales you don't mention. Everything else is Plot's own options, passed through.
-
-## The markup
-
-````markdown
-::: {.ojs-chart-block .ojs-svg-block}
-```{ojs}
-Plot.plot(VM.plotting.plotOptions({ ... }))
-```
-:::
-````
-
-Nothing else -- no button to add, nothing to call. The same two classes work for a hand-built `<svg>`.

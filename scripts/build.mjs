@@ -83,6 +83,16 @@ for (const name of ['mathviz.js', 'mathviz.css']) {
   fs.copyFileSync(path.join(root, 'dist', name), path.join(extDist, name))
 }
 
+// starter/ is a complete Quarto site a newcomer copies and runs; it needs
+// the extension installed, which is exactly `_extensions/mathviz/` copied
+// in (what `quarto add apurvanakade/mathviz` does). Mirror it here so the
+// starter is committed in a working state and tracks the working tree
+// rather than a published tag. Remove first so a file deleted from the
+// extension doesn't linger in the copy. CI diffs this too.
+const starterExt = path.join(root, 'starter/_extensions/mathviz')
+fs.rmSync(starterExt, { recursive: true, force: true })
+fs.cpSync(path.join(root, '_extensions/mathviz'), starterExt, { recursive: true })
+
 const kb = (rel) => (fs.statSync(path.join(root, rel)).size / 1024).toFixed(0)
 console.log(`dist/mathviz.js  ${kb('dist/mathviz.js')} kB (${js.length} files)`)
 console.log(`dist/mathviz.css ${kb('dist/mathviz.css')} kB (${css.length} files)`)

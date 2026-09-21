@@ -1,6 +1,5 @@
 ---
 title: "Step slider with playback"
-subtitle: "Newton's method, one iteration at a time, with a play button and a results table"
 ---
 
 <!--
@@ -9,15 +8,24 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-The slider that steps through an iterative method belongs **above the chart**, not in the panel with the problem's inputs -- it's what the reader scrubs while watching. `ojs-chart-controls` puts it there and keeps it there in fullscreen; the playback module gives it a ▶; and because `layout()` reads the sweep's pace, the chart tweens smoothly from one iterate to the next.
+<!--
+Shows: Newton's method one iteration at a time. The iteration slider sits
+directly above the chart (ojs-chart-controls), gets a play button for free,
+and the chart tweens from one iterate to the next while it plays. A results
+table with a CSV download (VM.ui.renderTable).
+
+  ojs-chart-controls: https://apurvanakade.github.io/mathviz/docs/markup.html#ojs-chart-controls
+  renderTable:        https://apurvanakade.github.io/mathviz/docs/reference/ui.html#renderTable
+  subscript:          https://apurvanakade.github.io/mathviz/docs/reference/plotting.html#subscript
+-->
+
+Newton's method on `f(x) = 0`. Press ▶ on the iteration slider.
 
 ```{ojs}
 VM = window.VM
 vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
 chartColors = VM.plotting.colors(vmTheme)
 ```
-
-## Inputs
 
 ::: {.ojs-panel .ojs-row}
 ```{ojs}
@@ -31,11 +39,9 @@ viewof newtonMax = Inputs.text({label: "max iterations", value: "12"})
 ```
 :::
 
-## All the iterates, computed once
-
-Compute the whole sequence in one cell; the slider then only chooses how many to *show*. This keeps the slider cell cheap (it re-runs on every tick of a sweep) and makes the table trivial.
-
 ```{ojs}
+// All the iterates, computed once. The slider then only chooses how many to
+// show, so the cell that re-runs on every tick of a sweep stays cheap.
 iterates = {
   const f = VM.expressions.makeFunction(math, newtonF)
   const df = VM.expressions.makeDerivative(math, newtonF)
@@ -55,13 +61,11 @@ iterates = {
 }
 ```
 
-## The chart block
-
-The slider's range depends on how many iterates exist, so its `viewof` is **recreated** whenever `iterates` changes -- which is exactly the situation `applyExampleParams` warns about, and why that function takes selectors. Nothing to do here; just be aware the element isn't stable.
-
 ::: {.ojs-chart-block}
 ::: {.ojs-chart-controls}
 ```{ojs}
+// The slider's range depends on how many iterates exist, so this view is
+// recreated whenever `iterates` changes.
 viewof step = Inputs.range([0, iterates ? iterates.xs.length - 1 : 0], {label: "iteration n", step: 1, value: 0})
 ```
 :::
@@ -101,13 +105,9 @@ mainPlot = {
 ```
 :::
 
-Press ▶. The tween length comes from `VM.ui.playbackTweenMs`, which the playback module publishes and `layout()` reads -- so at 4× the chart still lands each frame before the next arrives, instead of a fixed 300 ms tween being cut off every time.
-
-## The table
-
-`renderTable` takes header cells that may be KaTeX nodes (`tex` is an OJS global) and separate plain-text headers for the CSV.
-
 ```{ojs}
+// Header cells may be KaTeX nodes (`tex` is an OJS global); csvHeaders are
+// the plain-text versions for the download.
 {
   if (iterates === null) return html`<em>No iterates.</em>`
   const rows = []
@@ -118,26 +118,3 @@ Press ▶. The tween length comes from `VM.ui.playbackTweenMs`, which the playba
   return VM.ui.renderTable({html, headers: ["n", tex`x_n`, tex`|f(x_n)|`], rows, csvHeaders: ["n", "x_n", "|f(x_n)|"], filename: "newton-iterates.csv"})
 }
 ```
-
-## The markup
-
-````markdown
-::: {.ojs-panel .ojs-row}
-... problem inputs ...
-:::
-
-```{ojs}
-iterates = { ... }
-```
-
-::: {.ojs-chart-block}
-::: {.ojs-chart-controls}
-```{ojs}
-viewof step = Inputs.range([0, iterates ? iterates.xs.length - 1 : 0], {label: "iteration n", step: 1, value: 0})
-```
-:::
-```{ojs}
-mainPlot = { ... }
-```
-:::
-````

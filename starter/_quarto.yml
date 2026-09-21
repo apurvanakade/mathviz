@@ -1,0 +1,52 @@
+# Copyright (c) 2026 Apurva Nakade. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Apurva Nakade
+
+# A complete Quarto website using mathviz. Copy this folder, run
+# `quarto preview`, and you have a working site; copy any page to start a
+# new one. See README.md.
+project:
+  type: website
+  output-dir: _site
+
+# The one line that loads the library: math.js, Plotly, mathviz.js and
+# mathviz.css go into every page's <head>. `referrer` keeps a reader's
+# input (which lives in the page URL on many math pages) away from the CDNs.
+filters:
+  - mathviz
+mathviz:
+  referrer: same-origin
+
+execute:
+  # Pages here read as apps: the code stays in the .qmd source. Flip to
+  # `true` on a page (or a cell, with `//| echo: true`) to show it.
+  echo: false
+  warning: false
+
+website:
+  title: "My math site"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - text: Pages
+        menu:
+          - function-explorer.qmd
+          - step-slider.qmd
+          - ode-convergence.qmd
+          - distribution-explorer.qmd
+          - try-an-example.qmd
+          - observable-plot.qmd
+    right:
+      - icon: github
+        href: https://github.com/apurvanakade/mathviz
+
+format:
+  html:
+    # A light/dark pair gives Quarto's theme toggle; every chart on the site
+    # follows it. Any Bootswatch pair works.
+    theme:
+      light: cosmo
+      dark: superhero
+    toc: false
+    html-math-method: katex

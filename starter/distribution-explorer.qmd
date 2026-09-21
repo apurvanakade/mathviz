@@ -1,6 +1,5 @@
 ---
 title: "Distribution explorer"
-subtitle: "An exact density with a histogram of seeded samples underneath"
 ---
 
 <!--
@@ -9,7 +8,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-The curve is exact (`sampleCurve` over a closed-form density -- it never jitters when a slider moves); the bars are draws from a seeded generator, binned by `histogramBins` into densities so their area is ~1 and they sit under the curve on the same axis. Change the seed and only the bars change.
+<!--
+Shows: an exact density drawn with sampleCurve, a histogram of seeded
+samples (seededRandom, gaussianRandom, histogramBins) under it on the same
+axis, a translucent fill from alpha() that follows the theme, and a discrete
+variant with one bin per integer.
+
+  sampleCurve / histogramBins: https://apurvanakade.github.io/mathviz/docs/reference/distributions.html
+  seededRandom:                https://apurvanakade.github.io/mathviz/docs/reference/sampling.html
+  alpha:                       https://apurvanakade.github.io/mathviz/docs/reference/plotting.html#alpha
+-->
+
+The curve is exact and never jitters; the bars are draws from a seeded generator. Change the seed and only the bars change.
 
 ```{ojs}
 VM = window.VM
@@ -32,11 +42,8 @@ viewof distSeed = Inputs.range([1, 999], {label: "seed", step: 1, value: 7})
 ```
 :::
 
-## Samples
-
-`seededRandom` gives a uniform generator; `gaussianRandom` wraps it as a standard normal; scale and shift for the chosen mean and sd. The seed is part of the page's state, so a shared URL (if your page syncs inputs to it) reproduces the same bars.
-
 ```{ojs}
+// A standard normal from the seeded uniform generator, scaled and shifted.
 draws = {
   const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(distSeed))
   const out = []
@@ -45,13 +52,11 @@ draws = {
 }
 ```
 
-## The chart
-
-The histogram range is fixed to the axis range rather than the samples' own min/max, so the bins don't shift as the seed changes; samples beyond it are clamped into the end bins. `alpha` makes the fill translucent in a way that follows the theme.
-
 ::: {.ojs-chart-block}
 ```{ojs}
 {
+  // The histogram range is fixed to the axis range, so the bins don't shift
+  // as the seed changes; samples beyond it are clamped into the end bins.
   const lo = -8, hi = 8
   const curve = VM.distributions.sampleCurve(x => VM.distributions.normalPdf(x, distMean, distSd * distSd), lo, hi)
   const bins = VM.distributions.histogramBins(draws, 48, {lo, hi})
@@ -71,9 +76,7 @@ The histogram range is fixed to the axis range rather than the samples' own min/
 ```
 :::
 
-## A discrete variant
-
-For a PMF, sample the curve at the integers and align one bin per integer: `range: {lo: min − 0.5, hi: max + 0.5}` with `binCount = max − min + 1`, which auto-ranging can't guarantee.
+A discrete variant: the PMF sampled at the integers, one bin per integer.
 
 ```{ojs}
 viewof lambda = Inputs.range([0.5, 12], {label: "Poisson λ", step: 0.1, value: 4})
@@ -89,6 +92,7 @@ viewof lambda = Inputs.range([0.5, 12], {label: "Poisson λ", step: 0.1, value: 
     while (u > s && k < 60) { k++; p *= lambda / k; s += p }
     draws.push(k)
   }
+  // One bin per integer: range [min - 0.5, max + 0.5] with max - min + 1 bins.
   const max = 25
   const pmf = VM.distributions.sampleCurve(k => VM.distributions.poissonPmf(k, lambda), 0, max, {discrete: true})
   const bins = VM.distributions.histogramBins(draws, max + 1, {lo: -0.5, hi: max + 0.5})

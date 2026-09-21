@@ -8,15 +8,15 @@ Authors: Apurva Nakade
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-mathviz is the shared chart/control/numerics library behind [Visual Math Lab](https://github.com/apurvanakade/VisualMathLab), extracted so other sites can use it. It ships two ways from one source tree: as a **Quarto extension** (`_extensions/mathviz/`, installed with `quarto add apurvanakade/mathviz`, enabled with `filters: [mathviz]`) and as a **plain script bundle** (`dist/mathviz.js` + `dist/mathviz.css`, served from jsDelivr by tag). The README is the front door, `docs/` (rendered with `quarto render`, published to GitHub Pages) is the consumer-facing guide and API reference; this file is for working on the library itself.
+mathviz is the shared chart/control/numerics library behind [Visual Math Lab](https://github.com/apurvanakade/VisualMathLab), extracted so other sites can use it. It ships two ways from one source tree: as a **Quarto extension** (`_extensions/mathviz/`, installed with `quarto add apurvanakade/mathviz`, enabled with `filters: [mathviz]`) and as a **plain script bundle** (`dist/mathviz.js` + `dist/mathviz.css`, served from jsDelivr by tag). The README is the front door with the quick start; `starter/` is the clone-and-go site a newcomer copies (one page per pattern -- the former recipes); `docs/` (rendered with `quarto render`, published to GitHub Pages) is the consumer-facing guide and API reference. The guide says only what to write, the reference (including `reference/internals.qmd`) holds every mechanism -- keep technical detail out of the guide pages. This file is for working on the library itself.
 
 ## Commands
 
 - `npm test` — `node --test` over every `src/**/*.test.js`. Tests load the real source files through `scripts/load-vm.mjs` (indirect `eval` into a stubbed `window`, in manifest order) rather than re-implementing anything. Requires `npm install` once (only `mathjs`, for the expression tests).
-- `npm run build` — `scripts/build.mjs` concatenates `src/js/**` and `src/css/**` in the order `src/manifest.mjs` lists them into `dist/`, syntax-checks the JS, and copies both files into `_extensions/mathviz/dist/`. Dependency-free. **Run it before committing any change under `src/`** — `dist/` is committed and CI fails if it is stale.
+- `npm run build` — `scripts/build.mjs` concatenates `src/js/**` and `src/css/**` in the order `src/manifest.mjs` lists them into `dist/`, syntax-checks the JS, copies both files into `_extensions/mathviz/dist/`, and mirrors the whole extension into `starter/_extensions/mathviz/` (what `quarto add` would install there). Dependency-free. **Run it before committing any change under `src/` or `_extensions/`** — `dist/` and the starter mirror are committed and CI fails if either is stale.
 - `npm run check` — test + build + `git diff --exit-code` on the built files; what CI runs.
-- `quarto render` — renders the docs site (`docs/**/*.qmd`) plus `example.qmd` through the extension in place (`_quarto.yml` at the repo root makes the repo the Quarto project, so `_extensions/` is found with no install step) into `_site/` (gitignored). `quarto preview` for live reload. Every docs page is a real page using the library, so this is also the broadest smoke test — CI runs it. OJS errors only show in a browser: serve `_site/` over HTTP (module scripts don't load from `file://`) and check the console; `.observablehq--error` is the class a failed cell renders with.
-- `quarto render example.qmd` — just the minimal demo page, when that's all you need.
+- `quarto render` — renders the docs site (`docs/**/*.qmd`) through the extension in place (`_quarto.yml` at the repo root makes the repo the Quarto project, so `_extensions/` is found with no install step) into `_site/` (gitignored). `quarto preview` for live reload. Every docs page is a real page using the library, so this is also the broadest smoke test — CI runs it. OJS errors only show in a browser: serve `_site/` over HTTP (module scripts don't load from `file://`) and check the console; `.observablehq--error` is the class a failed cell renders with.
+- `quarto render starter` — the starter is its own Quarto project (own `_quarto.yml`, excluded from the root render allowlist) using the mirrored extension, the way a consumer has it; CI renders it too. `starter/index.qmd` is the minimal page (the walkthrough in `docs/first-chart.qmd` is this file).
 - To try the extension in another Quarto project before pushing: `quarto add /path/to/mathviz --no-prompt` from that project (a local directory is accepted; it copies `_extensions/mathviz/` in — re-run after each `npm run build`). A symlink at `_extensions/mathviz` is **not** discovered by Quarto (it checks `isDirectory()` on the raw dirent).
 
 ## Layout and the rules that hold it together
@@ -28,9 +28,9 @@ src/manifest.mjs       THE load order, for both the build and the tests
 src/js/<category>/     one VM.<category>.<fn> per file (a few export 2–3 that belong together), IIFE extending window.VM; tests colocated
 src/css/               tokens.css (all --vm-* defaults), then panel, chart-block, swatch, legend-controls, modebar, sliders, table
 scripts/               load-vm.mjs (test loader), build.mjs
-example.qmd            minimal demo + CI smoke render
+starter/               clone-and-go Quarto site: README, _quarto.yml, index.qmd + one page per pattern, _extensions/mathviz/ (build mirror)
 _quarto.yml            the docs site project (output-dir _site, render allowlist)
-docs/                  the site: guides at the top level, reference/<category>.qmd, recipes/
+docs/                  the site: guide pages at the top level, reference/<category>.qmd + reference/internals.qmd
 ```
 
 - **Every `src/js` file must be listed in `src/manifest.mjs`**, after anything it reads at load time; `src/manifest.test.js` enforces both the completeness and the `mustPrecede` constraints. The build inserts a `;` between JS files because each is an IIFE ending in a call — `})(window)`, or `})()` for `range-progress.js`, which exports nothing — with no trailing semicolon, and two of those in a row parse as `})(window)(function …)`, a call — valid syntax, so `node --check` can't catch it.

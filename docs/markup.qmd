@@ -1,6 +1,6 @@
 ---
 title: "Markup contract"
-subtitle: "The classes and attributes the CSS and the self-installing modules look for"
+subtitle: "The classes you put on wrapper divs to lay out panels and charts"
 ---
 
 <!--
@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-mathviz has almost no JavaScript API for layout. You put a handful of classes on wrapper `<div>`s -- in Quarto, a fenced div `::: {.ojs-panel}` -- and the CSS lays the controls out while the self-installing modules find what to enhance. This page is every class and attribute you are meant to write yourself, with a live example of each, followed by the ones you must **not** write because the library generates them.
+mathviz has almost no JavaScript API for layout. You put a handful of classes on wrapper `<div>`s -- in Quarto, a fenced div `::: {.ojs-panel}` -- and the library lays the controls out and finds what to enhance. This page is every class and attribute you write yourself, with a live example of each. (The classes the library generates, which you never write, are listed under [Internals](reference/internals.qmd#generated-classes).)
 
 ```{ojs}
 //| echo: false
@@ -38,13 +38,13 @@ chartColors = VM.plotting.colors(vmTheme)
 
 ### `ojs-panel` {#ojs-panel}
 
-The chrome: padding, a `--vm-border` border, `--vm-radius` corners, `--vm-surface` background. It also restyles every `<input>`, `<select>`, `<button>` and Observable Inputs `<form>` inside it -- consistent height, focus rings in `--vm-accent`, labels stacked above controls so a row of them bottom-aligns.
+The look: padding, border, rounded corners, a surface background, and consistent styling of every input, select and button inside it, with labels stacked above controls so a row of them bottom-aligns.
 
-It is **chrome only**. Pair it with `ojs-row` or `ojs-grid` for layout. Don't nest one panel inside another (the border and background double up); nest a bare `ojs-row` or `ojs-grid` div instead.
+It is **look only**. Pair it with `ojs-row` or `ojs-grid` for layout. Don't nest one panel inside another (the border and background double up); nest a bare `ojs-row` or `ojs-grid` div instead.
 
 ### `ojs-row` {#ojs-row}
 
-`display: flex; flex-wrap: wrap; align-items: flex-end`. The **first** child div gets `flex: 1 1 200px` and stretches; the **last** gets `flex: 0 0 auto`; anything between takes its natural width. That is the shape of most panels: a wide expression field, then a couple of small controls, then a button.
+One wrapping row, bottom-aligned. The **first** control stretches to fill; the **last** takes its natural width; anything between takes its natural width too. That is the shape of most panels: a wide expression field, then a couple of small controls, then a button.
 
 ::: {.ojs-panel .ojs-row}
 ```{ojs}
@@ -77,7 +77,7 @@ viewof go = Inputs.button("Plot")
 
 ### `ojs-grid` {#ojs-grid}
 
-`grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))`, bottom-aligned; two columns at ≤ 768 px, one at ≤ 480 px. For a panel of several similar controls where none should dominate.
+An auto-fit grid of equal columns (about 250 px each; fewer on narrow screens), bottom-aligned. For a panel of several similar controls where none should dominate.
 
 ::: {.ojs-panel .ojs-grid}
 ```{ojs}
@@ -112,27 +112,23 @@ viewof expr = {
 
 | Class | Effect |
 |---|---|
-| `ojs-fill` | `width: 100%`. On a `<form>` it also makes a contained text input a 20 em box that the reader can drag wider -- for a long expression. |
-| `ojs-auto` | `width: auto; flex: none` -- natural width in a row that would otherwise stretch it. |
-| `ojs-end` | `width: fit-content; margin-left: auto` -- pushes the control to the right edge, in a row or a grid. |
+| `ojs-fill` | Full width; a text input inside becomes a wide box the reader can drag wider -- for a long expression. |
+| `ojs-auto` | Natural width, in a row that would otherwise stretch it. |
+| `ojs-end` | Pushes the control to the right edge, in a row or a grid. |
 
 ## Charts
 
 ### `ojs-chart-block` {#ojs-chart-block}
 
-The wrapper around a chart and its companions. Three things depend on it:
+The wrapper around a chart and its companions. A floating [`legendOverlay`](reference/ui.qmd#legendOverlay) is positioned against it, and it is what the **fullscreen button** enlarges -- so a controls bar and legend inside it come along, and the chart keeps its aspect ratio.
 
-- it is `position: relative`, the anchor a floating [`legendOverlay`](reference/ui.qmd#legendOverlay) is positioned against
-- it is what the **fullscreen button** fullscreens (the Plotly modebar's, or the SVG block's), so a controls bar and legend inside it come along -- the Fullscreen API hides everything outside the fullscreened element
-- it carries the letterboxing rules that keep the chart's aspect ratio in fullscreen
-
-Every chart wants one, even a chart that has neither a legend nor controls today. It also sets `min-width: 0` on Quarto's `.quarto-layout-cell`, so a chart in a `layout-ncol` column shrinks with the column instead of forcing it wide.
+Every chart wants one, even a chart that has neither a legend nor controls today. It also lets a chart in a `layout-ncol` column shrink with the column instead of forcing it wide.
 
 ### `ojs-chart-controls` {#ojs-chart-controls}
 
-A **direct child** of the chart block, holding the sliders that drive the chart -- an iteration count, a step size. It renders as a solid bar (panel chrome) directly above the chart (`order: -2`, so it wins over the legend cell at `-1`), stays with the chart in fullscreen, and lays its controls out for that width: fluid range tracks, `5.5em` number fields, radio/checkbox groups on one wrapped row, labels beside controls.
+A **direct child** of the chart block, holding the sliders that drive the chart -- an iteration count, a step size. It renders as a bar directly above the chart, stays with the chart in fullscreen, and lays its controls out for that width: fluid slider tracks, compact number fields, labels beside controls.
 
-Sliders in it get the play button. Combine with `ojs-grid` (`class="ojs-chart-controls ojs-grid"`) for several sliders side by side; the grid floor rises to `320px` so each track has room.
+Sliders in it get the play button. Combine with `ojs-grid` (`class="ojs-chart-controls ojs-grid"`) for several sliders side by side.
 
 ::: {.ojs-chart-block}
 ::: {.ojs-chart-controls}
@@ -178,13 +174,13 @@ mainPlot = { ... }
 
 ### `ojs-svg-block` {#ojs-svg-block}
 
-For a chart drawn as inline SVG -- Observable Plot, or a hand-built `<svg>` -- which has no Plotly modebar. Put it **on the same element** as `ojs-chart-block` and nothing else: the library appends one persistent fullscreen button as a direct child of the block (outside every cell's output, so a re-run that rebuilds the SVG doesn't rebuild the button), pins it to the top-right corner of the *figure* (the union of the block's SVGs at least 64 px wide, skipping the controls bar, the legend and button icons), and re-measures on resize, on re-runs and on `fullscreenchange`. The figure SVG is centered in the block and letterboxed in fullscreen by its `viewBox` ratio.
+For a chart drawn as inline SVG -- Observable Plot, or a hand-built `<svg>` -- which has no Plotly modebar. Put it **on the same element** as `ojs-chart-block` and nothing else: the library adds a fullscreen button pinned to the top-right corner of the figure, centers the figure in the block, and keeps its aspect ratio in fullscreen. The button survives re-runs of the cell.
 
-The [`VM.discreteMath` page](reference/discrete-math.qmd#live) and the [Observable Plot recipe](recipes/observable-plot.qmd) use it. Hover the chart there to see the button.
+The [`VM.discreteMath` page](reference/discrete-math.qmd#live) and the starter's [observable-plot.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd) use it. Hover the chart there to see the button.
 
 ### `plotly-box-large` {#plotly-box-large}
 
-`width: 100%; height: 72vh; min-height: 500px` (`65vh` / `400px` at ≤ 768 px). It is the **only** size class shipped -- there is no `-small` or `-medium`. For another height set `div.style.height` yourself, as the examples on this site do.
+Full width, about three-quarters of the viewport tall with a floor of 500 px (less on a phone). It is the **only** size class shipped -- there is no `-small` or `-medium`. For another height set `div.style.height` yourself, as the examples on this site do.
 
 ## Prose
 
@@ -204,7 +200,7 @@ There is no swatch for `fn`, `muted`, `ink`, `accent3` or `halo`.
 
 ### `vm-invalid` {#vm-invalid}
 
-A red (`--vm-color-alt`) border and 7% tint on an `<input>`, with a matching focus ring -- for a field whose value failed to parse. **Nothing in the library adds it**; a page toggles it from the cell that validates:
+A red border and tint on an `<input>` -- for a field whose value failed to parse. **Nothing in the library adds it**; a page toggles it from the cell that validates:
 
 ```js
 viewof x0 = {
@@ -239,30 +235,4 @@ viewof fx = {
 }
 ```
 
-The page's `fieldSelectors` map is then `{fx: '[data-example-field="fx"]', …}`. Selectors rather than references, for a reason that page explains.
-
-## Generated by the library -- never author these
-
-| Class / property | Written by |
-|---|---|
-| `ojs-legend-overlay`, `ojs-legend-item`, `ojs-legend-swatch` | `VM.ui.legendOverlay` |
-| `vm-overlay-grip`, `vm-overlay-dragging`, `data-vm-draggable` | the draggable-legend module |
-| `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |
-| `vm-fullscreen-toggle`, `vm-fs-figure` | the SVG fullscreen button |
-| `ojs-table-toolbar`, `ojs-table-container` | `VM.ui.renderTable` |
-| `--sx`, `--vm-plot-aspect-ratio`, `--vm-fs-plot-width`, `--vm-svg-aspect`, `--vm-swatch` | runtime layout state |
-
-`vm-dark` is neither: it is a **theme hook** you may put on `<html>` or `<body>` to tell the library your site is in dark mode -- see [Theming](theming.qmd#dark-mode). It styles nothing by itself.
-
-## Host markup the CSS depends on {#host-markup}
-
-Quarto OJS is the primary host, and several rules target markup mathviz doesn't own. They are harmless elsewhere, but on a non-Quarto page the corresponding behaviour is simply absent:
-
-| Selector | What it fixes |
-|---|---|
-| `.cell-output-display`, `[id^="ojs-cell-"]` | Quarto wraps every OJS output in a scroll container (`overflow: auto`). The legend rules set `overflow: visible` on the ones inside a chart block, or the floating legend would be clipped to a zero-height box. The same clip is why the playback popover is a top-layer `[popover]`. |
-| `.quarto-layout-cell { min-width: 0 }` | lets a chart in a `layout-ncol` column shrink with it |
-| `form[class^="oi-"]` | Observable Inputs' generated forms carry a hashed class. The panel rules override their fixed `360px` width and `120px` label column, and theme their buttons. Observable injects its own `.oi-<hash>` rules into `<head>` at runtime, *after* any stylesheet, so a mathviz rule that ties on specificity loses silently -- the shipped rules out-specify them or use `!important`. Bear this in mind if you add rules of your own. |
-| `.js-plotly-plot .modebar*` | Plotly's modebar DOM; the pill, blur and hover-fade live here |
-
-With plain `<input>`s in a `<div class="ojs-panel ojs-row">` everything panel-related still works -- the `form[class^="oi-"]` rules just find nothing to match.
+The page's `fieldSelectors` map is then `{fx: '[data-example-field="fx"]', …}`. Selectors rather than references, for a reason that entry explains.

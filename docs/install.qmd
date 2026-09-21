@@ -1,6 +1,6 @@
 ---
 title: "Installing"
-subtitle: "As a Quarto extension, or as a script bundle"
+subtitle: "Into an existing Quarto site, or any web page"
 ---
 
 <!--
@@ -9,7 +9,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-mathviz ships two ways from one source tree. Both give you the same `window.VM`, the same CSS, and the same self-installing behaviour.
+New site? Copy the [starter](https://github.com/apurvanakade/mathviz/tree/main/starter) instead -- it has the extension installed. This page is for adding the library to a site you already have.
+
+mathviz ships two ways from one source tree. Both give you the same `window.VM`, the same CSS, and the same behaviour.
 
 ## Quarto site, book or document
 
@@ -24,14 +26,7 @@ filters:
   - mathviz
 ```
 
-The filter adds four things to every HTML page's `<head>`, **in this order**:
-
-1. `<script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js">` -- the global `math`
-2. `<script src="https://cdn.plot.ly/plotly-2.35.2.min.js">` -- the global `Plotly`
-3. `mathviz.js`, copied into `site_libs/quarto-contrib/mathviz-<version>/`
-4. `mathviz.css`, alongside it
-
-The order matters: `mathviz.js` patches `Plotly.newPlot` the moment it runs, so Plotly must already be there. Both vendor tags come from CDNs (they're pinned to the versions the library is tested against); the bundle is served from your own site.
+The filter puts math.js and Plotly (from a CDN, pinned to the versions the library is tested against), then `mathviz.js` and `mathviz.css` (served from your own `site_libs/`), into every HTML page's `<head>`.
 
 ### Options
 
@@ -60,18 +55,6 @@ quarto update apurvanakade/mathviz@v0.1.2     # a specific tag
 quarto add apurvanakade/mathviz@v0.1.2        # pin at install time
 ```
 
-The version names the `site_libs/quarto-contrib/mathviz-<version>/` folder in your rendered output, which is what invalidates a browser's cached copy when you upgrade.
-
-### Trying a local checkout
-
-To test a change to the library in your own project before it's published:
-
-```sh
-quarto add /path/to/mathviz --no-prompt
-```
-
-A local directory is accepted; Quarto copies `_extensions/mathviz/` in. Re-run after each `npm run build` in the library. A **symlink** at `_extensions/mathviz` is not discovered -- Quarto checks `isDirectory()` on the raw directory entry.
-
 ## Any other web page
 
 ```html
@@ -81,25 +64,6 @@ A local directory is accepted; Quarto copies `_extensions/mathviz/` in. Re-run a
 <script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.js"></script>
 ```
 
-- Load **Plotly before `mathviz.js`**. The patch runs when the bundle loads and again on `DOMContentLoaded`; if Plotly arrives later than both (a dynamic import), call [`VM.plotting.installPlotlyPatch()`](reference/plotting.qmd#installPlotlyPatch) yourself.
-- `dist/mathviz.js` is a plain concatenation of the source files -- readable, un-minified, ~170 kB with its documentation comments. A stack trace in your browser points at a recognizable file.
+- Load **Plotly before `mathviz.js`**. If Plotly arrives later (a dynamic import), call [`VM.plotting.installPlotlyPatch()`](reference/plotting.qmd#installPlotlyPatch) yourself.
 - Pin the tag in the URL. jsDelivr also serves `@main`, but a tag is what you can reason about.
-- Without Quarto and Observable Inputs, some CSS has nothing to attach to; the [markup contract](markup.qmd#host-markup) says what degrades and what doesn't.
-
-## What needs what
-
-Nothing here imports anything. Where a function needs a library, it takes it as an argument or finds it on `window`.
-
-| | Needs |
-|---|---|
-| `VM.expressions.*` (except `makeRational`), `VM.numerical.polynomialFit` | a math.js instance, **passed as the first argument** |
-| `VM.numerical.*`, `VM.sampling.*`, `VM.filters.*`, `VM.distributions.*`, `VM.discreteMath.*` | nothing |
-| `VM.plotting.colors / colorway / alpha / themeName / onThemeChange / configure / subscript / paddedRange / plotOptions` | nothing (a `document` to read tokens from; sensible fallbacks without) |
-| `VM.plotting.layout / config / hoverLabel / emptyState / themePatch` | nothing -- they build plain objects. You need Plotly to *use* them, of course |
-| `VM.plotting.autoResize` | `ResizeObserver` (returns `null` without); safe when Plotly is absent |
-| `VM.plotting.installPlotlyPatch / fullscreenButton` | `window.Plotly` |
-| `VM.plotting.svgAspectRatio / figureBounds`, `VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame` | nothing -- pure helpers |
-| `VM.ui.legendOverlay` | nothing -- plain DOM. It *implements* Observable's view contract; it doesn't require Observable |
-| `VM.ui.renderTable` | htl's `html` tag, passed in. Emits Bootstrap table classes |
-| `VM.ui.applyExampleParams` | views that follow Observable Inputs' `value` + `"input"` protocol |
-| slider playback, draggable legend, SVG fullscreen button, slider fill | nothing -- self-installing on the [markup](markup.qmd) they look for |
+- Without Quarto and Observable Inputs, some CSS has nothing to attach to; [Internals](reference/internals.qmd#host-markup) says what degrades and what doesn't.

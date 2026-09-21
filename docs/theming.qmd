@@ -1,6 +1,6 @@
 ---
 title: "Theming"
-subtitle: "The `--vm-*` contract: one set of tokens drives panels, sliders, legend and charts"
+subtitle: "One set of CSS tokens drives panels, sliders, legend and charts"
 ---
 
 <!--
@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Everything mathviz draws -- panel chrome, slider tracks, the legend, chart axes and gridlines, the chart palette -- is a CSS custom property with a `--vm-` prefix. The CSS reads them the ordinary way; the JavaScript reads them with `getComputedStyle` **at call time**, so a chart built after a theme toggle sees the new values. To re-theme the library you redeclare tokens. There is no JavaScript configuration for colors.
+Everything mathviz draws -- panel chrome, slider tracks, the legend, chart axes and gridlines, the chart palette -- is a CSS custom property with a `--vm-` prefix. To re-theme the library you redeclare tokens in your own stylesheet. There is no JavaScript configuration for colors.
 
 ```{ojs}
 //| echo: false
@@ -20,7 +20,7 @@ chartColors = VM.plotting.colors(vmTheme)
 
 ## Overriding tokens
 
-The defaults live in [`src/css/tokens.css`](https://github.com/apurvanakade/mathviz/blob/main/src/css/tokens.css), and every one of them is wrapped in `:where()`, which has **zero specificity**. That is the whole trick: a plain declaration in your own stylesheet wins no matter which file loads first.
+A plain declaration in your own stylesheet wins, whatever order the stylesheets load in (the library's defaults are written to have zero specificity). In Quarto, list the file under `format: html: css:`.
 
 ```css
 /* your styles.css */
@@ -34,8 +34,6 @@ body.quarto-dark {
   --vm-color-fn: #fbbf24;
 }
 ```
-
-Why it matters in Quarto specifically: an extension's stylesheet is injected **before** a project's `css:` files but **after** its compiled theme SCSS. Without `:where()` the library's `:root { --vm-x }` would beat a theme's own `:root` declarations. Don't unwrap them if you fork the CSS.
 
 Declare dark values under one of the [dark selectors](#dark-mode) below. Tokens that don't change between themes (`--vm-radius`, `--vm-font-sans`) need declaring only once.
 
@@ -94,11 +92,11 @@ Live: each swatch is the value your browser computes for the token **right now**
 
 The palette is keyed by **role**, not hue. A page reads `chartColors.fn` and `chartColors.alt` rather than repeating a hex, so redefining `--vm-color-fn` recolors every primary trace on the site. `halo` deserves a word: pages used to write `line: {color: "white"}` for the ring around a marker, which is a white ring on a near-black chart in dark mode. Use `chartColors.halo`.
 
-Only these tokens are public. The library also writes a few custom properties **at runtime** for its own layout -- `--sx` (a slider's fill fraction), `--vm-plot-aspect-ratio`, `--vm-fs-plot-width`, `--vm-svg-aspect` (fullscreen letterboxing) and `--vm-swatch` (a swatch's tint). Treat them as reserved; don't set them.
+Only these tokens are public; a few other `--vm-*` properties the library writes at runtime are listed under [Internals](reference/internals.qmd#generated-classes) and are not for setting.
 
 ## Dark mode {#dark-mode}
 
-The library decides "dark" by testing one selector list against `<body>` and then `<html>`:
+The library considers the page dark when one of these matches:
 
 ```css
 body.quarto-dark, html[data-bs-theme="dark"], body[data-bs-theme="dark"], html.vm-dark, body.vm-dark
@@ -108,38 +106,26 @@ body.quarto-dark, html[data-bs-theme="dark"], body[data-bs-theme="dark"], html.v
 - `[data-bs-theme="dark"]` on `html` or `body` -- Bootstrap 5.3's convention
 - `.vm-dark` on `html` or `body` -- for a site with its own toggle: add the class and the library follows
 
-The same list appears in two places -- the dark block in `tokens.css`, and `settings.darkSelector` in `chart-theme.js` -- and they must stay identical. If your toggle uses none of these, either add `.vm-dark` to `<html>` when it flips, or name your own selector:
+If your toggle uses none of these, either add `.vm-dark` to `<html>` when it flips, or name your own selector:
 
 ```js
 VM.plotting.configure({darkSelector: "html.theme-dark"})
 ```
 
-and declare your dark tokens under that same selector.
-
-::: {.callout-warning title="Keep the selector root-scoped"}
-A bare `[data-bs-theme="dark"]` looks equivalent but isn't: Quarto sets that attribute directly on its `<nav>` to force a dark navbar on an otherwise-light page, and custom properties inherit down the DOM -- so an unscoped match painted the entire dark palette into the navbar. Match on `html` or `body` only.
-:::
-
-### Why JS reads from `<body>`
-
-The light tokens are declared on `:root`, but the dark ones under selectors that match `<body>` (Quarto flips a body class). So `getComputedStyle(document.documentElement)` returns the **light** value even in dark mode -- `<html>` never matches the dark block. Every `--vm-*` read in the library goes through `document.body` for this reason. If you write your own token-reading code, do the same; this exact mistake once turned every chart tooltip into a white box on the dark theme.
-
-### Two-step toggles
-
-Quarto's toggle flips the body class and swaps the stylesheet as **separate steps**, class first. A callback that reads tokens synchronously on the class change sees the outgoing theme's values. [`onThemeChange`](reference/plotting.qmd#onThemeChange) waits two animation frames before notifying for exactly this reason, and compares the theme name inside that wait so unrelated body-class changes (a sidebar opening) don't fire it. Use it rather than your own `MutationObserver`.
+and declare your dark tokens under that same selector. Match on `html` or `body`, not on an inner element (why: [Internals](reference/internals.qmd#dark-mode-detection)).
 
 ## Following the theme in a chart
 
-Chart **chrome** -- background, axes, gridlines, tooltip -- re-themes itself: the Plotly patch subscribes to `onThemeChange` and runs `Plotly.relayout(gd, VM.plotting.themePatch())` on every chart when the theme flips. Nothing to do.
+Chart **chrome** -- background, axes, gridlines, tooltip -- re-themes itself on every chart when the theme flips. Nothing to do.
 
-Chart **traces** don't, because their colors are values your page baked in. The fix is two cells at the top of the page:
+Chart **traces** don't, because their colors are values your page baked in. The fix is the two cells at the top of every page:
 
 ```js
 vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
 chartColors = VM.plotting.colors(vmTheme)
 ```
 
-Any cell that reads `chartColors` re-runs on a toggle. If a cell stores a color in a data structure rather than reading it at draw time (a `mixedEdges` array, a feature's `fillColor`) it must depend on `chartColors` too -- a bare `chartColors;` line at the top of the cell is enough.
+Any cell that reads `chartColors` re-runs on a toggle. If a cell stores a color in a data structure rather than reading it at draw time, it must depend on `chartColors` too -- a bare `chartColors;` line at the top of the cell is enough.
 
 For translucent fills use `VM.plotting.alpha("ok", 0.2)` rather than an `rgba(...)` literal: the literal stays light-mode green after a toggle while the stroke next to it lightens.
 
@@ -165,4 +151,4 @@ To tint a color word in running text so it matches the trace it describes: `<spa
 
 ## Bringing your own stylesheet
 
-`mathviz: {css: false}` (or simply not loading `mathviz.css`) leaves you responsible for both halves: the `--vm-*` tokens the JS reads (it falls back to the light defaults without them -- fine on a light-only site, wrong in dark mode) and the `ojs-*` / `vm-*` rules that lay out panels and position the legend. Most sites want the stylesheet plus a handful of token overrides, not a replacement.
+`mathviz: {css: false}` (or simply not loading `mathviz.css`) leaves you responsible for both halves: the `--vm-*` tokens the charts read (without them the light defaults are used, in dark mode too) and the `ojs-*` / `vm-*` rules that lay out panels and position the legend. Most sites want the stylesheet plus a handful of token overrides, not a replacement.

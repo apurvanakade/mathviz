@@ -19,13 +19,17 @@ jobs:
       - run: npm ci
       - run: npm test
       # dist/ is committed (quarto add and jsDelivr both serve the repo as
-      # is). Rebuild and refuse a commit whose dist/ is stale.
+      # is), and starter/_extensions/mathviz is the build's mirror of the
+      # extension. Rebuild and refuse a commit where either is stale.
       - run: npm run build
       - run: |
-          git diff --exit-code -- dist _extensions/mathviz/dist \
+          git diff --exit-code -- dist _extensions/mathviz/dist starter/_extensions \
             || (echo "dist/ is out of date: run 'npm run build' and commit" && exit 1)
-      # Renders example.qmd and every docs page through the extension in
-      # place: proves the Lua filter loads, the extension resolves, and every
-      # documented snippet still compiles.
+      # Renders every docs page through the extension in place: proves the
+      # Lua filter loads, the extension resolves, and every documented
+      # snippet still compiles.
       - uses: quarto-dev/quarto-actions/setup@v2
       - run: quarto render
+      # The starter is its own Quarto project with the extension vendored in,
+      # the way a consumer has it: renders it as a consumer would.
+      - run: quarto render starter

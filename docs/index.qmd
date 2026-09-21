@@ -62,20 +62,23 @@ viewof heroK = Inputs.range([0.5, 4], {label: "k", step: 0.05, value: 1})
 ```
 :::
 
-## What you get
-
-- **Themed charts.** Plotly and Observable Plot read the same fonts, grid, palette and tooltip style from CSS custom properties, live -- so charts follow your site's light/dark toggle and re-theme the instant it flips. The Plotly patch does this to every chart on the page with no per-page code.
-- **A modebar worth using.** Fullscreen, gentler zoom steps, pan by default, no box/lasso select.
-- **Control-panel CSS** that lays Observable `Inputs.*` out into a tidy panel, and keeps step sliders directly above a chart -- also in fullscreen.
-- **Slider playback**: every range slider in a panel gets a play/pause button with speed and loop/bounce options.
-- **A floating, draggable legend** that toggles traces and remembers where you put it.
-- **Numerical helpers**: safe expression parsing via math.js, ODE steppers, quadrature, least-squares, sixteen closed-form densities, seeded random numbers, 1-D filters, Sperner triangulations.
-
-## Install
+## Quick start
 
 ::: {.panel-tabset}
 
-## Quarto
+## A new site
+
+Copy the starter -- a complete Quarto website with seven working pages and the extension already installed:
+
+```sh
+git clone https://github.com/apurvanakade/mathviz
+cp -r mathviz/starter my-site && cd my-site
+quarto preview
+```
+
+Then copy any page (`index.qmd` is the smallest), rename it, and edit its cells. Its [README](https://github.com/apurvanakade/mathviz/tree/main/starter) lists what each page shows.
+
+## An existing Quarto site
 
 ```sh
 quarto add apurvanakade/mathviz
@@ -87,29 +90,24 @@ filters:
   - mathviz
 ```
 
-That's it -- math.js, Plotly, `mathviz.js` and `mathviz.css` are in every page's `<head>`, in that order, served from your own `site_libs/`.
-
-## Any web page
-
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.css">
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.js"></script>
-```
-
-Load Plotly **before** the bundle.
+Every page now has `VM`, math.js, Plotly and the stylesheet. Copy a page from the [starter](https://github.com/apurvanakade/mathviz/tree/main/starter) into your site to see it work.
 
 :::
 
-Details, options and pinning: [Installing](install.qmd).
+## What you get
 
-## Where next
+- **Themed charts** -- Plotly and Observable Plot follow your site's light/dark toggle, with no per-page code.
+- **Control panels** -- a few `ojs-*` classes lay Observable inputs out into a tidy panel; step sliders sit above the chart and get a play button.
+- **A better modebar and a draggable legend** -- fullscreen, gentler zoom, pan by default; a floating legend that toggles traces.
+- **Numerical helpers** -- safe expression parsing, ODE steppers, quadrature, fits, densities, seeded randomness.
+
+## Next
 
 | | |
 |---|---|
-| [Your first chart](first-chart.qmd) | The chart above, explained cell by cell -- the pattern every page follows. |
-| [Theming](theming.qmd) | Every `--vm-*` token, how dark mode is detected, how to make the palette yours. |
-| [Markup contract](markup.qmd) | The `ojs-*` classes and data attributes the CSS and self-installing modules look for. |
+| [Building a page](first-chart.qmd) | The starter's first page, cell by cell -- the pattern every page follows. |
+| [Theming](theming.qmd) | Make the colors and fonts yours; how dark mode is detected. |
+| [Markup](markup.qmd) | The `ojs-*` classes that lay out panels and charts. |
+| [Installing](install.qmd) | Filter options, pinning a version, using the bundle on a non-Quarto page. |
 | [API reference](reference/index.qmd) | Every `VM.*` function, with live examples. |
-| [Recipes](recipes/index.qmd) | Complete pages to copy: a function explorer, an ODE with a convergence plot, a distribution explorer, … |
 | [Troubleshooting](troubleshooting.qmd) | Symptom → cause → fix. |

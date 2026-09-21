@@ -1,5 +1,5 @@
 ---
-title: "Your first chart"
+title: "Building a page"
 subtitle: "The pattern every page follows, one cell at a time"
 ---
 
@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-This is the whole of [`example.qmd`](https://github.com/apurvanakade/mathviz/blob/main/example.qmd), the page the repository renders in CI, with each cell explained. Read it once and the rest of the library will look familiar.
+This is the whole of the starter's [`index.qmd`](https://github.com/apurvanakade/mathviz/blob/main/starter/index.qmd), with each cell explained. Read it once and every other page will look familiar: a panel of inputs, a cell or two of computation, a chart block.
 
 ## The page
 
@@ -73,9 +73,7 @@ viewof k = Inputs.range([1, 5], {label: "Frequency", step: 0.1, value: 1})
 :::
 ````
 
-A Quarto div with two classes. `ojs-panel` is the chrome -- border, background, radius, and restyling of every input inside it. `ojs-row` is the layout: a flex row that wraps, with the first control stretching to fill. Both are plain CSS from the bundle; the full list of classes is in the [markup contract](markup.qmd).
-
-The slider gets its play button for free -- the playback module finds every range slider inside a panel.
+A Quarto div with two classes around ordinary Observable inputs. `ojs-panel` is the look -- border, background, consistent input styling; `ojs-row` is the layout -- one wrapping row, the first control stretching to fill. The slider gets its play button for free. All the classes are on the [Markup](markup.qmd) page.
 
 ### The theme pair
 
@@ -84,11 +82,7 @@ vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
 chartColors = VM.plotting.colors(vmTheme)
 ```
 
-The two most important lines on any chart page, and the ones most often left out.
-
-`onThemeChange` calls `notify("light")` (or `"dark"`) now and after every toggle, and returns a teardown -- exactly the shape `Generators.observe` wants -- so `vmTheme` is a reactive cell that changes value when the theme does. `colors()` **ignores its argument**; `colors(vmTheme)` is written that way so `chartColors` depends on `vmTheme` and re-runs too. And then so does `mainPlot`, because it reads `chartColors.fn`.
-
-Why this is necessary: the chart's *chrome* -- background, axes, gridlines, tooltip -- is re-themed for you (the Plotly patch runs a `relayout` on every chart when the theme flips). But `chartColors.fn` is a value the page baked into a trace. Nothing but re-running the cell can change it. Without these two lines the axes go dark and the line stays light-mode blue.
+Put these two lines on every chart page. `chartColors` is the palette -- `chartColors.fn`, `.alt`, `.ok`, … -- and it changes when the reader toggles light/dark, so every cell that reads it redraws with the right colors. Without them, the chart's axes follow the toggle but your traces keep their old colors. (Why that is, and why `colors` takes an argument it ignores: [`onThemeChange`](reference/plotting.qmd#onThemeChange).)
 
 ### The function
 
@@ -96,7 +90,7 @@ Why this is necessary: the chart's *chrome* -- background, axes, gridlines, tool
 const f = VM.expressions.makeFunction(math, fText)
 ```
 
-`math` is the math.js global the extension loaded. `makeFunction` returns a `(x) => number`, or **`null`** if the text won't parse; it never throws. The returned function gives `NaN` where evaluation fails (`sqrt(x)` at `x = -1`), which Plotly draws as a gap.
+`math` is the math.js global the extension loaded. `makeFunction` turns the typed text into a JavaScript function, or gives **`null`** if it won't parse -- it never throws, so a half-typed expression can't break the page. Where evaluation fails (`sqrt(x)` at `x = -1`) the function gives `NaN`, which Plotly draws as a gap.
 
 ### The sampling loop
 
@@ -108,7 +102,7 @@ for (let i = 0; i <= 400; i++) {
 }
 ```
 
-An explicit loop, on purpose. The library is written for readers more at home in Python than in functional JavaScript, and the pages that use it follow suit. (`VM.distributions.sampleCurve` does this loop for you when the function is a density.)
+A plain loop filling `xs` and `ys`. For a probability density, [`sampleCurve`](reference/distributions.qmd#sampleCurve) does this for you.
 
 ### The chart
 
@@ -120,13 +114,7 @@ VM.plotting.autoResize(div)
 return div
 ```
 
-The standard OJS idiom: build a detached `div`, draw into it, return it and let Observable put it on the page. Three library calls:
-
-- **`VM.plotting.layout({...})`** -- the themed layout, with the page's own `xaxis`/`yaxis`/`annotations` deep-merged on top. On a page rendered through the extension this is technically redundant (the patch merges it under every `newPlot`), but writing it makes the dependency visible and works on a page without the patch.
-- **`VM.plotting.config()`** -- `{responsive: true, displaylogo: false}`.
-- **`VM.plotting.autoResize(div)`** -- the chart is built detached, so Plotly measured 0×0. This resizes it once it lands, and stops when the div is replaced by a re-run (a bare `ResizeObserver` would outlive it and throw).
-
-`plotly-box-large` is the one size class the CSS ships: full width, `72vh` tall with a `500px` floor. Set your own `height` for anything else.
+Make a `div`, draw into it, return it. Three library calls: [`layout()`](reference/plotting.qmd#layout) gives the themed layout with your own axis titles merged in, [`config()`](reference/plotting.qmd#config) the sensible Plotly config, and [`autoResize()`](reference/plotting.qmd#autoResize) sizes the chart once it's on the page. `plotly-box-large` is the one size class shipped -- full width, tall; set `div.style.height` for anything else.
 
 ### The empty state
 
@@ -134,7 +122,7 @@ The standard OJS idiom: build a detached `div`, draw into it, return it and let 
 annotations: f ? [] : VM.plotting.emptyState("Couldn't parse that expression")
 ```
 
-When `f` is `null` every `y` is `NaN` and Plotly draws an empty grid -- which looks identical to a valid function that happens to be off-screen. `emptyState` puts a message in the middle so the reader knows it's their input.
+When `f` is `null` the chart would be an empty grid, indistinguishable from a valid function that's off-screen. [`emptyState`](reference/plotting.qmd#emptyState) puts a message in the middle so the reader knows it's their input.
 
 ### The chart block
 
@@ -144,10 +132,19 @@ When `f` is `null` every `y` is `NaN` and Plotly draws an empty grid -- which lo
 :::
 ````
 
-The wrapper around the chart cells. It is the positioning anchor for a floating legend, and it is what the fullscreen button fullscreens -- so a legend or a controls bar inside it comes along. Every chart wants one, even a chart with neither, so that adding them later is a matter of dropping in a cell.
+The wrapper around the chart cells. It's what the fullscreen button enlarges, and where a floating legend or a slider bar attaches. Every chart wants one, even a chart with neither today, so that adding them later is just dropping in a cell.
 
 ## Where to go from here
 
-- Add a step slider directly above the chart: [`ojs-chart-controls`](markup.qmd#ojs-chart-controls) and the [step-slider recipe](recipes/step-slider.qmd).
-- Replace Plotly's legend with a draggable one: [`VM.ui.legendOverlay`](reference/ui.qmd#legendOverlay) and the [function-explorer recipe](recipes/function-explorer.qmd).
-- Make the palette yours: [Theming](theming.qmd).
+Each of the starter's other pages adds one thing to this pattern:
+
+| Page | Adds |
+|---|---|
+| [function-explorer.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/function-explorer.qmd) | a floating legend ([`legendOverlay`](reference/ui.qmd#legendOverlay)); a field that turns red on bad input |
+| [step-slider.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/step-slider.qmd) | an iteration slider above the chart ([`ojs-chart-controls`](markup.qmd#ojs-chart-controls)) with playback; a results table |
+| [ode-convergence.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/ode-convergence.qmd) | ODE steppers; a Plotly chart and an Observable Plot chart sharing the theme |
+| [distribution-explorer.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd) | an exact density over a histogram of seeded samples |
+| [try-an-example.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/try-an-example.qmd) | presets that fill the fields and run the page |
+| [observable-plot.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd) | Observable Plot with a fullscreen button |
+
+Then make the palette yours: [Theming](theming.qmd).

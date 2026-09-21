@@ -2,8 +2,8 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Apurva Nakade
 
-# Renders the docs site (_quarto.yml at the repo root: docs/** plus
-# example.qmd, through the extension in place) and publishes it to the
+# Renders the docs site (_quarto.yml at the repo root: docs/**, through
+# the extension in place) and publishes it to the
 # gh-pages branch, which GitHub Pages serves at
 # https://apurvanakade.github.io/mathviz/.
 #
