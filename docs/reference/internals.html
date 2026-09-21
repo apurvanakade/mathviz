@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>How it’s put together – mathviz</title>
+<title>Internals – mathviz</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -64,32 +64,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-a7a2be4e73e1fe05966052a9ea2de6a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-a7a2be4e73e1fe05966052a9ea2de6a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-8b6515388c2c95ca8510e5322adaa30c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../site_libs/quarto-contrib/mathviz-0.1.2/mathviz.js"></script>
-<link href="../site_libs/quarto-contrib/mathviz-0.1.2/mathviz.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/mathviz-0.1.2/mathviz.js"></script>
+<link href="../../site_libs/quarto-contrib/mathviz-0.1.2/mathviz.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -290,7 +290,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">mathviz</span>
     </a>
   </div>
@@ -301,16 +301,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="../docs/index.html" aria-current="page"> 
+    <a class="nav-link" href="../../docs/index.html"> 
 <span class="menu-text">Guide</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../docs/reference/index.html"> 
+    <a class="nav-link active" href="../../docs/reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../docs/recipes/index.html"> 
-<span class="menu-text">Recipes</span></a>
+    <a class="nav-link" href="https://github.com/apurvanakade/mathviz/tree/main/starter"> 
+<span class="menu-text">Starter</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -331,7 +331,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/internals.html">How it’s put together</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../docs/reference/internals.html">Internals</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -345,44 +345,62 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">mathviz</span></a>
+  <a href="../../docs/reference/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">API reference</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing</span></a>
+  <a href="../../docs/reference/expressions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.expressions</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/first-chart.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Your first chart</span></a>
+  <a href="../../docs/reference/numerical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.numerical</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/theming.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Theming</span></a>
+  <a href="../../docs/reference/sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.sampling</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/markup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Markup contract</span></a>
+  <a href="../../docs/reference/filters.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.filters</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/troubleshooting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Troubleshooting</span></a>
+  <a href="../../docs/reference/distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.distributions</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/internals.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">How it’s put together</span></a>
+  <a href="../../docs/reference/plotting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.plotting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/ui.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.ui</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/discrete-math.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.discreteMath</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/internals.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Internals</span></a>
   </div>
 </li>
     </ul>
@@ -401,8 +419,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#tests-run-the-real-files" id="toc-tests-run-the-real-files" class="nav-link" data-scroll-target="#tests-run-the-real-files">Tests run the real files</a></li>
   <li><a href="#the-version-is-in-three-places" id="toc-the-version-is-in-three-places" class="nav-link" data-scroll-target="#the-version-is-in-three-places">The version is in three places</a></li>
   <li><a href="#the-lua-filters-odd-shape" id="toc-the-lua-filters-odd-shape" class="nav-link" data-scroll-target="#the-lua-filters-odd-shape">The Lua filter’s odd shape</a></li>
-  <li><a href="#theme-detection" id="toc-theme-detection" class="nav-link" data-scroll-target="#theme-detection">Theme detection</a></li>
+  <li><a href="#token-specificity" id="toc-token-specificity" class="nav-link" data-scroll-target="#token-specificity">Token specificity</a></li>
+  <li><a href="#dark-mode-detection" id="toc-dark-mode-detection" class="nav-link" data-scroll-target="#dark-mode-detection">Dark-mode detection</a></li>
   <li><a href="#self-installing-modules" id="toc-self-installing-modules" class="nav-link" data-scroll-target="#self-installing-modules">Self-installing modules</a></li>
+  <li><a href="#generated-classes" id="toc-generated-classes" class="nav-link" data-scroll-target="#generated-classes">Generated classes</a></li>
+  <li><a href="#host-markup" id="toc-host-markup" class="nav-link" data-scroll-target="#host-markup">Host markup the CSS depends on</a></li>
   <li><a href="#style" id="toc-style" class="nav-link" data-scroll-target="#style">Style</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -413,8 +434,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">How it’s put together</h1>
-<p class="subtitle lead">The architecture, for anyone reading or changing the source</p>
+<h1 class="title">Internals</h1>
+<p class="subtitle lead">How it’s put together, and the mechanics behind the guide’s rules</p>
 </div>
 
 
@@ -436,7 +457,7 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>A short map of the repository and the handful of decisions that shape it. The working rules for contributors – headers, style, the release checklist – are in <a href="https://github.com/apurvanakade/mathviz/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>; the deeper “why” behind each invariant, written as instructions for someone editing the code, is in <a href="https://github.com/apurvanakade/mathviz/blob/main/CLAUDE.md">CLAUDE.md</a>.</p>
+<p>A map of the repository, the decisions that shape it, and the mechanics behind the rules the guide states without explaining. Nothing here is needed to build a page. The working rules for contributors – headers, style, the release checklist – are in <a href="https://github.com/apurvanakade/mathviz/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>; the deeper “why” behind each invariant, written as instructions for someone editing the code, is in <a href="https://github.com/apurvanakade/mathviz/blob/main/CLAUDE.md">CLAUDE.md</a>.</p>
 <section id="layout" class="level2">
 <h2 class="anchored" data-anchor-id="layout">Layout</h2>
 <pre><code>_extensions/mathviz/   the Quarto extension: _extension.yml, mathviz.lua, dist/ (copied by the build)
@@ -445,7 +466,8 @@ src/manifest.mjs       THE load order, for the build and the tests
 src/js/&lt;category&gt;/     one VM.&lt;category&gt;.&lt;name&gt; per file; tests colocated as &lt;name&gt;.test.js
 src/css/               tokens.css first, then one file per concern
 scripts/               build.mjs (concatenate + syntax-check), load-vm.mjs (test loader)
-docs/                  this site; example.qmd at the root is the CI smoke render</code></pre>
+docs/                  this site
+starter/               the clone-and-go site; its _extensions/mathviz/ is mirrored in by the build</code></pre>
 </section>
 <section id="one-global-many-small-files" class="level2">
 <h2 class="anchored" data-anchor-id="one-global-many-small-files">One global, many small files</h2>
@@ -460,7 +482,7 @@ docs/                  this site; example.qmd at the root is the CI smoke render
 </section>
 <section id="the-build-is-a-concatenation" class="level2">
 <h2 class="anchored" data-anchor-id="the-build-is-a-concatenation">The build is a concatenation</h2>
-<p><code>scripts/build.mjs</code> reads the manifest, joins the files with a separator, syntax-checks the result with <code>node --check</code>, writes <code>dist/mathviz.{js,css}</code> and copies both into <code>_extensions/mathviz/dist/</code>. No bundler, no minifier, no dependencies: the output is the readable source with <code>// ---- src/js/… ----</code> markers, so a stack trace in a consumer’s browser points at a recognizable file, and the JSDoc travels with it.</p>
+<p><code>scripts/build.mjs</code> reads the manifest, joins the files with a separator, syntax-checks the result with <code>node --check</code>, writes <code>dist/mathviz.{js,css}</code>, copies both into <code>_extensions/mathviz/dist/</code>, and mirrors the whole extension into <code>starter/_extensions/mathviz/</code> (what <code>quarto add</code> would install there), so the starter is committed working and tracks the working tree. No bundler, no minifier, no dependencies: the output is the readable source with <code>// ---- src/js/… ----</code> markers, so a stack trace in a consumer’s browser points at a recognizable file, and the JSDoc travels with it.</p>
 <p>The one subtlety is the separator. For JS it is a lone <code>;</code>. Each file ends in a call – <code>})(window)</code>, or <code>})()</code> for a module with nothing to export – and two of those back to back parse as <code>})(window)(function …)</code>: the first file’s return value called with the second file as its argument. That is syntactically valid, so <code>node --check</code> can’t catch it, and the page dies after the first file with <code>(intermediate value)(...) is not a function</code>. The semicolon makes each file its own statement.</p>
 <p><code>dist/</code> is committed because both distribution channels serve the repository as-is: <code>quarto add</code> downloads an archive and runs nothing, and jsDelivr serves files straight from a tag. CI rebuilds and fails on a diff, so <code>src/</code> and <code>dist/</code> can’t drift.</p>
 </section>
@@ -483,13 +505,99 @@ docs/                  this site; example.qmd at the root is the CI smoke render
 </ol>
 <p><code>scripts</code>/<code>stylesheets</code> entries must be local files (Quarto copies them into <code>site_libs</code>), hence raw <code>&lt;script&gt;</code> tags in <code>head</code> for the CDN URLs. A head-only dependency creates no <code>site_libs</code> folder.</p>
 </section>
-<section id="theme-detection" class="level2">
-<h2 class="anchored" data-anchor-id="theme-detection">Theme detection</h2>
-<p>Two places hold the dark-mode selector list and must stay identical: the <code>:where(…)</code> block in <code>src/css/tokens.css</code>, and <code>settings.darkSelector</code> in <code>src/js/plotting/chart-theme.js</code>. The CSS half declares the dark tokens; the JS half decides <code>themeName()</code>. The <a href="../docs/theming.html#dark-mode">Theming</a> page covers the consequences: why the tokens are read from <code>&lt;body&gt;</code>, why <code>onThemeChange</code> waits two frames and compares before firing, why the selectors are root-scoped.</p>
+<section id="token-specificity" class="level2">
+<h2 class="anchored" data-anchor-id="token-specificity">Token specificity</h2>
+<p>The CSS reads the <code>--vm-*</code> tokens the ordinary way; the JavaScript reads them with <code>getComputedStyle</code> <strong>at call time</strong>, so a chart built after a theme toggle sees the new values.</p>
+<p>The defaults live in <a href="https://github.com/apurvanakade/mathviz/blob/main/src/css/tokens.css"><code>src/css/tokens.css</code></a>, and every one of them is wrapped in <code>:where()</code>, which has <strong>zero specificity</strong>. That is why a plain <code>:root { --vm-x: … }</code> in a consumer’s stylesheet wins no matter which file loads first. It matters in Quarto specifically: an extension’s stylesheet is injected <strong>before</strong> a project’s <code>css:</code> files but <strong>after</strong> its compiled theme SCSS, so without <code>:where()</code> the library’s <code>:root</code> block would beat a theme’s own <code>:root</code> declarations. Don’t unwrap them if you fork the CSS.</p>
+</section>
+<section id="dark-mode-detection" class="level2">
+<h2 class="anchored" data-anchor-id="dark-mode-detection">Dark-mode detection</h2>
+<p>Two places hold the dark-mode selector list and must stay identical: the <code>:where(…)</code> block in <code>src/css/tokens.css</code>, and <code>settings.darkSelector</code> in <code>src/js/plotting/chart-theme.js</code>. The CSS half declares the dark tokens; the JS half decides <code>themeName()</code> by testing the list against <code>&lt;body&gt;</code> and then <code>&lt;html&gt;</code>.</p>
+<p><strong>Root-scoped on purpose.</strong> A bare <code>[data-bs-theme="dark"]</code> looks equivalent to <code>html[data-bs-theme="dark"], body[data-bs-theme="dark"]</code> but isn’t: Quarto sets that attribute directly on its <code>&lt;nav&gt;</code> to force a dark navbar on an otherwise-light page, and custom properties inherit down the DOM – so an unscoped match painted the entire dark palette into the navbar (shipped in v0.1.0, fixed in v0.1.1). Match on <code>html</code> or <code>body</code> only, including in a <code>configure({darkSelector})</code> override.</p>
+<p><strong>JS reads from <code>&lt;body&gt;</code>, never <code>&lt;html&gt;</code>.</strong> The light tokens are declared on <code>:root</code>, but the dark ones under selectors that match <code>&lt;body&gt;</code> (Quarto flips a body class). So <code>getComputedStyle(document.documentElement)</code> returns the <strong>light</strong> value even in dark mode. Every <code>--vm-*</code> read in the library goes through <code>document.body</code>; if you write your own token-reading code, do the same. This exact mistake once turned every chart tooltip into a white box on the dark theme.</p>
+<p><strong>Toggles are two steps.</strong> Quarto’s toggle flips the body class and swaps the stylesheet as <strong>separate steps</strong>, class first. A callback that reads tokens synchronously on the class change sees the outgoing theme’s values. <a href="../../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a> waits two animation frames before notifying for exactly this reason, and compares the theme name inside that wait so unrelated body-class changes (a sidebar opening) don’t fire it. Use it rather than your own <code>MutationObserver</code>.</p>
 </section>
 <section id="self-installing-modules" class="level2">
 <h2 class="anchored" data-anchor-id="self-installing-modules">Self-installing modules</h2>
 <p>Slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill share a pattern: a <code>MutationObserver</code> on <code>document.body</code> plus delegated document-level listeners, so they enhance elements Observable Inputs creates at runtime and recreates on every upstream change – there is no single moment at which “all the sliders exist” to wire them up individually. Each marks what it has enhanced (<code>data-vm-play-ready</code>, <code>data-vm-draggable</code>) to stay idempotent. <code>plotly-fullscreen-button.js</code> does the same job for Plotly by wrapping <code>Plotly.newPlot</code>/<code>react</code>, since there is no DOM to watch before the chart exists.</p>
+</section>
+<section id="generated-classes" class="level2">
+<h2 class="anchored" data-anchor-id="generated-classes">Generated classes</h2>
+<p>The library writes these itself; a page never authors them.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Class / property</th>
+<th>Written by</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ojs-legend-overlay</code>, <code>ojs-legend-item</code>, <code>ojs-legend-swatch</code></td>
+<td><code>VM.ui.legendOverlay</code></td>
+</tr>
+<tr class="even">
+<td><code>vm-overlay-grip</code>, <code>vm-overlay-dragging</code>, <code>data-vm-draggable</code></td>
+<td>the draggable-legend module</td>
+</tr>
+<tr class="odd">
+<td><code>vm-play</code>, <code>vm-play-button</code>, <code>vm-play-more</code>, <code>vm-play-panel</code>, <code>vm-play-group</code>, <code>vm-play-pills</code>, <code>vm-play-pill</code>, <code>vm-play-pill-on</code>, <code>vm-playing</code>, <code>vm-has-play</code>, <code>data-vm-play-ready</code></td>
+<td>slider playback</td>
+</tr>
+<tr class="even">
+<td><code>vm-fullscreen-toggle</code>, <code>vm-fs-figure</code></td>
+<td>the SVG fullscreen button</td>
+</tr>
+<tr class="odd">
+<td><code>ojs-table-toolbar</code>, <code>ojs-table-container</code></td>
+<td><code>VM.ui.renderTable</code></td>
+</tr>
+<tr class="even">
+<td><code>--sx</code>, <code>--vm-plot-aspect-ratio</code>, <code>--vm-fs-plot-width</code>, <code>--vm-svg-aspect</code>, <code>--vm-swatch</code></td>
+<td>runtime layout state: a slider’s fill fraction, fullscreen letterboxing, a swatch’s tint</td>
+</tr>
+</tbody>
+</table>
+<p><code>vm-dark</code> is neither: it is a <strong>theme hook</strong> you may put on <code>&lt;html&gt;</code> or <code>&lt;body&gt;</code> to tell the library your site is in dark mode – see <a href="../../docs/theming.html#dark-mode">Theming</a>. It styles nothing by itself.</p>
+</section>
+<section id="host-markup" class="level2">
+<h2 class="anchored" data-anchor-id="host-markup">Host markup the CSS depends on</h2>
+<p>Quarto OJS is the primary host, and several rules target markup mathviz doesn’t own. They are harmless elsewhere, but on a non-Quarto page the corresponding behaviour is simply absent:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Selector</th>
+<th>What it fixes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>.cell-output-display</code>, <code>[id^="ojs-cell-"]</code></td>
+<td>Quarto wraps every OJS output in a scroll container (<code>overflow: auto</code>). The legend rules set <code>overflow: visible</code> on the ones inside a chart block, or the floating legend would be clipped to a zero-height box. The same clip is why the playback popover is a top-layer <code>[popover]</code>.</td>
+</tr>
+<tr class="even">
+<td><code>.quarto-layout-cell { min-width: 0 }</code></td>
+<td>lets a chart in a <code>layout-ncol</code> column shrink with it</td>
+</tr>
+<tr class="odd">
+<td><code>form[class^="oi-"]</code></td>
+<td>Observable Inputs’ generated forms carry a hashed class. The panel rules override their fixed <code>360px</code> width and <code>120px</code> label column, and theme their buttons. Observable injects its own <code>.oi-&lt;hash&gt;</code> rules into <code>&lt;head&gt;</code> at runtime, <em>after</em> any stylesheet, so a mathviz rule that ties on specificity loses silently – the shipped rules out-specify them or use <code>!important</code>. Bear this in mind if you add rules of your own.</td>
+</tr>
+<tr class="even">
+<td><code>.js-plotly-plot .modebar*</code></td>
+<td>Plotly’s modebar DOM; the pill, blur and hover-fade live here</td>
+</tr>
+</tbody>
+</table>
+<p>With plain <code>&lt;input&gt;</code>s in a <code>&lt;div class="ojs-panel ojs-row"&gt;</code> everything panel-related still works – the <code>form[class^="oi-"]</code> rules just find nothing to match.</p>
 </section>
 <section id="style" class="level2">
 <h2 class="anchored" data-anchor-id="style">Style</h2>

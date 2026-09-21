@@ -311,8 +311,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../docs/recipes/index.html"> 
-<span class="menu-text">Recipes</span></a>
+    <a class="nav-link" href="https://github.com/apurvanakade/mathviz/tree/main/starter"> 
+<span class="menu-text">Starter</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -353,14 +353,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../docs/first-chart.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Your first chart</span></a>
+ <span class="menu-text">Building a page</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -377,14 +371,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/troubleshooting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Troubleshooting</span></a>
+  <a href="../docs/install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installing</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/internals.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">How it’s put together</span></a>
+  <a href="../docs/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Troubleshooting</span></a>
   </div>
 </li>
     </ul>
@@ -501,62 +495,60 @@ Authors: Apurva Nakade
 </div>
 </div>
 </div>
+<section id="quick-start" class="level2">
+<h2 class="anchored" data-anchor-id="quick-start">Quick start</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">A new site</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">An existing Quarto site</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<p>Copy the starter – a complete Quarto website with seven working pages and the extension already installed:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/apurvanakade/mathviz</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> <span class="at">-r</span> mathviz/starter my-site <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> my-site</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> preview</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then copy any page (<code>index.qmd</code> is the smallest), rename it, and edit its cells. Its <a href="https://github.com/apurvanakade/mathviz/tree/main/starter">README</a> lists what each page shows.</p>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> add apurvanakade/mathviz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># _quarto.yml</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">filters</span><span class="kw">:</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> mathviz</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every page now has <code>VM</code>, math.js, Plotly and the stylesheet. Copy a page from the <a href="https://github.com/apurvanakade/mathviz/tree/main/starter">starter</a> into your site to see it work.</p>
+</div>
+</div>
+</div>
+</section>
 <section id="what-you-get" class="level2">
 <h2 class="anchored" data-anchor-id="what-you-get">What you get</h2>
 <ul>
-<li><strong>Themed charts.</strong> Plotly and Observable Plot read the same fonts, grid, palette and tooltip style from CSS custom properties, live – so charts follow your site’s light/dark toggle and re-theme the instant it flips. The Plotly patch does this to every chart on the page with no per-page code.</li>
-<li><strong>A modebar worth using.</strong> Fullscreen, gentler zoom steps, pan by default, no box/lasso select.</li>
-<li><strong>Control-panel CSS</strong> that lays Observable <code>Inputs.*</code> out into a tidy panel, and keeps step sliders directly above a chart – also in fullscreen.</li>
-<li><strong>Slider playback</strong>: every range slider in a panel gets a play/pause button with speed and loop/bounce options.</li>
-<li><strong>A floating, draggable legend</strong> that toggles traces and remembers where you put it.</li>
-<li><strong>Numerical helpers</strong>: safe expression parsing via math.js, ODE steppers, quadrature, least-squares, sixteen closed-form densities, seeded random numbers, 1-D filters, Sperner triangulations.</li>
+<li><strong>Themed charts</strong> – Plotly and Observable Plot follow your site’s light/dark toggle, with no per-page code.</li>
+<li><strong>Control panels</strong> – a few <code>ojs-*</code> classes lay Observable inputs out into a tidy panel; step sliders sit above the chart and get a play button.</li>
+<li><strong>A better modebar and a draggable legend</strong> – fullscreen, gentler zoom, pan by default; a floating legend that toggles traces.</li>
+<li><strong>Numerical helpers</strong> – safe expression parsing, ODE steppers, quadrature, fits, densities, seeded randomness.</li>
 </ul>
 </section>
-<section id="install" class="level2">
-<h2 class="anchored" data-anchor-id="install">Install</h2>
-<div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Quarto</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Any web page</a></li></ul>
-<div class="tab-content">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> add apurvanakade/mathviz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># _quarto.yml</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">filters</span><span class="kw">:</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> mathviz</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>That’s it – math.js, Plotly, <code>mathviz.js</code> and <code>mathviz.css</code> are in every page’s <code>&lt;head&gt;</code>, in that order, served from your own <code>site_libs/</code>.</p>
-</div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">link</span><span class="ot"> rel</span><span class="op">=</span><span class="st">"stylesheet"</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.css"</span><span class="dt">&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.plot.ly/plotly-2.35.2.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.2/dist/mathviz.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Load Plotly <strong>before</strong> the bundle.</p>
-</div>
-</div>
-</div>
-<p>Details, options and pinning: <a href="../docs/install.html">Installing</a>.</p>
-</section>
-<section id="where-next" class="level2">
-<h2 class="anchored" data-anchor-id="where-next">Where next</h2>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
 <table class="caption-top table">
 <tbody>
 <tr class="odd">
-<td><a href="../docs/first-chart.html">Your first chart</a></td>
-<td>The chart above, explained cell by cell – the pattern every page follows.</td>
+<td><a href="../docs/first-chart.html">Building a page</a></td>
+<td>The starter’s first page, cell by cell – the pattern every page follows.</td>
 </tr>
 <tr class="even">
 <td><a href="../docs/theming.html">Theming</a></td>
-<td>Every <code>--vm-*</code> token, how dark mode is detected, how to make the palette yours.</td>
+<td>Make the colors and fonts yours; how dark mode is detected.</td>
 </tr>
 <tr class="odd">
-<td><a href="../docs/markup.html">Markup contract</a></td>
-<td>The <code>ojs-*</code> classes and data attributes the CSS and self-installing modules look for.</td>
+<td><a href="../docs/markup.html">Markup</a></td>
+<td>The <code>ojs-*</code> classes that lay out panels and charts.</td>
 </tr>
 <tr class="even">
-<td><a href="../docs/reference/index.html">API reference</a></td>
-<td>Every <code>VM.*</code> function, with live examples.</td>
+<td><a href="../docs/install.html">Installing</a></td>
+<td>Filter options, pinning a version, using the bundle on a non-Quarto page.</td>
 </tr>
 <tr class="odd">
-<td><a href="../docs/recipes/index.html">Recipes</a></td>
-<td>Complete pages to copy: a function explorer, an ODE with a convergence plot, a distribution explorer, …</td>
+<td><a href="../docs/reference/index.html">API reference</a></td>
+<td>Every <code>VM.*</code> function, with live examples.</td>
 </tr>
 <tr class="even">
 <td><a href="../docs/troubleshooting.html">Troubleshooting</a></td>

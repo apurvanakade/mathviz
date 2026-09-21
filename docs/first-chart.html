@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Your first chart – mathviz</title>
+<title>Building a page – mathviz</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -311,8 +311,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../docs/recipes/index.html"> 
-<span class="menu-text">Recipes</span></a>
+    <a class="nav-link" href="https://github.com/apurvanakade/mathviz/tree/main/starter"> 
+<span class="menu-text">Starter</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -333,7 +333,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/first-chart.html">Your first chart</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/first-chart.html">Building a page</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -353,14 +353,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../docs/first-chart.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Your first chart</span></a>
+ <span class="menu-text">Building a page</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -377,14 +371,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/troubleshooting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Troubleshooting</span></a>
+  <a href="../docs/install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installing</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/internals.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">How it’s put together</span></a>
+  <a href="../docs/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Troubleshooting</span></a>
   </div>
 </li>
     </ul>
@@ -418,7 +412,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Your first chart</h1>
+<h1 class="title">Building a page</h1>
 <p class="subtitle lead">The pattern every page follows, one cell at a time</p>
 </div>
 
@@ -441,7 +435,7 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>This is the whole of <a href="https://github.com/apurvanakade/mathviz/blob/main/example.qmd"><code>example.qmd</code></a>, the page the repository renders in CI, with each cell explained. Read it once and the rest of the library will look familiar.</p>
+<p>This is the whole of the starter’s <a href="https://github.com/apurvanakade/mathviz/blob/main/starter/index.qmd"><code>index.qmd</code></a>, with each cell explained. Read it once and every other page will look familiar: a panel of inputs, a cell or two of computation, a chart block.</p>
 <section id="the-page" class="level2">
 <h2 class="anchored" data-anchor-id="the-page">The page</h2>
 <div class="cell">
@@ -531,21 +525,18 @@ Authors: Apurva Nakade
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>viewof k <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">5</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Frequency"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">1</span>})</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A Quarto div with two classes. <code>ojs-panel</code> is the chrome – border, background, radius, and restyling of every input inside it. <code>ojs-row</code> is the layout: a flex row that wraps, with the first control stretching to fill. Both are plain CSS from the bundle; the full list of classes is in the <a href="../docs/markup.html">markup contract</a>.</p>
-<p>The slider gets its play button for free – the playback module finds every range slider inside a panel.</p>
+<p>A Quarto div with two classes around ordinary Observable inputs. <code>ojs-panel</code> is the look – border, background, consistent input styling; <code>ojs-row</code> is the layout – one wrapping row, the first control stretching to fill. The slider gets its play button for free. All the classes are on the <a href="../docs/markup.html">Markup</a> page.</p>
 </section>
 <section id="the-theme-pair" class="level3">
 <h3 class="anchored" data-anchor-id="the-theme-pair">The theme pair</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The two most important lines on any chart page, and the ones most often left out.</p>
-<p><code>onThemeChange</code> calls <code>notify("light")</code> (or <code>"dark"</code>) now and after every toggle, and returns a teardown – exactly the shape <code>Generators.observe</code> wants – so <code>vmTheme</code> is a reactive cell that changes value when the theme does. <code>colors()</code> <strong>ignores its argument</strong>; <code>colors(vmTheme)</code> is written that way so <code>chartColors</code> depends on <code>vmTheme</code> and re-runs too. And then so does <code>mainPlot</code>, because it reads <code>chartColors.fn</code>.</p>
-<p>Why this is necessary: the chart’s <em>chrome</em> – background, axes, gridlines, tooltip – is re-themed for you (the Plotly patch runs a <code>relayout</code> on every chart when the theme flips). But <code>chartColors.fn</code> is a value the page baked into a trace. Nothing but re-running the cell can change it. Without these two lines the axes go dark and the line stays light-mode blue.</p>
+<p>Put these two lines on every chart page. <code>chartColors</code> is the palette – <code>chartColors.fn</code>, <code>.alt</code>, <code>.ok</code>, … – and it changes when the reader toggles light/dark, so every cell that reads it redraws with the right colors. Without them, the chart’s axes follow the toggle but your traces keep their old colors. (Why that is, and why <code>colors</code> takes an argument it ignores: <a href="../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a>.)</p>
 </section>
 <section id="the-function" class="level3">
 <h3 class="anchored" data-anchor-id="the-function">The function</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> f <span class="op">=</span> VM<span class="op">.</span><span class="at">expressions</span><span class="op">.</span><span class="fu">makeFunction</span>(math<span class="op">,</span> fText)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>math</code> is the math.js global the extension loaded. <code>makeFunction</code> returns a <code>(x) =&gt; number</code>, or <strong><code>null</code></strong> if the text won’t parse; it never throws. The returned function gives <code>NaN</code> where evaluation fails (<code>sqrt(x)</code> at <code>x = -1</code>), which Plotly draws as a gap.</p>
+<p><code>math</code> is the math.js global the extension loaded. <code>makeFunction</code> turns the typed text into a JavaScript function, or gives <strong><code>null</code></strong> if it won’t parse – it never throws, so a half-typed expression can’t break the page. Where evaluation fails (<code>sqrt(x)</code> at <code>x = -1</code>) the function gives <code>NaN</code>, which Plotly draws as a gap.</p>
 </section>
 <section id="the-sampling-loop" class="level3">
 <h3 class="anchored" data-anchor-id="the-sampling-loop">The sampling loop</h3>
@@ -554,7 +545,7 @@ Authors: Apurva Nakade
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  xs<span class="op">.</span><span class="fu">push</span>(x)</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  ys<span class="op">.</span><span class="fu">push</span>(f <span class="op">?</span> <span class="fu">f</span>(k <span class="op">*</span> x) <span class="op">:</span> <span class="kw">NaN</span>)</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>An explicit loop, on purpose. The library is written for readers more at home in Python than in functional JavaScript, and the pages that use it follow suit. (<code>VM.distributions.sampleCurve</code> does this loop for you when the function is a density.)</p>
+<p>A plain loop filling <code>xs</code> and <code>ys</code>. For a probability density, <a href="../docs/reference/distributions.html#sampleCurve"><code>sampleCurve</code></a> does this for you.</p>
 </section>
 <section id="the-chart" class="level3">
 <h3 class="anchored" data-anchor-id="the-chart">The chart</h3>
@@ -563,34 +554,59 @@ Authors: Apurva Nakade
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>Plotly<span class="op">.</span><span class="fu">newPlot</span>(div<span class="op">,</span> [<span class="op">...</span>]<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">layout</span>({<span class="op">...</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">config</span>())</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">autoResize</span>(div)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> div</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The standard OJS idiom: build a detached <code>div</code>, draw into it, return it and let Observable put it on the page. Three library calls:</p>
-<ul>
-<li><strong><code>VM.plotting.layout({...})</code></strong> – the themed layout, with the page’s own <code>xaxis</code>/<code>yaxis</code>/<code>annotations</code> deep-merged on top. On a page rendered through the extension this is technically redundant (the patch merges it under every <code>newPlot</code>), but writing it makes the dependency visible and works on a page without the patch.</li>
-<li><strong><code>VM.plotting.config()</code></strong> – <code>{responsive: true, displaylogo: false}</code>.</li>
-<li><strong><code>VM.plotting.autoResize(div)</code></strong> – the chart is built detached, so Plotly measured 0×0. This resizes it once it lands, and stops when the div is replaced by a re-run (a bare <code>ResizeObserver</code> would outlive it and throw).</li>
-</ul>
-<p><code>plotly-box-large</code> is the one size class the CSS ships: full width, <code>72vh</code> tall with a <code>500px</code> floor. Set your own <code>height</code> for anything else.</p>
+<p>Make a <code>div</code>, draw into it, return it. Three library calls: <a href="../docs/reference/plotting.html#layout"><code>layout()</code></a> gives the themed layout with your own axis titles merged in, <a href="../docs/reference/plotting.html#config"><code>config()</code></a> the sensible Plotly config, and <a href="../docs/reference/plotting.html#autoResize"><code>autoResize()</code></a> sizes the chart once it’s on the page. <code>plotly-box-large</code> is the one size class shipped – full width, tall; set <code>div.style.height</code> for anything else.</p>
 </section>
 <section id="the-empty-state" class="level3">
 <h3 class="anchored" data-anchor-id="the-empty-state">The empty state</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>annotations<span class="op">:</span> f <span class="op">?</span> [] <span class="op">:</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">emptyState</span>(<span class="st">"Couldn't parse that expression"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>When <code>f</code> is <code>null</code> every <code>y</code> is <code>NaN</code> and Plotly draws an empty grid – which looks identical to a valid function that happens to be off-screen. <code>emptyState</code> puts a message in the middle so the reader knows it’s their input.</p>
+<p>When <code>f</code> is <code>null</code> the chart would be an empty grid, indistinguishable from a valid function that’s off-screen. <a href="../docs/reference/plotting.html#emptyState"><code>emptyState</code></a> puts a message in the middle so the reader knows it’s their input.</p>
 </section>
 <section id="the-chart-block" class="level3">
 <h3 class="anchored" data-anchor-id="the-chart-block">The chart block</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>::: {.ojs-chart-block}</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>...</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The wrapper around the chart cells. It is the positioning anchor for a floating legend, and it is what the fullscreen button fullscreens – so a legend or a controls bar inside it comes along. Every chart wants one, even a chart with neither, so that adding them later is a matter of dropping in a cell.</p>
+<p>The wrapper around the chart cells. It’s what the fullscreen button enlarges, and where a floating legend or a slider bar attaches. Every chart wants one, even a chart with neither today, so that adding them later is just dropping in a cell.</p>
 </section>
 </section>
 <section id="where-to-go-from-here" class="level2">
 <h2 class="anchored" data-anchor-id="where-to-go-from-here">Where to go from here</h2>
-<ul>
-<li>Add a step slider directly above the chart: <a href="../docs/markup.html#ojs-chart-controls"><code>ojs-chart-controls</code></a> and the <a href="../docs/recipes/step-slider.html">step-slider recipe</a>.</li>
-<li>Replace Plotly’s legend with a draggable one: <a href="../docs/reference/ui.html#legendOverlay"><code>VM.ui.legendOverlay</code></a> and the <a href="../docs/recipes/function-explorer.html">function-explorer recipe</a>.</li>
-<li>Make the palette yours: <a href="../docs/theming.html">Theming</a>.</li>
-</ul>
+<p>Each of the starter’s other pages adds one thing to this pattern:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Page</th>
+<th>Adds</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://github.com/apurvanakade/mathviz/blob/main/starter/function-explorer.qmd">function-explorer.qmd</a></td>
+<td>a floating legend (<a href="../docs/reference/ui.html#legendOverlay"><code>legendOverlay</code></a>); a field that turns red on bad input</td>
+</tr>
+<tr class="even">
+<td><a href="https://github.com/apurvanakade/mathviz/blob/main/starter/step-slider.qmd">step-slider.qmd</a></td>
+<td>an iteration slider above the chart (<a href="../docs/markup.html#ojs-chart-controls"><code>ojs-chart-controls</code></a>) with playback; a results table</td>
+</tr>
+<tr class="odd">
+<td><a href="https://github.com/apurvanakade/mathviz/blob/main/starter/ode-convergence.qmd">ode-convergence.qmd</a></td>
+<td>ODE steppers; a Plotly chart and an Observable Plot chart sharing the theme</td>
+</tr>
+<tr class="even">
+<td><a href="https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd">distribution-explorer.qmd</a></td>
+<td>an exact density over a histogram of seeded samples</td>
+</tr>
+<tr class="odd">
+<td><a href="https://github.com/apurvanakade/mathviz/blob/main/starter/try-an-example.qmd">try-an-example.qmd</a></td>
+<td>presets that fill the fields and run the page</td>
+</tr>
+<tr class="even">
+<td><a href="https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd">observable-plot.qmd</a></td>
+<td>Observable Plot with a fullscreen button</td>
+</tr>
+</tbody>
+</table>
+<p>Then make the palette yours: <a href="../docs/theming.html">Theming</a>.</p>
 
 
 </section>

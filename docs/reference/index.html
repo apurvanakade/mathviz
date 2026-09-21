@@ -274,8 +274,8 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../docs/recipes/index.html"> 
-<span class="menu-text">Recipes</span></a>
+    <a class="nav-link" href="https://github.com/apurvanakade/mathviz/tree/main/starter"> 
+<span class="menu-text">Starter</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -362,6 +362,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">VM.discreteMath</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/internals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Internals</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -373,6 +379,7 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#conventions" id="toc-conventions" class="nav-link active" data-scroll-target="#conventions">Conventions</a></li>
+  <li><a href="#what-needs-what" id="toc-what-needs-what" class="nav-link" data-scroll-target="#what-needs-what">What needs what</a></li>
   <li><a href="#where-the-signatures-live" id="toc-where-the-signatures-live" class="nav-link" data-scroll-target="#where-the-signatures-live">Where the signatures live</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -466,6 +473,64 @@ Authors: Apurva Nakade
 <p><strong>math.js is passed in, not imported.</strong> <code>VM.expressions.*</code> and <code>polynomialFit</code> take the math.js instance as their first argument – the global <code>math</code> on a page rendered through the extension. The one exception is <code>makeRational</code>, which parses literals only and takes no instance.</p>
 <p><strong>Colors are read when you ask, not when the page loads.</strong> <code>colors()</code>, <code>alpha()</code> and the three <code>discreteMath</code> color helpers return whatever the active theme says right now. Call them inside the cell that builds the traces, and make that cell depend on <code>vmTheme</code> so it re-runs on a toggle – see <a href="../../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a>.</p>
 <p><strong>Self-installing modules take no call.</strong> The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the <a href="../../docs/markup.html">markup contract</a>.</p>
+</section>
+<section id="what-needs-what" class="level2">
+<h2 class="anchored" data-anchor-id="what-needs-what">What needs what</h2>
+<p>Nothing here imports anything. Where a function needs a library, it takes it as an argument or finds it on <code>window</code>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Needs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>VM.expressions.*</code> (except <code>makeRational</code>), <code>VM.numerical.polynomialFit</code></td>
+<td>a math.js instance, <strong>passed as the first argument</strong></td>
+</tr>
+<tr class="even">
+<td><code>VM.numerical.*</code>, <code>VM.sampling.*</code>, <code>VM.filters.*</code>, <code>VM.distributions.*</code>, <code>VM.discreteMath.*</code></td>
+<td>nothing</td>
+</tr>
+<tr class="odd">
+<td><code>VM.plotting.colors / colorway / alpha / themeName / onThemeChange / configure / subscript / paddedRange / plotOptions</code></td>
+<td>nothing (a <code>document</code> to read tokens from; sensible fallbacks without)</td>
+</tr>
+<tr class="even">
+<td><code>VM.plotting.layout / config / hoverLabel / emptyState / themePatch</code></td>
+<td>nothing – they build plain objects. You need Plotly to <em>use</em> them, of course</td>
+</tr>
+<tr class="odd">
+<td><code>VM.plotting.autoResize</code></td>
+<td><code>ResizeObserver</code> (returns <code>null</code> without); safe when Plotly is absent</td>
+</tr>
+<tr class="even">
+<td><code>VM.plotting.installPlotlyPatch / fullscreenButton</code></td>
+<td><code>window.Plotly</code></td>
+</tr>
+<tr class="odd">
+<td><code>VM.plotting.svgAspectRatio / figureBounds</code>, <code>VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame</code></td>
+<td>nothing – pure helpers</td>
+</tr>
+<tr class="even">
+<td><code>VM.ui.legendOverlay</code></td>
+<td>nothing – plain DOM. It <em>implements</em> Observable’s view contract; it doesn’t require Observable</td>
+</tr>
+<tr class="odd">
+<td><code>VM.ui.renderTable</code></td>
+<td>htl’s <code>html</code> tag, passed in. Emits Bootstrap table classes</td>
+</tr>
+<tr class="even">
+<td><code>VM.ui.applyExampleParams</code></td>
+<td>views that follow Observable Inputs’ <code>value</code> + <code>"input"</code> protocol</td>
+</tr>
+<tr class="odd">
+<td>slider playback, draggable legend, SVG fullscreen button, slider fill</td>
+<td>nothing – self-installing on the <a href="../../docs/markup.html">markup</a> they look for</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="where-the-signatures-live" class="level2">
 <h2 class="anchored" data-anchor-id="where-the-signatures-live">Where the signatures live</h2>

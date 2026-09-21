@@ -311,8 +311,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../docs/recipes/index.html"> 
-<span class="menu-text">Recipes</span></a>
+    <a class="nav-link" href="https://github.com/apurvanakade/mathviz/tree/main/starter"> 
+<span class="menu-text">Starter</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -397,6 +397,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../../docs/reference/discrete-math.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">VM.discreteMath</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/internals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Internals</span></a>
   </div>
 </li>
     </ul>
@@ -709,7 +715,7 @@ Authors: Apurva Nakade
 <p>The shape is exactly what <code>Generators.observe</code> wants, which gives the two-line pattern every chart page needs:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Now any cell that reads <code>chartColors</code> re-runs on a toggle. <strong>This is what makes trace colors follow the theme.</strong> Chart chrome (axes, grid, tooltip) is re-themed for you by a <code>relayout</code> the patch performs, but a color you baked into a trace is a value the page chose, and only re-running the cell changes it.</p>
+<p>Now any cell that reads <code>chartColors</code> re-runs on a toggle. <strong>This is what makes trace colors follow the theme.</strong> Chart chrome (axes, grid, tooltip) is re-themed for you by a <code>relayout</code> the patch performs, but a color you baked into a trace is a value the page chose, and only re-running the cell changes it. <code>colors()</code> ignores its argument; <code>colors(vmTheme)</code> is written that way purely so that <code>chartColors</code> depends on <code>vmTheme</code> in Observable’s dependency graph.</p>
 </section>
 <section id="configure" class="level3">
 <h3 class="anchored" data-anchor-id="configure">VM.plotting.configure(overrides?)</h3>
