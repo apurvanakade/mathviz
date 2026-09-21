@@ -29,7 +29,7 @@ chartColors = VM.plotting.colors(vmTheme)
 | [`ojs-chart-controls`](#ojs-chart-controls) | a div **inside** the block, holding sliders | a bar directly above the chart that comes along into fullscreen |
 | [`ojs-svg-block`](#ojs-svg-block) | alongside `ojs-chart-block`, for SVG charts | adds the fullscreen button Plotly charts get from the modebar |
 | [`plotly-box-large`](#plotly-box-large) | the Plotly graph div | the one shipped chart size |
-| [`vm-swatch vm-swatch-alt`](#vm-swatch) (`-ok`, `-warn`, `-accent`, `-accent2`) | a `<span>` in prose | tints a color word with the matching palette color |
+| [`vm-swatch vm-swatch-alt`](#vm-swatch) (one modifier per palette color, plus `-accent`) | a `<span>` in prose | tints a color word with the matching palette color |
 | [`vm-invalid`](#vm-invalid) | an `<input>` | red border and tint for a field that failed validation |
 | [`data-vm-play="off"`](#data-vm-play) | a slider or any ancestor | opt that slider out of the play button |
 | [`data-example-field="…"`](#data-example-field) | a `viewof` element | a stable handle for `applyExampleParams` |
@@ -190,13 +190,17 @@ Tints a word to match a trace: `<span class="vm-swatch vm-swatch-alt">red</span>
 
 | Modifier | Token | |
 |---|---|---|
+| `vm-swatch-fn` | `--vm-color-fn` | <span class="vm-swatch vm-swatch-fn">fn</span> |
 | `vm-swatch-alt` | `--vm-color-alt` | <span class="vm-swatch vm-swatch-alt">alt</span> |
 | `vm-swatch-ok` | `--vm-color-ok` | <span class="vm-swatch vm-swatch-ok">ok</span> |
+| `vm-swatch-muted` | `--vm-color-muted` | <span class="vm-swatch vm-swatch-muted">muted</span> |
+| `vm-swatch-ink` | `--vm-color-ink` | <span class="vm-swatch vm-swatch-ink">ink</span> |
 | `vm-swatch-warn` | `--vm-color-warn` | <span class="vm-swatch vm-swatch-warn">warn</span> |
 | `vm-swatch-accent2` | `--vm-color-accent2` | <span class="vm-swatch vm-swatch-accent2">accent2</span> |
+| `vm-swatch-accent3` | `--vm-color-accent3` | <span class="vm-swatch vm-swatch-accent3">accent3</span> |
 | `vm-swatch-accent` | `--vm-accent` (the UI accent, not a palette color) | <span class="vm-swatch vm-swatch-accent">accent</span> |
 
-There is no swatch for `fn`, `muted`, `ink`, `accent3` or `halo`.
+One modifier per palette color, matching the keys of [`VM.plotting.colors()`](reference/plotting.qmd#colors), so a swatch in a sentence and the trace it describes always agree. There is no `-halo`: it is the page background, and a tint of it is invisible.
 
 ### `vm-invalid` {#vm-invalid}
 

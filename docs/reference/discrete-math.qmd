@@ -123,7 +123,7 @@ These read [`VM.plotting.colors()`](plotting.qmd#colors) / [`alpha()`](plotting.
 
 ### VM.discreteMath.vertexColor(name) {#vertexColor}
 
-`'red'` → `colors().alt`, `'green'` → `colors().ok`, `'blue'` → `colors().fn`. The prose swatches `.vm-swatch-alt` / `-ok` / `-accent` use the same tokens, so a word and a dot agree.
+`'red'` → `colors().alt`, `'green'` → `colors().ok`, `'blue'` → `colors().fn`. The prose swatches `.vm-swatch-alt` / `-ok` / `-fn` use the same tokens, so a word and a dot agree.
 
 **Returns** a CSS color, or `null` for any other name.
 

@@ -12,6 +12,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Added
 
+- Prose swatch modifiers for every palette color: `vm-swatch-fn`, `-muted`, `-ink` and `-accent3` join `-alt`, `-ok`, `-warn`, `-accent2` (and `-accent`). Blue Sperner vertices should now be described with `-fn`, which reads the same token `vertexColor('blue')` does; `-accent` reads the UI accent, which only equals it in the default palette.
 - `starter/`: a complete, clone-and-go Quarto website -- a first page plus one page per pattern (function explorer, step slider with playback, ODE with a convergence plot, distribution explorer, "try an example" dropdown, Observable Plot) -- with the extension mirrored in by `npm run build` and rendered by CI.
 
 ### Changed

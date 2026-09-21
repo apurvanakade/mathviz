@@ -61,14 +61,14 @@ Live: each swatch is the value your browser computes for the token **right now**
     ["--vm-shadow", "legend, popover, modebar pill"],
     ["--vm-font-sans", "chart text and the playback popover -- same in both themes. Redeclare it if your site self-hosts a font"],
     ["Chart palette (VM.plotting.colors())", null],
-    ["--vm-color-fn", "the function itself, the primary trace"],
+    ["--vm-color-fn", "the function itself, the primary trace; .vm-swatch-fn"],
     ["--vm-color-alt", "an alternate or reference trace; .vm-swatch-alt; .vm-invalid"],
     ["--vm-color-ok", "a converged or correct marker; .vm-swatch-ok"],
-    ["--vm-color-muted", "de-emphasized data"],
-    ["--vm-color-ink", "strokes and labels that should read as text"],
+    ["--vm-color-muted", "de-emphasized data; .vm-swatch-muted"],
+    ["--vm-color-ink", "strokes and labels that should read as text; .vm-swatch-ink"],
     ["--vm-color-warn", "a warning, a diverging iterate; .vm-swatch-warn"],
     ["--vm-color-accent2", "a third series; .vm-swatch-accent2"],
-    ["--vm-color-accent3", "a fourth series"],
+    ["--vm-color-accent3", "a fourth series; .vm-swatch-accent3"],
     ["--vm-color-halo", "the ring around a marker: white on light, the page background on dark"]
   ]
   const style = getComputedStyle(document.body)
@@ -147,7 +147,7 @@ For translucent fills use `VM.plotting.alpha("ok", 0.2)` rather than an `rgba(..
 
 ## Prose swatches
 
-To tint a color word in running text so it matches the trace it describes: `<span class="vm-swatch vm-swatch-alt">red</span>` → <span class="vm-swatch vm-swatch-alt">red</span>. Five modifiers exist -- `-alt`, `-ok`, `-warn`, `-accent2` map to the matching palette token, `-accent` to `--vm-accent`. `vm-swatch` alone sets no color. There is no `-fn`, `-muted`, `-ink`, `-accent3` or `-halo` swatch.
+To tint a color word in running text so it matches the trace it describes: `<span class="vm-swatch vm-swatch-alt">red</span>` → <span class="vm-swatch vm-swatch-alt">red</span>. There is a modifier per palette color -- `-fn`, `-alt`, `-ok`, `-muted`, `-ink`, `-warn`, `-accent2`, `-accent3` -- plus `-accent` for the UI accent (`--vm-accent`). `vm-swatch` alone sets no color, and there is no `-halo` (it is the page background). The full table with samples is on the [Markup](markup.qmd#vm-swatch) page.
 
 ## Bringing your own stylesheet
 
