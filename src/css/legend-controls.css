@@ -113,17 +113,26 @@
   overflow: visible;
 }
 
-/* The legend is the one panel still floating on the chart, and on a phone it
- * has nowhere to go but on top of the curve it annotates -- so it's hidden
- * below the same breakpoint the sidebar uses, except when the chart is
+/* The legend is the one panel still floating on the chart, and on a narrow
+ * chart it has nowhere to go but on top of the curve it annotates -- so it's
+ * hidden when the chart is under 600px wide, except when the chart is
  * actually fullscreened. The Fullscreen API applies straight to
  * .ojs-chart-block (see plotly-fullscreen-button.js), so :fullscreen needs
  * no JS-toggled class here, and there's room for it once it is.
  *
- * The step bar needs nothing here any more: it reflows as a plain block
- * above the chart at every width, which is what this breakpoint used to
- * arrange for narrow screens alone. */
-@media (max-width: 991.98px) {
+ * A container query on the chart block (chart-block.css names it vm-chart),
+ * not a viewport breakpoint, because what matters is how much of *the chart*
+ * the legend covers, and the viewport is a poor proxy for that: inside an
+ * <iframe> the viewport is the frame, and this rule as a 992px media query
+ * hid the legend in every embed of ordinary column width on a desktop with
+ * room to spare. 600px is where a 220px legend starts covering more than a
+ * third of the chart, which is the phone problem again whatever the screen
+ * -- a phone's chart is ~360px and stays hidden, a tablet's ~700px now shows
+ * it (it is draggable, so it can be moved off the curve).
+ *
+ * The step bar needs nothing here: it reflows as a plain block above the
+ * chart at every width. */
+@container vm-chart (max-width: 599.98px) {
   .ojs-chart-block:not(:fullscreen) .ojs-legend-overlay {
     display: none;
   }

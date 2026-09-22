@@ -36,6 +36,22 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  /* A named query container, so rules about "is this chart wide enough for
+   * X" can ask the chart's own width (legend-controls.css hides the floating
+   * legend on a narrow chart this way) rather than the viewport's. The two
+   * are not the same thing: in an <iframe> the viewport is the frame, and a
+   * width="100%" frame in an ordinary content column is 700-800px wide on a
+   * desktop with room to spare -- a viewport breakpoint meant for phones read
+   * every such embed as a phone. Inline-size only: a size container would
+   * need an explicit height, and this block's height comes from its
+   * content. The layout containment that comes with it is harmless here --
+   * every floating thing inside the block is already positioned against a
+   * box inside the block, and the playback popover is top-layer -- and its
+   * zero min-content contribution is what already lets a block in a
+   * layout-ncol column shrink with the column. Fullscreen's letterbox math
+   * queries a separate, unnamed size container further down the chain and
+   * is not affected. */
+  container: vm-chart / inline-size;
 }
 
 /* The Fullscreen API paints a black backdrop behind the fullscreened

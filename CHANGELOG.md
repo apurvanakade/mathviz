@@ -10,6 +10,12 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-09-21
+
+### Fixed
+
+- The floating legend (`VM.ui.legendOverlay`) is hidden for a narrow **chart** (under 600px wide) rather than a narrow **viewport** (under 992px). The viewport breakpoint read every `<iframe>` of ordinary column width as a phone, so a chart embedded in another site lost its legend on a desktop with room to spare. `.ojs-chart-block` is now a named inline-size query container (`vm-chart`) and the rule is a `@container` query on it. On a page this also means a tablet-width chart (roughly 600-990px) now shows the legend; a phone's does not, and fullscreen is unchanged.
+
 ## [0.1.3] - 2026-09-21
 
 ### Added
