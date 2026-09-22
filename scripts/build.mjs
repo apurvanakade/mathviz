@@ -89,9 +89,18 @@ for (const name of ['mathviz.js', 'mathviz.css']) {
 // starter is committed in a working state and tracks the working tree
 // rather than a published tag. Remove first so a file deleted from the
 // extension doesn't linger in the copy. CI diffs this too.
-const starterExt = path.join(root, 'starter/_extensions/mathviz')
-fs.rmSync(starterExt, { recursive: true, force: true })
-fs.cpSync(path.join(root, '_extensions/mathviz'), starterExt, { recursive: true })
+//
+// This script runs in two places. In the mathviz repository starter/ is
+// there and gets the mirror. In VisualMathLab -- which authors src/ and
+// this script, and mirrors them out (see its CLAUDE.md) -- only the code
+// lives under _mathviz/, so there is nothing to mirror into and the step
+// is skipped. Guard on the directory rather than on a flag so neither
+// checkout has to tell the script which one it is.
+if (fs.existsSync(path.join(root, 'starter'))) {
+  const starterExt = path.join(root, 'starter/_extensions/mathviz')
+  fs.rmSync(starterExt, { recursive: true, force: true })
+  fs.cpSync(path.join(root, '_extensions/mathviz'), starterExt, { recursive: true })
+}
 
 const kb = (rel) => (fs.statSync(path.join(root, rel)).size / 1024).toFixed(0)
 console.log(`dist/mathviz.js  ${kb('dist/mathviz.js')} kB (${js.length} files)`)
