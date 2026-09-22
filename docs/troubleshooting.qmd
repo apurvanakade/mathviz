@@ -72,6 +72,9 @@ Observable's `120px` label column. Inside `.ojs-panel` or `.ojs-chart-controls` 
 **Doubled border and background around a panel.**
 An `ojs-panel` nested inside another. Nest a bare `ojs-row`/`ojs-grid` div instead.
 
+**An `Inputs.select()` doesn't stretch to fill its row.**
+Deliberate: inside a panel the control sizes to its own option text (with a 12 em floor) rather than to the row, so it doesn't read as a full-width slab beside the compact fields next to it. The wrapping form still takes the row's width for layout. Set a width on the `<select>` itself to override.
+
 **A slider has no play button.**
 It isn't inside `.ojs-panel` or `.ojs-chart-controls`, or something above it has `data-vm-play="off"`, or it has no `<form>` ancestor (a raw `<input type="range">` outside Observable Inputs).
 
