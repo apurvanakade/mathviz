@@ -4,6 +4,11 @@
  * Authors: Apurva Nakade
  */
 
+// Lives in scripts/ rather than src/ on purpose: src/ is mirrored from
+// VisualMathLab (see CLAUDE.md) with `rsync --delete`, and this test is
+// authored here -- it checks docs/reference/, which is also authored here.
+// A copy left in src/ would be deleted by the next sync.
+//
 // Keeps docs/reference/ complete: every member the bundle attaches to
 // VM.<category> must have a `### VM.<category>.<name>` heading in that
 // category's reference page, and every such heading must name a member that
@@ -16,7 +21,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
-import { loadVM, repoRoot } from '../scripts/load-vm.mjs'
+import { loadVM, repoRoot } from './load-vm.mjs'
 
 // VM.<category> -> docs/reference/<page>.qmd
 const pageFor = {

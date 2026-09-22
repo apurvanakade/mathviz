@@ -10,14 +10,42 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 mathviz is the shared chart/control/numerics library behind [Visual Math Lab](https://github.com/apurvanakade/VisualMathLab), extracted so other sites can use it. It ships two ways from one source tree: as a **Quarto extension** (`_extensions/mathviz/`, installed with `quarto add apurvanakade/mathviz`, enabled with `filters: [mathviz]`) and as a **plain script bundle** (`dist/mathviz.js` + `dist/mathviz.css`, served from jsDelivr by tag). The README is the front door with the quick start; `starter/` is the clone-and-go site a newcomer copies (one page per pattern -- the former recipes); `docs/` (rendered with `quarto render`, published to GitHub Pages) is the consumer-facing guide and API reference. The guide says only what to write, the reference (including `reference/internals.qmd`) holds every mechanism -- keep technical detail out of the guide pages. This file is for working on the library itself.
 
+## Where this code is authored
+
+**`src/`, `scripts/build.mjs`, `scripts/load-vm.mjs`, `package.json` and
+`_extensions/mathviz/{_extension.yml,mathviz.lua}` are mirrored into this
+repository from [VisualMathLab](https://github.com/apurvanakade/VisualMathLab)'s
+`_mathviz/` folder, which is where they are authored. Edits to them here are
+overwritten by the next sync.** That repository builds the apps this library
+exists for, so a shared function is written where it is first needed and
+travels out from there; its `CLAUDE.md` has the full picture.
+
+Every sync lands on the `sync/from-visualmathlab` branch with one standing
+pull request, never directly on `main`, and this repository's CI gates it.
+
+**Authored here, and not mirrored:** `docs/**` (the guide and the API
+reference), `starter/**`, `_quarto.yml`, `CHANGELOG.md`, the Markdown files
+at the root, and `.github/**`. Writing a new member's reference entry is
+work that happens *here*, on the sync branch: `scripts/docs-coverage.test.js`
+fails CI until it exists, which is what keeps `main` — and the published docs
+— honest without making it a VisualMathLab contributor's problem.
+
+So the two everyday loops are:
+
+- **Changing a function, a token, a CSS rule** — do it in VisualMathLab under
+  `_mathviz/`, where you can try it on a real app page. It arrives here on its
+  own.
+- **Documenting one, or editing the guide or the starter** — do it here, on the
+  sync branch if a sync is waiting on it.
+
 ## Commands
 
 - `npm test` — `node --test` over every `src/**/*.test.js`. Tests load the real source files through `scripts/load-vm.mjs` (indirect `eval` into a stubbed `window`, in manifest order) rather than re-implementing anything. Requires `npm install` once (only `mathjs`, for the expression tests).
-- `npm run build` — `scripts/build.mjs` concatenates `src/js/**` and `src/css/**` in the order `src/manifest.mjs` lists them into `dist/`, syntax-checks the JS, copies both files into `_extensions/mathviz/dist/`, and mirrors the whole extension into `starter/_extensions/mathviz/` (what `quarto add` would install there). Dependency-free. **Run it before committing any change under `src/` or `_extensions/`** — `dist/` and the starter mirror are committed and CI fails if either is stale.
+- `npm run build` — `scripts/build.mjs` concatenates `src/js/**` and `src/css/**` in the order `src/manifest.mjs` lists them into `dist/`, syntax-checks the JS, copies both files into `_extensions/mathviz/dist/`, and mirrors the whole extension into `starter/_extensions/mathviz/` (what `quarto add` would install there). Dependency-free. The sync workflow runs it here after copying `src/` in, so `dist/`, the extension copy and the starter mirror all land rebuilt; run it yourself after any change you make here that feeds the build. `dist/` and the starter mirror are committed and CI fails if either is stale.
 - `npm run check` — test + build + `git diff --exit-code` on the built files; what CI runs.
 - `quarto render` — renders the docs site (`docs/**/*.qmd`) through the extension in place (`_quarto.yml` at the repo root makes the repo the Quarto project, so `_extensions/` is found with no install step) into `_site/` (gitignored). `quarto preview` for live reload. Every docs page is a real page using the library, so this is also the broadest smoke test — CI runs it. OJS errors only show in a browser: serve `_site/` over HTTP (module scripts don't load from `file://`) and check the console; `.observablehq--error` is the class a failed cell renders with.
 - `quarto render starter` — the starter is its own Quarto project (own `_quarto.yml`, excluded from the root render allowlist) using the mirrored extension, the way a consumer has it; CI renders it too. `starter/index.qmd` is the minimal page (the walkthrough in `docs/first-chart.qmd` is this file).
-- To try the extension in another Quarto project before pushing: `quarto add /path/to/mathviz --no-prompt` from that project (a local directory is accepted; it copies `_extensions/mathviz/` in — re-run after each `npm run build`). A symlink at `_extensions/mathviz` is **not** discovered by Quarto (it checks `isDirectory()` on the raw dirent).
+- To try the extension in another Quarto project: `quarto add /path/to/mathviz --no-prompt` from that project (a local directory is accepted; it copies `_extensions/mathviz/` in — re-run after each `npm run build`). A symlink at `_extensions/mathviz` is **not** discovered by Quarto (it checks `isDirectory()` on the raw dirent). Visual Math Lab no longer does this: it builds the extension straight out of its own `_mathviz/` with `npm run build:mathviz`.
 
 ## Layout and the rules that hold it together
 
@@ -27,7 +55,7 @@ dist/                  generated bundle, committed (jsDelivr target); never hand
 src/manifest.mjs       THE load order, for both the build and the tests
 src/js/<category>/     one VM.<category>.<fn> per file (a few export 2–3 that belong together), IIFE extending window.VM; tests colocated
 src/css/               tokens.css (all --vm-* defaults), then panel, chart-block, swatch, legend-controls, modebar, sliders, table
-scripts/               load-vm.mjs (test loader), build.mjs
+scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js (authored here; see above)
 starter/               clone-and-go Quarto site: README, _quarto.yml, index.qmd + one page per pattern, _extensions/mathviz/ (build mirror)
 _quarto.yml            the docs site project (output-dir _site, render allowlist)
 docs/                  the site: guide pages at the top level, reference/<category>.qmd + reference/internals.qmd
@@ -41,17 +69,23 @@ docs/                  the site: guide pages at the top level, reference/<catego
 - **`src/css` targets Quarto OJS and Observable Inputs markup on purpose** — `.cell-output-display` (Quarto's per-cell output wrapper), `.quarto-layout-cell`, `form[class^="oi-"]` (Observable Inputs' generated forms). Quarto OJS is the primary host; the rules are harmless elsewhere. Observable Inputs injects its own `.oi-<hash>` rules into `<head>` at runtime, *after* any stylesheet, so a rule of ours that ties on specificity with one of those loses silently and only in the browser — out-specify it (scope under `.ojs-panel`/`.ojs-chart-controls` plus `form[class^="oi-"]`) or use `!important`, as the existing rules do.
 - Prefer explicit `for`/`while` loops and `if`/`else` over `.map()/.filter()/.reduce()` chains and ternaries in `src/js` — the code is read by a Python-oriented audience. Callbacks required by an API (Plotly config values, `Plot` accessors, `addEventListener`) are fine. Stateful closures that exist for a real reason are not a style violation.
 - **Every public function has a JSDoc block** in the style of `src/js/plotting/padded-range.js` (summary, `@param` with types and `[opts.key=default]`, `@returns` with the exact shape, and the edge behaviour: what returns `null`, what isn't validated). The prose comments around it carry the *why*; don't fold them into the JSDoc or delete them. The build concatenates comments into `dist/`, so they reach consumers.
-- **Every `VM.*` member has a `### VM.<category>.<name>(…) {#name}` heading in `docs/reference/<category>.qmd`** (`discreteMath` → `discrete-math.qmd`). `src/docs-coverage.test.js` loads the bundle, walks `VM`, and fails on any member without a heading or heading without a member. Adding a function means adding its reference entry in the same commit.
+- **Every `VM.*` member has a `### VM.<category>.<name>(…) {#name}` heading in `docs/reference/<category>.qmd`** (`discreteMath` → `discrete-math.qmd`). `scripts/docs-coverage.test.js` loads the bundle, walks `VM`, and fails on any member without a heading or heading without a member. Since `src/` is mirrored and `docs/` is not, the two no longer land in one commit: the sync branch arrives red, and the entry is written on it before it can merge.
 - Every new file starts with the license header for its type — see CONTRIBUTING.md.
 
 ## Releasing
 
-Move the `Unreleased` entries in `CHANGELOG.md` under the new version, bump the three versions, `npm run build`, commit, `git tag vX.Y.Z && git push --tags`. The docs site republishes itself from `main` on every push (`.github/workflows/docs.yml` → the `gh-pages` branch); the install snippets in `docs/` and `README.md` name a tag, so bump those too. Consumers: `quarto update apurvanakade/mathviz@vX.Y.Z`, or bump the tag in their jsDelivr URLs. Visual Math Lab pins a tag in its committed `_extensions/apurvanakade/mathviz/`; updating it there is a separate commit in that repo.
+A release spans both repositories, in this order:
+
+1. **In VisualMathLab**, run the `Release mathviz` workflow with the new version. It sets the three versions (`package.json`, `_extension.yml`, `mathviz.lua` — the build refuses to run unless they agree), rebuilds, tests, commits to `develop`, and syncs.
+2. **Here**, the sync pull request now carries the bump. Move the `Unreleased` entries in `CHANGELOG.md` under the new version and write any missing `docs/reference/` entries **on that branch** — `scripts/docs-coverage.test.js` is telling you which. The install snippets in `docs/` and `README.md` name a tag, so bump those too. Let CI go green; auto-merge takes it to `main`, and `.github/workflows/docs.yml` republishes the docs site.
+3. **Here**, run the `Tag release` workflow. It tags whatever version `main` declares, after re-checking that `main` is built and that the tag is new.
+
+Consumers then `quarto update apurvanakade/mathviz@vX.Y.Z`, or bump the tag in their jsDelivr URLs. Visual Math Lab is no longer one of them — it builds the extension from its own `_mathviz/`, so it already has the change; the tag is for everyone else.
 
 
 ## API surface
 
-`window.VM` has eight namespaces — `expressions`, `numerical`, `sampling`, `filters`, `distributions`, `plotting`, `ui`, `discreteMath` — one per `src/js/<category>/` folder. When adding a category, follow the same pattern (a new folder, a new `VM.<category>`, a new `docs/reference/<category>.qmd`, a new entry in the `pageFor` map in `src/docs-coverage.test.js`) rather than adding flat top-level functions.
+`window.VM` has eight namespaces — `expressions`, `numerical`, `sampling`, `filters`, `distributions`, `plotting`, `ui`, `discreteMath` — one per `src/js/<category>/` folder. When adding a category, follow the same pattern (a new folder, a new `VM.<category>`, a new `docs/reference/<category>.qmd`, a new entry in the `pageFor` map in `scripts/docs-coverage.test.js`) rather than adding flat top-level functions.
 
 Signatures and behaviour live in the JSDoc in each source file and, with context and live examples, in `docs/reference/`. Don't duplicate them here. What belongs here is what a consumer doesn't need and an editor does — the invariants below.
 

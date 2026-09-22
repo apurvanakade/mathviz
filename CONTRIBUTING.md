@@ -11,6 +11,29 @@ control-panel styling and numerical helper library behind
 [Visual Math Lab](https://github.com/apurvanakade/VisualMathLab), packaged
 so that any Quarto site (or any web page) can use it.
 
+## Where to make your change
+
+This repository is half authored and half mirrored, and which half you are
+touching decides where the work happens.
+
+**`src/`, `scripts/build.mjs`, `scripts/load-vm.mjs`, `package.json` and
+`_extensions/mathviz/{_extension.yml,mathviz.lua}` are mirrored** from
+[VisualMathLab](https://github.com/apurvanakade/VisualMathLab)'s `_mathviz/`
+folder. Changing a function, a `--vm-*` token or a CSS rule means a pull
+request *there*, where you can try it on a real page; it reaches this
+repository automatically, on the `sync/from-visualmathlab` branch. A pull
+request changing those paths here will be closed, because the next sync would
+overwrite it.
+
+**Everything else is authored here**: `docs/**` (the guide and the API
+reference), `starter/**`, `_quarto.yml`, `CHANGELOG.md` and the workflows.
+Documentation, examples and the starter site are ordinary pull requests
+against `main`.
+
+If a sync branch is open and CI is red on `docs-coverage`, a new `VM.*` member
+has arrived without a reference entry — writing that entry, on the sync
+branch, is the single most useful contribution available.
+
 ## Working on the library
 
 ```sh
@@ -23,9 +46,9 @@ quarto render          # the same, once, into _site/ (what CI runs)
 quarto render starter  # the starter site, through the extension the build mirrored into starter/_extensions/
 ```
 
-- **Source lives in `src/`.** `src/js/<category>/<name>.js` is one `VM.<category>.<name>` function per file (a few export two or three that belong together), wrapped in an IIFE that extends `window.VM`; `src/css/*.css` is the design system, split by concern. Colocate a `<name>.test.js` next to every function that has logic worth testing -- the tests load the real files through `scripts/load-vm.mjs`.
+- **Source lives in `src/`** (mirrored — edit it in VisualMathLab's `_mathviz/src/`, see above). `src/js/<category>/<name>.js` is one `VM.<category>.<name>` function per file (a few export two or three that belong together), wrapped in an IIFE that extends `window.VM`; `src/css/*.css` is the design system, split by concern. Colocate a `<name>.test.js` next to every function that has logic worth testing -- the tests load the real files through `scripts/load-vm.mjs`.
 - **Every public function carries a JSDoc block**, in the style of `src/js/plotting/padded-range.js`: a one-sentence summary, `@param {type} name - …` (with `[opts.key=default]` for options), and `@returns` giving the exact shape -- including the edge behaviour (what returns `null`, what isn't validated). Keep the surrounding prose comments that explain *why*; the JSDoc says *what*. The build concatenates comments into `dist/`, so consumers get them in their editor.
-- **Every `VM.*` member has an entry in `docs/reference/<category>.qmd`** under a `### VM.<category>.<name>(…) {#name}` heading, with a parameter table, the return shape, and where it helps a live example. `src/docs-coverage.test.js` fails `npm test` if a member has no heading or a heading names no member, so a new function lands with its documentation in the same commit. Guide pages live in `docs/` too, and the starter pages in `starter/`; anything that renders is checked by CI's `quarto render`, but OJS cells only fail in a browser -- serve `_site/` over HTTP and look for `.observablehq--error`.
+- **Every `VM.*` member has an entry in `docs/reference/<category>.qmd`** under a `### VM.<category>.<name>(…) {#name}` heading, with a parameter table, the return shape, and where it helps a live example. `scripts/docs-coverage.test.js` fails `npm test` if a member has no heading or a heading names no member, so a member with no heading keeps the sync branch red until the entry is written here. Guide pages live in `docs/` too, and the starter pages in `starter/`; anything that renders is checked by CI's `quarto render`, but OJS cells only fail in a browser -- serve `_site/` over HTTP and look for `.observablehq--error`.
 - **Adding a file means adding it to `src/manifest.mjs`** -- that list is the load order the build and the tests both use, and `src/manifest.test.js` fails if a file on disk is missing from it. Put a file after anything it reads at load time (`mustPrecede` in the manifest records the known constraints). Each file is an IIFE that ends in a call -- `})(window)`, or `})()` for a module with nothing to export -- and no trailing semicolon; the build inserts the `;` between files.
 - **`dist/` is generated and committed.** Run `npm run build` before committing a change under `src/`; CI runs the build and fails if the committed `dist/` differs from what it produced. Never edit `dist/` by hand. The build also mirrors `_extensions/mathviz/` into `starter/_extensions/mathviz/` (the clone-and-go site), which CI diffs the same way.
 - **To try a change in another Quarto project** before it's published: `quarto add /path/to/mathviz --no-prompt` from that project. A local directory is accepted; Quarto copies `_extensions/mathviz/` in. Re-run after each `npm run build`. A **symlink** at `_extensions/mathviz` is not discovered -- Quarto checks `isDirectory()` on the raw directory entry.

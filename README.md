@@ -13,6 +13,13 @@ use it.
 
 **Documentation: <https://apurvanakade.github.io/mathviz/>**
 
+> **Note for contributors.** The library's code (`src/`, the build scripts and
+> the extension's `_extension.yml`/`mathviz.lua`) is authored in
+> [VisualMathLab](https://github.com/apurvanakade/VisualMathLab) under
+> `_mathviz/` and mirrored here; the docs, the starter and this repository's
+> chrome are authored here. See [CONTRIBUTING.md](CONTRIBUTING.md) for which
+> is which.
+
 ## Quick start
 
 **A new site** -- copy the starter, a complete Quarto website with seven

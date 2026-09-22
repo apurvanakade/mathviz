@@ -1,0 +1,59 @@
+# Copyright (c) 2026 Apurva Nakade. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Apurva Nakade
+
+# Tags whatever version main currently declares, so other sites can pin it
+# with `quarto add apurvanakade/mathviz@vX.Y.Z`.
+#
+# The version itself is set in VisualMathLab, which authors src/ and the
+# extension's two files (see CLAUDE.md): its release-mathviz.yml bumps the
+# three files and the change arrives here on the sync branch. Tagging is
+# separate, and happens here, because a tag should only exist once the sync
+# pull request has merged -- which is the point at which docs/reference/
+# covers everything in the release.
+#
+# So: run VisualMathLab's "Release mathviz" -> fill in any missing reference
+# entries on the sync branch -> let it merge -> run this.
+
+name: Tag release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Tag the version main declares
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./package.json').version")
+          tag="v$version"
+
+          # build.mjs refuses to build unless package.json, _extension.yml and
+          # mathviz.lua agree, so running it is also the check that the tag
+          # about to be cut names the version the filter will report.
+          npm ci
+          npm run build
+          git diff --exit-code \
+            || { echo "::error::main is not built: dist/ differs from src/. The sync that landed it was incomplete."; exit 1; }
+
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "::error::$tag already exists. Bump the version in VisualMathLab first."
+            exit 1
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$tag" -m "mathviz $tag"
+          git push origin "$tag"
+          echo "Tagged $tag at $(git rev-parse --short HEAD)."
