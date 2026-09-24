@@ -7,6 +7,8 @@ name: CI
 on:
   push:
   pull_request:
+    # labeled/unlabeled so adding `no-changelog` re-runs the changelog job.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
   check:
@@ -33,3 +35,23 @@ jobs:
       # The starter is its own Quarto project with the extension vendored in,
       # the way a consumer has it: renders it as a consumer would.
       - run: quarto render starter
+
+  # A pull request that changes the library must say so in CHANGELOG.md.
+  # Sync PRs arrive without an entry (the change was authored in
+  # VisualMathLab), so this keeps them red until one is written on the sync
+  # branch -- the same arrangement as docs-coverage. Three syncs once landed
+  # with none and had to be back-filled. A change with nothing to tell a
+  # consumer (a test, a comment) can carry the `no-changelog` label.
+  changelog:
+    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'no-changelog')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          changed=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
+          if echo "$changed" | grep -q '^src/' && ! echo "$changed" | grep -qx 'CHANGELOG.md'; then
+            echo "::error::src/ changed but CHANGELOG.md did not. Add an entry under [Unreleased], or label the PR no-changelog."
+            exit 1
+          fi

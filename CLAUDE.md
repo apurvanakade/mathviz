@@ -55,7 +55,7 @@ dist/                  generated bundle, committed (jsDelivr target); never hand
 src/manifest.mjs       THE load order, for both the build and the tests
 src/js/<category>/     one VM.<category>.<fn> per file (a few export 2–3 that belong together), IIFE extending window.VM; tests colocated
 src/css/               tokens.css (all --vm-* defaults), then panel, chart-block, swatch, legend-controls, modebar, sliders, table
-scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js (authored here; see above)
+scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js + css-coverage.test.js (authored here; see above)
 starter/               clone-and-go Quarto site: README, _quarto.yml, index.qmd + one page per pattern, _extensions/mathviz/ (build mirror)
 _quarto.yml            the docs site project (output-dir _site, render allowlist)
 docs/                  the site: guide pages at the top level, reference/<category>.qmd + reference/internals.qmd
@@ -70,6 +70,9 @@ docs/                  the site: guide pages at the top level, reference/<catego
 - Prefer explicit `for`/`while` loops and `if`/`else` over `.map()/.filter()/.reduce()` chains and ternaries in `src/js` — the code is read by a Python-oriented audience. Callbacks required by an API (Plotly config values, `Plot` accessors, `addEventListener`) are fine. Stateful closures that exist for a real reason are not a style violation.
 - **Every public function has a JSDoc block** in the style of `src/js/plotting/padded-range.js` (summary, `@param` with types and `[opts.key=default]`, `@returns` with the exact shape, and the edge behaviour: what returns `null`, what isn't validated). The prose comments around it carry the *why*; don't fold them into the JSDoc or delete them. The build concatenates comments into `dist/`, so they reach consumers.
 - **Every `VM.*` member has a `### VM.<category>.<name>(…) {#name}` heading in `docs/reference/<category>.qmd`** (`discreteMath` → `discrete-math.qmd`). `scripts/docs-coverage.test.js` loads the bundle, walks `VM`, and fails on any member without a heading or heading without a member. Since `src/` is mirrored and `docs/` is not, the two no longer land in one commit: the sync branch arrives red, and the entry is written on it before it can merge.
+- **Every token in `tokens.css` has a row in `docs/theming.qmd`'s live table; every other `--vm-*` property and every `ojs-*`/`vm-*` class the CSS uses is mentioned in `markup.qmd`, `theming.qmd` or `reference/internals.qmd`.** `scripts/css-coverage.test.js` enforces it (comments stripped first). It checks names, not prose: a changed value under an unchanged name still needs a read of the diff against the guide, which is step 4 of `/land-pr`.
+- **A PR that touches `src/` must touch `CHANGELOG.md`** — CI's `changelog` job, skipped by the `no-changelog` label. Sync PRs arrive red on it for the same reason as docs-coverage.
+- **Nothing merges itself.** The mirror workflow opens the sync PR without auto-merge. Land any PR with the `/land-pr` skill (`.claude/skills/land-pr/SKILL.md`), run when asked: fix or answer the review comments, check the guide and CHANGELOG against the diff, wait for green CI, then squash-merge.
 - Every new file starts with the license header for its type — see CONTRIBUTING.md.
 
 ## Releasing
@@ -77,7 +80,7 @@ docs/                  the site: guide pages at the top level, reference/<catego
 A release spans both repositories, in this order:
 
 1. **In VisualMathLab**, run the `Release mathviz` workflow with the new version. It sets the three versions (`package.json`, `_extension.yml`, `mathviz.lua` — the build refuses to run unless they agree), rebuilds, tests, commits to `develop`, and syncs.
-2. **Here**, the sync pull request now carries the bump. Move the `Unreleased` entries in `CHANGELOG.md` under the new version and write any missing `docs/reference/` entries **on that branch** — `scripts/docs-coverage.test.js` is telling you which. The install snippets in `docs/` and `README.md` name a tag, so bump those too. Let CI go green; auto-merge takes it to `main`, and `.github/workflows/docs.yml` republishes the docs site.
+2. **Here**, the sync pull request now carries the bump. Move the `Unreleased` entries in `CHANGELOG.md` under the new version and write any missing `docs/reference/` entries **on that branch** — `scripts/docs-coverage.test.js` is telling you which. The install snippets in `docs/` and `README.md` name a tag, so bump those too. Land it with `/land-pr` (review comments, docs checked against the diff, green CI, then merge); once it reaches `main`, `.github/workflows/docs.yml` republishes the docs site.
 3. **Here**, run the `Tag release` workflow. It tags whatever version `main` declares, after re-checking that `main` is built and that the tag is new.
 
 Consumers then `quarto update apurvanakade/mathviz@vX.Y.Z`, or bump the tag in their jsDelivr URLs. Visual Math Lab is no longer one of them — it builds the extension from its own `_mathviz/`, so it already has the change; the tag is for everyone else.

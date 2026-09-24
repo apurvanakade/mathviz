@@ -38,7 +38,7 @@ chartColors = VM.plotting.colors(vmTheme)
 
 ### `ojs-panel` {#ojs-panel}
 
-The look: padding, border, rounded corners, a surface background, and consistent styling of every input, select and button inside it, with labels stacked above controls so a row of them bottom-aligns.
+The look: padding, border, rounded corners, a surface background, and consistent styling of every input, select and button inside it, with labels stacked above controls so a row of them bottom-aligns. Every control in the panel shares one height (`--vm-control-h`) and its label one size (`--vm-label-size`), so a row of mixed controls lines up on both edges.
 
 It is **look only**. Pair it with `ojs-row` or `ojs-grid` for layout. Don't nest one panel inside another (the border and background double up); nest a bare `ojs-row` or `ojs-grid` div instead.
 
@@ -77,7 +77,7 @@ viewof go = Inputs.button("Plot")
 
 ### `ojs-grid` {#ojs-grid}
 
-An auto-fit grid of equal columns (about 250 px each; fewer on narrow screens), bottom-aligned. For a panel of several similar controls where none should dominate.
+An auto-fit grid of equal columns (about 200 px each; fewer on narrow screens), bottom-aligned. For a panel of several similar controls where none should dominate.
 
 ::: {.ojs-panel .ojs-grid}
 ```{ojs}
@@ -112,7 +112,7 @@ viewof expr = {
 
 | Class | Effect |
 |---|---|
-| `ojs-fill` | Full width; a text input inside becomes a wide box the reader can drag wider -- for a long expression. |
+| `ojs-fill` | Full width; a text input inside becomes a wide box the reader can drag wider -- for a long expression. It starts at 20 em on a row of its own, or at whatever width the other controls leave when it shares an `ojs-row` with them, so a field and its Plot button read as one unit. |
 | `ojs-auto` | Natural width, in a row that would otherwise stretch it. |
 | `ojs-end` | Pushes the control to the right edge, in a row or a grid. |
 

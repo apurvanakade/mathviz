@@ -10,6 +10,41 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `scripts/css-coverage.test.js`: `npm test` now fails if a token in `tokens.css` is missing from the Theming page's table (or the table lists one that doesn't exist), or if a `--vm-*` property or `ojs-*`/`vm-*` class the CSS uses is mentioned nowhere in the docs. CI also fails a pull request that changes `src/` without a `CHANGELOG.md` entry, unless it carries the `no-changelog` label.
+
+## [0.1.7] - 2026-09-24
+
+### Added
+
+- `VM.ui.syncExampleSelect` keeps a "Try an example" dropdown pointing at whichever example the page's fields currently hold, so it never names an example the chart isn't showing. `VM.ui.findMatchingExample` is the matcher behind it, exported on its own.
+
+## [0.1.6] - 2026-09-24
+
+0.1.5 was never tagged; its changes are part of this release.
+
+### Added
+
+- Four CSS tokens for control chrome, all listed on the Theming page: `--vm-on-accent` (text and icons drawn *on* `--vm-accent`), `--vm-control-h` (the one height every control in a panel or controls bar takes), `--vm-label-size` (the size a control's label is set in) and `--vm-select-chevron` (the `<select>` dropdown arrow, declared per theme as a whole `url()` because `var()` does not resolve inside a `data:` URI).
+- A disabled field in a panel is drawn in token terms -- the panel's surface, `--vm-text-soft`, a dashed border and a not-allowed cursor -- instead of looking like any other field (the panel skin had hidden the browser's greyed-out default).
+- `Inputs.radio()` and `Inputs.checkbox()` groups in a panel are skinned: options sit level with the fields beside them, a gap is restored between options, the text-field box around each button is gone, buttons take `--vm-accent`, and keyboard focus draws an outline.
+- `<select>` inside `.ojs-panel`, and the number readout beside a slider in `.ojs-chart-controls`, are now skinned like every other field. Both previously rendered as bare browser defaults -- a square-cornered, full-width box and a stock spinner -- next to rounded, bordered inputs.
+
+### Changed
+
+- Panels and controls bars are more compact. Every control shares `--vm-control-h`; labels are set at `--vm-label-size` in `--vm-text-soft` with Observable Inputs' own label padding reset, which takes a field from roughly 70 px to 48 px (the label used to be taller than the control it labels). `.ojs-grid`'s auto-fit floor drops from 250 px to 200 px with slightly wider gaps, so four controls fit one row at normal page width where three did before, and `.ojs-panel` now spaces its own top-level rows with a margin rather than relying on each label's height.
+- An `ojs-fill` text field sharing an `ojs-row` with other controls takes the width they leave instead of a fixed 20 em, so a long expression field and its Plot button fill the row as one unit. On a row of its own it still starts at 20 em.
+- Filled buttons in a panel take `--vm-on-accent` rather than `#fff`, and lose their inset highlight. White on the dark theme's pale accent measured 2.09:1 -- below even the 3:1 large-text floor -- which made every button hard to read in dark mode.
+- `.ojs-chart-controls` no longer carries a box shadow. It sits directly under the panel above it, and a second shadowed card read as two stacked slabs rather than one control strip.
+- `.vm-invalid` reads `--vm-color-alt` with no hardcoded `#dc2626` fallback, so a page that redefines the palette gets its own red.
+- `npm run build` mirrors the extension into `starter/_extensions/mathviz` only when a `starter/` directory is present, so the same script also runs in VisualMathLab, which mirrors out only the code. No change here, where `starter/` always exists.
+
+### Fixed
+
+- A `<select>` in a panel gets the same accent focus ring as a text field.
+- Slider playback: changing the speed on one slider now repaints the pressed state on every other slider's panel, and an open playback popover closes when Observable replaces its slider. Sliders were never registered with the shared list both features walk.
+
 ## [0.1.4] - 2026-09-21
 
 ### Fixed

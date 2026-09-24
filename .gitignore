@@ -7,4 +7,6 @@ _site/
 /.luarc.json
 
 /.quarto/
+
+**/*.quarto_ipynb
 .DS_Store

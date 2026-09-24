@@ -55,11 +55,16 @@ Live: each swatch is the value your browser computes for the token **right now**
     ["--vm-border", "panel borders, slider tracks; axis lines, zero lines, ticks, tooltip border (JS)"],
     ["--vm-accent", "buttons, focus rings, slider fill, the active modebar button"],
     ["--vm-accent-hover", "Observable Inputs button hover"],
+    ["--vm-on-accent", "text and icons drawn <em>on</em> --vm-accent: a filled button's label, the selected playback speed pill. Not white -- the dark accent is pale, and white on it measures 2.09:1. If you override --vm-accent, override this with your page background"],
     ["--vm-grid", "chart gridlines (JS only)"],
     ["--vm-radius", "panel and popover corners -- same in both themes"],
     ["--vm-radius-sm", "inputs, buttons, the legend grip -- same in both themes"],
     ["--vm-shadow", "legend, popover, modebar pill"],
     ["--vm-font-sans", "chart text and the playback popover -- same in both themes. Redeclare it if your site self-hosts a font"],
+    ["Controls", null],
+    ["--vm-control-h", "one height for every control a panel or controls bar holds -- text field, number readout, <code>select</code>, button -- so a row of mixed controls lines up on both edges"],
+    ["--vm-label-size", "the size a control's label is set in, so it doesn't inherit the host page's body-prose size and end up taller than the value it labels"],
+    ["--vm-select-chevron", "the dropdown arrow on a <code>select</code>, as a whole <code>url()</code>. It is the entire image rather than a color because var() does not resolve inside a data: URI -- which is also why each theme declares its own. Redeclare it if you change --vm-text-soft"],
     ["Chart palette (VM.plotting.colors())", null],
     ["--vm-color-fn", "the function itself, the primary trace; .vm-swatch-fn"],
     ["--vm-color-alt", "an alternate or reference trace; .vm-swatch-alt; .vm-invalid"],
@@ -82,7 +87,13 @@ Live: each swatch is the value your browser computes for the token **right now**
     const value = style.getPropertyValue(name).trim()
     const isColor = /^(#|rgb)/.test(value)
     const chip = isColor ? `<span style="display:inline-block;width:1rem;height:1rem;border-radius:3px;border:1px solid var(--vm-border);background:${value};vertical-align:-3px;margin-right:.4rem"></span>` : ""
-    tr.innerHTML = `<td style="white-space:nowrap"><code>${name}</code></td><td style="white-space:nowrap">${chip}<code>${value}</code></td><td>${use}</td>`
+    // --vm-select-chevron resolves to a whole inline-SVG data: URI, which
+    // printed in full would be the only thing on this page. Truncate, and
+    // keep the real value on the title attribute.
+    let shown = value
+    if (shown.length > 48) shown = shown.slice(0, 45) + "…"
+    const title = value.replaceAll('"', "&quot;")
+    tr.innerHTML = `<td style="white-space:nowrap"><code>${name}</code></td><td style="white-space:nowrap" title="${title}">${chip}<code>${shown}</code></td><td>${use}</td>`
     body.appendChild(tr)
   }
   table.appendChild(body)

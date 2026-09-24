@@ -32,7 +32,11 @@ against `main`.
 
 If a sync branch is open and CI is red on `docs-coverage`, a new `VM.*` member
 has arrived without a reference entry — writing that entry, on the sync
-branch, is the single most useful contribution available.
+branch, is the single most useful contribution available. The same goes for
+`css-coverage` (a new token or class with no mention in the docs) and the
+`changelog` job (library changes with no `CHANGELOG.md` entry). Sync pull
+requests are never auto-merged: they merge once review comments are
+addressed and CI is green.
 
 ## Working on the library
 
