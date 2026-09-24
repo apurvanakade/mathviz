@@ -13,6 +13,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 ### Added
 
 - Four CSS tokens for control chrome, all listed on the Theming page: `--vm-on-accent` (text and icons drawn *on* `--vm-accent`), `--vm-control-h` (the one height every control in a panel or controls bar takes), `--vm-label-size` (the size a control's label is set in) and `--vm-select-chevron` (the `<select>` dropdown arrow, declared per theme as a whole `url()` because `var()` does not resolve inside a `data:` URI).
+- `scripts/css-coverage.test.js`: `npm test` now fails if a token in `tokens.css` is missing from the Theming page's table (or the table lists one that doesn't exist), or if a `--vm-*` property or `ojs-*`/`vm-*` class the CSS uses is mentioned nowhere in the docs. CI also fails a pull request that changes `src/` without a `CHANGELOG.md` entry, unless it carries the `no-changelog` label.
 - `<select>` inside `.ojs-panel`, and the number readout beside a slider in `.ojs-chart-controls`, are now skinned like every other field. Both previously rendered as bare browser defaults -- a square-cornered, full-width box and a stock spinner -- next to rounded, bordered inputs.
 
 ### Changed
