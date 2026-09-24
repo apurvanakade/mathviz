@@ -115,5 +115,21 @@ gh pr merge <N> --squash --delete-branch
 gh pr view <N> --json state,mergeCommit
 ```
 
+## 8. Delete the old branch
+
+A squash merge leaves the branch out of `main`'s history, so `git branch -d`
+refuses and `--delete-branch` can leave a copy behind. Once the merge is
+confirmed, remove the branch everywhere:
+
+```sh
+git checkout main && git pull
+git branch -D <head-branch>                          # local
+git push origin --delete <head-branch> 2>/dev/null   # remote, if the merge left it
+git fetch --prune
+```
+
+The sync branch can be deleted like any other. The mirror workflow recreates
+it from `main` on the next sync.
+
 Report the result: the comments fixed, declined (with the reason) or left for
-VisualMathLab, the drift fixed, and the merge commit.
+VisualMathLab, the drift fixed, the merge commit, and the branch deleted.
