@@ -548,7 +548,7 @@ Authors: Apurva Nakade
 <h2 class="anchored" data-anchor-id="panels">Panels</h2>
 <section id="ojs-panel" class="level3">
 <h3 class="anchored" data-anchor-id="ojs-panel"><code>ojs-panel</code></h3>
-<p>The look: padding, border, rounded corners, a surface background, and consistent styling of every input, select and button inside it, with labels stacked above controls so a row of them bottom-aligns.</p>
+<p>The look: padding, border, rounded corners, a surface background, and consistent styling of every input, select and button inside it, with labels stacked above controls so a row of them bottom-aligns. Every control in the panel shares one height (<code>--vm-control-h</code>) and its label one size (<code>--vm-label-size</code>), so a row of mixed controls lines up on both edges.</p>
 <p>It is <strong>look only</strong>. Pair it with <code>ojs-row</code> or <code>ojs-grid</code> for layout. Don’t nest one panel inside another (the border and background double up); nest a bare <code>ojs-row</code> or <code>ojs-grid</code> div instead.</p>
 </section>
 <section id="ojs-row" class="level3">
@@ -594,7 +594,7 @@ Authors: Apurva Nakade
 </section>
 <section id="ojs-grid" class="level3">
 <h3 class="anchored" data-anchor-id="ojs-grid"><code>ojs-grid</code></h3>
-<p>An auto-fit grid of equal columns (about 250 px each; fewer on narrow screens), bottom-aligned. For a panel of several similar controls where none should dominate.</p>
+<p>An auto-fit grid of equal columns (about 200 px each; fewer on narrow screens), bottom-aligned. For a panel of several similar controls where none should dominate.</p>
 <div class="ojs-panel ojs-grid">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="67" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 66;"><span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>viewof gridA <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"alpha"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -652,7 +652,7 @@ Authors: Apurva Nakade
 <tbody>
 <tr class="odd">
 <td><code>ojs-fill</code></td>
-<td>Full width; a text input inside becomes a wide box the reader can drag wider – for a long expression.</td>
+<td>Full width; a text input inside becomes a wide box the reader can drag wider – for a long expression. It starts at 20 em on a row of its own, or at whatever width the other controls leave when it shares an <code>ojs-row</code> with them, so a field and its Plot button read as one unit.</td>
 </tr>
 <tr class="even">
 <td><code>ojs-auto</code></td>
