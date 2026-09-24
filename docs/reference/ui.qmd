@@ -152,6 +152,46 @@ A cell that references a view whose identity is reactively recreated -- a step s
 A native `<select>` fires both `input` and `change` per selection, so a reactive cell runs twice, and two overlapping calls race -- observed corrupting a field's final value when the second cascade landed after the first. Attach one listener to a stable element instead. The starter's [try-an-example.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/try-an-example.qmd) shows the full wiring.
 :::
 
+### VM.ui.syncExampleSelect(selectView, examples, fieldSelectors) {#syncExampleSelect}
+
+Points the "Try an example" dropdown at whichever example the page's fields currently hold, so it never names an example the chart isn't showing. Call it from a cell that reads every example field's value, so it re-runs whenever one changes.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `selectView` | `Element` | The `viewof exampleSelect` element. Its options must be `[null, ...examples]`. |
+| `examples` | `Array<{title, params}>` | The page's presets. |
+| `fieldSelectors` | `{paramKey: cssSelector}` | The same object passed to [`applyExampleParams`](#applyExampleParams). |
+
+**Returns** nothing. It sets the view's value **without dispatching an event**, so nothing downstream re-runs and the page's `"change"` listener doesn't re-apply the example.
+
+The leading `null` option (format it as "Custom inputs") is disabled and hidden in the list on every call, so it shows only when no example matches (a shared link with its own inputs, or a field the reader has edited) and can't be picked. Because of that, a page's default inputs should equal one of its examples. While an `applyExampleParams` call is in flight the function does nothing, since the fields pass through half-applied states that match no example.
+
+```js
+syncExampleFromFields = {
+  fText; x0Text; maxText   // every example field, so this re-runs when any changes
+  VM.ui.syncExampleSelect(viewof exampleSelect, examples, exampleFieldSelectors)
+}
+```
+
+### VM.ui.findMatchingExample(examples, values) {#findMatchingExample}
+
+The matcher behind [`syncExampleSelect`](#syncExampleSelect): returns the first example whose params all equal the given field values, or `null`.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `examples` | `Array<{title, params}>` | Checked in order; the first match wins. |
+| `values` | `{paramKey: currentValue}` | A param key with no entry here (a field this page doesn't have) is ignored. |
+
+**Returns** the matching example object, or `null` when none matches or when no param key had a value to compare. The comparison is loose: scalars compare as trimmed strings (a URL-style `"20"` equals a slider's `20`), arrays compare element by element in order, and plain objects key by key.
+
+```{ojs}
+VM.ui.findMatchingExample(
+  [{title: "Square root of 2", params: {f: "x^2 - 2", x0: "1"}},
+   {title: "Cube root of 5", params: {f: "x^3 - 5", x0: "2"}}],
+  {f: "x^3 - 5", x0: 2}
+)
+```
+
 ## Slider playback {#slider-playback}
 
 Every range slider inside an `.ojs-panel` or `.ojs-chart-controls` gets a play/pause button and a small caret that opens a popover of speed presets (¼× – 4×) and a mode (Once / Loop / Bounce). Playback is `requestAnimationFrame`-driven, so the motion is smooth rather than a stepped jump; it stops when the reader grabs the slider, when the tab is hidden, when a re-run detaches the slider, and at the end of a Once sweep (the button becomes a replay glyph). At most one sweep runs per page.
