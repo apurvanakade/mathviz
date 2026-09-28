@@ -10,8 +10,20 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-09-28
+
+0.1.8 and 0.1.9 were never tagged; their changes are part of this release.
+
 ### Added
 
+- Opt-in site extras for a Quarto website or book, each one key under `mathviz:` and off by default (see the new [Site extras](https://apurvanakade.github.io/mathviz/docs/site.html) page):
+  - `fonts: true` self-hosts Inter and JetBrains Mono, so no page contacts Google Fonts.
+  - An optional Quarto theme, `theme/mathviz-light.scss` and `theme/mathviz-dark.scss`, that colors Bootstrap's navbar, links, cards, callouts and footer from the same tokens as the panels. Override a color with a `$vm-*` variable.
+  - `sidebar-rail` hides Quarto's sidebar behind a slim rail with open and pin buttons.
+  - `embed` shows a page's `.vm-app` block alone at `?embed=1` (or `?embed=<id>`), for another site's `<iframe>`.
+  - `share` adds a Share button to every `.vm-app`, with page links and a ready-made `<iframe>` snippet. Implies `embed`.
+  - `report-bug` opens a prefilled GitHub issue from a text selection, linking the page's `.qmd` source.
+  - `mobile-warning` shows a one-time "built for a bigger screen" notice on phones.
 - `scripts/css-coverage.test.js`: `npm test` now fails if a token in `tokens.css` is missing from the Theming page's table (or the table lists one that doesn't exist), or if a `--vm-*` property or `ojs-*`/`vm-*` class the CSS uses is mentioned nowhere in the docs. CI also fails a pull request that changes `src/` without a `CHANGELOG.md` entry, unless it carries the `no-changelog` label.
 
 ## [0.1.7] - 2026-09-24
@@ -103,7 +115,11 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/apurvanakade/mathviz/compare/v0.1.7...v0.1.10
+[0.1.7]: https://github.com/apurvanakade/mathviz/compare/v0.1.6...v0.1.7
+[0.1.6]: https://github.com/apurvanakade/mathviz/compare/v0.1.4...v0.1.6
+[0.1.4]: https://github.com/apurvanakade/mathviz/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/apurvanakade/mathviz/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/apurvanakade/mathviz/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/apurvanakade/mathviz/compare/v0.1.0...v0.1.1

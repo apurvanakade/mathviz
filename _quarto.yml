@@ -57,6 +57,7 @@ website:
         - docs/theming.qmd
         - docs/markup.qmd
         - docs/install.qmd
+        - docs/site.qmd
         - docs/troubleshooting.qmd
     - id: reference
       title: Reference

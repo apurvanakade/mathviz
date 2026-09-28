@@ -55,6 +55,9 @@ dist/                  generated bundle, committed (jsDelivr target); never hand
 src/manifest.mjs       THE load order, for both the build and the tests
 src/js/<category>/     one VM.<category>.<fn> per file (a few export 2–3 that belong together), IIFE extending window.VM; tests colocated
 src/css/               tokens.css (all --vm-* defaults), then panel, chart-block, swatch, legend-controls, modebar, sliders, table
+src/chrome/            opt-in site chrome (sidebar-rail, embed, share, report-bug, mobile-warning + shared site.js); each its own Lua-added dependency, not in the bundle
+src/fonts/             opt-in self-hosted Inter/JetBrains Mono (fonts: true); fonts.test.js guards the url()s
+src/theme/theme.scss   template build.mjs fills from tokens.css into dist/theme/mathviz-{light,dark}.scss
 scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js + css-coverage.test.js (authored here; see above)
 starter/               clone-and-go Quarto site: README, _quarto.yml, index.qmd + one page per pattern, _extensions/mathviz/ (build mirror)
 _quarto.yml            the docs site project (output-dir _site, render allowlist)

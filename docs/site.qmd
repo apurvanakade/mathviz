@@ -1,0 +1,147 @@
+---
+title: "Site extras"
+subtitle: "Fonts, a Quarto theme, and chrome for a whole site"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, embedding, a Share button, a "Report bug" popup, a phone notice). Each is one key under `mathviz:` in `_quarto.yml`. A site pays only for the pieces it turns on.
+
+These come with the Quarto extension only. The plain script bundle doesn't include them.
+
+## All the keys
+
+```yaml
+mathviz:
+  fonts: true
+  sidebar-rail: my-site-sidebar-pinned     # or true
+  mobile-warning: my-site-mobile-warning   # or true
+  embed: true
+  share:
+    site-url: https://example.com
+    embed-docs: embed.html
+  report-bug:
+    repo: owner/name
+    branch: main
+```
+
+| Key | Values | Effect |
+|---|---|---|
+| `fonts` | `true` | Serves Inter and JetBrains Mono from your own site. |
+| `sidebar-rail` | `true`, or a storage key | Hides Quarto's sidebar behind a slim rail at the left edge. |
+| `mobile-warning` | `true`, or a storage key | Shows a one-time "built for a bigger screen" notice on phones. |
+| `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
+| `share` | a map (see [Share](#share)) | Adds a "Share" button to every app. Turns `embed` on too. |
+| `report-bug` | a map with `repo` (required) and `branch` | Adds a "Report bug" popup when a reader selects text. |
+
+Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the defaults are `vm-sidebar-pinned` and `vm-mobile-warning-dismissed`.
+
+## Fonts
+
+```yaml
+mathviz:
+  fonts: true
+```
+
+Serves Inter (text) and JetBrains Mono (code) from your own `site_libs/`, so no page makes a request to Google Fonts. Browsers download only the character sets a page uses; an English page costs about 105 kB. It's off by default because a site with its own typography doesn't need the files.
+
+Turning `fonts` on only makes the fonts available. The [theme](#theme) is what uses them. With your own theme, name `"Inter"` or `"JetBrains Mono"` in your own CSS.
+
+## Theme {#theme}
+
+The Quarto theme gives Bootstrap's navbar, links, cards, callouts and footer the same colors as the mathviz panels, in light and dark. List it **before** your own theme file:
+
+```yaml
+format:
+  html:
+    theme:
+      light: [_extensions/apurvanakade/mathviz/theme/mathviz-light.scss, custom-light.scss]
+      dark:  [_extensions/apurvanakade/mathviz/theme/mathviz-dark.scss, custom-dark.scss]
+```
+
+To change a color, set the matching `$vm-*` variable in your own file's `/*-- scss:defaults --*/` section. `$vm-accent`, for example, changes the link color and the panels' `--vm-accent` together:
+
+```scss
+/*-- scss:defaults --*/
+$vm-accent: #b5179e;
+```
+
+The variables are `$vm-bg`, `$vm-surface`, `$vm-surface-hover`, `$vm-text`, `$vm-text-soft`, `$vm-border`, `$vm-accent`, `$vm-accent-hover`, `$vm-on-accent`, `$vm-grid`, `$vm-radius`, `$vm-radius-sm`, `$vm-shadow` and `$vm-font-weight-display`. Their defaults are the [tokens](theming.qmd#the-tokens) of the same name. The theme sets the fonts to Inter and JetBrains Mono, falling back to system fonts; add `fonts: true` to make sure readers actually get them.
+
+## Tagging an app: `vm-app` {#vm-app}
+
+Embedding and Share both work on an **app**: the block holding a page's controls and chart. Mark it with the `vm-app` class:
+
+```markdown
+::: {.vm-app}
+<!-- the ojs-panel, the ojs-chart-block, ... -->
+:::
+```
+
+If a page has more than one app, give each an id: `::: {.vm-app #doors}`.
+
+## Embedding
+
+```yaml
+mathviz:
+  embed: true
+```
+
+Adding `?embed=1` to a page's URL shows only the page's first app: no navbar, sidebar, title or footer. `?embed=<id>` shows the app with that id instead. Another site then frames it:
+
+```html
+<iframe
+  src="https://example.com/apps/newton/?embed=1"
+  width="100%" height="900" loading="lazy"
+  title="Newton's method">
+</iframe>
+```
+
+A page's own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, phone notice, Share button and Report bug popup all stay hidden.
+
+## Share {#share}
+
+```yaml
+mathviz:
+  share:
+    site-url: https://example.com
+    embed-docs: embed.html
+```
+
+Puts a "Share" button above every `vm-app`. It opens a dialog with the page's link, with and without the current inputs, and a ready-to-paste `<iframe>` snippet.
+
+- `site-url` is your site's public address. Set it: the links then work even when copied from `quarto preview` or a test deploy. (Quarto doesn't pass `website.site-url` to extensions, so you write it again here.)
+- `embed-docs` is optional: a page on your site, relative to its root, that the dialog links to as "Embedding an app".
+
+## Sidebar rail
+
+```yaml
+mathviz:
+  sidebar-rail: true
+```
+
+For a site with Quarto sidebar navigation. The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages). Escape or a click outside closes it. It does nothing on a page without a sidebar.
+
+## Report bug
+
+```yaml
+mathviz:
+  report-bug:
+    repo: owner/name
+    branch: main      # the default
+```
+
+When a reader selects text, a small "Report bug" button appears next to it. Clicking it opens a new GitHub issue in `repo`, labelled `bug`, with the page's URL, a link to the page's `.qmd` source on `branch`, and the selected text quoted. The source link assumes the Quarto project is at the repository root. Without `repo` the key is skipped with a warning.
+
+## Phone notice
+
+```yaml
+mathviz:
+  mobile-warning: true
+```
+
+On a screen narrower than 992 px, a reader's first visit shows a short notice: the site is meant for larger screens, and a chart's fullscreen button helps. "Got it" dismisses it for good.
