@@ -47,21 +47,23 @@ mathviz:
 | `css` | `true` (default) or `false` | Whether to add `mathviz.css`. With `false` you supply the `--vm-*` tokens and the `ojs-*` rules yourself -- see [Theming](theming.qmd). |
 | `referrer` | a [referrer policy](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/name/referrer) string | Emits `<meta name="referrer" content="…">` **before** the CDN tags, so the third-party origins don't see a page's path or query string -- which on a math page is the reader's own input. Visual Math Lab uses `same-origin`. |
 
+Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, embedding, a Share button, a Report bug popup, a phone notice), and the extension ships an optional Quarto theme. All are off by default -- see [Site extras](site.qmd).
+
 ### Versions and updating
 
 ```sh
 quarto update apurvanakade/mathviz            # latest tag
-quarto update apurvanakade/mathviz@v0.1.7     # a specific tag
-quarto add apurvanakade/mathviz@v0.1.7        # pin at install time
+quarto update apurvanakade/mathviz@v0.1.10    # a specific tag
+quarto add apurvanakade/mathviz@v0.1.10       # pin at install time
 ```
 
 ## Any other web page
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.7/dist/mathviz.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.10/dist/mathviz.css">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.7/dist/mathviz.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.10/dist/mathviz.js"></script>
 ```
 
 - Load **Plotly before `mathviz.js`**. If Plotly arrives later (a dynamic import), call [`VM.plotting.installPlotlyPatch()`](reference/plotting.qmd#installPlotlyPatch) yourself.

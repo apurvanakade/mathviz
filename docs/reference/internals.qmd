@@ -19,6 +19,9 @@ dist/                  the generated bundle, committed (jsDelivr serves it by ta
 src/manifest.mjs       THE load order, for the build and the tests
 src/js/<category>/     one VM.<category>.<name> per file; tests colocated as <name>.test.js
 src/css/               tokens.css first, then one file per concern
+src/chrome/            the opt-in site chrome: one .js + .css per piece, plus site.js (shared helpers); not in the bundle
+src/fonts/             fonts.css and the self-hosted Inter / JetBrains Mono woff2 files
+src/theme/theme.scss   template the build fills into dist/theme/mathviz-{light,dark}.scss
 scripts/               build.mjs (concatenate + syntax-check), load-vm.mjs (test loader)
 docs/                  this site
 starter/               the clone-and-go site; its _extensions/mathviz/ is mirrored in by the build
@@ -98,6 +101,7 @@ The library writes these itself; a page never authors them.
 | `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |
 | `vm-fullscreen-toggle`, `vm-fs-figure` | the SVG fullscreen button |
 | `ojs-table-toolbar`, `ojs-table-container` | `VM.ui.renderTable` |
+| `vm-embed`, `vm-app-active`, `vm-sidebar-open`, `vm-sidebar-pinned`, `vm-rail-cluster`, `vm-share-*`, `vm-report-bug-popup`, `vm-mobile-warning*`, `--vm-secondary-nav-height` | the opt-in [site extras](#site-extras) |
 | `--sx`, `--vm-plot-aspect-ratio`, `--vm-fs-plot-width`, `--vm-svg-aspect`, `--vm-swatch` | runtime layout state: a slider's fill fraction, fullscreen letterboxing, a swatch's tint |
 
 `vm-dark` is neither: it is a **theme hook** you may put on `<html>` or `<body>` to tell the library your site is in dark mode -- see [Theming](../theming.qmd#dark-mode). It styles nothing by itself.
@@ -114,6 +118,24 @@ Quarto OJS is the primary host, and several rules target markup mathviz doesn't 
 | `.js-plotly-plot .modebar*` | Plotly's modebar DOM; the pill, blur and hover-fade live here |
 
 With plain `<input>`s in a `<div class="ojs-panel ojs-row">` everything panel-related still works -- the `form[class^="oi-"]` rules just find nothing to match.
+
+## Site extras {#site-extras}
+
+The pieces on [Site extras](../site.qmd) sit beside the bundle, not inside it. The build copies `src/chrome/`, `src/fonts/` and the generated `dist/theme/` into `_extensions/mathviz/{chrome,fonts,theme}/`, and none of them reaches `mathviz.js` or `mathviz.css`.
+
+**One dependency per piece.** For each option that is set, `mathviz.lua` adds a dependency of its own (`mathviz-sidebar-rail`, `mathviz-mobile-warning`, `mathviz-embed`, `mathviz-share`, `mathviz-report-bug`, `mathviz-fonts`), so a site loads only what it turned on. `share` and `report-bug` also pull in `mathviz-chrome-site` (`chrome/site.js`), which defines the shared helpers under `VM.chrome`; Quarto emits it once however many ask. `VM.chrome` exists only on pages with one of those two on, so the [reference](index.qmd) doesn't list it.
+
+**Settings travel as meta tags.** A filter can't template a script, so each option's values become `<meta name="mathviz:…">` tags, one per dependency for the injector bug [above](#the-lua-filters-odd-shape): `mathviz:sidebar-pin-key`, `mathviz:mobile-warning-key`, `mathviz:share-site-url`, `mathviz:share-embed-docs`, `mathviz:report-bug-repo`, `mathviz:report-bug-branch`. The scripts read them at run time. A filter also can't see project config such as `website.site-url` (Quarto keeps it out of a page's metadata), which is why `share.site-url` repeats it.
+
+**Embed mode runs first.** `embed.js` is a synchronous `<head>` script, so it puts `vm-embed` on `<html>` before anything paints, and every other chrome script checks for that class and skips itself. On `DOMContentLoaded` it marks the chosen block `vm-app-active`; `embed.css` then shows only that block, its descendants and its ancestors (Quarto wraps a `##` section in a `<section>`, so an app is not always a direct child of the content column). An id no `.vm-app` carries falls back to the first. It also wraps `history.replaceState` so a page that rebuilds its query string from scratch can't drop `embed`.
+
+**Paths are site-relative.** Share links and the Report bug source link need the page's path from the site root, not `location.pathname`, which carries a prefix when the site is served below the root (a GitHub Pages project site, a local server over the repository). `VM.chrome.siteRelativePath` resolves Quarto's `quarto:offset` meta against the page to find the root as served and strips it. Report bug then maps `…/` or `….html` to the `.qmd` beside it, which holds for a project rendered from the repository root.
+
+**The sidebar rail owns two body classes.** `sidebar-rail.css` forces Quarto's below-992 px off-canvas sidebar at every width, driven by `vm-sidebar-open` and `vm-sidebar-pinned` on `<body>` instead of Bootstrap's collapse classes; `sidebar-rail.js` writes them and measures Quarto's mobile breadcrumb bar into `--vm-secondary-nav-height`. Those are writes to `<body>`'s class list, which is why [`onThemeChange`](plotting.qmd#onThemeChange) compares the theme name rather than firing on every class change.
+
+**The theme is generated.** `build.mjs` reads the chrome tokens out of `src/css/tokens.css` (the light block, and the dark block over it) and fills them into `src/theme/theme.scss` twice, as `$vm-* … !default` variables and as the `--vm-*` properties they re-emit. So the Bootstrap chrome and the panels can't disagree, and a `$vm-*` override reaches both. The Bootstrap variables it derives are deliberately not `!default`: Quarto presets some of them as `!default` ahead of the theme, and a `!default` here would silently lose.
+
+**Fonts sit flat.** `fonts.css` names each `.woff2` by bare file name, and Quarto copies a dependency's files flat into `site_libs/quarto-contrib/mathviz-fonts-<version>/`, so they land side by side. A root-relative `url(/fonts/…)` is rewritten wrongly by Quarto, which is why it isn't used; `src/fonts/fonts.test.js` checks every `url()` resolves and nothing points at Google.
 
 ## Style
 
