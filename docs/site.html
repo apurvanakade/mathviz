@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>API reference – mathviz</title>
+<title>Site extras – mathviz</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,35 +26,70 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../">
-<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-c08d3273e37e7f5e3c9409009cd7f4c7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-74cb41192f76f35e04bb067a27d32d05.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-c08d3273e37e7f5e3c9409009cd7f4c7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-c08d3273e37e7f5e3c9409009cd7f4c7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-74cb41192f76f35e04bb067a27d32d05.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-c08d3273e37e7f5e3c9409009cd7f4c7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.js"></script>
-<link href="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.js"></script>
+<link href="../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -255,7 +290,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../../index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">mathviz</span>
     </a>
   </div>
@@ -266,11 +301,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../docs/index.html"> 
+    <a class="nav-link active" href="../docs/index.html" aria-current="page"> 
 <span class="menu-text">Guide</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../../docs/reference/index.html" aria-current="page"> 
+    <a class="nav-link" href="../docs/reference/index.html"> 
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
@@ -296,7 +331,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../docs/reference/index.html">API reference</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/site.html">Site extras</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -310,62 +345,44 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">API reference</span></a>
+  <a href="../docs/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">mathviz</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/expressions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VM.expressions</span></a>
+  <a href="../docs/first-chart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building a page</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/numerical.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VM.numerical</span></a>
+  <a href="../docs/theming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Theming</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/sampling.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VM.sampling</span></a>
+  <a href="../docs/markup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Markup contract</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/filters.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VM.filters</span></a>
+  <a href="../docs/install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installing</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/distributions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VM.distributions</span></a>
+  <a href="../docs/site.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Site extras</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/plotting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VM.plotting</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/ui.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VM.ui</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/discrete-math.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VM.discreteMath</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/internals.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Internals</span></a>
+  <a href="../docs/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Troubleshooting</span></a>
   </div>
 </li>
     </ul>
@@ -378,9 +395,15 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#conventions" id="toc-conventions" class="nav-link active" data-scroll-target="#conventions">Conventions</a></li>
-  <li><a href="#what-needs-what" id="toc-what-needs-what" class="nav-link" data-scroll-target="#what-needs-what">What needs what</a></li>
-  <li><a href="#where-the-signatures-live" id="toc-where-the-signatures-live" class="nav-link" data-scroll-target="#where-the-signatures-live">Where the signatures live</a></li>
+  <li><a href="#all-the-keys" id="toc-all-the-keys" class="nav-link active" data-scroll-target="#all-the-keys">All the keys</a></li>
+  <li><a href="#fonts" id="toc-fonts" class="nav-link" data-scroll-target="#fonts">Fonts</a></li>
+  <li><a href="#theme" id="toc-theme" class="nav-link" data-scroll-target="#theme">Theme</a></li>
+  <li><a href="#vm-app" id="toc-vm-app" class="nav-link" data-scroll-target="#vm-app">Tagging an app: <code>vm-app</code></a></li>
+  <li><a href="#embedding" id="toc-embedding" class="nav-link" data-scroll-target="#embedding">Embedding</a></li>
+  <li><a href="#share" id="toc-share" class="nav-link" data-scroll-target="#share">Share</a></li>
+  <li><a href="#sidebar-rail" id="toc-sidebar-rail" class="nav-link" data-scroll-target="#sidebar-rail">Sidebar rail</a></li>
+  <li><a href="#report-bug" id="toc-report-bug" class="nav-link" data-scroll-target="#report-bug">Report bug</a></li>
+  <li><a href="#phone-notice" id="toc-phone-notice" class="nav-link" data-scroll-target="#phone-notice">Phone notice</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -390,8 +413,8 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">API reference</h1>
-<p class="subtitle lead">Everything on <code>window.VM</code>, by category</p>
+<h1 class="title">Site extras</h1>
+<p class="subtitle lead">Fonts, a Quarto theme, and chrome for a whole site</p>
 </div>
 
 
@@ -413,128 +436,135 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>The bundle attaches one global, <code>VM</code>, with a namespace per concern. Each source file adds one function (a few add two or three that belong together) and nothing here has hidden state beyond what’s noted – the theme functions read CSS at call time, the self-installing UI modules keep track of what they’ve enhanced.</p>
+<p>Everything on this page is optional and off by default. The extension can also dress up the site <em>around</em> your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, embedding, a Share button, a “Report bug” popup, a phone notice). Each is one key under <code>mathviz:</code> in <code>_quarto.yml</code>. A site pays only for the pieces it turns on.</p>
+<p>These come with the Quarto extension only. The plain script bundle doesn’t include them.</p>
+<section id="all-the-keys" class="level2">
+<h2 class="anchored" data-anchor-id="all-the-keys">All the keys</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">fonts</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> my-site-sidebar-pinned</span><span class="co">     # or true</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> my-site-mobile-warning</span><span class="co">   # or true</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Namespace</th>
-<th>What’s in it</th>
-<th>Depends on</th>
+<th>Key</th>
+<th>Values</th>
+<th>Effect</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><a href="../../docs/reference/expressions.html"><code>VM.expressions</code></a></td>
-<td>typed formulas → JavaScript functions and numbers, never throwing</td>
-<td>math.js (passed in)</td>
+<td><code>fonts</code></td>
+<td><code>true</code></td>
+<td>Serves Inter and JetBrains Mono from your own site.</td>
 </tr>
 <tr class="even">
-<td><a href="../../docs/reference/numerical.html"><code>VM.numerical</code></a></td>
-<td>Euler and RK4 steppers, Simpson’s rule, a Lagrange parabola, L1/L2/polynomial fits</td>
-<td>– (<code>polynomialFit</code> takes math.js)</td>
+<td><code>sidebar-rail</code></td>
+<td><code>true</code>, or a storage key</td>
+<td>Hides Quarto’s sidebar behind a slim rail at the left edge.</td>
 </tr>
 <tr class="odd">
-<td><a href="../../docs/reference/sampling.html"><code>VM.sampling</code></a></td>
-<td>seeded uniform and Gaussian generators</td>
-<td>–</td>
+<td><code>mobile-warning</code></td>
+<td><code>true</code>, or a storage key</td>
+<td>Shows a one-time “built for a bigger screen” notice on phones.</td>
 </tr>
 <tr class="even">
-<td><a href="../../docs/reference/filters.html"><code>VM.filters</code></a></td>
-<td>moving average, EMA, scalar Kalman</td>
-<td>–</td>
+<td><code>embed</code></td>
+<td><code>true</code></td>
+<td>Lets another site show one app alone in an <code>&lt;iframe&gt;</code>.</td>
 </tr>
 <tr class="odd">
-<td><a href="../../docs/reference/distributions.html"><code>VM.distributions</code></a></td>
-<td>16 closed-form PDFs/PMFs, <code>logGamma</code>, <code>sampleCurve</code>, <code>histogramBins</code></td>
-<td>–</td>
+<td><code>share</code></td>
+<td>a map (see <a href="#share">Share</a>)</td>
+<td>Adds a “Share” button to every app. Turns <code>embed</code> on too.</td>
 </tr>
 <tr class="even">
-<td><a href="../../docs/reference/plotting.html"><code>VM.plotting</code></a></td>
-<td>the theme (<code>colors</code>, <code>layout</code>, <code>plotOptions</code>, …), theme detection, the Plotly patch, fullscreen helpers</td>
-<td>Plotly for the patch; otherwise none</td>
-</tr>
-<tr class="odd">
-<td><a href="../../docs/reference/ui.html"><code>VM.ui</code></a></td>
-<td>legend overlay, results table, example presets, slider playback</td>
-<td><code>renderTable</code> needs htl’s <code>html</code></td>
-</tr>
-<tr class="even">
-<td><a href="../../docs/reference/discrete-math.html"><code>VM.discreteMath</code></a></td>
-<td>triangulations and Sperner colorings</td>
-<td>–</td>
+<td><code>report-bug</code></td>
+<td>a map with <code>repo</code> (required) and <code>branch</code></td>
+<td>Adds a “Report bug” popup when a reader selects text.</td>
 </tr>
 </tbody>
 </table>
-<section id="conventions" class="level2">
-<h2 class="anchored" data-anchor-id="conventions">Conventions</h2>
-<p>These hold across the whole surface, so each page states only its exceptions.</p>
-<p><strong>Bad input gives <code>null</code>, not an exception.</strong> Anything that parses reader-typed text (<code>makeFunction</code>, <code>makeNumber</code>, <code>makeRational</code>) returns <code>null</code> when it can’t; a fit with too few points returns <code>null</code>. Branch on it and draw an <a href="../../docs/reference/plotting.html#emptyState"><code>emptyState</code></a>.</p>
-<p><strong>Outside a distribution’s support you get <code>0</code>.</strong> Never <code>NaN</code>, so a slider at an invalid parameter flattens a curve rather than breaking the chart.</p>
-<p><strong>math.js is passed in, not imported.</strong> <code>VM.expressions.*</code> and <code>polynomialFit</code> take the math.js instance as their first argument – the global <code>math</code> on a page rendered through the extension. The one exception is <code>makeRational</code>, which parses literals only and takes no instance.</p>
-<p><strong>Colors are read when you ask, not when the page loads.</strong> <code>colors()</code>, <code>alpha()</code> and the three <code>discreteMath</code> color helpers return whatever the active theme says right now. Call them inside the cell that builds the traces, and make that cell depend on <code>vmTheme</code> so it re-runs on a toggle – see <a href="../../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a>.</p>
-<p><strong>Self-installing modules take no call.</strong> The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the <a href="../../docs/markup.html">markup contract</a>.</p>
+<p>Where a key takes a <strong>storage key</strong>, the string names the <code>localStorage</code> entry that remembers the reader’s choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With <code>true</code> the defaults are <code>vm-sidebar-pinned</code> and <code>vm-mobile-warning-dismissed</code>.</p>
 </section>
-<section id="what-needs-what" class="level2">
-<h2 class="anchored" data-anchor-id="what-needs-what">What needs what</h2>
-<p>Nothing here imports anything. Where a function needs a library, it takes it as an argument or finds it on <code>window</code>.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th></th>
-<th>Needs</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>VM.expressions.*</code> (except <code>makeRational</code>), <code>VM.numerical.polynomialFit</code></td>
-<td>a math.js instance, <strong>passed as the first argument</strong></td>
-</tr>
-<tr class="even">
-<td><code>VM.numerical.*</code>, <code>VM.sampling.*</code>, <code>VM.filters.*</code>, <code>VM.distributions.*</code>, <code>VM.discreteMath.*</code></td>
-<td>nothing</td>
-</tr>
-<tr class="odd">
-<td><code>VM.plotting.colors / colorway / alpha / themeName / onThemeChange / configure / subscript / paddedRange / plotOptions</code></td>
-<td>nothing (a <code>document</code> to read tokens from; sensible fallbacks without)</td>
-</tr>
-<tr class="even">
-<td><code>VM.plotting.layout / config / hoverLabel / emptyState / themePatch</code></td>
-<td>nothing – they build plain objects. You need Plotly to <em>use</em> them, of course</td>
-</tr>
-<tr class="odd">
-<td><code>VM.plotting.autoResize</code></td>
-<td><code>ResizeObserver</code> (returns <code>null</code> without); safe when Plotly is absent</td>
-</tr>
-<tr class="even">
-<td><code>VM.plotting.installPlotlyPatch / fullscreenButton</code></td>
-<td><code>window.Plotly</code></td>
-</tr>
-<tr class="odd">
-<td><code>VM.plotting.svgAspectRatio / figureBounds</code>, <code>VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame</code></td>
-<td>nothing – pure helpers</td>
-</tr>
-<tr class="even">
-<td><code>VM.ui.legendOverlay</code></td>
-<td>nothing – plain DOM. It <em>implements</em> Observable’s view contract; it doesn’t require Observable</td>
-</tr>
-<tr class="odd">
-<td><code>VM.ui.renderTable</code></td>
-<td>htl’s <code>html</code> tag, passed in. Emits Bootstrap table classes</td>
-</tr>
-<tr class="even">
-<td><code>VM.ui.applyExampleParams</code></td>
-<td>views that follow Observable Inputs’ <code>value</code> + <code>"input"</code> protocol</td>
-</tr>
-<tr class="odd">
-<td>slider playback, draggable legend, SVG fullscreen button, slider fill</td>
-<td>nothing – self-installing on the <a href="../../docs/markup.html">markup</a> they look for</td>
-</tr>
-</tbody>
-</table>
+<section id="fonts" class="level2">
+<h2 class="anchored" data-anchor-id="fonts">Fonts</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">fonts</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Serves Inter (text) and JetBrains Mono (code) from your own <code>site_libs/</code>, so no page makes a request to Google Fonts. Browsers download only the character sets a page uses; an English page costs about 105 kB. It’s off by default because a site with its own typography doesn’t need the files.</p>
+<p>Turning <code>fonts</code> on only makes the fonts available. The <a href="#theme">theme</a> is what uses them. With your own theme, name <code>"Inter"</code> or <code>"JetBrains Mono"</code> in your own CSS.</p>
 </section>
-<section id="where-the-signatures-live" class="level2">
-<h2 class="anchored" data-anchor-id="where-the-signatures-live">Where the signatures live</h2>
-<p>Every function’s JSDoc in <code>src/js/&lt;category&gt;/&lt;name&gt;.js</code> is the authoritative signature; these pages restate it with context and a live example. A test (<code>src/docs-coverage.test.js</code>) fails the build if a <code>VM.*</code> member exists without a heading here, or vice versa, so the two can’t drift.</p>
+<section id="theme" class="level2">
+<h2 class="anchored" data-anchor-id="theme">Theme</h2>
+<p>The Quarto theme gives Bootstrap’s navbar, links, cards, callouts and footer the same colors as the mathviz panels, in light and dark. List it <strong>before</strong> your own theme file:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">format</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">html</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">theme</span><span class="kw">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">light</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">_extensions/apurvanakade/mathviz/theme/mathviz-light.scss</span><span class="kw">,</span><span class="at"> custom-light.scss</span><span class="kw">]</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">dark</span><span class="kw">:</span><span class="at">  </span><span class="kw">[</span><span class="at">_extensions/apurvanakade/mathviz/theme/mathviz-dark.scss</span><span class="kw">,</span><span class="at"> custom-dark.scss</span><span class="kw">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To change a color, set the matching <code>$vm-*</code> variable in your own file’s <code>/*-- scss:defaults --*/</code> section. <code>$vm-accent</code>, for example, changes the link color and the panels’ <code>--vm-accent</code> together:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode scss code-with-copy"><code class="sourceCode scss"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*-- scss:defaults --*/</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">$vm-accent</span>: <span class="cn">#b5179e</span><span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The variables are <code>$vm-bg</code>, <code>$vm-surface</code>, <code>$vm-surface-hover</code>, <code>$vm-text</code>, <code>$vm-text-soft</code>, <code>$vm-border</code>, <code>$vm-accent</code>, <code>$vm-accent-hover</code>, <code>$vm-on-accent</code>, <code>$vm-grid</code>, <code>$vm-radius</code>, <code>$vm-radius-sm</code>, <code>$vm-shadow</code> and <code>$vm-font-weight-display</code>. Their defaults are the <a href="../docs/theming.html#the-tokens">tokens</a> of the same name. The theme sets the fonts to Inter and JetBrains Mono, falling back to system fonts; add <code>fonts: true</code> to make sure readers actually get them.</p>
+</section>
+<section id="vm-app" class="level2">
+<h2 class="anchored" data-anchor-id="vm-app">Tagging an app: <code>vm-app</code></h2>
+<p>Embedding and Share both work on an <strong>app</strong>: the block holding a page’s controls and chart. Mark it with the <code>vm-app</code> class:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>::: {.vm-app}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- the ojs-panel, the ojs-chart-block, ... --&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If a page has more than one app, give each an id: <code>::: {.vm-app #doors}</code>.</p>
+</section>
+<section id="embedding" class="level2">
+<h2 class="anchored" data-anchor-id="embedding">Embedding</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Adding <code>?embed=1</code> to a page’s URL shows only the page’s first app: no navbar, sidebar, title or footer. <code>?embed=&lt;id&gt;</code> shows the app with that id instead. Another site then frames it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">iframe</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  src</span><span class="op">=</span><span class="st">"https://example.com/apps/newton/?embed=1"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  width</span><span class="op">=</span><span class="st">"100%"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"900"</span><span class="ot"> loading</span><span class="op">=</span><span class="st">"lazy"</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ot">  title</span><span class="op">=</span><span class="st">"Newton's method"</span><span class="dt">&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">iframe</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A page’s own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, phone notice, Share button and Report bug popup all stay hidden.</p>
+</section>
+<section id="share" class="level2">
+<h2 class="anchored" data-anchor-id="share">Share</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Puts a “Share” button above every <code>vm-app</code>. It opens a dialog with the page’s link, with and without the current inputs, and a ready-to-paste <code>&lt;iframe&gt;</code> snippet.</p>
+<ul>
+<li><code>site-url</code> is your site’s public address. Set it: the links then work even when copied from <code>quarto preview</code> or a test deploy. (Quarto doesn’t pass <code>website.site-url</code> to extensions, so you write it again here.)</li>
+<li><code>embed-docs</code> is optional: a page on your site, relative to its root, that the dialog links to as “Embedding an app”.</li>
+</ul>
+</section>
+<section id="sidebar-rail" class="level2">
+<h2 class="anchored" data-anchor-id="sidebar-rail">Sidebar rail</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For a site with Quarto sidebar navigation. The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages). Escape or a click outside closes it. It does nothing on a page without a sidebar.</p>
+</section>
+<section id="report-bug" class="level2">
+<h2 class="anchored" data-anchor-id="report-bug">Report bug</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span><span class="co">      # the default</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When a reader selects text, a small “Report bug” button appears next to it. Clicking it opens a new GitHub issue in <code>repo</code>, labelled <code>bug</code>, with the page’s URL, a link to the page’s <code>.qmd</code> source on <code>branch</code>, and the selected text quoted. The source link assumes the Quarto project is at the repository root. Without <code>repo</code> the key is skipped with a warning.</p>
+</section>
+<section id="phone-notice" class="level2">
+<h2 class="anchored" data-anchor-id="phone-notice">Phone notice</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>On a screen narrower than 992 px, a reader’s first visit shows a short notice: the site is meant for larger screens, and a chart’s fullscreen button helps. “Got it” dismisses it for good.</p>
 
 
 </section>

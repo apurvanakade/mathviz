@@ -88,8 +88,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../site_libs/quarto-contrib/mathviz-0.1.7/mathviz.js"></script>
-<link href="../../site_libs/quarto-contrib/mathviz-0.1.7/mathviz.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.js"></script>
+<link href="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -424,6 +424,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#self-installing-modules" id="toc-self-installing-modules" class="nav-link" data-scroll-target="#self-installing-modules">Self-installing modules</a></li>
   <li><a href="#generated-classes" id="toc-generated-classes" class="nav-link" data-scroll-target="#generated-classes">Generated classes</a></li>
   <li><a href="#host-markup" id="toc-host-markup" class="nav-link" data-scroll-target="#host-markup">Host markup the CSS depends on</a></li>
+  <li><a href="#site-extras" id="toc-site-extras" class="nav-link" data-scroll-target="#site-extras">Site extras</a></li>
   <li><a href="#style" id="toc-style" class="nav-link" data-scroll-target="#style">Style</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -465,6 +466,9 @@ dist/                  the generated bundle, committed (jsDelivr serves it by ta
 src/manifest.mjs       THE load order, for the build and the tests
 src/js/&lt;category&gt;/     one VM.&lt;category&gt;.&lt;name&gt; per file; tests colocated as &lt;name&gt;.test.js
 src/css/               tokens.css first, then one file per concern
+src/chrome/            the opt-in site chrome: one .js + .css per piece, plus site.js (shared helpers); not in the bundle
+src/fonts/             fonts.css and the self-hosted Inter / JetBrains Mono woff2 files
+src/theme/theme.scss   template the build fills into dist/theme/mathviz-{light,dark}.scss
 scripts/               build.mjs (concatenate + syntax-check), load-vm.mjs (test loader)
 docs/                  this site
 starter/               the clone-and-go site; its _extensions/mathviz/ is mirrored in by the build</code></pre>
@@ -525,10 +529,6 @@ starter/               the clone-and-go site; its _extensions/mathviz/ is mirror
 <h2 class="anchored" data-anchor-id="generated-classes">Generated classes</h2>
 <p>The library writes these itself; a page never authors them.</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Class / property</th>
@@ -557,6 +557,10 @@ starter/               the clone-and-go site; its _extensions/mathviz/ is mirror
 <td><code>VM.ui.renderTable</code></td>
 </tr>
 <tr class="even">
+<td><code>vm-embed</code>, <code>vm-app-active</code>, <code>vm-sidebar-open</code>, <code>vm-sidebar-pinned</code>, <code>vm-rail-cluster</code>, <code>vm-share-*</code>, <code>vm-report-bug-popup</code>, <code>vm-mobile-warning*</code>, <code>--vm-secondary-nav-height</code></td>
+<td>the opt-in <a href="#site-extras">site extras</a></td>
+</tr>
+<tr class="odd">
 <td><code>--sx</code>, <code>--vm-plot-aspect-ratio</code>, <code>--vm-fs-plot-width</code>, <code>--vm-svg-aspect</code>, <code>--vm-swatch</code></td>
 <td>runtime layout state: a slider’s fill fraction, fullscreen letterboxing, a swatch’s tint</td>
 </tr>
@@ -598,6 +602,17 @@ starter/               the clone-and-go site; its _extensions/mathviz/ is mirror
 </tbody>
 </table>
 <p>With plain <code>&lt;input&gt;</code>s in a <code>&lt;div class="ojs-panel ojs-row"&gt;</code> everything panel-related still works – the <code>form[class^="oi-"]</code> rules just find nothing to match.</p>
+</section>
+<section id="site-extras" class="level2">
+<h2 class="anchored" data-anchor-id="site-extras">Site extras</h2>
+<p>The pieces on <a href="../../docs/site.html">Site extras</a> sit beside the bundle, not inside it. The build copies <code>src/chrome/</code>, <code>src/fonts/</code> and the generated <code>dist/theme/</code> into <code>_extensions/mathviz/{chrome,fonts,theme}/</code>, and none of them reaches <code>mathviz.js</code> or <code>mathviz.css</code>.</p>
+<p><strong>One dependency per piece.</strong> For each option that is set, <code>mathviz.lua</code> adds a dependency of its own (<code>mathviz-sidebar-rail</code>, <code>mathviz-mobile-warning</code>, <code>mathviz-embed</code>, <code>mathviz-share</code>, <code>mathviz-report-bug</code>, <code>mathviz-fonts</code>), so a site loads only what it turned on. <code>share</code> and <code>report-bug</code> also pull in <code>mathviz-chrome-site</code> (<code>chrome/site.js</code>), which defines the shared helpers under <code>VM.chrome</code>; Quarto emits it once however many ask. <code>VM.chrome</code> exists only on pages with one of those two on, so the <a href="../../docs/reference/index.html">reference</a> doesn’t list it.</p>
+<p><strong>Settings travel as meta tags.</strong> A filter can’t template a script, so each option’s values become <code>&lt;meta name="mathviz:…"&gt;</code> tags, one per dependency for the injector bug <a href="#the-lua-filters-odd-shape">above</a>: <code>mathviz:sidebar-pin-key</code>, <code>mathviz:mobile-warning-key</code>, <code>mathviz:share-site-url</code>, <code>mathviz:share-embed-docs</code>, <code>mathviz:report-bug-repo</code>, <code>mathviz:report-bug-branch</code>. The scripts read them at run time. A filter also can’t see project config such as <code>website.site-url</code> (Quarto keeps it out of a page’s metadata), which is why <code>share.site-url</code> repeats it.</p>
+<p><strong>Embed mode runs first.</strong> <code>embed.js</code> is a synchronous <code>&lt;head&gt;</code> script, so it puts <code>vm-embed</code> on <code>&lt;html&gt;</code> before anything paints, and every other chrome script checks for that class and skips itself. On <code>DOMContentLoaded</code> it marks the chosen block <code>vm-app-active</code>; <code>embed.css</code> then shows only that block, its descendants and its ancestors (Quarto wraps a <code>##</code> section in a <code>&lt;section&gt;</code>, so an app is not always a direct child of the content column). An id no <code>.vm-app</code> carries falls back to the first. It also wraps <code>history.replaceState</code> so a page that rebuilds its query string from scratch can’t drop <code>embed</code>.</p>
+<p><strong>Paths are site-relative.</strong> Share links and the Report bug source link need the page’s path from the site root, not <code>location.pathname</code>, which carries a prefix when the site is served below the root (a GitHub Pages project site, a local server over the repository). <code>VM.chrome.siteRelativePath</code> resolves Quarto’s <code>quarto:offset</code> meta against the page to find the root as served and strips it. Report bug then maps <code>…/</code> or <code>….html</code> to the <code>.qmd</code> beside it, which holds for a project rendered from the repository root.</p>
+<p><strong>The sidebar rail owns two body classes.</strong> <code>sidebar-rail.css</code> forces Quarto’s below-992 px off-canvas sidebar at every width, driven by <code>vm-sidebar-open</code> and <code>vm-sidebar-pinned</code> on <code>&lt;body&gt;</code> instead of Bootstrap’s collapse classes; <code>sidebar-rail.js</code> writes them and measures Quarto’s mobile breadcrumb bar into <code>--vm-secondary-nav-height</code>. Those are writes to <code>&lt;body&gt;</code>’s class list, which is why <a href="../../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a> compares the theme name rather than firing on every class change.</p>
+<p><strong>The theme is generated.</strong> <code>build.mjs</code> reads the chrome tokens out of <code>src/css/tokens.css</code> (the light block, and the dark block over it) and fills them into <code>src/theme/theme.scss</code> twice, as <code>$vm-* … !default</code> variables and as the <code>--vm-*</code> properties they re-emit. So the Bootstrap chrome and the panels can’t disagree, and a <code>$vm-*</code> override reaches both. The Bootstrap variables it derives are deliberately not <code>!default</code>: Quarto presets some of them as <code>!default</code> ahead of the theme, and a <code>!default</code> here would silently lose.</p>
+<p><strong>Fonts sit flat.</strong> <code>fonts.css</code> names each <code>.woff2</code> by bare file name, and Quarto copies a dependency’s files flat into <code>site_libs/quarto-contrib/mathviz-fonts-&lt;version&gt;/</code>, so they land side by side. A root-relative <code>url(/fonts/…)</code> is rewritten wrongly by Quarto, which is why it isn’t used; <code>src/fonts/fonts.test.js</code> checks every <code>url()</code> resolves and nothing points at Google.</p>
 </section>
 <section id="style" class="level2">
 <h2 class="anchored" data-anchor-id="style">Style</h2>
