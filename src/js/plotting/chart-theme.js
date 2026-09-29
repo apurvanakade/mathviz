@@ -372,7 +372,34 @@
       // rotated y-title ends up flush against the container's edge.
       margin: { l: 8, r: 12, t: 12, b: 8 }
     }
+    // A 3-D scene's axes are their own objects (scene.xaxis, ...), which
+    // Plotly draws in its fixed light-grey chrome unless told otherwise --
+    // unreadable on the dark theme. Only added when the page has a scene,
+    // since a `scene` key alone is what turns a Plotly chart 3-D.
+    if (overrides && overrides.scene !== undefined) {
+      base.scene = {
+        xaxis: sceneAxisDefaults(),
+        yaxis: sceneAxisDefaults(),
+        zaxis: sceneAxisDefaults()
+      }
+    }
     return deepMerge(base, overrides)
+  }
+
+  // The theme colors of one 3-D scene axis. The lines are --vm-text-soft
+  // made translucent rather than --vm-grid/--vm-border: at their 8-15%
+  // opacity the gridlines of a tilted 3-D box all but vanish on white.
+  const sceneAxisDefaults = () => {
+    const textSoft = cssVar("--vm-text-soft", "#5f6672")
+    return {
+      gridcolor: alpha(textSoft, 0.3),
+      zerolinecolor: alpha(textSoft, 0.3),
+      linecolor: alpha(textSoft, 0.5),
+      color: textSoft,
+      showbackground: false,
+      tickfont: { size: 11, color: textSoft },
+      title: { font: { size: 13, color: textSoft } }
+    }
   }
 
   // Keeps a chart sized to its box, and stops doing so once that box leaves
@@ -502,11 +529,16 @@
    * the page's own titles and ranges alone. The Plotly patch applies this
    * to every chart on each theme flip; a page shouldn't need to call it.
    *
+   * @param {Object} [opts]
+   * @param {boolean} [opts.scene=false] - Also patch a 3-D chart's
+   *   `scene.xaxis`/`yaxis`/`zaxis` colors. Leave it off for a 2-D chart:
+   *   relayout-ing a `scene.*` key would add a scene to it.
    * @returns {Object} 24 keys: backgrounds, `font.color`, `textfont.color`,
    *   the three `hoverlabel.*` colors, `modebar.color`/`.activecolor`,
-   *   `colorway`, and seven `xaxis.*`/`yaxis.*` colors each.
+   *   `colorway`, and seven `xaxis.*`/`yaxis.*` colors each; with
+   *   `opts.scene`, six more for each of the three scene axes.
    */
-  const themePatch = () => {
+  const themePatch = (opts = {}) => {
     const text = cssVar("--vm-text", "#14161a")
     const textSoft = cssVar("--vm-text-soft", "#5f6672")
     const grid = cssVar("--vm-grid", "rgba(20, 22, 26, 0.08)")
@@ -535,6 +567,17 @@
       patch[`${axis}.color`] = textSoft
       patch[`${axis}.tickfont.color`] = textSoft
       patch[`${axis}.title.font.color`] = textSoft
+    }
+    if (opts.scene) {
+      const sceneAxis = sceneAxisDefaults()
+      for (const axis of ["xaxis", "yaxis", "zaxis"]) {
+        patch[`scene.${axis}.gridcolor`] = sceneAxis.gridcolor
+        patch[`scene.${axis}.zerolinecolor`] = sceneAxis.zerolinecolor
+        patch[`scene.${axis}.linecolor`] = sceneAxis.linecolor
+        patch[`scene.${axis}.color`] = sceneAxis.color
+        patch[`scene.${axis}.tickfont.color`] = sceneAxis.tickfont.color
+        patch[`scene.${axis}.title.font.color`] = sceneAxis.title.font.color
+      }
     }
     return patch
   }

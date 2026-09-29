@@ -206,9 +206,24 @@
   // gentler ones above via ToRemove+ToAdd would also relocate them to the
   // end of the bar (added buttons always append), shuffling an otherwise
   // familiar modebar. This keeps Plotly's own cartesian order intact, minus
-  // box/lasso select. Every chart this library was built for is 2D
-  // cartesian, which is what makes hardcoding this list safe.
-  const addButton = (Plotly, config) => {
+  // box/lasso select. A 3-D chart (one with a `scene`, which is what
+  // VM.plotting.persistentPlot3d guarantees) gets Plotly's own 3-D buttons
+  // instead: the 2-D ones, and the zoom steps above, act on cartesian axes
+  // it doesn't have.
+  const is3d = (layout) => Boolean(layout) && layout.scene !== undefined
+
+  const addButton = (Plotly, config, threeD) => {
+    if (threeD) {
+      return {
+        ...config,
+        modeBarButtons: [
+          ["toImage"],
+          ["tableRotation", "orbitRotation", "pan3d", "zoom3d"],
+          ["resetCameraDefault3d"],
+          [fullscreenButton]
+        ]
+      }
+    }
     return {
       ...config,
       modeBarButtons: [
@@ -219,9 +234,17 @@
       ]
     }
   }
+  // A scene with no dragmode of its own falls back to layout.dragmode, so
+  // the "pan" default would make dragging a 3-D chart slide it instead of
+  // rotating it. Give the scene Plotly's own 3-D default, turntable
+  // (rotation about a fixed vertical z-axis), unless the page chose one.
   const withDefaultDragmode = (layout) => {
-    if (layout && layout.dragmode !== undefined) return layout
-    return {...layout, dragmode: "pan"}
+    let out = layout
+    if (!out || out.dragmode === undefined) out = {...out, dragmode: "pan"}
+    if (is3d(out) && (out.scene === null || out.scene.dragmode === undefined)) {
+      out = {...out, scene: {...out.scene, dragmode: "turntable"}}
+    }
+    return out
   }
   // Layers the shared theme (chart-theme.js) UNDER whatever
   // layout a page passes, so every existing mainPlot cell picks up
@@ -264,7 +287,9 @@
   /**
    * Patches `Plotly.newPlot` and `Plotly.react` so every chart gets the
    * themed layout, per-trace hover labels, `dragmode: "pan"` (unless the
-   * page set one) and the shared modebar. Runs by itself at load and on
+   * page set one) and the shared modebar. A chart whose layout has a
+   * `scene` gets `scene.dragmode: "turntable"` (unless set) and the 3-D
+   * modebar instead. Runs by itself at load and on
    * `DOMContentLoaded`; call it only when Plotly arrives later than that.
    *
    * @returns {boolean} `true` once patched (also when already patched);
@@ -277,7 +302,7 @@
     for (const name of ["newPlot", "react"]) {
       const original = Plotly[name]
       Plotly[name] = (gd, data, layout, config) =>
-        original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(layout)), addButton(Plotly, globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config))
+        original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(layout)), addButton(Plotly, globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config, is3d(layout)))
     }
     Plotly.__vmPatched = true
     return true
@@ -302,7 +327,7 @@
     const repaint = () => {
       if (!globalThis.Plotly?.relayout || !globalThis.VM?.plotting?.themePatch) return
       for (const gd of document.querySelectorAll(".js-plotly-plot")) {
-        globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch())
+        globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch({scene: is3d(gd.layout)}))
       }
     }
     // onThemeChange calls back once immediately with the current theme;
