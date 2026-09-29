@@ -3,21 +3,22 @@
 # Authors: Apurva Nakade
 
 # Tags whatever version main currently declares, so other sites can pin it
-# with `quarto add apurvanakade/mathviz@vX.Y.Z`.
+# with `quarto add apurvanakade/mathviz@vX.Y.Z` (and consumers tracking the
+# latest tag pick it up on their next render).
 #
-# The version itself is set in VisualMathLab, which authors src/ and the
-# extension's two files (see CLAUDE.md): its release-mathviz.yml bumps the
-# three files and the change arrives here on the sync branch. Tagging is
-# separate, and happens here, because a tag should only exist once the sync
-# pull request has merged -- which is the point at which docs/reference/
-# covers everything in the release.
+# Runs on its own when a push to main changes package.json -- in practice,
+# when a release PR opened by release.yml merges -- and does nothing if that
+# version is already tagged. Run it by hand to tag a version that landed
+# some other way; then an existing tag is an error.
 #
-# So: run VisualMathLab's "Release mathviz" -> fill in any missing reference
-# entries on the sync branch -> let it merge -> run this.
+# So: run "Release" -> land its PR -> this tags it.
 
 name: Tag release
 
 on:
+  push:
+    branches: [main]
+    paths: [package.json]
   workflow_dispatch:
 
 permissions:
@@ -27,10 +28,12 @@ jobs:
   tag:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main
+          # On a push, the commit that bumped the version -- not whatever
+          # main has moved on to by the time this job starts.
+          ref: ${{ github.event_name == 'push' && github.sha || 'main' }}
           fetch-depth: 0
 
       - name: Tag the version main declares
@@ -45,10 +48,14 @@ jobs:
           npm ci
           npm run build
           git diff --exit-code \
-            || { echo "::error::main is not built: dist/ differs from src/. The sync that landed it was incomplete."; exit 1; }
+            || { echo "::error::main is not built: dist/ differs from src/. The change that landed it skipped `npm run build`."; exit 1; }
 
           if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-            echo "::error::$tag already exists. Bump the version in VisualMathLab first."
+            if [ "${{ github.event_name }}" = "push" ]; then
+              echo "$tag already exists; package.json changed without a version bump."
+              exit 0
+            fi
+            echo "::error::$tag already exists. Run the Release workflow to bump the version first."
             exit 1
           fi
 

@@ -5,9 +5,9 @@
  */
 
 // The CSS counterpart of docs-coverage.test.js, and in scripts/ for the same
-// reason: src/ is mirrored from VisualMathLab, docs/ is authored here.
+// reason: it tests docs/, not a source file.
 //
-// docs-coverage walks VM.*, so a sync that only touched src/css stayed green
+// docs-coverage walks VM.*, so a change that only touched src/css stayed green
 // while the guide drifted -- four tokens missing from the Theming table and a
 // stale ojs-grid width went unnoticed across three syncs. This checks the
 // names mechanically:

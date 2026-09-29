@@ -1,0 +1,80 @@
+# Copyright (c) 2026 Apurva Nakade. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Apurva Nakade
+
+# Opens a release pull request. scripts/release.mjs sets the version in the
+# three files the build checks, moves CHANGELOG.md's [Unreleased] under the
+# new version and bumps the install snippets; this workflow rebuilds, tests,
+# and opens the PR on release/vX.Y.Z.
+#
+# The PR lands like any other (the land-pr skill), and nothing merges itself.
+# When it reaches main, tag-release.yml sees the new version and tags it.
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "New version, major.minor.patch (e.g. 0.1.12)"
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      # Through an env var, not interpolated into the script: a dispatch
+      # input is arbitrary text, and release.mjs can only validate what
+      # reaches it.
+      - name: Set the version, CHANGELOG and install snippets
+        env:
+          VERSION: ${{ inputs.version }}
+        run: node scripts/release.mjs "$VERSION"
+
+      # The bundle banner and the starter mirror carry the version, so the
+      # release commit includes the rebuilt copies or CI's freshness gate
+      # fails on the PR.
+      - run: npm run build
+      - run: npm test
+
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          branch="release/v$VERSION"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "Release v$VERSION"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "Release v$VERSION" \
+            --body "Sets the version to $VERSION, moves the [Unreleased] CHANGELOG entries under it and bumps the install snippets. tag-release.yml tags v$VERSION when this merges."
+          # Neither the push nor the PR above starts CI: events caused by
+          # GITHUB_TOKEN deliberately trigger no workflows. workflow_dispatch
+          # is the exception, and its checks attach to the same commit.
+          gh workflow run ci.yml --ref "$branch"

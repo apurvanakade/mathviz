@@ -164,12 +164,8 @@ for (const name of fs.readdirSync(path.join(ext, 'chrome'))) {
 // rather than a published tag. Remove first so a file deleted from the
 // extension doesn't linger in the copy. CI diffs this too.
 //
-// This script runs in two places. In the mathviz repository starter/ is
-// there and gets the mirror. In VisualMathLab -- which authors src/ and
-// this script, and mirrors them out (see its CLAUDE.md) -- only the code
-// lives under _mathviz/, so there is nothing to mirror into and the step
-// is skipped. Guard on the directory rather than on a flag so neither
-// checkout has to tell the script which one it is.
+// Guarded on the directory so the script still runs in a checkout that
+// carries only the code (a partial copy, a fork without starter/).
 if (fs.existsSync(path.join(root, 'starter'))) {
   const starterExt = path.join(root, 'starter/_extensions/mathviz')
   fs.rmSync(starterExt, { recursive: true, force: true })
