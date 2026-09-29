@@ -475,9 +475,10 @@ src/css/               tokens.css first, then one file per concern
 src/chrome/            the opt-in site chrome: one .js + .css per piece, plus site.js (shared helpers); not in the bundle
 src/fonts/             fonts.css and the self-hosted Inter / JetBrains Mono woff2 files
 src/theme/theme.scss   template the build fills into dist/theme/mathviz-{light,dark}.scss
-scripts/               build.mjs (concatenate + syntax-check), load-vm.mjs (test loader)
+scripts/               build.mjs (concatenate + syntax-check), load-vm.mjs (test loader), release.mjs, port.mjs
 docs/                  this site
-starter/               the clone-and-go site; its _extensions/mathviz/ is mirrored in by the build</code></pre>
+starter/               the clone-and-go site; its _extensions/mathviz/ is mirrored in by the build
+kit/                   what a consumer site copies in: the update hook and the mathviz-local overlay template</code></pre>
 </section>
 <section id="one-global-many-small-files" class="level2">
 <h2 class="anchored" data-anchor-id="one-global-many-small-files">One global, many small files</h2>

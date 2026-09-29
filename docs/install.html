@@ -399,6 +399,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#options" id="toc-options" class="nav-link" data-scroll-target="#options">Options</a></li>
   <li><a href="#versions-and-updating" id="toc-versions-and-updating" class="nav-link" data-scroll-target="#versions-and-updating">Versions and updating</a></li>
+  <li><a href="#adding-your-own-functions" id="toc-adding-your-own-functions" class="nav-link" data-scroll-target="#adding-your-own-functions">Adding your own functions</a></li>
   </ul></li>
   <li><a href="#any-other-web-page" id="toc-any-other-web-page" class="nav-link" data-scroll-target="#any-other-web-page">Any other web page</a></li>
   </ul>
@@ -437,7 +438,7 @@ Authors: Apurva Nakade
 <p>mathviz ships two ways from one source tree. Both give you the same <code>window.VM</code>, the same CSS, and the same behaviour.</p>
 <section id="quarto-site-book-or-document" class="level2">
 <h2 class="anchored" data-anchor-id="quarto-site-book-or-document">Quarto site, book or document</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> add apurvanakade/mathviz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> add apurvanakade/mathviz@v0.1.11</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This copies the extension into <code>_extensions/apurvanakade/mathviz/</code> in your project. Enable it project-wide in <code>_quarto.yml</code>, or per page in front matter:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">filters</span><span class="kw">:</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> mathviz</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -485,9 +486,14 @@ Authors: Apurva Nakade
 </section>
 <section id="versions-and-updating" class="level3">
 <h3 class="anchored" data-anchor-id="versions-and-updating">Versions and updating</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> update apurvanakade/mathviz            <span class="co"># latest tag</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> update apurvanakade/mathviz@v0.1.11    <span class="co"># a specific tag</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> add apurvanakade/mathviz@v0.1.11       <span class="co"># pin at install time</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> update apurvanakade/mathviz@v0.1.11    <span class="co"># move to a release</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> add apurvanakade/mathviz@v0.1.11       <span class="co"># pin at install time</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Always name the tag. Without one (or with <code>@latest</code>), Quarto installs the <code>main</code> branch, which can be ahead of the last release.</p>
+<p>To stay on the latest release without thinking about it, run the <a href="https://github.com/apurvanakade/mathviz/tree/main/kit">site kit</a>’s <code>update-mathviz.sh</code> as a <code>pre-render</code> hook. It updates the extension before each render and keeps the installed copy when you’re offline.</p>
+</section>
+<section id="adding-your-own-functions" class="level3">
+<h3 class="anchored" data-anchor-id="adding-your-own-functions">Adding your own functions</h3>
+<p>A site that needs functions mathviz doesn’t have can keep them in a second, local extension that loads after mathviz and adds to the same <code>VM</code>. The <a href="https://github.com/apurvanakade/mathviz/tree/main/kit">site kit</a> has the template: copy it in and add <code>mathviz-local</code> after <code>mathviz</code> under <code>filters:</code>. It is laid out like mathviz’s own source, so a function other sites could use can go upstream as a pull request.</p>
 </section>
 </section>
 <section id="any-other-web-page" class="level2">
