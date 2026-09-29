@@ -685,7 +685,34 @@
       // rotated y-title ends up flush against the container's edge.
       margin: { l: 8, r: 12, t: 12, b: 8 }
     }
+    // A 3-D scene's axes are their own objects (scene.xaxis, ...), which
+    // Plotly draws in its fixed light-grey chrome unless told otherwise --
+    // unreadable on the dark theme. Only added when the page has a scene,
+    // since a `scene` key alone is what turns a Plotly chart 3-D.
+    if (overrides && overrides.scene !== undefined) {
+      base.scene = {
+        xaxis: sceneAxisDefaults(),
+        yaxis: sceneAxisDefaults(),
+        zaxis: sceneAxisDefaults()
+      }
+    }
     return deepMerge(base, overrides)
+  }
+
+  // The theme colors of one 3-D scene axis. The lines are --vm-text-soft
+  // made translucent rather than --vm-grid/--vm-border: at their 8-15%
+  // opacity the gridlines of a tilted 3-D box all but vanish on white.
+  const sceneAxisDefaults = () => {
+    const textSoft = cssVar("--vm-text-soft", "#5f6672")
+    return {
+      gridcolor: alpha(textSoft, 0.3),
+      zerolinecolor: alpha(textSoft, 0.3),
+      linecolor: alpha(textSoft, 0.5),
+      color: textSoft,
+      showbackground: false,
+      tickfont: { size: 11, color: textSoft },
+      title: { font: { size: 13, color: textSoft } }
+    }
   }
 
   // Keeps a chart sized to its box, and stops doing so once that box leaves
@@ -815,11 +842,16 @@
    * the page's own titles and ranges alone. The Plotly patch applies this
    * to every chart on each theme flip; a page shouldn't need to call it.
    *
+   * @param {Object} [opts]
+   * @param {boolean} [opts.scene=false] - Also patch a 3-D chart's
+   *   `scene.xaxis`/`yaxis`/`zaxis` colors. Leave it off for a 2-D chart:
+   *   relayout-ing a `scene.*` key would add a scene to it.
    * @returns {Object} 24 keys: backgrounds, `font.color`, `textfont.color`,
    *   the three `hoverlabel.*` colors, `modebar.color`/`.activecolor`,
-   *   `colorway`, and seven `xaxis.*`/`yaxis.*` colors each.
+   *   `colorway`, and seven `xaxis.*`/`yaxis.*` colors each; with
+   *   `opts.scene`, six more for each of the three scene axes.
    */
-  const themePatch = () => {
+  const themePatch = (opts = {}) => {
     const text = cssVar("--vm-text", "#14161a")
     const textSoft = cssVar("--vm-text-soft", "#5f6672")
     const grid = cssVar("--vm-grid", "rgba(20, 22, 26, 0.08)")
@@ -848,6 +880,17 @@
       patch[`${axis}.color`] = textSoft
       patch[`${axis}.tickfont.color`] = textSoft
       patch[`${axis}.title.font.color`] = textSoft
+    }
+    if (opts.scene) {
+      const sceneAxis = sceneAxisDefaults()
+      for (const axis of ["xaxis", "yaxis", "zaxis"]) {
+        patch[`scene.${axis}.gridcolor`] = sceneAxis.gridcolor
+        patch[`scene.${axis}.zerolinecolor`] = sceneAxis.zerolinecolor
+        patch[`scene.${axis}.linecolor`] = sceneAxis.linecolor
+        patch[`scene.${axis}.color`] = sceneAxis.color
+        patch[`scene.${axis}.tickfont.color`] = sceneAxis.tickfont.color
+        patch[`scene.${axis}.title.font.color`] = sceneAxis.title.font.color
+      }
     }
     return patch
   }
@@ -1119,9 +1162,24 @@
   // gentler ones above via ToRemove+ToAdd would also relocate them to the
   // end of the bar (added buttons always append), shuffling an otherwise
   // familiar modebar. This keeps Plotly's own cartesian order intact, minus
-  // box/lasso select. Every chart this library was built for is 2D
-  // cartesian, which is what makes hardcoding this list safe.
-  const addButton = (Plotly, config) => {
+  // box/lasso select. A 3-D chart (one with a `scene`, which is what
+  // VM.plotting.persistentPlot3d guarantees) gets Plotly's own 3-D buttons
+  // instead: the 2-D ones, and the zoom steps above, act on cartesian axes
+  // it doesn't have.
+  const is3d = (layout) => Boolean(layout) && layout.scene !== undefined
+
+  const addButton = (Plotly, config, threeD) => {
+    if (threeD) {
+      return {
+        ...config,
+        modeBarButtons: [
+          ["toImage"],
+          ["tableRotation", "orbitRotation", "pan3d", "zoom3d"],
+          ["resetCameraDefault3d"],
+          [fullscreenButton]
+        ]
+      }
+    }
     return {
       ...config,
       modeBarButtons: [
@@ -1132,9 +1190,17 @@
       ]
     }
   }
+  // A scene with no dragmode of its own falls back to layout.dragmode, so
+  // the "pan" default would make dragging a 3-D chart slide it instead of
+  // rotating it. Give the scene Plotly's own 3-D default, turntable
+  // (rotation about a fixed vertical z-axis), unless the page chose one.
   const withDefaultDragmode = (layout) => {
-    if (layout && layout.dragmode !== undefined) return layout
-    return {...layout, dragmode: "pan"}
+    let out = layout
+    if (!out || out.dragmode === undefined) out = {...out, dragmode: "pan"}
+    if (is3d(out) && (out.scene === null || out.scene.dragmode === undefined)) {
+      out = {...out, scene: {...out.scene, dragmode: "turntable"}}
+    }
+    return out
   }
   // Layers the shared theme (chart-theme.js) UNDER whatever
   // layout a page passes, so every existing mainPlot cell picks up
@@ -1177,7 +1243,9 @@
   /**
    * Patches `Plotly.newPlot` and `Plotly.react` so every chart gets the
    * themed layout, per-trace hover labels, `dragmode: "pan"` (unless the
-   * page set one) and the shared modebar. Runs by itself at load and on
+   * page set one) and the shared modebar. A chart whose layout has a
+   * `scene` gets `scene.dragmode: "turntable"` (unless set) and the 3-D
+   * modebar instead. Runs by itself at load and on
    * `DOMContentLoaded`; call it only when Plotly arrives later than that.
    *
    * @returns {boolean} `true` once patched (also when already patched);
@@ -1190,7 +1258,7 @@
     for (const name of ["newPlot", "react"]) {
       const original = Plotly[name]
       Plotly[name] = (gd, data, layout, config) =>
-        original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(layout)), addButton(Plotly, globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config))
+        original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(layout)), addButton(Plotly, globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config, is3d(layout)))
     }
     Plotly.__vmPatched = true
     return true
@@ -1215,7 +1283,7 @@
     const repaint = () => {
       if (!globalThis.Plotly?.relayout || !globalThis.VM?.plotting?.themePatch) return
       for (const gd of document.querySelectorAll(".js-plotly-plot")) {
-        globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch())
+        globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch({scene: is3d(gd.layout)}))
       }
     }
     // onThemeChange calls back once immediately with the current theme;
@@ -1545,6 +1613,50 @@
   }
 
   globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, persistentPlot}}
+})(window)
+
+// ---- src/js/plotting/persistent-plot-3d.js ----
+;
+/**
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+(function attachVM(globalThis) {
+  // The 3-D counterpart of persistentPlot. What makes a chart 3-D to the
+  // Plotly patch and the theme is a `scene` in its layout: that is what
+  // swaps in the 3-D modebar, makes dragging rotate the scene (turntable)
+  // rather than inherit the 2-D "pan", and themes the scene's axes. A page
+  // can leave `scene` out -- a surface trace alone draws in 3-D -- and
+  // would then get none of that, so this closure always passes one.
+  /**
+   * A reusable Plotly chart for 3-D traces (`surface`, `scatter3d`,
+   * `mesh3d`, ...). Used exactly like {@link persistentPlot}:
+   *
+   *     surfacePlot = VM.plotting.persistentPlot3d({height: "420px"})
+   *     surfacePlot(data, layout)            // in the display cell
+   *
+   * Dragging rotates the scene about its vertical axis (`turntable`,
+   * Plotly's own 3-D default), the scroll wheel zooms, and the modebar has
+   * the 3-D tools (turntable/orbit rotation, pan, zoom, reset camera).
+   *
+   * @param {Object} [opts] - As for {@link persistentPlot}: `className`,
+   *   `height`.
+   * @returns {(data: Object[], layout: Object, config?: Object) => HTMLElement}
+   *   Draws or redraws and returns the same div every time. The layout's
+   *   `scene` (camera, axis titles, `dragmode`, ...) is kept; one is added
+   *   when it has none.
+   */
+  const persistentPlot3d = (opts = {}) => {
+    const plot = globalThis.VM.plotting.persistentPlot(opts)
+    return (data, layout, config) => {
+      const page = layout ?? {}
+      return plot(data, {...page, scene: {...page.scene}}, config)
+    }
+  }
+
+  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, persistentPlot3d}}
 })(window)
 
 // ---- src/js/plotting/plot-with-legend.js ----

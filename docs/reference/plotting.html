@@ -442,12 +442,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#emptyState" id="toc-emptyState" class="nav-link" data-scroll-target="#emptyState">VM.plotting.emptyState(message)</a></li>
   <li><a href="#autoResize" id="toc-autoResize" class="nav-link" data-scroll-target="#autoResize">VM.plotting.autoResize(div)</a></li>
   <li><a href="#persistentPlot" id="toc-persistentPlot" class="nav-link" data-scroll-target="#persistentPlot">VM.plotting.persistentPlot(opts?)</a></li>
+  <li><a href="#persistentPlot3d" id="toc-persistentPlot3d" class="nav-link" data-scroll-target="#persistentPlot3d">VM.plotting.persistentPlot3d(opts?)</a></li>
   <li><a href="#plotWithLegend" id="toc-plotWithLegend" class="nav-link" data-scroll-target="#plotWithLegend">VM.plotting.plotWithLegend(plot, data, layout)</a></li>
   <li><a href="#legendItems" id="toc-legendItems" class="nav-link" data-scroll-target="#legendItems">VM.plotting.legendItems(data)</a></li>
   <li><a href="#lockedAxes" id="toc-lockedAxes" class="nav-link" data-scroll-target="#lockedAxes">VM.plotting.lockedAxes(fullLayout, layout)</a></li>
   <li><a href="#paddedRange" id="toc-paddedRange" class="nav-link" data-scroll-target="#paddedRange">VM.plotting.paddedRange(values, opts?)</a></li>
   <li><a href="#plotOptions" id="toc-plotOptions" class="nav-link" data-scroll-target="#plotOptions">VM.plotting.plotOptions(overrides?)</a></li>
-  <li><a href="#themePatch" id="toc-themePatch" class="nav-link" data-scroll-target="#themePatch">VM.plotting.themePatch()</a></li>
+  <li><a href="#themePatch" id="toc-themePatch" class="nav-link" data-scroll-target="#themePatch">VM.plotting.themePatch(opts?)</a></li>
   </ul></li>
   <li><a href="#the-plotly-patch" id="toc-the-plotly-patch" class="nav-link" data-scroll-target="#the-plotly-patch">The Plotly patch</a>
   <ul class="collapse">
@@ -863,11 +864,49 @@ Authors: Apurva Nakade
 </table>
 <p><strong>Returns</strong> <code>(data, layout, config?) =&gt; HTMLElement</code>, which draws or redraws and returns the same div every time. <code>config</code> defaults to <a href="#config"><code>config()</code></a>. Needs <code>window.Plotly</code>.</p>
 </section>
+<section id="persistentPlot3d" class="level3">
+<h3 class="anchored" data-anchor-id="persistentPlot3d">VM.plotting.persistentPlot3d(opts?)</h3>
+<p><a href="#persistentPlot"><code>persistentPlot</code></a> for 3-D traces (<code>surface</code>, <code>scatter3d</code>, <code>mesh3d</code>, …). Use it for every 3-D chart, in exactly the same way:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>surfacePlot <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">persistentPlot3d</span>({<span class="dt">height</span><span class="op">:</span> <span class="st">"420px"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">surfacePlot</span>([{<span class="dt">type</span><span class="op">:</span> <span class="st">"surface"</span><span class="op">,</span> z}]<span class="op">,</span> {<span class="dt">scene</span><span class="op">:</span> {<span class="dt">zaxis</span><span class="op">:</span> {<span class="dt">title</span><span class="op">:</span> {<span class="dt">text</span><span class="op">:</span> <span class="st">"density"</span>}}}})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Dragging rotates the scene about its vertical axis (<code>turntable</code>, Plotly’s own 3-D default), the scroll wheel zooms, and the modebar carries the 3-D tools. The scene’s axes follow the theme, including on a dark-mode toggle. All of that comes from the <a href="#the-plotly-patch">Plotly patch</a>, which treats a chart as 3-D when its layout has a <code>scene</code>. A 3-D trace draws without one, though, and would then pan on drag with the 2-D buttons. This closure always passes a <code>scene</code>, keeping the page’s own (camera, axis titles, <code>dragmode</code>, …).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>opts.className</code></td>
+<td><code>string</code></td>
+<td><code>"plotly-box-large"</code></td>
+<td>As for <code>persistentPlot</code>.</td>
+</tr>
+<tr class="even">
+<td><code>opts.height</code></td>
+<td><code>string</code></td>
+<td></td>
+<td>As for <code>persistentPlot</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>(data, layout, config?) =&gt; HTMLElement</code>, as for <code>persistentPlot</code>. Needs <code>window.Plotly</code>.</p>
+</section>
 <section id="plotWithLegend" class="level3">
 <h3 class="anchored" data-anchor-id="plotWithLegend">VM.plotting.plotWithLegend(plot, data, layout)</h3>
 <p>For a figure with no controls of its own: draws the chart with a <a href="../../docs/reference/ui.html#legendOverlay"><code>VM.ui.legendOverlay</code></a> over it instead of Plotly’s legend, and returns both wrapped in an <code>.ojs-chart-block</code>, in one cell. Clicking a row hides or shows every trace of that name; unnamed traces and <code>showlegend: false</code> ones are always drawn. Hiding a trace never rescales the chart or moves its grid: the first click pins every axis at the range it had with all traces shown (see <a href="#lockedAxes"><code>lockedAxes</code></a>), and a new call – new data, a theme toggle – starts unpinned again. It is the three-cell <code>viewof</code> wiring the legend’s reference shows, for pages with many such figures.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>figPlot <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">persistentPlot</span>({<span class="dt">height</span><span class="op">:</span> <span class="st">"360px"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotWithLegend</span>(figPlot<span class="op">,</span> traces<span class="op">,</span> {<span class="dt">xaxis</span><span class="op">:</span> {<span class="dt">title</span><span class="op">:</span> <span class="st">"n"</span>}})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>figPlot <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">persistentPlot</span>({<span class="dt">height</span><span class="op">:</span> <span class="st">"360px"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotWithLegend</span>(figPlot<span class="op">,</span> traces<span class="op">,</span> {<span class="dt">xaxis</span><span class="op">:</span> {<span class="dt">title</span><span class="op">:</span> <span class="st">"n"</span>}})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -956,7 +995,7 @@ Authors: Apurva Nakade
 </table>
 <p><strong>Returns</strong> <code>{lo, hi}</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" data-startfrom="255" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 254;"><span id="cb14-255"><a href="#cb14-255" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="kw">NaN</span><span class="op">,</span> <span class="dv">10</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">5</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">5</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([])]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" data-startfrom="275" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 274;"><span id="cb16-275"><a href="#cb16-275" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="kw">NaN</span><span class="op">,</span> <span class="dv">10</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([<span class="dv">5</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">5</span>])<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">paddedRange</span>([])]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-7" data-nodetype="expression">
 
@@ -990,14 +1029,14 @@ Authors: Apurva Nakade
 </table>
 <p><strong>Returns</strong> options for <code>Plot.plot(...)</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15" data-startfrom="269" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 268;"><span id="cb15-269"><a href="#cb15-269" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb15-270"><a href="#cb15-270" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pts <span class="op">=</span> []</span>
-<span id="cb15-271"><a href="#cb15-271" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">40</span><span class="op">;</span> i<span class="op">++</span>) pts<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> i <span class="op">/</span> <span class="dv">4</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">exp</span>(<span class="op">-</span>i <span class="op">/</span> <span class="dv">16</span>) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(i <span class="op">/</span> <span class="dv">3</span>)})</span>
-<span id="cb15-272"><a href="#cb15-272" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
-<span id="cb15-273"><a href="#cb15-273" aria-hidden="true" tabindex="-1"></a>    <span class="dt">height</span><span class="op">:</span> <span class="dv">220</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"t"</span>}<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"damped"</span>}<span class="op">,</span></span>
-<span id="cb15-274"><a href="#cb15-274" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [Plot<span class="op">.</span><span class="fu">line</span>(pts<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">fn</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span> Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])]</span>
-<span id="cb15-275"><a href="#cb15-275" aria-hidden="true" tabindex="-1"></a>  }))</span>
-<span id="cb15-276"><a href="#cb15-276" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" data-startfrom="289" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 288;"><span id="cb17-289"><a href="#cb17-289" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb17-290"><a href="#cb17-290" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pts <span class="op">=</span> []</span>
+<span id="cb17-291"><a href="#cb17-291" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">40</span><span class="op">;</span> i<span class="op">++</span>) pts<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> i <span class="op">/</span> <span class="dv">4</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">exp</span>(<span class="op">-</span>i <span class="op">/</span> <span class="dv">16</span>) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(i <span class="op">/</span> <span class="dv">3</span>)})</span>
+<span id="cb17-292"><a href="#cb17-292" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
+<span id="cb17-293"><a href="#cb17-293" aria-hidden="true" tabindex="-1"></a>    <span class="dt">height</span><span class="op">:</span> <span class="dv">220</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"t"</span>}<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"damped"</span>}<span class="op">,</span></span>
+<span id="cb17-294"><a href="#cb17-294" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [Plot<span class="op">.</span><span class="fu">line</span>(pts<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">fn</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span> Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])]</span>
+<span id="cb17-295"><a href="#cb17-295" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb17-296"><a href="#cb17-296" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-8" data-nodetype="expression">
 
@@ -1006,9 +1045,33 @@ Authors: Apurva Nakade
 </div>
 </section>
 <section id="themePatch" class="level3">
-<h3 class="anchored" data-anchor-id="themePatch">VM.plotting.themePatch()</h3>
+<h3 class="anchored" data-anchor-id="themePatch">VM.plotting.themePatch(opts?)</h3>
 <p>The theme-dependent style attributes as a <strong>flat</strong>, dotted-path object for <code>Plotly.relayout</code> – <code>{"xaxis.gridcolor": …, "hoverlabel.bgcolor": …, colorway: […]}</code>. <code>relayout</code> replaces whatever attribute each key names wholesale, so a nested <code>{xaxis: {...}}</code> would wipe the page’s own <code>xaxis.title</code>/<code>range</code>; dotted keys patch only the one sub-property. The patch runs this over every live <code>.js-plotly-plot</code> on each theme flip. A page shouldn’t need to call it.</p>
-<p><strong>Returns</strong> an object with 24 keys.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>opts.scene</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>Also patch the colors of a 3-D chart’s <code>scene.xaxis</code>/<code>yaxis</code>/<code>zaxis</code>. Leave it off for a 2-D chart: relayout-ing a <code>scene.*</code> key would add a scene to it.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> an object with 24 keys, or 42 with <code>opts.scene</code>.</p>
 </section>
 </section>
 <section id="the-plotly-patch" class="level2">
@@ -1018,7 +1081,7 @@ Authors: Apurva Nakade
 <li><p><code>layout()</code> merged <strong>under</strong> the page’s layout</p></li>
 <li><p><code>hoverLabel()</code> on every trace that lacks a <code>hoverlabel</code></p></li>
 <li><p><code>dragmode: "pan"</code>, unless the page set its own</p></li>
-<li><p><code>config()</code> merged under the page’s config, then this modebar:</p>
+<li><p><code>config()</code> merged under the page’s config, then this modebar (a 3-D chart gets its own, below):</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -1049,8 +1112,9 @@ Authors: Apurva Nakade
 </tr>
 </tbody>
 </table>
-<p>Box select and lasso are absent. The list is spelled out as <code>config.modeBarButtons</code>, replacing whatever a page passes there – which is safe only because every chart the library targets is 2-D cartesian.</p></li>
-<li><p>a <code>relayout(themePatch())</code> on every theme flip</p></li>
+<p>Box select and lasso are absent. The list is spelled out as <code>config.modeBarButtons</code>, replacing whatever a page passes there.</p></li>
+<li><p>for a 3-D chart, meaning one whose layout has a <code>scene</code> (draw it with <a href="#persistentPlot3d"><code>persistentPlot3d</code></a>, which guarantees one): <code>scene.dragmode: "turntable"</code> unless the page set one, since a scene otherwise inherits <code>"pan"</code> and slides instead of rotating; themed scene axes; and the modebar download PNG | turntable rotation, orbit rotation, pan, zoom | reset camera | fullscreen</p></li>
+<li><p>a <code>relayout(themePatch())</code> on every theme flip (<code>themePatch({scene: true})</code> for a 3-D chart)</p></li>
 </ul>
 <p>The patch is idempotent and a silent no-op when <code>Plotly</code> isn’t on the page (<code>mathviz: {plotly: false}</code>).</p>
 <section id="installPlotlyPatch" class="level3">
@@ -1072,7 +1136,7 @@ Authors: Apurva Nakade
 <p>Takes <code>{viewBox, width, height}</code>. The width/height ratio an <code>&lt;svg&gt;</code> draws at, from its attributes: a four-part <code>viewBox</code> when it has one, else <code>width</code>/<code>height</code> when both are positive.</p>
 <p><strong>Returns</strong> <code>number | null</code> (<code>null</code> means “measure it”).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" data-startfrom="330" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 329;"><span id="cb16-330"><a href="#cb16-330" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">viewBox</span><span class="op">:</span> <span class="st">"0 0 640 400"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">width</span><span class="op">:</span> <span class="st">"300"</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="st">"150"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({})]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" data-startfrom="356" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 355;"><span id="cb18-356"><a href="#cb18-356" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">viewBox</span><span class="op">:</span> <span class="st">"0 0 640 400"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">width</span><span class="op">:</span> <span class="st">"300"</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="st">"150"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({})]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-9" data-nodetype="expression">
 
