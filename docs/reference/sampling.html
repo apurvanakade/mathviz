@@ -423,6 +423,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#seededRandom" id="toc-seededRandom" class="nav-link active" data-scroll-target="#seededRandom">VM.sampling.seededRandom(seed)</a></li>
   <li><a href="#gaussianRandom" id="toc-gaussianRandom" class="nav-link" data-scroll-target="#gaussianRandom">VM.sampling.gaussianRandom(rng)</a></li>
+  <li><a href="#exponentialRandom" id="toc-exponentialRandom" class="nav-link" data-scroll-target="#exponentialRandom">VM.sampling.exponentialRandom(rng, rate?)</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -455,7 +456,7 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>Two generator factories. Each returns a zero-argument function you call for the next value, so a page seeds once and draws as many samples as it needs – and because the seed can live in the URL, a link reproduces exactly the same “random” data.</p>
+<p>Three generator factories. Each returns a zero-argument function you call for the next value, so a page seeds once and draws as many samples as it needs – and because the seed can live in the URL, a link reproduces exactly the same “random” data.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="15" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 14;"><span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
@@ -552,13 +553,62 @@ Authors: Apurva Nakade
 </div>
 </div>
 <p>See the starter’s <a href="https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd">distribution-explorer.qmd</a> for these feeding a histogram under a theoretical curve.</p>
+</section>
+<section id="exponentialRandom" class="level3">
+<h3 class="anchored" data-anchor-id="exponentialRandom">VM.sampling.exponentialRandom(rng, rate?)</h3>
+<p>Inverse transform: turns a uniform generator into an Exponential(<code>rate</code>) one, mean <code>1 / rate</code>, via <code>−log(1 − U) / rate</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>rng</code></td>
+<td><code>() =&gt; number</code></td>
+<td></td>
+<td>A uniform <code>[0, 1)</code> generator – typically <code>seededRandom</code>’s return value. One draw is consumed per sample.</td>
+</tr>
+<tr class="even">
+<td><code>rate</code></td>
+<td><code>number</code></td>
+<td><code>1</code></td>
+<td>Must be <code>&gt; 0</code>; not validated.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>() =&gt; number</code>, Exponential(<code>rate</code>).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-startfrom="75" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 74;"><span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> draw <span class="op">=</span> VM<span class="op">.</span><span class="at">sampling</span><span class="op">.</span><span class="fu">exponentialRandom</span>(VM<span class="op">.</span><span class="at">sampling</span><span class="op">.</span><span class="fu">seededRandom</span>(seed)<span class="op">,</span> <span class="dv">2</span>)</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> sum <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">10000</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) sum <span class="op">+=</span> <span class="fu">draw</span>()</span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">html</span><span class="vs">`Over </span><span class="sc">${</span>n<span class="sc">}</span><span class="vs"> draws with rate 2: mean &lt;b&gt;</span><span class="sc">${</span>(sum <span class="op">/</span> n)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt; (expected 0.5)`</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-5" data-nodetype="expression">
+
+</div>
+</div>
+</div>
 
 
 </section>
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2Ygc2VlZCA9IElucHV0cy5yYW5nZShbMCwgOTk5OV0sIHtsYWJlbDogXCJzZWVkXCIsIHN0ZXA6IDEsIHZhbHVlOiA0Mn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHJuZyA9IFZNLnNhbXBsaW5nLnNlZWRlZFJhbmRvbShzZWVkKVxuICBjb25zdCBvdXQgPSBbXVxuICBmb3IgKGxldCBpID0gMDsgaSA8IDU7IGkrKykgb3V0LnB1c2gocm5nKCkudG9GaXhlZCg0KSlcbiAgcmV0dXJuIG91dFxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBnYXVzc2lhbiA9IFZNLnNhbXBsaW5nLmdhdXNzaWFuUmFuZG9tKFZNLnNhbXBsaW5nLnNlZWRlZFJhbmRvbShzZWVkKSlcbiAgbGV0IHN1bSA9IDAsIHN1bVNxID0gMFxuICBjb25zdCBuID0gMTAwMDBcbiAgZm9yIChsZXQgaSA9IDA7IGkgPCBuOyBpKyspIHsgY29uc3QgeiA9IGdhdXNzaWFuKCk7IHN1bSArPSB6OyBzdW1TcSArPSB6ICogeiB9XG4gIGNvbnN0IG1lYW4gPSBzdW0gLyBuXG4gIHJldHVybiBodG1sYE92ZXIgJHtufSBkcmF3czogbWVhbiA8Yj4ke21lYW4udG9GaXhlZCgzKX08L2I+LCB2YXJpYW5jZSA8Yj4keyhzdW1TcSAvIG4gLSBtZWFuICogbWVhbikudG9GaXhlZCgzKX08L2I+YFxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdzZWVkJykifV19
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2Ygc2VlZCA9IElucHV0cy5yYW5nZShbMCwgOTk5OV0sIHtsYWJlbDogXCJzZWVkXCIsIHN0ZXA6IDEsIHZhbHVlOiA0Mn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHJuZyA9IFZNLnNhbXBsaW5nLnNlZWRlZFJhbmRvbShzZWVkKVxuICBjb25zdCBvdXQgPSBbXVxuICBmb3IgKGxldCBpID0gMDsgaSA8IDU7IGkrKykgb3V0LnB1c2gocm5nKCkudG9GaXhlZCg0KSlcbiAgcmV0dXJuIG91dFxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBnYXVzc2lhbiA9IFZNLnNhbXBsaW5nLmdhdXNzaWFuUmFuZG9tKFZNLnNhbXBsaW5nLnNlZWRlZFJhbmRvbShzZWVkKSlcbiAgbGV0IHN1bSA9IDAsIHN1bVNxID0gMFxuICBjb25zdCBuID0gMTAwMDBcbiAgZm9yIChsZXQgaSA9IDA7IGkgPCBuOyBpKyspIHsgY29uc3QgeiA9IGdhdXNzaWFuKCk7IHN1bSArPSB6OyBzdW1TcSArPSB6ICogeiB9XG4gIGNvbnN0IG1lYW4gPSBzdW0gLyBuXG4gIHJldHVybiBodG1sYE92ZXIgJHtufSBkcmF3czogbWVhbiA8Yj4ke21lYW4udG9GaXhlZCgzKX08L2I+LCB2YXJpYW5jZSA8Yj4keyhzdW1TcSAvIG4gLSBtZWFuICogbWVhbikudG9GaXhlZCgzKX08L2I+YFxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC01IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBkcmF3ID0gVk0uc2FtcGxpbmcuZXhwb25lbnRpYWxSYW5kb20oVk0uc2FtcGxpbmcuc2VlZGVkUmFuZG9tKHNlZWQpLCAyKVxuICBsZXQgc3VtID0gMFxuICBjb25zdCBuID0gMTAwMDBcbiAgZm9yIChsZXQgaSA9IDA7IGkgPCBuOyBpKyspIHN1bSArPSBkcmF3KClcbiAgcmV0dXJuIGh0bWxgT3ZlciAke259IGRyYXdzIHdpdGggcmF0ZSAyOiBtZWFuIDxiPiR7KHN1bSAvIG4pLnRvRml4ZWQoMyl9PC9iPiAoZXhwZWN0ZWQgMC41KWBcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnc2VlZCcpIn1dfQ==
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }

@@ -599,8 +599,8 @@ kit/                   what a consumer site copies in: the update hook and the m
 <td>Quarto wraps every OJS output in a scroll container (<code>overflow: auto</code>). The legend rules set <code>overflow: visible</code> on the ones inside a chart block, or the floating legend would be clipped to a zero-height box. The same clip is why the playback popover is a top-layer <code>[popover]</code>.</td>
 </tr>
 <tr class="even">
-<td><code>.quarto-layout-cell { min-width: 0 }</code></td>
-<td>lets a chart in a <code>layout-ncol</code> column shrink with it</td>
+<td><code>.quarto-layout-cell { min-width: 0; max-width: 100% }</code></td>
+<td>lets a chart in a <code>layout-ncol</code> column shrink with it, and keeps each cell inside the screen when Quarto stacks the columns on a phone</td>
 </tr>
 <tr class="odd">
 <td><code>form[class^="oi-"]</code></td>
