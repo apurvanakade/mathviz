@@ -115,7 +115,7 @@ Quarto OJS is the primary host, and several rules target markup mathviz doesn't 
 | Selector | What it fixes |
 |---|---|
 | `.cell-output-display`, `[id^="ojs-cell-"]` | Quarto wraps every OJS output in a scroll container (`overflow: auto`). The legend rules set `overflow: visible` on the ones inside a chart block, or the floating legend would be clipped to a zero-height box. The same clip is why the playback popover is a top-layer `[popover]`. |
-| `.quarto-layout-cell { min-width: 0 }` | lets a chart in a `layout-ncol` column shrink with it |
+| `.quarto-layout-cell { min-width: 0; max-width: 100% }` | lets a chart in a `layout-ncol` column shrink with it, and keeps each cell inside the screen when Quarto stacks the columns on a phone |
 | `form[class^="oi-"]` | Observable Inputs' generated forms carry a hashed class. The panel rules override their fixed `360px` width and `120px` label column, and theme their buttons. Observable injects its own `.oi-<hash>` rules into `<head>` at runtime, *after* any stylesheet, so a mathviz rule that ties on specificity loses silently -- the shipped rules out-specify them or use `!important`. Bear this in mind if you add rules of your own. |
 | `.js-plotly-plot .modebar*` | Plotly's modebar DOM; the pill, blur and hover-fade live here |
 
