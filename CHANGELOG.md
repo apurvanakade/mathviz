@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-09-29
+
 ### Added
 
 - CDFs and quantiles in `VM.distributions`: `normalCdf`, `normalQuantile`, `chiSquaredCdf` and `chiSquaredQuantile`, with the incomplete gamma function they are built on as `regularizedGamma`. They give exact answers and critical values to compare a Monte Carlo estimate against.
@@ -144,7 +146,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.11...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.12...HEAD
+[0.1.12]: https://github.com/apurvanakade/mathviz/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/apurvanakade/mathviz/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/apurvanakade/mathviz/compare/v0.1.7...v0.1.10
 [0.1.7]: https://github.com/apurvanakade/mathviz/compare/v0.1.6...v0.1.7
