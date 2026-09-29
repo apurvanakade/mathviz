@@ -88,8 +88,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.js"></script>
-<link href="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/mathviz-0.1.11/mathviz.js"></script>
+<link href="../../site_libs/quarto-contrib/mathviz-0.1.11/mathviz.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -395,6 +395,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/mcmc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.mcmc</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../../docs/reference/discrete-math.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">VM.discreteMath</span></a>
   </div>
@@ -431,6 +437,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#simpsonEstimate" id="toc-simpsonEstimate" class="nav-link" data-scroll-target="#simpsonEstimate">VM.numerical.simpsonEstimate(f, lo, hi, n)</a></li>
   <li><a href="#lagrangeQuadratic" id="toc-lagrangeQuadratic" class="nav-link" data-scroll-target="#lagrangeQuadratic">VM.numerical.lagrangeQuadratic(x0, y0, x1, y1, x2, y2, sampleCount)</a></li>
   </ul></li>
+  <li><a href="#eigenvalues" id="toc-eigenvalues" class="nav-link" data-scroll-target="#eigenvalues">Eigenvalues</a>
+  <ul class="collapse">
+  <li><a href="#symmetricEigenvalues" id="toc-symmetricEigenvalues" class="nav-link" data-scroll-target="#symmetricEigenvalues">VM.numerical.symmetricEigenvalues(A, opts?)</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -441,7 +451,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">VM.numerical</h1>
-<p class="subtitle lead">ODE steppers, quadrature, interpolation and least-squares fits</p>
+<p class="subtitle lead">ODE steppers, quadrature, interpolation, least-squares fits and symmetric eigenvalues</p>
 </div>
 
 
@@ -799,6 +809,58 @@ Warning
 </div>
 </div>
 </div>
+</section>
+</section>
+<section id="eigenvalues" class="level2">
+<h2 class="anchored" data-anchor-id="eigenvalues">Eigenvalues</h2>
+<section id="symmetricEigenvalues" class="level3">
+<h3 class="anchored" data-anchor-id="symmetricEigenvalues">VM.numerical.symmetricEigenvalues(A, opts?)</h3>
+<p>Eigenvalues of a real symmetric matrix, by the cyclic Jacobi method: sweep over every off-diagonal entry, zeroing each with a plane rotation, until the off-diagonal part is negligible. <code>O(k³)</code> per sweep, so meant for the few-dozen-row matrices a page draws – e.g.&nbsp;a random walk’s symmetrized transition matrix <code>D^{1/2} P D^{-1/2}</code>, whose eigenvalues are <code>P</code>’s.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>A</code></td>
+<td><code>number[][]</code></td>
+<td></td>
+<td>Symmetric <code>k × k</code> matrix. Symmetry is assumed, not checked; <code>A</code> is not modified.</td>
+</tr>
+<tr class="even">
+<td><code>opts.tolerance</code></td>
+<td><code>number</code></td>
+<td><code>1e-12</code></td>
+<td>Stop once the off-diagonal sum of squares falls below this fraction of the whole matrix’s, so the result doesn’t depend on the matrix’s scale.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.maxSweeps</code></td>
+<td><code>number</code></td>
+<td><code>100</code></td>
+<td>Cap on sweeps.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>number[]</code>, the <code>k</code> eigenvalues sorted descending, with multiplicity. <code>[]</code> for an empty matrix.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-startfrom="177" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 176;"><span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">symmetricEigenvalues</span>([[<span class="dv">2</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>]])   <span class="co">// 2 + √2, 2, 2 − √2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="expression">
+
+</div>
+</div>
+</div>
 
 
 </section>
@@ -806,7 +868,7 @@ Warning
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHB0cyA9IFtdXG4gIGZvciAobGV0IGkgPSAxOyBpIDw9IDY7IGkrKykgcHRzLnB1c2goe3g6IGksIHk6IDIgKiBpICsgMSArIChpICUgMiA9PT0gMCA/IDAuMSA6IC0wLjEpfSlcbiAgcmV0dXJuIFZNLm51bWVyaWNhbC5saW5lYXJSZWdyZXNzaW9uKHB0cylcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgLy8gRml2ZSBwb2ludHMgb24geSA9IHgsIHBsdXMgb25lIHdpbGQgb3V0bGllci4gTDIgaXMgZHJhZ2dlZCB0b3dhcmQgaXQ7IEwxIGlzIG5vdC5cbiAgY29uc3QgcHRzID0gW3t4OiAxLCB5OiAxfSwge3g6IDIsIHk6IDJ9LCB7eDogMywgeTogM30sIHt4OiA0LCB5OiA0fSwge3g6IDUsIHk6IDV9LCB7eDogNiwgeTogMzB9XVxuICByZXR1cm4ge2wyOiBWTS5udW1lcmljYWwubGluZWFyUmVncmVzc2lvbihwdHMpLCBsMTogVk0ubnVtZXJpY2FsLmwxUmVncmVzc2lvbihwdHMpfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBwdHMgPSBbXVxuICBmb3IgKGxldCB4ID0gLTI7IHggPD0gMjsgeCsrKSBwdHMucHVzaCh7eCwgeTogeCAqIHggLSAxfSlcbiAgY29uc3QgZml0ID0gVk0ubnVtZXJpY2FsLnBvbHlub21pYWxGaXQobWF0aCwgcHRzLCAyKVxuICByZXR1cm4ge2NvZWZmczogZml0LmNvZWZmcywgYXQzOiBmaXQuZXZhbHVhdGUoMyksIGVycm9yOiBmaXQudG90YWxTcXVhcmVkRXJyb3J9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2Ygb2RlU3RlcHMgPSBJbnB1dHMucmFuZ2UoWzIsIDY0XSwge2xhYmVsOiBcInN0ZXBzIG5cIiwgc3RlcDogMSwgdmFsdWU6IDh9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC02IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICAvLyB5JyA9IHksIHkoMCkgPSAxLCBzbyB5KDEpID0gZS4gV2F0Y2ggdGhlIHR3byBlcnJvcnMgc2hyaW5rIGFzIG4gZ3Jvd3MuXG4gIGNvbnN0IGYgPSAodCwgeSkgPT4geVxuICBjb25zdCBldWxlciA9IFZNLm51bWVyaWNhbC5ldWxlclNvbHZlKGYsIDAsIDEsIDEsIG9kZVN0ZXBzKVxuICBjb25zdCByazQgPSBWTS5udW1lcmljYWwucms0U29sdmUoZiwgMCwgMSwgMSwgb2RlU3RlcHMpXG4gIGNvbnN0IGxhc3QgPSBhcnIgPT4gYXJyW2Fyci5sZW5ndGggLSAxXVxuICByZXR1cm4gaHRtbGBFdWxlciBlcnJvcjogPGI+JHtNYXRoLmFicyhsYXN0KGV1bGVyLnlzKSAtIE1hdGguRSkudG9FeHBvbmVudGlhbCgyKX08L2I+ICZuYnNwOyBSSzQgZXJyb3I6IDxiPiR7TWF0aC5hYnMobGFzdChyazQueXMpIC0gTWF0aC5FKS50b0V4cG9uZW50aWFsKDIpfTwvYj5gXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS5udW1lcmljYWwuc2ltcHNvbkVzdGltYXRlKE1hdGguc2luLCAwLCBNYXRoLlBJLCAxMCkgICAvLyBleGFjdCB2YWx1ZSAyXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTgiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS5udW1lcmljYWwubGFncmFuZ2VRdWFkcmF0aWMoMCwgMCwgMSwgMSwgMiwgNCwgNCkgICAvLyB0aGUgcGFyYWJvbGEgeSA9IHjCsiBzYW1wbGVkIGF0IDAsIC41LCAxLCAxLjUsIDJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnb2RlU3RlcHMnKSJ9XX0=
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHB0cyA9IFtdXG4gIGZvciAobGV0IGkgPSAxOyBpIDw9IDY7IGkrKykgcHRzLnB1c2goe3g6IGksIHk6IDIgKiBpICsgMSArIChpICUgMiA9PT0gMCA/IDAuMSA6IC0wLjEpfSlcbiAgcmV0dXJuIFZNLm51bWVyaWNhbC5saW5lYXJSZWdyZXNzaW9uKHB0cylcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgLy8gRml2ZSBwb2ludHMgb24geSA9IHgsIHBsdXMgb25lIHdpbGQgb3V0bGllci4gTDIgaXMgZHJhZ2dlZCB0b3dhcmQgaXQ7IEwxIGlzIG5vdC5cbiAgY29uc3QgcHRzID0gW3t4OiAxLCB5OiAxfSwge3g6IDIsIHk6IDJ9LCB7eDogMywgeTogM30sIHt4OiA0LCB5OiA0fSwge3g6IDUsIHk6IDV9LCB7eDogNiwgeTogMzB9XVxuICByZXR1cm4ge2wyOiBWTS5udW1lcmljYWwubGluZWFyUmVncmVzc2lvbihwdHMpLCBsMTogVk0ubnVtZXJpY2FsLmwxUmVncmVzc2lvbihwdHMpfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBwdHMgPSBbXVxuICBmb3IgKGxldCB4ID0gLTI7IHggPD0gMjsgeCsrKSBwdHMucHVzaCh7eCwgeTogeCAqIHggLSAxfSlcbiAgY29uc3QgZml0ID0gVk0ubnVtZXJpY2FsLnBvbHlub21pYWxGaXQobWF0aCwgcHRzLCAyKVxuICByZXR1cm4ge2NvZWZmczogZml0LmNvZWZmcywgYXQzOiBmaXQuZXZhbHVhdGUoMyksIGVycm9yOiBmaXQudG90YWxTcXVhcmVkRXJyb3J9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2Ygb2RlU3RlcHMgPSBJbnB1dHMucmFuZ2UoWzIsIDY0XSwge2xhYmVsOiBcInN0ZXBzIG5cIiwgc3RlcDogMSwgdmFsdWU6IDh9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC02IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICAvLyB5JyA9IHksIHkoMCkgPSAxLCBzbyB5KDEpID0gZS4gV2F0Y2ggdGhlIHR3byBlcnJvcnMgc2hyaW5rIGFzIG4gZ3Jvd3MuXG4gIGNvbnN0IGYgPSAodCwgeSkgPT4geVxuICBjb25zdCBldWxlciA9IFZNLm51bWVyaWNhbC5ldWxlclNvbHZlKGYsIDAsIDEsIDEsIG9kZVN0ZXBzKVxuICBjb25zdCByazQgPSBWTS5udW1lcmljYWwucms0U29sdmUoZiwgMCwgMSwgMSwgb2RlU3RlcHMpXG4gIGNvbnN0IGxhc3QgPSBhcnIgPT4gYXJyW2Fyci5sZW5ndGggLSAxXVxuICByZXR1cm4gaHRtbGBFdWxlciBlcnJvcjogPGI+JHtNYXRoLmFicyhsYXN0KGV1bGVyLnlzKSAtIE1hdGguRSkudG9FeHBvbmVudGlhbCgyKX08L2I+ICZuYnNwOyBSSzQgZXJyb3I6IDxiPiR7TWF0aC5hYnMobGFzdChyazQueXMpIC0gTWF0aC5FKS50b0V4cG9uZW50aWFsKDIpfTwvYj5gXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS5udW1lcmljYWwuc2ltcHNvbkVzdGltYXRlKE1hdGguc2luLCAwLCBNYXRoLlBJLCAxMCkgICAvLyBleGFjdCB2YWx1ZSAyXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTgiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS5udW1lcmljYWwubGFncmFuZ2VRdWFkcmF0aWMoMCwgMCwgMSwgMSwgMiwgNCwgNCkgICAvLyB0aGUgcGFyYWJvbGEgeSA9IHjCsiBzYW1wbGVkIGF0IDAsIC41LCAxLCAxLjUsIDJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm51bWVyaWNhbC5zeW1tZXRyaWNFaWdlbnZhbHVlcyhbWzIsIDEsIDBdLCBbMSwgMiwgMV0sIFswLCAxLCAyXV0pICAgLy8gMiArIOKImjIsIDIsIDIg4oiSIOKImjJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnb2RlU3RlcHMnKSJ9XX0=
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }

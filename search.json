@@ -209,377 +209,14 @@
     ]
   },
   {
-    "objectID": "docs/reference/index.html",
-    "href": "docs/reference/index.html",
-    "title": "API reference",
-    "section": "",
-    "text": "The bundle attaches one global, VM, with a namespace per concern. Each source file adds one function (a few add two or three that belong together) and nothing here has hidden state beyond what’s noted – the theme functions read CSS at call time, the self-installing UI modules keep track of what they’ve enhanced.",
+    "objectID": "docs/reference/numerical.html#eigenvalues",
+    "href": "docs/reference/numerical.html#eigenvalues",
+    "title": "VM.numerical",
+    "section": "Eigenvalues",
+    "text": "Eigenvalues\n\nVM.numerical.symmetricEigenvalues(A, opts?)\nEigenvalues of a real symmetric matrix, by the cyclic Jacobi method: sweep over every off-diagonal entry, zeroing each with a plane rotation, until the off-diagonal part is negligible. O(k³) per sweep, so meant for the few-dozen-row matrices a page draws – e.g. a random walk’s symmetrized transition matrix D^{1/2} P D^{-1/2}, whose eigenvalues are P’s.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nA\nnumber[][]\n\nSymmetric k × k matrix. Symmetry is assumed, not checked; A is not modified.\n\n\nopts.tolerance\nnumber\n1e-12\nStop once the off-diagonal sum of squares falls below this fraction of the whole matrix’s, so the result doesn’t depend on the matrix’s scale.\n\n\nopts.maxSweeps\nnumber\n100\nCap on sweeps.\n\n\n\nReturns number[], the k eigenvalues sorted descending, with multiplicity. [] for an empty matrix.\n\nVM.numerical.symmetricEigenvalues([[2, 1, 0], [1, 2, 1], [0, 1, 2]])   // 2 + √2, 2, 2 − √2",
     "crumbs": [
       "Reference",
-      "API reference"
-    ]
-  },
-  {
-    "objectID": "docs/reference/index.html#conventions",
-    "href": "docs/reference/index.html#conventions",
-    "title": "API reference",
-    "section": "Conventions",
-    "text": "Conventions\nThese hold across the whole surface, so each page states only its exceptions.\nBad input gives null, not an exception. Anything that parses reader-typed text (makeFunction, makeNumber, makeRational) returns null when it can’t; a fit with too few points returns null. Branch on it and draw an emptyState.\nOutside a distribution’s support you get 0. Never NaN, so a slider at an invalid parameter flattens a curve rather than breaking the chart.\nmath.js is passed in, not imported. VM.expressions.* and polynomialFit take the math.js instance as their first argument – the global math on a page rendered through the extension. The one exception is makeRational, which parses literals only and takes no instance.\nColors are read when you ask, not when the page loads. colors(), alpha() and the three discreteMath color helpers return whatever the active theme says right now. Call them inside the cell that builds the traces, and make that cell depend on vmTheme so it re-runs on a toggle – see onThemeChange.\nSelf-installing modules take no call. The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the markup contract.",
-    "crumbs": [
-      "Reference",
-      "API reference"
-    ]
-  },
-  {
-    "objectID": "docs/reference/index.html#what-needs-what",
-    "href": "docs/reference/index.html#what-needs-what",
-    "title": "API reference",
-    "section": "What needs what",
-    "text": "What needs what\nNothing here imports anything. Where a function needs a library, it takes it as an argument or finds it on window.\n\n\n\n\nNeeds\n\n\n\n\nVM.expressions.* (except makeRational), VM.numerical.polynomialFit\na math.js instance, passed as the first argument\n\n\nVM.numerical.*, VM.sampling.*, VM.filters.*, VM.distributions.*, VM.discreteMath.*\nnothing\n\n\nVM.plotting.colors / colorway / alpha / themeName / onThemeChange / configure / subscript / paddedRange / plotOptions\nnothing (a document to read tokens from; sensible fallbacks without)\n\n\nVM.plotting.layout / config / hoverLabel / emptyState / themePatch\nnothing – they build plain objects. You need Plotly to use them, of course\n\n\nVM.plotting.autoResize\nResizeObserver (returns null without); safe when Plotly is absent\n\n\nVM.plotting.installPlotlyPatch / fullscreenButton\nwindow.Plotly\n\n\nVM.plotting.svgAspectRatio / figureBounds, VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame\nnothing – pure helpers\n\n\nVM.ui.legendOverlay\nnothing – plain DOM. It implements Observable’s view contract; it doesn’t require Observable\n\n\nVM.ui.renderTable\nhtl’s html tag, passed in. Emits Bootstrap table classes\n\n\nVM.ui.applyExampleParams\nviews that follow Observable Inputs’ value + \"input\" protocol\n\n\nslider playback, draggable legend, SVG fullscreen button, slider fill\nnothing – self-installing on the markup they look for",
-    "crumbs": [
-      "Reference",
-      "API reference"
-    ]
-  },
-  {
-    "objectID": "docs/reference/index.html#where-the-signatures-live",
-    "href": "docs/reference/index.html#where-the-signatures-live",
-    "title": "API reference",
-    "section": "Where the signatures live",
-    "text": "Where the signatures live\nEvery function’s JSDoc in src/js/&lt;category&gt;/&lt;name&gt;.js is the authoritative signature; these pages restate it with context and a live example. A test (src/docs-coverage.test.js) fails the build if a VM.* member exists without a heading here, or vice versa, so the two can’t drift.",
-    "crumbs": [
-      "Reference",
-      "API reference"
-    ]
-  },
-  {
-    "objectID": "docs/reference/expressions.html",
-    "href": "docs/reference/expressions.html",
-    "title": "VM.expressions",
-    "section": "",
-    "text": "Every function here takes a math.js instance as its first argument – on a page rendered through the extension that is the global math – and an expression string as typed by a reader. The string is normalized first (trimmed, π replaced by pi), then compiled. Nothing here throws on bad input: an expression that can’t be parsed gives null, and a compiled function that fails at a point (a domain error, say) gives NaN there. Branch on the null and draw an emptyState rather than an empty grid.\nThe one exception to the pattern is makeRational, which takes no math.js instance and parses only literals.\n\nVM = window.VM\n\n\n\n\n\n\n\nVM.expressions.makeFunction(mathjs, expr)\nCompiles an expression in x into a plain (x) =&gt; number.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\nThe global math on a page that loads it.\n\n\nexpr\nstring\nAn expression in x, e.g. \"sin(x) + x^2/4\".\n\n\n\nReturns ((x: number) =&gt; number) | null – null if the expression can’t be parsed. The returned function yields NaN (never throws) where evaluation fails.\n\nviewof fxText = Inputs.text({label: \"f(x) =\", value: \"sin(x) + x^2/4\"})\n\n\n\n\n\n\n\n{\n  const f = VM.expressions.makeFunction(math, fxText)\n  if (f === null) return html`&lt;em&gt;Couldn't parse that.&lt;/em&gt;`\n  return html`f(0) = &lt;b&gt;${f(0)}&lt;/b&gt;, f(π) = &lt;b&gt;${f(Math.PI).toFixed(4)}&lt;/b&gt;, f(\"a\") = &lt;b&gt;${f(\"a\")}&lt;/b&gt;`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeDerivative(mathjs, expr)\nLike makeFunction, but compiles the symbolic derivative df/dx via math.derivative.\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in x.\n\n\n\nReturns ((x: number) =&gt; number) | null – null if the expression can’t be parsed or differentiated.\n\n{\n  const df = VM.expressions.makeDerivative(math, \"x^3 - 2x\")\n  return html`d/dx (x³ − 2x) at x = 2: &lt;b&gt;${df(2)}&lt;/b&gt; (expect 10)`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeNumber(mathjs, expr)\nEvaluates a constant expression to a JavaScript number. Use it for every numeric field on a page – an initial guess, an endpoint, a step count – so readers can type pi/4 or 2^10, not only literals.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nA constant expression, e.g. \"1 + 2*3 + pi - e\".\n\n\n\nReturns number | null – null if the expression can’t be parsed, references a free variable, or doesn’t evaluate to a finite number.\n\n[VM.expressions.makeNumber(math, \"1 + 2*3 + pi - e\"), VM.expressions.makeNumber(math, \"x + 1\"), VM.expressions.makeNumber(math, \"1/0\")]\n\n\n\n\n\n\n\n\nVM.expressions.makeFunction2(mathjs, expr)\nCompiles an expression in t and y into a two-argument (t, y) =&gt; number: the right-hand side of a first-order ODE y' = f(t, y), in the shape eulerSolve and rk4Solve take.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in t and y, e.g. \"y - t^2 + 1\".\n\n\n\nReturns ((t: number, y: number) =&gt; number) | null.\n\n{\n  const f = VM.expressions.makeFunction2(math, \"y - t^2 + 1\")\n  return html`f(t = 0, y = 0.5) = &lt;b&gt;${f(0, 0.5)}&lt;/b&gt;`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeFunctionOfT(mathjs, expr)\nLike makeFunction, but the free variable is t – for a parametric curve x(t), y(t) or anything else where time is the natural parameter.\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in t, e.g. \"cos(2t)\".\n\n\n\nReturns ((t: number) =&gt; number) | null.\n\n\nVM.expressions.makeRational(expr)\nParses a rational-number literal into an exact reduced fraction – for displaying a Butcher-tableau coefficient as 1/6 rather than 0.16666666666666666.\nUnlike its siblings this takes no math.js instance and evaluates nothing. Only three forms are accepted:\n\n\n\nForm\nExamples\n\n\n\n\ninteger\n\"3\", \"-3\"\n\n\nfraction of integers\n\"1/2\", \"-1 / 3\"\n\n\ndecimal\n\"0.25\", \".5\", \"-2.75\"\n\n\n\nReturns {num: number, den: number} | null – numerator and denominator in lowest terms with den &gt; 0; null for an empty string, a zero denominator, or anything else (\"1/2 + 1\", \"pi\", \"1e3\", \"1.\" all return null).\n\n[\"6/-8\", \"0.125\", \"-3\", \"1/2 + 1\", \"1/0\"].map(s =&gt; [s, VM.expressions.makeRational(s)])",
-    "crumbs": [
-      "Reference",
-      "VM.expressions"
-    ]
-  },
-  {
-    "objectID": "docs/reference/discrete-math.html",
-    "href": "docs/reference/discrete-math.html",
-    "title": "VM.discreteMath",
-    "section": "",
-    "text": "The combinatorics behind a Sperner’s-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color names into palette colors at the moment of drawing.\nEvery helper works in the names 'red', 'green', 'blue' – those are the keys the logic compares – and only the three *Color functions at the end touch the actual palette. Keep that split: fill: d =&gt; VM.discreteMath.vertexColor(d.color), never fill: \"red\", which is not the site’s red and doesn’t lighten in dark mode.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
-    "crumbs": [
-      "Reference",
-      "VM.discreteMath"
-    ]
-  },
-  {
-    "objectID": "docs/reference/discrete-math.html#live",
-    "href": "docs/reference/discrete-math.html#live",
-    "title": "VM.discreteMath",
-    "section": "Live",
-    "text": "Live\n\n\nviewof N = Inputs.range([1, 12], {label: \"order N\", step: 1, value: 5})\n\n\n\n\n\n\n\nviewof recolor = Inputs.button(\"Recolor\")\n\n\n\n\n\n\n\n\n\n{\n  recolor; chartColors   // re-run on the button and on a theme toggle\n  const toXY = ([i, j, k]) =&gt; ({x: (j + k / 2) / N, y: (Math.sqrt(3) / 2) * k / N})\n  const coloring = new Map()\n  for (const t of VM.discreteMath.barycentricTriples(N)) coloring.set(t.join(\",\"), VM.discreteMath.spernerColor(...t))\n  const colorOf = t =&gt; coloring.get(t.join(\",\"))\n  const triangles = []\n  for (const tri of VM.discreteMath.subTriangleTriples(N)) {\n    const fill = VM.discreteMath.triangleFillColor(tri.map(colorOf))\n    triangles.push({points: tri.map(toXY), fill})\n  }\n  const edges = []\n  for (const {a, b} of VM.discreteMath.triangulationEdges(N)) {\n    edges.push({...toXY(a), x2: toXY(b).x, y2: toXY(b).y, stroke: VM.discreteMath.pairColor(colorOf(a), colorOf(b)) ?? chartColors.muted})\n  }\n  const dots = []\n  for (const t of VM.discreteMath.barycentricTriples(N)) dots.push({...toXY(t), color: colorOf(t)})\n  const rainbow = triangles.filter(t =&gt; t.fill !== \"none\").length\n  return Plot.plot(VM.plotting.plotOptions({\n    width: 520, height: 470, axis: null, grid: false, x: {domain: [-0.05, 1.05]}, y: {domain: [-0.05, 0.92]},\n    marks: [\n      ...triangles.map(t =&gt; Plot.line(t.points.concat([t.points[0]]), {x: \"x\", y: \"y\", fill: t.fill, stroke: \"none\"})),\n      Plot.link(edges, {x1: \"x\", y1: \"y\", x2: \"x2\", y2: \"y2\", stroke: \"stroke\", strokeWidth: 2}),\n      Plot.dot(dots, {x: \"x\", y: \"y\", fill: d =&gt; VM.discreteMath.vertexColor(d.color), r: N &gt; 8 ? 4 : 6, stroke: chartColors.halo}),\n      Plot.text([{x: 0.5, y: -0.03, t: `${rainbow} rainbow triangle${rainbow === 1 ? \"\" : \"s\"} (Sperner: always odd)`}], {x: \"x\", y: \"y\", text: \"t\", fill: chartColors.ink})\n    ]\n  }))\n}",
-    "crumbs": [
-      "Reference",
-      "VM.discreteMath"
-    ]
-  },
-  {
-    "objectID": "docs/reference/discrete-math.html#triangulation",
-    "href": "docs/reference/discrete-math.html#triangulation",
-    "title": "VM.discreteMath",
-    "section": "Triangulation",
-    "text": "Triangulation\nA uniform order-N triangulation has (N+1)(N+2)/2 vertices, each a triple [i, j, k] of non-negative integers with i + j + k = N; a vertex is a corner when two coordinates are zero and on an edge when one is.\n\nVM.discreteMath.barycentricTriples(N)\nEvery vertex, i-major.\nReturns number[][] – (N+1)(N+2)/2 triples. [[0,0,0]] for N = 0; empty for negative N.\n\nVM.discreteMath.barycentricTriples(2)\n\n\n\n\n\n\n\n\nVM.discreteMath.subTriangleTriples(N)\nThe N² small triangles, each as a triple of vertex triples: the N(N+1)/2 “upward” ones first, then the N(N−1)/2 “downward” ones.\nReturns number[][][].\n\nVM.discreteMath.subTriangleTriples(2)\n\n\n\n\n\n\n\n\nVM.discreteMath.triangulationEdges(N)\nEvery edge exactly once, derived from subTriangleTriples with each interior edge (shared by two triangles) deduplicated.\nReturns {a: number[], b: number[]}[].\n\nVM.discreteMath.triangulationEdges(2).length   // 3N(N+1)/2 = 9",
-    "crumbs": [
-      "Reference",
-      "VM.discreteMath"
-    ]
-  },
-  {
-    "objectID": "docs/reference/discrete-math.html#coloring",
-    "href": "docs/reference/discrete-math.html#coloring",
-    "title": "VM.discreteMath",
-    "section": "Coloring",
-    "text": "Coloring\n\nVM.discreteMath.spernerColor(a, b, c)\nColors one vertex so the whole labelling satisfies Sperner’s condition: the corners get fixed colors – (0,0,N) red, (N,0,0) green, (0,N,0) blue – a vertex on a boundary edge gets one of that edge’s two corner colors uniformly at random, and an interior vertex any of the three uniformly at random.\nReturns 'red' | 'green' | 'blue'.\nUses Math.random(), so it isn’t reproducible from a seed; a page that needs a URL-shareable coloring draws its own randomness from seededRandom and applies the same three rules.\n\n\nVM.discreteMath.randomColor()\nOne of the three names uniformly at random, ignoring position – for showing what breaks when the boundary condition is violated.\nReturns 'red' | 'green' | 'blue'.",
-    "crumbs": [
-      "Reference",
-      "VM.discreteMath"
-    ]
-  },
-  {
-    "objectID": "docs/reference/discrete-math.html#drawing",
-    "href": "docs/reference/discrete-math.html#drawing",
-    "title": "VM.discreteMath",
-    "section": "Drawing",
-    "text": "Drawing\nThese read VM.plotting.colors() / alpha() when called. A cell that stores their output (an array of colored edges, a triangle’s fillColor) must itself depend on chartColors – a bare chartColors; line at the top, as in the live example above – or the stored colors go stale on a toggle.\n\nVM.discreteMath.vertexColor(name)\n'red' → colors().alt, 'green' → colors().ok, 'blue' → colors().fn. The prose swatches .vm-swatch-alt / -ok / -fn use the same tokens, so a word and a dot agree.\nReturns a CSS color, or null for any other name.\n\n\nVM.discreteMath.pairColor(colorA, colorB)\nThe shared color for a pair of distinct names, at 80% opacity: red+green → warn (amber), green+blue → accent3 (teal), red+blue → accent2 (purple). Order doesn’t matter.\nReturns an rgba(...) string, or null when the names are equal or the pair isn’t one of the three.\n\n\nVM.discreteMath.triangleFillColor(colors)\nThe fill for a small triangle given its vertex names: translucent accent2 (55%) when all three are distinct – a “rainbow” triangle, the object of the lemma – and the string 'none' otherwise.\nReturns string.\n\n[VM.discreteMath.vertexColor(\"red\"), VM.discreteMath.pairColor(\"green\", \"blue\"), VM.discreteMath.triangleFillColor([\"red\", \"green\", \"blue\"]), VM.discreteMath.triangleFillColor([\"red\", \"red\", \"blue\"])]",
-    "crumbs": [
-      "Reference",
-      "VM.discreteMath"
-    ]
-  },
-  {
-    "objectID": "docs/install.html",
-    "href": "docs/install.html",
-    "title": "Installing",
-    "section": "",
-    "text": "New site? Copy the starter instead – it has the extension installed. This page is for adding the library to a site you already have.\nmathviz ships two ways from one source tree. Both give you the same window.VM, the same CSS, and the same behaviour.",
-    "crumbs": [
-      "Guide",
-      "Installing"
-    ]
-  },
-  {
-    "objectID": "docs/install.html#quarto-site-book-or-document",
-    "href": "docs/install.html#quarto-site-book-or-document",
-    "title": "Installing",
-    "section": "Quarto site, book or document",
-    "text": "Quarto site, book or document\nquarto add apurvanakade/mathviz\nThis copies the extension into _extensions/apurvanakade/mathviz/ in your project. Enable it project-wide in _quarto.yml, or per page in front matter:\nfilters:\n  - mathviz\nThe filter puts math.js and Plotly (from a CDN, pinned to the versions the library is tested against), then mathviz.js and mathviz.css (served from your own site_libs/), into every HTML page’s &lt;head&gt;.\n\nOptions\nAll optional, under a mathviz: key in _quarto.yml or a page’s front matter:\nmathviz:\n  plotly: false             # your pages draw with D3/canvas/Plot -- skip Plotly\n  mathjs: false             # ...or math.js. Either also accepts a URL string\n  css: false                # bring your own stylesheet\n  referrer: same-origin     # emit &lt;meta name=\"referrer\"&gt; ahead of the CDN tags\n\n\n\nKey\nValues\nEffect\n\n\n\n\nplotly\ntrue (default), false, or a URL\nWhether to add the Plotly tag, and from where. With false the Plotly patch is a silent no-op and the VM.plotting theme functions still work for Observable Plot.\n\n\nmathjs\ntrue (default), false, or a URL\nWhether to add the math.js tag, and from where. VM.expressions.* take the instance as an argument, so a page that loads math.js another way passes that.\n\n\ncss\ntrue (default) or false\nWhether to add mathviz.css. With false you supply the --vm-* tokens and the ojs-* rules yourself – see Theming.\n\n\nreferrer\na referrer policy string\nEmits &lt;meta name=\"referrer\" content=\"…\"&gt; before the CDN tags, so the third-party origins don’t see a page’s path or query string – which on a math page is the reader’s own input. Visual Math Lab uses same-origin.\n\n\n\nFurther keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, embedding, a Share button, a Report bug popup, a phone notice), and the extension ships an optional Quarto theme. All are off by default – see Site extras.\n\n\nVersions and updating\nquarto update apurvanakade/mathviz            # latest tag\nquarto update apurvanakade/mathviz@v0.1.10    # a specific tag\nquarto add apurvanakade/mathviz@v0.1.10       # pin at install time",
-    "crumbs": [
-      "Guide",
-      "Installing"
-    ]
-  },
-  {
-    "objectID": "docs/install.html#any-other-web-page",
-    "href": "docs/install.html#any-other-web-page",
-    "title": "Installing",
-    "section": "Any other web page",
-    "text": "Any other web page\n&lt;link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.10/dist/mathviz.css\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js\"&gt;&lt;/script&gt;\n&lt;script src=\"https://cdn.plot.ly/plotly-2.35.2.min.js\"&gt;&lt;/script&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.10/dist/mathviz.js\"&gt;&lt;/script&gt;\n\nLoad Plotly before mathviz.js. If Plotly arrives later (a dynamic import), call VM.plotting.installPlotlyPatch() yourself.\nPin the tag in the URL. jsDelivr also serves @main, but a tag is what you can reason about.\nWithout Quarto and Observable Inputs, some CSS has nothing to attach to; Internals says what degrades and what doesn’t.",
-    "crumbs": [
-      "Guide",
-      "Installing"
-    ]
-  },
-  {
-    "objectID": "docs/index.html",
-    "href": "docs/index.html",
-    "title": "mathviz",
-    "section": "",
-    "text": "mathviz is the machinery behind Visual Math Lab, packaged so any site can use it: a Quarto extension that drops into an OJS page with one line of front matter, and the same code as a plain script bundle for everything else.\nEvery chart, panel and slider on this site is drawn by the library itself. Toggle the theme in the navbar and watch them follow.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
-    "crumbs": [
-      "Guide",
-      "mathviz"
-    ]
-  },
-  {
-    "objectID": "docs/index.html#quick-start",
-    "href": "docs/index.html#quick-start",
-    "title": "mathviz",
-    "section": "Quick start",
-    "text": "Quick start\n\nA new siteAn existing Quarto site\n\n\nCopy the starter – a complete Quarto website with seven working pages and the extension already installed:\ngit clone https://github.com/apurvanakade/mathviz\ncp -r mathviz/starter my-site && cd my-site\nquarto preview\nThen copy any page (index.qmd is the smallest), rename it, and edit its cells. Its README lists what each page shows.\n\n\nquarto add apurvanakade/mathviz\n# _quarto.yml\nfilters:\n  - mathviz\nEvery page now has VM, math.js, Plotly and the stylesheet. Copy a page from the starter into your site to see it work.",
-    "crumbs": [
-      "Guide",
-      "mathviz"
-    ]
-  },
-  {
-    "objectID": "docs/index.html#what-you-get",
-    "href": "docs/index.html#what-you-get",
-    "title": "mathviz",
-    "section": "What you get",
-    "text": "What you get\n\nThemed charts – Plotly and Observable Plot follow your site’s light/dark toggle, with no per-page code.\nControl panels – a few ojs-* classes lay Observable inputs out into a tidy panel; step sliders sit above the chart and get a play button.\nA better modebar and a draggable legend – fullscreen, gentler zoom, pan by default; a floating legend that toggles traces.\nNumerical helpers – safe expression parsing, ODE steppers, quadrature, fits, densities, seeded randomness.",
-    "crumbs": [
-      "Guide",
-      "mathviz"
-    ]
-  },
-  {
-    "objectID": "docs/index.html#next",
-    "href": "docs/index.html#next",
-    "title": "mathviz",
-    "section": "Next",
-    "text": "Next\n\n\n\nBuilding a page\nThe starter’s first page, cell by cell – the pattern every page follows.\n\n\nTheming\nMake the colors and fonts yours; how dark mode is detected.\n\n\nMarkup\nThe ojs-* classes that lay out panels and charts.\n\n\nInstalling\nFilter options, pinning a version, using the bundle on a non-Quarto page.\n\n\nAPI reference\nEvery VM.* function, with live examples.\n\n\nTroubleshooting\nSymptom → cause → fix.",
-    "crumbs": [
-      "Guide",
-      "mathviz"
-    ]
-  },
-  {
-    "objectID": "docs/first-chart.html",
-    "href": "docs/first-chart.html",
-    "title": "Building a page",
-    "section": "",
-    "text": "This is the whole of the starter’s index.qmd, with each cell explained. Read it once and every other page will look familiar: a panel of inputs, a cell or two of computation, a chart block.",
-    "crumbs": [
-      "Guide",
-      "Building a page"
-    ]
-  },
-  {
-    "objectID": "docs/first-chart.html#the-page",
-    "href": "docs/first-chart.html#the-page",
-    "title": "Building a page",
-    "section": "The page",
-    "text": "The page\n\nVM = window.VM\n\n\n\n\n\n\n\n\nviewof fText = Inputs.text({label: \"f(x)\", value: \"sin(x) + x/3\"})\n\n\n\n\n\n\n\nviewof k = Inputs.range([1, 5], {label: \"Frequency\", step: 0.1, value: 1})\n\n\n\n\n\n\n\n\n\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmainPlot = {\n  const f = VM.expressions.makeFunction(math, fText)\n  const xs = [], ys = []\n  for (let i = 0; i &lt;= 400; i++) {\n    const x = -6 + 12 * i / 400\n    xs.push(x)\n    ys.push(f ? f(k * x) : NaN)\n  }\n  const div = document.createElement(\"div\")\n  div.className = \"plotly-box-large\"\n  Plotly.newPlot(div, [\n    {x: xs, y: ys, mode: \"lines\", name: fText, line: {color: chartColors.fn, width: 2.5}, showlegend: false}\n  ], VM.plotting.layout({\n    xaxis: {title: \"x\"},\n    yaxis: {title: \"f(kx)\"},\n    annotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\nType something unparseable into the field. Toggle the theme. Press ▶ on the slider.",
-    "crumbs": [
-      "Guide",
-      "Building a page"
-    ]
-  },
-  {
-    "objectID": "docs/first-chart.html#cell-by-cell",
-    "href": "docs/first-chart.html#cell-by-cell",
-    "title": "Building a page",
-    "section": "Cell by cell",
-    "text": "Cell by cell\n\nThe panel\n::: {.ojs-panel .ojs-row}\n```{ojs}\nviewof fText = Inputs.text({label: \"f(x)\", value: \"sin(x) + x/3\"})\n```\n```{ojs}\nviewof k = Inputs.range([1, 5], {label: \"Frequency\", step: 0.1, value: 1})\n```\n:::\nA Quarto div with two classes around ordinary Observable inputs. ojs-panel is the look – border, background, consistent input styling; ojs-row is the layout – one wrapping row, the first control stretching to fill. The slider gets its play button for free. All the classes are on the Markup page.\n\n\nThe theme pair\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nPut these two lines on every chart page. chartColors is the palette – chartColors.fn, .alt, .ok, … – and it changes when the reader toggles light/dark, so every cell that reads it redraws with the right colors. Without them, the chart’s axes follow the toggle but your traces keep their old colors. (Why that is, and why colors takes an argument it ignores: onThemeChange.)\n\n\nThe function\nconst f = VM.expressions.makeFunction(math, fText)\nmath is the math.js global the extension loaded. makeFunction turns the typed text into a JavaScript function, or gives null if it won’t parse – it never throws, so a half-typed expression can’t break the page. Where evaluation fails (sqrt(x) at x = -1) the function gives NaN, which Plotly draws as a gap.\n\n\nThe sampling loop\nfor (let i = 0; i &lt;= 400; i++) {\n  const x = -6 + 12 * i / 400\n  xs.push(x)\n  ys.push(f ? f(k * x) : NaN)\n}\nA plain loop filling xs and ys. For a probability density, sampleCurve does this for you.\n\n\nThe chart\nconst div = document.createElement(\"div\")\ndiv.className = \"plotly-box-large\"\nPlotly.newPlot(div, [...], VM.plotting.layout({...}), VM.plotting.config())\nVM.plotting.autoResize(div)\nreturn div\nMake a div, draw into it, return it. Three library calls: layout() gives the themed layout with your own axis titles merged in, config() the sensible Plotly config, and autoResize() sizes the chart once it’s on the page. plotly-box-large is the one size class shipped – full width, tall; set div.style.height for anything else.\n\n\nThe empty state\nannotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\nWhen f is null the chart would be an empty grid, indistinguishable from a valid function that’s off-screen. emptyState puts a message in the middle so the reader knows it’s their input.\n\n\nThe chart block\n::: {.ojs-chart-block}\n...\n:::\nThe wrapper around the chart cells. It’s what the fullscreen button enlarges, and where a floating legend or a slider bar attaches. Every chart wants one, even a chart with neither today, so that adding them later is just dropping in a cell.",
-    "crumbs": [
-      "Guide",
-      "Building a page"
-    ]
-  },
-  {
-    "objectID": "docs/first-chart.html#where-to-go-from-here",
-    "href": "docs/first-chart.html#where-to-go-from-here",
-    "title": "Building a page",
-    "section": "Where to go from here",
-    "text": "Where to go from here\nEach of the starter’s other pages adds one thing to this pattern:\n\n\n\nPage\nAdds\n\n\n\n\nfunction-explorer.qmd\na floating legend (legendOverlay); a field that turns red on bad input\n\n\nstep-slider.qmd\nan iteration slider above the chart (ojs-chart-controls) with playback; a results table\n\n\node-convergence.qmd\nODE steppers; a Plotly chart and an Observable Plot chart sharing the theme\n\n\ndistribution-explorer.qmd\nan exact density over a histogram of seeded samples\n\n\ntry-an-example.qmd\npresets that fill the fields and run the page\n\n\nobservable-plot.qmd\nObservable Plot with a fullscreen button\n\n\n\nThen make the palette yours: Theming.",
-    "crumbs": [
-      "Guide",
-      "Building a page"
-    ]
-  },
-  {
-    "objectID": "docs/markup.html",
-    "href": "docs/markup.html",
-    "title": "Markup contract",
-    "section": "",
-    "text": "mathviz has almost no JavaScript API for layout. You put a handful of classes on wrapper &lt;div&gt;s – in Quarto, a fenced div ::: {.ojs-panel} – and the library lays the controls out and finds what to enhance. This page is every class and attribute you write yourself, with a live example of each. (The classes the library generates, which you never write, are listed under Internals.)\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
-    "crumbs": [
-      "Guide",
-      "Markup contract"
-    ]
-  },
-  {
-    "objectID": "docs/markup.html#at-a-glance",
-    "href": "docs/markup.html#at-a-glance",
-    "title": "Markup contract",
-    "section": "At a glance",
-    "text": "At a glance\n\n\n\nClass / attribute\nPut it on\nEffect\n\n\n\n\nojs-panel\na div around Inputs.* cells\nthe control-panel chrome; restyles every input inside\n\n\nojs-row / ojs-grid\nthe same div, or a nested one\none wrapping flex row / an auto-fit grid\n\n\nojs-fill / ojs-auto / ojs-end\nan input’s wrapper (classList.add)\nfill the row / natural width / push to the right edge\n\n\nojs-chart-block\na div around the chart cell(s)\nanchor for the legend; what fullscreen enlarges\n\n\nojs-chart-controls\na div inside the block, holding sliders\na bar directly above the chart that comes along into fullscreen\n\n\nojs-svg-block\nalongside ojs-chart-block, for SVG charts\nadds the fullscreen button Plotly charts get from the modebar\n\n\nplotly-box-large\nthe Plotly graph div\nthe one shipped chart size\n\n\nvm-swatch vm-swatch-alt (one modifier per palette color, plus -accent)\na &lt;span&gt; in prose\ntints a color word with the matching palette color\n\n\nvm-invalid\nan &lt;input&gt;\nred border and tint for a field that failed validation\n\n\nvm-app\na div around one app’s controls and chart\nwhat embedding and the Share button act on (only with those site extras on)\n\n\ndata-vm-play=\"off\"\na slider or any ancestor\nopt that slider out of the play button\n\n\ndata-example-field=\"…\"\na viewof element\na stable handle for applyExampleParams",
-    "crumbs": [
-      "Guide",
-      "Markup contract"
-    ]
-  },
-  {
-    "objectID": "docs/markup.html#panels",
-    "href": "docs/markup.html#panels",
-    "title": "Markup contract",
-    "section": "Panels",
-    "text": "Panels\n\nojs-panel\nThe look: padding, border, rounded corners, a surface background, and consistent styling of every input, select and button inside it, with labels stacked above controls so a row of them bottom-aligns. Every control in the panel shares one height (--vm-control-h) and its label one size (--vm-label-size), so a row of mixed controls lines up on both edges.\nIt is look only. Pair it with ojs-row or ojs-grid for layout. Don’t nest one panel inside another (the border and background double up); nest a bare ojs-row or ojs-grid div instead.\n\n\nojs-row\nOne wrapping row, bottom-aligned. The first control stretches to fill; the last takes its natural width; anything between takes its natural width too. That is the shape of most panels: a wide expression field, then a couple of small controls, then a button.\n\n\nviewof rowF = Inputs.text({label: \"f(x)\", value: \"x^2 - 2\"})\n\n\n\n\n\n\n\nviewof rowX0 = Inputs.text({label: \"x₀\", value: \"1\"})\n\n\n\n\n\n\n\nviewof rowGo = Inputs.button(\"Plot\")\n\n\n\n\n\n\n\n::: {.ojs-panel .ojs-row}\n```{ojs}\nviewof f = Inputs.text({label: \"f(x)\", value: \"x^2 - 2\"})\n```\n```{ojs}\nviewof x0 = Inputs.text({label: \"x₀\", value: \"1\"})\n```\n```{ojs}\nviewof go = Inputs.button(\"Plot\")\n```\n:::\n\n\nojs-grid\nAn auto-fit grid of equal columns (about 200 px each; fewer on narrow screens), bottom-aligned. For a panel of several similar controls where none should dominate.\n\n\nviewof gridA = Inputs.range([0, 1], {label: \"alpha\", step: 0.01, value: 0.5})\n\n\n\n\n\n\n\nviewof gridB = Inputs.range([1, 50], {label: \"n\", step: 1, value: 10})\n\n\n\n\n\n\n\nviewof gridC = Inputs.select([\"Euler\", \"RK4\"], {label: \"method\"})\n\n\n\n\n\n\n\nviewof gridD = Inputs.checkbox([\"show error\", \"show exact\"], {label: \"overlay\", value: [\"show exact\"]})\n\n\n\n\n\n\n\n\n\nojs-fill, ojs-auto, ojs-end\nPer-control overrides, added to the viewof element from the cell that creates it:\nviewof expr = {\n  const view = Inputs.text({label: \"f(x)\", value: \"sin(x)\"})\n  view.classList.add(\"ojs-fill\")\n  return view\n}\n\n\n\n\n\n\n\nClass\nEffect\n\n\n\n\nojs-fill\nFull width; a text input inside becomes a wide box the reader can drag wider – for a long expression. It starts at 20 em on a row of its own, or at whatever width the other controls leave when it shares an ojs-row with them, so a field and its Plot button read as one unit.\n\n\nojs-auto\nNatural width, in a row that would otherwise stretch it.\n\n\nojs-end\nPushes the control to the right edge, in a row or a grid.",
-    "crumbs": [
-      "Guide",
-      "Markup contract"
-    ]
-  },
-  {
-    "objectID": "docs/markup.html#charts",
-    "href": "docs/markup.html#charts",
-    "title": "Markup contract",
-    "section": "Charts",
-    "text": "Charts\n\nojs-chart-block\nThe wrapper around a chart and its companions. A floating legendOverlay is positioned against it, and it is what the fullscreen button enlarges – so a controls bar and legend inside it come along, and the chart keeps its aspect ratio.\nEvery chart wants one, even a chart that has neither a legend nor controls today. It also lets a chart in a layout-ncol column shrink with the column instead of forcing it wide.\n\n\nojs-chart-controls\nA direct child of the chart block, holding the sliders that drive the chart – an iteration count, a step size. It renders as a bar directly above the chart, stays with the chart in fullscreen, and lays its controls out for that width: fluid slider tracks, compact number fields, labels beside controls.\nSliders in it get the play button. Combine with ojs-grid (class=\"ojs-chart-controls ojs-grid\") for several sliders side by side.\n\n\n\nviewof ctrlN = Inputs.range([1, 12], {label: \"iterations n\", step: 1, value: 4})\n\n\n\n\n\n\n\n\n{\n  const g = x =&gt; Math.cos(x)\n  let x = 1\n  const xs = [x], ys = [0]\n  for (let i = 0; i &lt; ctrlN; i++) { const gx = g(x); xs.push(x, gx); ys.push(gx, gx); x = gx }\n  const curveX = [], curveY = []\n  for (let i = 0; i &lt;= 100; i++) { const t = i / 100 * 1.6; curveX.push(t); curveY.push(g(t)) }\n  const div = document.createElement(\"div\")\n  div.style.height = \"300px\"\n  Plotly.newPlot(div, [\n    {x: curveX, y: curveY, name: \"cos x\", line: {color: chartColors.fn}},\n    {x: [0, 1.6], y: [0, 1.6], name: \"y = x\", line: {color: chartColors.muted, dash: \"dot\"}},\n    {x: xs, y: ys, name: \"cobweb\", line: {color: chartColors.alt, width: 1.5}, mode: \"lines+markers\", marker: {size: 5}}\n  ], {showlegend: false, xaxis: {range: [0, 1.6]}, yaxis: {range: [0, 1.1]}, margin: {t: 8}})\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\n::: {.ojs-chart-block}\n::: {.ojs-chart-controls}\n```{ojs}\nviewof n = Inputs.range([1, 12], {label: \"iterations n\", step: 1, value: 4})\n```\n:::\n```{ojs}\nmainPlot = { ... }\n```\n:::\n\n\nojs-svg-block\nFor a chart drawn as inline SVG – Observable Plot, or a hand-built &lt;svg&gt; – which has no Plotly modebar. Put it on the same element as ojs-chart-block and nothing else: the library adds a fullscreen button pinned to the top-right corner of the figure, centers the figure in the block, and keeps its aspect ratio in fullscreen. The button survives re-runs of the cell.\nThe VM.discreteMath page and the starter’s observable-plot.qmd use it. Hover the chart there to see the button.\n\n\nplotly-box-large\nFull width, about three-quarters of the viewport tall with a floor of 500 px (less on a phone). It is the only size class shipped – there is no -small or -medium. For another height set div.style.height yourself, as the examples on this site do.",
-    "crumbs": [
-      "Guide",
-      "Markup contract"
-    ]
-  },
-  {
-    "objectID": "docs/markup.html#prose",
-    "href": "docs/markup.html#prose",
-    "title": "Markup contract",
-    "section": "Prose",
-    "text": "Prose\n\nvm-swatch\nTints a word to match a trace: &lt;span class=\"vm-swatch vm-swatch-alt\"&gt;red&lt;/span&gt; gives red. The modifier is required; vm-swatch alone sets no color.\n\n\n\n\n\n\n\n\nModifier\nToken\n\n\n\n\n\nvm-swatch-fn\n--vm-color-fn\nfn\n\n\nvm-swatch-alt\n--vm-color-alt\nalt\n\n\nvm-swatch-ok\n--vm-color-ok\nok\n\n\nvm-swatch-muted\n--vm-color-muted\nmuted\n\n\nvm-swatch-ink\n--vm-color-ink\nink\n\n\nvm-swatch-warn\n--vm-color-warn\nwarn\n\n\nvm-swatch-accent2\n--vm-color-accent2\naccent2\n\n\nvm-swatch-accent3\n--vm-color-accent3\naccent3\n\n\nvm-swatch-accent\n--vm-accent (the UI accent, not a palette color)\naccent\n\n\n\nOne modifier per palette color, matching the keys of VM.plotting.colors(), so a swatch in a sentence and the trace it describes always agree. There is no -halo: it is the page background, and a tint of it is invisible.\n\n\nvm-invalid\nA red border and tint on an &lt;input&gt; – for a field whose value failed to parse. Nothing in the library adds it; a page toggles it from the cell that validates:\nviewof x0 = {\n  const view = Inputs.text({label: \"x₀\", value: \"1\"})\n  view.addEventListener(\"input\", () =&gt; {\n    const ok = VM.expressions.makeNumber(math, view.value) !== null\n    view.querySelector(\"input\").classList.toggle(\"vm-invalid\", !ok)\n  })\n  return view\n}\nIt pairs with emptyState: the field says what is wrong, the chart says that something is.",
-    "crumbs": [
-      "Guide",
-      "Markup contract"
-    ]
-  },
-  {
-    "objectID": "docs/markup.html#data-attributes",
-    "href": "docs/markup.html#data-attributes",
-    "title": "Markup contract",
-    "section": "Data attributes",
-    "text": "Data attributes\n\ndata-vm-play=\"off\"\nOn a range slider or any ancestor: opt out of the play button. Useful for a slider that isn’t a parameter sweep (a zoom level, a seed).\n\n\ndata-example-field=\"&lt;name&gt;\"\nOn a viewof element, set by the cell that creates it, as a stable handle for applyExampleParams:\nviewof fx = {\n  const view = Inputs.text({label: \"f(x)\", value: \"sin(x)\"})\n  view.dataset.exampleField = \"fx\"\n  return view\n}\nThe page’s fieldSelectors map is then {fx: '[data-example-field=\"fx\"]', …}. Selectors rather than references, for a reason that entry explains.",
-    "crumbs": [
-      "Guide",
-      "Markup contract"
-    ]
-  },
-  {
-    "objectID": "docs/reference/distributions.html",
-    "href": "docs/reference/distributions.html",
-    "title": "VM.distributions",
-    "section": "",
-    "text": "Every *Pdf and *Pmf is a pure (x, …params) =&gt; number evaluated straight from the formula – no sampling, no random numbers – so a curve drawn from one is exact and doesn’t jitter when a slider moves. Conventions, so you don’t have to check each one:\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
-    "crumbs": [
-      "Reference",
-      "VM.distributions"
-    ]
-  },
-  {
-    "objectID": "docs/reference/distributions.html#explorer",
-    "href": "docs/reference/distributions.html#explorer",
-    "title": "VM.distributions",
-    "section": "Explorer",
-    "text": "Explorer\nEvery distribution below, drawn through sampleCurve. The parameter sliders are the function’s own arguments in order.\n\nfamilies = new Map([\n  [\"normalPdf(x, mean, variance)\",       {fn: (x, a, b) =&gt; VM.distributions.normalPdf(x, a, b),       lo: -6, hi: 6,  p: [[-3, 3, 0.1, 0], [0.1, 4, 0.1, 1]]}],\n  [\"exponentialPdf(x, rate)\",            {fn: (x, a) =&gt; VM.distributions.exponentialPdf(x, a),          lo: 0,  hi: 6,  p: [[0.1, 3, 0.1, 1]]}],\n  [\"gammaPdf(x, shape, rate)\",           {fn: (x, a, b) =&gt; VM.distributions.gammaPdf(x, a, b),          lo: 0,  hi: 12, p: [[0.5, 8, 0.1, 2], [0.2, 3, 0.1, 1]]}],\n  [\"chiSquaredPdf(x, k)\",                {fn: (x, a) =&gt; VM.distributions.chiSquaredPdf(x, a),           lo: 0,  hi: 12, p: [[1, 10, 1, 3]]}],\n  [\"betaPdf(x, a, b)\",                   {fn: (x, a, b) =&gt; VM.distributions.betaPdf(x, a, b),           lo: 0,  hi: 1,  p: [[0.5, 6, 0.1, 2], [0.5, 6, 0.1, 3]]}],\n  [\"studentTPdf(x, k)\",                  {fn: (x, a) =&gt; VM.distributions.studentTPdf(x, a),             lo: -5, hi: 5,  p: [[1, 30, 1, 3]]}],\n  [\"fPdf(x, d1, d2)\",                    {fn: (x, a, b) =&gt; VM.distributions.fPdf(x, a, b),              lo: 0,  hi: 5,  p: [[1, 20, 1, 5], [1, 20, 1, 10]]}],\n  [\"lognormalPdf(x, mean, variance)\",    {fn: (x, a, b) =&gt; VM.distributions.lognormalPdf(x, a, b),      lo: 0,  hi: 6,  p: [[-1, 1.5, 0.1, 0], [0.05, 1.5, 0.05, 0.25]]}],\n  [\"cauchyPdf(x, location, scale)\",      {fn: (x, a, b) =&gt; VM.distributions.cauchyPdf(x, a, b),         lo: -6, hi: 6,  p: [[-3, 3, 0.1, 0], [0.1, 3, 0.1, 1]]}],\n  [\"weibullPdf(x, shape, scale)\",        {fn: (x, a, b) =&gt; VM.distributions.weibullPdf(x, a, b),        lo: 0,  hi: 4,  p: [[0.5, 5, 0.1, 1.5], [0.2, 3, 0.1, 1]]}],\n  [\"bernoulliPmf(k, p)\",                 {fn: (k, a) =&gt; VM.distributions.bernoulliPmf(k, a),            lo: -1, hi: 2,  p: [[0, 1, 0.05, 0.3]], discrete: true}],\n  [\"binomialPmf(k, n, p)\",               {fn: (k, a, b) =&gt; VM.distributions.binomialPmf(k, a, b),       lo: 0,  hi: 30, p: [[1, 30, 1, 12], [0, 1, 0.05, 0.4]], discrete: true}],\n  [\"poissonPmf(k, lambda)\",              {fn: (k, a) =&gt; VM.distributions.poissonPmf(k, a),              lo: 0,  hi: 25, p: [[0.1, 15, 0.1, 4]], discrete: true}],\n  [\"geometricPmf(k, p)\",                 {fn: (k, a) =&gt; VM.distributions.geometricPmf(k, a),            lo: 0,  hi: 20, p: [[0.05, 1, 0.05, 0.3]], discrete: true}],\n  [\"negativeBinomialPmf(k, r, p)\",       {fn: (k, a, b) =&gt; VM.distributions.negativeBinomialPmf(k, a, b), lo: 0, hi: 40, p: [[1, 10, 1, 3], [0.05, 1, 0.05, 0.4]], discrete: true}],\n  [\"hypergeometricPmf(k, N, K, n)\",      {fn: (k, a, b, c) =&gt; VM.distributions.hypergeometricPmf(k, a, b, c), lo: 0, hi: 20, p: [[5, 60, 1, 40], [0, 40, 1, 15], [1, 30, 1, 12]], discrete: true}]\n])\n\n\n\n\n\n\n\n\nviewof familyName = Inputs.select([...families.keys()], {label: \"Distribution\", value: \"gammaPdf(x, shape, rate)\"})\n\n\n\n\n\n\n\nfamily = families.get(familyName)\nparamNames = familyName.slice(familyName.indexOf(\",\") + 1, -1).split(\",\").map(s =&gt; s.trim())\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nviewof p0 = family.p.length &gt; 0 ? Inputs.range([family.p[0][0], family.p[0][1]], {label: paramNames[0], step: family.p[0][2], value: family.p[0][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\nviewof p1 = family.p.length &gt; 1 ? Inputs.range([family.p[1][0], family.p[1][1]], {label: paramNames[1], step: family.p[1][2], value: family.p[1][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\nviewof p2 = family.p.length &gt; 2 ? Inputs.range([family.p[2][0], family.p[2][1]], {label: paramNames[2], step: family.p[2][2], value: family.p[2][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\n\n\n{\n  const curve = VM.distributions.sampleCurve(x =&gt; family.fn(x, p0, p1, p2), family.lo, family.hi, {discrete: family.discrete === true})\n  const trace = family.discrete\n    ? {x: curve.xs, y: curve.ys, type: \"bar\", marker: {color: VM.plotting.alpha(chartColors.fn, 0.6), line: {color: chartColors.fn, width: 1.5}}, width: 0.6}\n    : {x: curve.xs, y: curve.ys, mode: \"lines\", line: {color: chartColors.fn, width: 2.5}}\n  const div = document.createElement(\"div\")\n  div.style.height = \"340px\"\n  Plotly.newPlot(div, [trace], {xaxis: {title: family.discrete ? \"k\" : \"x\"}, yaxis: {title: family.discrete ? \"P(K = k)\" : \"density\", rangemode: \"tozero\"}, showlegend: false})\n  VM.plotting.autoResize(div)\n  return div\n}",
-    "crumbs": [
-      "Reference",
-      "VM.distributions"
-    ]
-  },
-  {
-    "objectID": "docs/reference/distributions.html#helpers",
-    "href": "docs/reference/distributions.html#helpers",
-    "title": "VM.distributions",
-    "section": "Helpers",
-    "text": "Helpers\n\nVM.distributions.logGamma(x)\nln Γ(x) by Lanczos approximation (g = 7, n = 9; reflection formula below 0.5), accurate to ~15 significant digits for x &gt; 0. The shared building block behind every normalizing constant here; useful directly for log(n choose k) = logGamma(n+1) − logGamma(k+1) − logGamma(n−k+1).\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nx\nnumber\nAny real except 0 and the negative integers (poles); those return Infinity/NaN with no guard.\n\n\n\nReturns number.\n\n[VM.distributions.logGamma(5), Math.log(24), VM.distributions.logGamma(0.5), Math.log(Math.sqrt(Math.PI))]\n\n\n\n\n\n\n\n\nVM.distributions.sampleCurve(fn, lo, hi, opts?)\nSamples a function over [lo, hi] into parallel arrays ready for a Plotly trace or a Plot.line.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nfn\n(x) =&gt; number\n\nTypically a *Pdf/*Pmf with its parameters bound: x =&gt; VM.distributions.normalPdf(x, 0, 1).\n\n\nlo, hi\nnumber\n\nThe range, both ends inclusive.\n\n\nopts.discrete\nboolean\nfalse\nEvaluate only at the integers from ceil(lo) to floor(hi) – what a PMF has support on – instead of on a fine grid. opts.n is ignored; the arrays are empty if no integer lies in the range.\n\n\nopts.n\nnumber\n400\nNumber of evenly spaced samples in continuous mode. n = 1 divides by zero.\n\n\n\nReturns {xs: number[], ys: number[]}.\n\nVM.distributions.sampleCurve(k =&gt; VM.distributions.poissonPmf(k, 2), 0, 5, {discrete: true})\n\n\n\n\n\n\n\n\nVM.distributions.histogramBins(samples, binCount, range?)\nBins an array of draws into equal-width bins, normalized to densities so the bars’ total area is ~1 and a theoretical curve overlays directly.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nsamples\nnumber[]\n\nThe draws.\n\n\nbinCount\nnumber\n\nNumber of bins (≥ 1).\n\n\nrange\n{lo, hi}\nsamples’ min/max\nA fixed bin range. Pass {lo: min − 0.5, hi: max + 0.5} with binCount = max − min + 1 for one bin centered on each integer. Samples outside an explicit range are clamped into the first/last bin, not dropped. A zero-width range is widened to [lo − 0.5, hi + 0.5].\n\n\n\nReturns {edges: number[], centers: number[], densities: number[]} – binCount + 1 edges; binCount centers and densities, where densities[i] = count[i] / (samples.length · width). All three arrays are empty when samples is empty or binCount &lt; 1.\n\n{\n  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(1))\n  const draws = []\n  for (let i = 0; i &lt; 2000; i++) draws.push(gaussian())\n  return VM.distributions.histogramBins(draws, 6, {lo: -3, hi: 3})\n}\n\n\n\n\n\n\nSee the starter’s distribution-explorer.qmd for the histogram-under-a-curve chart.",
-    "crumbs": [
-      "Reference",
-      "VM.distributions"
-    ]
-  },
-  {
-    "objectID": "docs/reference/distributions.html#discrete-masses",
-    "href": "docs/reference/distributions.html#discrete-masses",
-    "title": "VM.distributions",
-    "section": "Discrete masses",
-    "text": "Discrete masses\nAll return 0 when k is not an integer in the support.\n\nVM.distributions.bernoulliPmf(k, p)\nP(K = 1) = p, P(K = 0) = 1 − p; 0 for any other k. p is not validated.\n\n\nVM.distributions.binomialPmf(k, n, p)\nExactly k successes in n independent trials with success probability p. p ≤ 0 puts all mass on k = 0, p ≥ 1 all mass on k = n.\n\n\nVM.distributions.poissonPmf(k, lambda)\nλ^k e^{−λ} / k! for integer k ≥ 0. lambda ≤ 0 puts all mass on k = 0.\n\n\nVM.distributions.geometricPmf(k, p)\nTrials until the first success: (1 − p)^{k−1} p for k = 1, 2, 3, … – not the competing “failures before the first success” convention whose support starts at 0. p is not validated.\n\n\nVM.distributions.negativeBinomialPmf(k, r, p)\nTrials until the r-th success, so the support is k = r, r+1, … and r = 1 is exactly geometricPmf. 0 when p is outside (0, 1]; p = 1 puts all mass on k = r.\n\n\nVM.distributions.hypergeometricPmf(k, N, K, n)\nExactly k successes when drawing n items without replacement from a population of N containing K successes: C(K, k)·C(N−K, n−k) / C(N, n). Support is max(0, n − (N − K)) ≤ k ≤ min(n, K); 0 there and for any invalid (N, K, n).",
-    "crumbs": [
-      "Reference",
-      "VM.distributions"
-    ]
-  },
-  {
-    "objectID": "docs/reference/distributions.html#continuous-densities",
-    "href": "docs/reference/distributions.html#continuous-densities",
-    "title": "VM.distributions",
-    "section": "Continuous densities",
-    "text": "Continuous densities\n\nVM.distributions.exponentialPdf(x, rate)\nMean 1 / rate. 0 for x &lt; 0 or rate ≤ 0.\n\n\nVM.distributions.normalPdf(x, mean, variance)\nParameterized by variance, not standard deviation: pass sd * sd. 0 for variance ≤ 0.\n\n\nVM.distributions.gammaPdf(x, shape, rate)\nParameterized by rate, not scale: the mean is shape / rate. For a scale θ pass 1 / θ. Valid for any real shape &gt; 0. 0 for x ≤ 0 or a non-positive parameter.\n\n\nVM.distributions.chiSquaredPdf(x, k)\nk degrees of freedom – exactly gammaPdf(x, k/2, 1/2).\n\n\nVM.distributions.betaPdf(x, a, b)\nOn the open interval (0, 1): 0 at and outside the endpoints, so betaPdf(0, 1, 1) is 0 even though the density is 1 on the interior. 0 for a non-positive shape.\n\n\nVM.distributions.studentTPdf(x, k)\nk degrees of freedom, any real k &gt; 0 (not only an integer). 0 for k ≤ 0.\n\n\nVM.distributions.fPdf(x, d1, d2)\nd1 numerator and d2 denominator degrees of freedom. 0 for x ≤ 0 or a non-positive parameter.\n\n\nVM.distributions.lognormalPdf(x, mean, variance)\nThe density of e^X for X ~ Normal(mean, variance). The parameters describe the underlying normal, not the log-normal’s own mean (exp(μ + σ²/2)) and variance. 0 for x ≤ 0 or variance ≤ 0.\n\n\nVM.distributions.cauchyPdf(x, location, scale)\nThe Cauchy has no mean and no variance, so location is its median and scale its half-width at half-maximum. 0 for scale ≤ 0.\n\n\nVM.distributions.weibullPdf(x, shape, scale)\nParameterized by scale, not rate, so shape = 1 is the exponential with rate 1 / scale. Shape below 1 gives a failure rate that falls with age, above 1 one that rises. 0 for x &lt; 0 or a non-positive parameter; at x = 0 the density is 1/scale when shape = 1 and 0 otherwise.",
-    "crumbs": [
-      "Reference",
-      "VM.distributions"
-    ]
-  },
-  {
-    "objectID": "docs/reference/filters.html",
-    "href": "docs/reference/filters.html",
-    "title": "VM.filters",
-    "section": "",
-    "text": "Three causal filters for a noisy scalar signal. All take a plain array and return one of the same length; none looks ahead, so each output matches what the filter would have produced running online, one sample at a time.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nnoisy = {\n  const rng = VM.sampling.seededRandom(7)\n  const gaussian = VM.sampling.gaussianRandom(rng)\n  const zs = []\n  for (let i = 0; i &lt; 60; i++) zs.push(Math.sin(i / 8) + 0.3 * gaussian())\n  return zs\n}",
-    "crumbs": [
-      "Reference",
-      "VM.filters"
-    ]
-  },
-  {
-    "objectID": "docs/reference/filters.html#the-three-side-by-side",
-    "href": "docs/reference/filters.html#the-three-side-by-side",
-    "title": "VM.filters",
-    "section": "The three side by side",
-    "text": "The three side by side\n\nviewof filterK = Inputs.range([1, 15], {label: \"moving-average window k\", step: 1, value: 5})\nviewof filterAlpha = Inputs.range([0, 0.99], {label: \"EMA alpha\", step: 0.01, value: 0.8})\nviewof filterQ = Inputs.range([0.0001, 0.1], {label: \"Kalman Q\", step: 0.0001, value: 0.005})\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{\n  const ma = VM.filters.movingAverageFilter(noisy, filterK)\n  const ema = VM.filters.emaFilter(noisy, filterAlpha)\n  const kal = VM.filters.kalman1DFilter(noisy, {R: 0.09, Q: filterQ}).xs\n  const c = chartColors   // reactive on the theme, so the lines repaint on a toggle\n  const rows = []\n  for (let i = 0; i &lt; noisy.length; i++) {\n    rows.push({i, series: \"measured\", y: noisy[i]})\n    rows.push({i, series: \"moving average\", y: ma[i]})\n    rows.push({i, series: \"EMA\", y: ema[i]})\n    rows.push({i, series: \"Kalman\", y: kal[i]})\n  }\n  return Plot.plot(VM.plotting.plotOptions({\n    height: 320,\n    x: {label: \"sample\"}, y: {label: null},\n    color: {legend: true, domain: [\"measured\", \"moving average\", \"EMA\", \"Kalman\"], range: [c.muted, c.alt, c.ok, c.fn]},\n    marks: [\n      Plot.dot(rows.filter(d =&gt; d.series === \"measured\"), {x: \"i\", y: \"y\", stroke: \"series\", r: 2}),\n      Plot.line(rows.filter(d =&gt; d.series !== \"measured\"), {x: \"i\", y: \"y\", stroke: \"series\", strokeWidth: 2})\n    ]\n  }))\n}",
-    "crumbs": [
-      "Reference",
-      "VM.filters"
+      "VM.numerical"
     ]
   },
   {
@@ -697,7 +334,7 @@
     "href": "docs/reference/internals.html#generated-classes",
     "title": "Internals",
     "section": "Generated classes",
-    "text": "Generated classes\nThe library writes these itself; a page never authors them.\n\n\n\nClass / property\nWritten by\n\n\n\n\nojs-legend-overlay, ojs-legend-item, ojs-legend-swatch\nVM.ui.legendOverlay\n\n\nvm-overlay-grip, vm-overlay-dragging, data-vm-draggable\nthe draggable-legend module\n\n\nvm-play, vm-play-button, vm-play-more, vm-play-panel, vm-play-group, vm-play-pills, vm-play-pill, vm-play-pill-on, vm-playing, vm-has-play, data-vm-play-ready\nslider playback\n\n\nvm-fullscreen-toggle, vm-fs-figure\nthe SVG fullscreen button\n\n\nojs-table-toolbar, ojs-table-container\nVM.ui.renderTable\n\n\nvm-embed, vm-app-active, vm-sidebar-open, vm-sidebar-pinned, vm-rail-cluster, vm-share-*, vm-report-bug-popup, vm-mobile-warning*, --vm-secondary-nav-height\nthe opt-in site extras\n\n\n--sx, --vm-plot-aspect-ratio, --vm-fs-plot-width, --vm-svg-aspect, --vm-swatch\nruntime layout state: a slider’s fill fraction, fullscreen letterboxing, a swatch’s tint\n\n\n\nvm-dark is neither: it is a theme hook you may put on &lt;html&gt; or &lt;body&gt; to tell the library your site is in dark mode – see Theming. It styles nothing by itself.",
+    "text": "Generated classes\nThe library writes these itself; a page never authors them.\n\n\n\nClass / property\nWritten by\n\n\n\n\nojs-legend-overlay, ojs-legend-item, ojs-legend-swatch\nVM.ui.legendOverlay\n\n\nvm-overlay-grip, vm-overlay-dragging, data-vm-draggable\nthe draggable-legend module\n\n\nvm-play, vm-play-button, vm-play-more, vm-play-panel, vm-play-group, vm-play-pills, vm-play-pill, vm-play-pill-on, vm-playing, vm-has-play, data-vm-play-ready\nslider playback\n\n\nvm-fullscreen-toggle, vm-fs-figure\nthe SVG fullscreen button\n\n\nojs-table-toolbar, ojs-table-container\nVM.ui.renderTable\n\n\nvm-stat-row, vm-stat, vm-stat-label, vm-stat-value\nVM.ui.statRow\n\n\nvm-embed, vm-app-active, vm-sidebar-open, vm-sidebar-pinned, vm-rail-cluster, vm-share-*, vm-report-bug-popup, vm-mobile-warning*, --vm-secondary-nav-height\nthe opt-in site extras\n\n\n--sx, --vm-plot-aspect-ratio, --vm-fs-plot-width, --vm-svg-aspect, --vm-swatch\nruntime layout state: a slider’s fill fraction, fullscreen letterboxing, a swatch’s tint\n\n\n\nvm-dark is neither: it is a theme hook you may put on &lt;html&gt; or &lt;body&gt; to tell the library your site is in dark mode – see Theming. It styles nothing by itself.",
     "crumbs": [
       "Reference",
       "Internals"
@@ -734,6 +371,446 @@
     "crumbs": [
       "Reference",
       "Internals"
+    ]
+  },
+  {
+    "objectID": "docs/reference/filters.html",
+    "href": "docs/reference/filters.html",
+    "title": "VM.filters",
+    "section": "",
+    "text": "Three causal filters for a noisy scalar signal. All take a plain array and return one of the same length; none looks ahead, so each output matches what the filter would have produced running online, one sample at a time.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nnoisy = {\n  const rng = VM.sampling.seededRandom(7)\n  const gaussian = VM.sampling.gaussianRandom(rng)\n  const zs = []\n  for (let i = 0; i &lt; 60; i++) zs.push(Math.sin(i / 8) + 0.3 * gaussian())\n  return zs\n}",
+    "crumbs": [
+      "Reference",
+      "VM.filters"
+    ]
+  },
+  {
+    "objectID": "docs/reference/filters.html#the-three-side-by-side",
+    "href": "docs/reference/filters.html#the-three-side-by-side",
+    "title": "VM.filters",
+    "section": "The three side by side",
+    "text": "The three side by side\n\nviewof filterK = Inputs.range([1, 15], {label: \"moving-average window k\", step: 1, value: 5})\nviewof filterAlpha = Inputs.range([0, 0.99], {label: \"EMA alpha\", step: 0.01, value: 0.8})\nviewof filterQ = Inputs.range([0.0001, 0.1], {label: \"Kalman Q\", step: 0.0001, value: 0.005})\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{\n  const ma = VM.filters.movingAverageFilter(noisy, filterK)\n  const ema = VM.filters.emaFilter(noisy, filterAlpha)\n  const kal = VM.filters.kalman1DFilter(noisy, {R: 0.09, Q: filterQ}).xs\n  const c = chartColors   // reactive on the theme, so the lines repaint on a toggle\n  const rows = []\n  for (let i = 0; i &lt; noisy.length; i++) {\n    rows.push({i, series: \"measured\", y: noisy[i]})\n    rows.push({i, series: \"moving average\", y: ma[i]})\n    rows.push({i, series: \"EMA\", y: ema[i]})\n    rows.push({i, series: \"Kalman\", y: kal[i]})\n  }\n  return Plot.plot(VM.plotting.plotOptions({\n    height: 320,\n    x: {label: \"sample\"}, y: {label: null},\n    color: {legend: true, domain: [\"measured\", \"moving average\", \"EMA\", \"Kalman\"], range: [c.muted, c.alt, c.ok, c.fn]},\n    marks: [\n      Plot.dot(rows.filter(d =&gt; d.series === \"measured\"), {x: \"i\", y: \"y\", stroke: \"series\", r: 2}),\n      Plot.line(rows.filter(d =&gt; d.series !== \"measured\"), {x: \"i\", y: \"y\", stroke: \"series\", strokeWidth: 2})\n    ]\n  }))\n}",
+    "crumbs": [
+      "Reference",
+      "VM.filters"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html",
+    "href": "docs/reference/distributions.html",
+    "title": "VM.distributions",
+    "section": "",
+    "text": "Every *Pdf and *Pmf is a pure (x, …params) =&gt; number evaluated straight from the formula – no sampling, no random numbers – so a curve drawn from one is exact and doesn’t jitter when a slider moves. Conventions, so you don’t have to check each one:\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html#explorer",
+    "href": "docs/reference/distributions.html#explorer",
+    "title": "VM.distributions",
+    "section": "Explorer",
+    "text": "Explorer\nEvery distribution below, drawn through sampleCurve. The parameter sliders are the function’s own arguments in order.\n\nfamilies = new Map([\n  [\"normalPdf(x, mean, variance)\",       {fn: (x, a, b) =&gt; VM.distributions.normalPdf(x, a, b),       lo: -6, hi: 6,  p: [[-3, 3, 0.1, 0], [0.1, 4, 0.1, 1]]}],\n  [\"exponentialPdf(x, rate)\",            {fn: (x, a) =&gt; VM.distributions.exponentialPdf(x, a),          lo: 0,  hi: 6,  p: [[0.1, 3, 0.1, 1]]}],\n  [\"gammaPdf(x, shape, rate)\",           {fn: (x, a, b) =&gt; VM.distributions.gammaPdf(x, a, b),          lo: 0,  hi: 12, p: [[0.5, 8, 0.1, 2], [0.2, 3, 0.1, 1]]}],\n  [\"chiSquaredPdf(x, k)\",                {fn: (x, a) =&gt; VM.distributions.chiSquaredPdf(x, a),           lo: 0,  hi: 12, p: [[1, 10, 1, 3]]}],\n  [\"betaPdf(x, a, b)\",                   {fn: (x, a, b) =&gt; VM.distributions.betaPdf(x, a, b),           lo: 0,  hi: 1,  p: [[0.5, 6, 0.1, 2], [0.5, 6, 0.1, 3]]}],\n  [\"studentTPdf(x, k)\",                  {fn: (x, a) =&gt; VM.distributions.studentTPdf(x, a),             lo: -5, hi: 5,  p: [[1, 30, 1, 3]]}],\n  [\"fPdf(x, d1, d2)\",                    {fn: (x, a, b) =&gt; VM.distributions.fPdf(x, a, b),              lo: 0,  hi: 5,  p: [[1, 20, 1, 5], [1, 20, 1, 10]]}],\n  [\"lognormalPdf(x, mean, variance)\",    {fn: (x, a, b) =&gt; VM.distributions.lognormalPdf(x, a, b),      lo: 0,  hi: 6,  p: [[-1, 1.5, 0.1, 0], [0.05, 1.5, 0.05, 0.25]]}],\n  [\"cauchyPdf(x, location, scale)\",      {fn: (x, a, b) =&gt; VM.distributions.cauchyPdf(x, a, b),         lo: -6, hi: 6,  p: [[-3, 3, 0.1, 0], [0.1, 3, 0.1, 1]]}],\n  [\"weibullPdf(x, shape, scale)\",        {fn: (x, a, b) =&gt; VM.distributions.weibullPdf(x, a, b),        lo: 0,  hi: 4,  p: [[0.5, 5, 0.1, 1.5], [0.2, 3, 0.1, 1]]}],\n  [\"bernoulliPmf(k, p)\",                 {fn: (k, a) =&gt; VM.distributions.bernoulliPmf(k, a),            lo: -1, hi: 2,  p: [[0, 1, 0.05, 0.3]], discrete: true}],\n  [\"binomialPmf(k, n, p)\",               {fn: (k, a, b) =&gt; VM.distributions.binomialPmf(k, a, b),       lo: 0,  hi: 30, p: [[1, 30, 1, 12], [0, 1, 0.05, 0.4]], discrete: true}],\n  [\"poissonPmf(k, lambda)\",              {fn: (k, a) =&gt; VM.distributions.poissonPmf(k, a),              lo: 0,  hi: 25, p: [[0.1, 15, 0.1, 4]], discrete: true}],\n  [\"geometricPmf(k, p)\",                 {fn: (k, a) =&gt; VM.distributions.geometricPmf(k, a),            lo: 0,  hi: 20, p: [[0.05, 1, 0.05, 0.3]], discrete: true}],\n  [\"negativeBinomialPmf(k, r, p)\",       {fn: (k, a, b) =&gt; VM.distributions.negativeBinomialPmf(k, a, b), lo: 0, hi: 40, p: [[1, 10, 1, 3], [0.05, 1, 0.05, 0.4]], discrete: true}],\n  [\"hypergeometricPmf(k, N, K, n)\",      {fn: (k, a, b, c) =&gt; VM.distributions.hypergeometricPmf(k, a, b, c), lo: 0, hi: 20, p: [[5, 60, 1, 40], [0, 40, 1, 15], [1, 30, 1, 12]], discrete: true}]\n])\n\n\n\n\n\n\n\n\nviewof familyName = Inputs.select([...families.keys()], {label: \"Distribution\", value: \"gammaPdf(x, shape, rate)\"})\n\n\n\n\n\n\n\nfamily = families.get(familyName)\nparamNames = familyName.slice(familyName.indexOf(\",\") + 1, -1).split(\",\").map(s =&gt; s.trim())\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nviewof p0 = family.p.length &gt; 0 ? Inputs.range([family.p[0][0], family.p[0][1]], {label: paramNames[0], step: family.p[0][2], value: family.p[0][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\nviewof p1 = family.p.length &gt; 1 ? Inputs.range([family.p[1][0], family.p[1][1]], {label: paramNames[1], step: family.p[1][2], value: family.p[1][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\nviewof p2 = family.p.length &gt; 2 ? Inputs.range([family.p[2][0], family.p[2][1]], {label: paramNames[2], step: family.p[2][2], value: family.p[2][3]}) : Inputs.input(0)\n\n\n\n\n\n\n\n\n\n{\n  const curve = VM.distributions.sampleCurve(x =&gt; family.fn(x, p0, p1, p2), family.lo, family.hi, {discrete: family.discrete === true})\n  const trace = family.discrete\n    ? {x: curve.xs, y: curve.ys, type: \"bar\", marker: {color: VM.plotting.alpha(chartColors.fn, 0.6), line: {color: chartColors.fn, width: 1.5}}, width: 0.6}\n    : {x: curve.xs, y: curve.ys, mode: \"lines\", line: {color: chartColors.fn, width: 2.5}}\n  const div = document.createElement(\"div\")\n  div.style.height = \"340px\"\n  Plotly.newPlot(div, [trace], {xaxis: {title: family.discrete ? \"k\" : \"x\"}, yaxis: {title: family.discrete ? \"P(K = k)\" : \"density\", rangemode: \"tozero\"}, showlegend: false})\n  VM.plotting.autoResize(div)\n  return div\n}",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html#helpers",
+    "href": "docs/reference/distributions.html#helpers",
+    "title": "VM.distributions",
+    "section": "Helpers",
+    "text": "Helpers\n\nVM.distributions.logGamma(x)\nln Γ(x) by Lanczos approximation (g = 7, n = 9; reflection formula below 0.5), accurate to ~15 significant digits for x &gt; 0. The shared building block behind every normalizing constant here; useful directly for log(n choose k) = logGamma(n+1) − logGamma(k+1) − logGamma(n−k+1).\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nx\nnumber\nAny real except 0 and the negative integers (poles); those return Infinity/NaN with no guard.\n\n\n\nReturns number.\n\n[VM.distributions.logGamma(5), Math.log(24), VM.distributions.logGamma(0.5), Math.log(Math.sqrt(Math.PI))]\n\n\n\n\n\n\n\n\nVM.distributions.sampleCurve(fn, lo, hi, opts?)\nSamples a function over [lo, hi] into parallel arrays ready for a Plotly trace or a Plot.line.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nfn\n(x) =&gt; number\n\nTypically a *Pdf/*Pmf with its parameters bound: x =&gt; VM.distributions.normalPdf(x, 0, 1).\n\n\nlo, hi\nnumber\n\nThe range, both ends inclusive.\n\n\nopts.discrete\nboolean\nfalse\nEvaluate only at the integers from ceil(lo) to floor(hi) – what a PMF has support on – instead of on a fine grid. opts.n is ignored; the arrays are empty if no integer lies in the range.\n\n\nopts.n\nnumber\n400\nNumber of evenly spaced samples in continuous mode. n = 1 divides by zero.\n\n\n\nReturns {xs: number[], ys: number[]}.\n\nVM.distributions.sampleCurve(k =&gt; VM.distributions.poissonPmf(k, 2), 0, 5, {discrete: true})\n\n\n\n\n\n\n\n\nVM.distributions.histogramBins(samples, binCount, range?)\nBins an array of draws into equal-width bins, normalized to densities so the bars’ total area is ~1 and a theoretical curve overlays directly.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nsamples\nnumber[]\n\nThe draws.\n\n\nbinCount\nnumber\n\nNumber of bins (≥ 1).\n\n\nrange\n{lo, hi}\nsamples’ min/max\nA fixed bin range. Pass {lo: min − 0.5, hi: max + 0.5} with binCount = max − min + 1 for one bin centered on each integer. Samples outside an explicit range are clamped into the first/last bin, not dropped. A zero-width range is widened to [lo − 0.5, hi + 0.5].\n\n\n\nReturns {edges: number[], centers: number[], densities: number[]} – binCount + 1 edges; binCount centers and densities, where densities[i] = count[i] / (samples.length · width). All three arrays are empty when samples is empty or binCount &lt; 1.\n\n{\n  const gaussian = VM.sampling.gaussianRandom(VM.sampling.seededRandom(1))\n  const draws = []\n  for (let i = 0; i &lt; 2000; i++) draws.push(gaussian())\n  return VM.distributions.histogramBins(draws, 6, {lo: -3, hi: 3})\n}\n\n\n\n\n\n\nSee the starter’s distribution-explorer.qmd for the histogram-under-a-curve chart.",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html#discrete-masses",
+    "href": "docs/reference/distributions.html#discrete-masses",
+    "title": "VM.distributions",
+    "section": "Discrete masses",
+    "text": "Discrete masses\nAll return 0 when k is not an integer in the support.\n\nVM.distributions.bernoulliPmf(k, p)\nP(K = 1) = p, P(K = 0) = 1 − p; 0 for any other k. p is not validated.\n\n\nVM.distributions.binomialPmf(k, n, p)\nExactly k successes in n independent trials with success probability p. p ≤ 0 puts all mass on k = 0, p ≥ 1 all mass on k = n.\n\n\nVM.distributions.poissonPmf(k, lambda)\nλ^k e^{−λ} / k! for integer k ≥ 0. lambda ≤ 0 puts all mass on k = 0.\n\n\nVM.distributions.geometricPmf(k, p)\nTrials until the first success: (1 − p)^{k−1} p for k = 1, 2, 3, … – not the competing “failures before the first success” convention whose support starts at 0. p is not validated.\n\n\nVM.distributions.negativeBinomialPmf(k, r, p)\nTrials until the r-th success, so the support is k = r, r+1, … and r = 1 is exactly geometricPmf. 0 when p is outside (0, 1]; p = 1 puts all mass on k = r.\n\n\nVM.distributions.hypergeometricPmf(k, N, K, n)\nExactly k successes when drawing n items without replacement from a population of N containing K successes: C(K, k)·C(N−K, n−k) / C(N, n). Support is max(0, n − (N − K)) ≤ k ≤ min(n, K); 0 there and for any invalid (N, K, n).",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/distributions.html#continuous-densities",
+    "href": "docs/reference/distributions.html#continuous-densities",
+    "title": "VM.distributions",
+    "section": "Continuous densities",
+    "text": "Continuous densities\n\nVM.distributions.exponentialPdf(x, rate)\nMean 1 / rate. 0 for x &lt; 0 or rate ≤ 0.\n\n\nVM.distributions.normalPdf(x, mean, variance)\nParameterized by variance, not standard deviation: pass sd * sd. 0 for variance ≤ 0.\n\n\nVM.distributions.gammaPdf(x, shape, rate)\nParameterized by rate, not scale: the mean is shape / rate. For a scale θ pass 1 / θ. Valid for any real shape &gt; 0. 0 for x ≤ 0 or a non-positive parameter.\n\n\nVM.distributions.chiSquaredPdf(x, k)\nk degrees of freedom – exactly gammaPdf(x, k/2, 1/2).\n\n\nVM.distributions.betaPdf(x, a, b)\nOn the open interval (0, 1): 0 at and outside the endpoints, so betaPdf(0, 1, 1) is 0 even though the density is 1 on the interior. 0 for a non-positive shape.\n\n\nVM.distributions.studentTPdf(x, k)\nk degrees of freedom, any real k &gt; 0 (not only an integer). 0 for k ≤ 0.\n\n\nVM.distributions.fPdf(x, d1, d2)\nd1 numerator and d2 denominator degrees of freedom. 0 for x ≤ 0 or a non-positive parameter.\n\n\nVM.distributions.lognormalPdf(x, mean, variance)\nThe density of e^X for X ~ Normal(mean, variance). The parameters describe the underlying normal, not the log-normal’s own mean (exp(μ + σ²/2)) and variance. 0 for x ≤ 0 or variance ≤ 0.\n\n\nVM.distributions.cauchyPdf(x, location, scale)\nThe Cauchy has no mean and no variance, so location is its median and scale its half-width at half-maximum. 0 for scale ≤ 0.\n\n\nVM.distributions.weibullPdf(x, shape, scale)\nParameterized by scale, not rate, so shape = 1 is the exponential with rate 1 / scale. Shape below 1 gives a failure rate that falls with age, above 1 one that rises. 0 for x &lt; 0 or a non-positive parameter; at x = 0 the density is 1/scale when shape = 1 and 0 otherwise.",
+    "crumbs": [
+      "Reference",
+      "VM.distributions"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html",
+    "href": "docs/markup.html",
+    "title": "Markup contract",
+    "section": "",
+    "text": "mathviz has almost no JavaScript API for layout. You put a handful of classes on wrapper &lt;div&gt;s – in Quarto, a fenced div ::: {.ojs-panel} – and the library lays the controls out and finds what to enhance. This page is every class and attribute you write yourself, with a live example of each. (The classes the library generates, which you never write, are listed under Internals.)\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#at-a-glance",
+    "href": "docs/markup.html#at-a-glance",
+    "title": "Markup contract",
+    "section": "At a glance",
+    "text": "At a glance\n\n\n\nClass / attribute\nPut it on\nEffect\n\n\n\n\nojs-panel\na div around Inputs.* cells\nthe control-panel chrome; restyles every input inside\n\n\nojs-row / ojs-grid\nthe same div, or a nested one\none wrapping flex row / an auto-fit grid\n\n\nojs-fill / ojs-auto / ojs-end\nan input’s wrapper (classList.add)\nfill the row / natural width / push to the right edge\n\n\nojs-chart-block\na div around the chart cell(s)\nanchor for the legend; what fullscreen enlarges\n\n\nojs-chart-controls\na div inside the block, holding sliders\na bar directly above the chart that comes along into fullscreen\n\n\nojs-svg-block\nalongside ojs-chart-block, for SVG charts\nadds the fullscreen button Plotly charts get from the modebar\n\n\nplotly-box-large\nthe Plotly graph div\nthe one shipped chart size\n\n\nvm-swatch vm-swatch-alt (one modifier per palette color, plus -accent)\na &lt;span&gt; in prose\ntints a color word with the matching palette color\n\n\nvm-invalid\nan &lt;input&gt;\nred border and tint for a field that failed validation\n\n\nvm-app\na div around one app’s controls and chart\nwhat embedding and the Share button act on (only with those site extras on)\n\n\ndata-vm-play=\"off\"\na slider or any ancestor\nopt that slider out of the play button\n\n\ndata-example-field=\"…\"\na viewof element\na stable handle for applyExampleParams",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#panels",
+    "href": "docs/markup.html#panels",
+    "title": "Markup contract",
+    "section": "Panels",
+    "text": "Panels\n\nojs-panel\nThe look: padding, border, rounded corners, a surface background, and consistent styling of every input, select and button inside it, with labels stacked above controls so a row of them bottom-aligns. Every control in the panel shares one height (--vm-control-h) and its label one size (--vm-label-size), so a row of mixed controls lines up on both edges.\nIt is look only. Pair it with ojs-row or ojs-grid for layout. Don’t nest one panel inside another (the border and background double up); nest a bare ojs-row or ojs-grid div instead.\n\n\nojs-row\nOne wrapping row, bottom-aligned. The first control stretches to fill; the last takes its natural width; anything between takes its natural width too. That is the shape of most panels: a wide expression field, then a couple of small controls, then a button.\n\n\nviewof rowF = Inputs.text({label: \"f(x)\", value: \"x^2 - 2\"})\n\n\n\n\n\n\n\nviewof rowX0 = Inputs.text({label: \"x₀\", value: \"1\"})\n\n\n\n\n\n\n\nviewof rowGo = Inputs.button(\"Plot\")\n\n\n\n\n\n\n\n::: {.ojs-panel .ojs-row}\n```{ojs}\nviewof f = Inputs.text({label: \"f(x)\", value: \"x^2 - 2\"})\n```\n```{ojs}\nviewof x0 = Inputs.text({label: \"x₀\", value: \"1\"})\n```\n```{ojs}\nviewof go = Inputs.button(\"Plot\")\n```\n:::\n\n\nojs-grid\nAn auto-fit grid of equal columns (about 200 px each; fewer on narrow screens), bottom-aligned. For a panel of several similar controls where none should dominate.\n\n\nviewof gridA = Inputs.range([0, 1], {label: \"alpha\", step: 0.01, value: 0.5})\n\n\n\n\n\n\n\nviewof gridB = Inputs.range([1, 50], {label: \"n\", step: 1, value: 10})\n\n\n\n\n\n\n\nviewof gridC = Inputs.select([\"Euler\", \"RK4\"], {label: \"method\"})\n\n\n\n\n\n\n\nviewof gridD = Inputs.checkbox([\"show error\", \"show exact\"], {label: \"overlay\", value: [\"show exact\"]})\n\n\n\n\n\n\n\n\n\nojs-fill, ojs-auto, ojs-end\nPer-control overrides, added to the viewof element from the cell that creates it:\nviewof expr = {\n  const view = Inputs.text({label: \"f(x)\", value: \"sin(x)\"})\n  view.classList.add(\"ojs-fill\")\n  return view\n}\n\n\n\n\n\n\n\nClass\nEffect\n\n\n\n\nojs-fill\nFull width; a text input inside becomes a wide box the reader can drag wider – for a long expression. It starts at 20 em on a row of its own, or at whatever width the other controls leave when it shares an ojs-row with them, so a field and its Plot button read as one unit.\n\n\nojs-auto\nNatural width, in a row that would otherwise stretch it.\n\n\nojs-end\nPushes the control to the right edge, in a row or a grid.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#charts",
+    "href": "docs/markup.html#charts",
+    "title": "Markup contract",
+    "section": "Charts",
+    "text": "Charts\n\nojs-chart-block\nThe wrapper around a chart and its companions. A floating legendOverlay is positioned against it, and it is what the fullscreen button enlarges – so a controls bar and legend inside it come along, and the chart keeps its aspect ratio.\nEvery chart wants one, even a chart that has neither a legend nor controls today. It also lets a chart in a layout-ncol column shrink with the column instead of forcing it wide.\n\n\nojs-chart-controls\nA direct child of the chart block, holding the sliders that drive the chart – an iteration count, a step size. It renders as a bar directly above the chart, stays with the chart in fullscreen, and lays its controls out for that width: fluid slider tracks, compact number fields, labels beside controls.\nSliders in it get the play button. Combine with ojs-grid (class=\"ojs-chart-controls ojs-grid\") for several sliders side by side.\n\n\n\nviewof ctrlN = Inputs.range([1, 12], {label: \"iterations n\", step: 1, value: 4})\n\n\n\n\n\n\n\n\n{\n  const g = x =&gt; Math.cos(x)\n  let x = 1\n  const xs = [x], ys = [0]\n  for (let i = 0; i &lt; ctrlN; i++) { const gx = g(x); xs.push(x, gx); ys.push(gx, gx); x = gx }\n  const curveX = [], curveY = []\n  for (let i = 0; i &lt;= 100; i++) { const t = i / 100 * 1.6; curveX.push(t); curveY.push(g(t)) }\n  const div = document.createElement(\"div\")\n  div.style.height = \"300px\"\n  Plotly.newPlot(div, [\n    {x: curveX, y: curveY, name: \"cos x\", line: {color: chartColors.fn}},\n    {x: [0, 1.6], y: [0, 1.6], name: \"y = x\", line: {color: chartColors.muted, dash: \"dot\"}},\n    {x: xs, y: ys, name: \"cobweb\", line: {color: chartColors.alt, width: 1.5}, mode: \"lines+markers\", marker: {size: 5}}\n  ], {showlegend: false, xaxis: {range: [0, 1.6]}, yaxis: {range: [0, 1.1]}, margin: {t: 8}})\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\n::: {.ojs-chart-block}\n::: {.ojs-chart-controls}\n```{ojs}\nviewof n = Inputs.range([1, 12], {label: \"iterations n\", step: 1, value: 4})\n```\n:::\n```{ojs}\nmainPlot = { ... }\n```\n:::\n\n\nojs-svg-block\nFor a chart drawn as inline SVG – Observable Plot, or a hand-built &lt;svg&gt; – which has no Plotly modebar. Put it on the same element as ojs-chart-block and nothing else: the library adds a fullscreen button pinned to the top-right corner of the figure, centers the figure in the block, and keeps its aspect ratio in fullscreen. The button survives re-runs of the cell.\nThe VM.discreteMath page and the starter’s observable-plot.qmd use it. Hover the chart there to see the button.\n\n\nplotly-box-large\nFull width, about three-quarters of the viewport tall with a floor of 500 px (less on a phone). It is the only size class shipped – there is no -small or -medium. For another height set div.style.height yourself, as the examples on this site do.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#prose",
+    "href": "docs/markup.html#prose",
+    "title": "Markup contract",
+    "section": "Prose",
+    "text": "Prose\n\nvm-swatch\nTints a word to match a trace: &lt;span class=\"vm-swatch vm-swatch-alt\"&gt;red&lt;/span&gt; gives red. The modifier is required; vm-swatch alone sets no color.\n\n\n\n\n\n\n\n\nModifier\nToken\n\n\n\n\n\nvm-swatch-fn\n--vm-color-fn\nfn\n\n\nvm-swatch-alt\n--vm-color-alt\nalt\n\n\nvm-swatch-ok\n--vm-color-ok\nok\n\n\nvm-swatch-muted\n--vm-color-muted\nmuted\n\n\nvm-swatch-ink\n--vm-color-ink\nink\n\n\nvm-swatch-warn\n--vm-color-warn\nwarn\n\n\nvm-swatch-accent2\n--vm-color-accent2\naccent2\n\n\nvm-swatch-accent3\n--vm-color-accent3\naccent3\n\n\nvm-swatch-accent\n--vm-accent (the UI accent, not a palette color)\naccent\n\n\n\nOne modifier per palette color, matching the keys of VM.plotting.colors(), so a swatch in a sentence and the trace it describes always agree. There is no -halo: it is the page background, and a tint of it is invisible.\n\n\nvm-invalid\nA red border and tint on an &lt;input&gt; – for a field whose value failed to parse. Nothing in the library adds it; a page toggles it from the cell that validates:\nviewof x0 = {\n  const view = Inputs.text({label: \"x₀\", value: \"1\"})\n  view.addEventListener(\"input\", () =&gt; {\n    const ok = VM.expressions.makeNumber(math, view.value) !== null\n    view.querySelector(\"input\").classList.toggle(\"vm-invalid\", !ok)\n  })\n  return view\n}\nIt pairs with emptyState: the field says what is wrong, the chart says that something is.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/markup.html#data-attributes",
+    "href": "docs/markup.html#data-attributes",
+    "title": "Markup contract",
+    "section": "Data attributes",
+    "text": "Data attributes\n\ndata-vm-play=\"off\"\nOn a range slider or any ancestor: opt out of the play button. Useful for a slider that isn’t a parameter sweep (a zoom level, a seed).\n\n\ndata-example-field=\"&lt;name&gt;\"\nOn a viewof element, set by the cell that creates it, as a stable handle for applyExampleParams:\nviewof fx = {\n  const view = Inputs.text({label: \"f(x)\", value: \"sin(x)\"})\n  view.dataset.exampleField = \"fx\"\n  return view\n}\nThe page’s fieldSelectors map is then {fx: '[data-example-field=\"fx\"]', …}. Selectors rather than references, for a reason that entry explains.",
+    "crumbs": [
+      "Guide",
+      "Markup contract"
+    ]
+  },
+  {
+    "objectID": "docs/first-chart.html",
+    "href": "docs/first-chart.html",
+    "title": "Building a page",
+    "section": "",
+    "text": "This is the whole of the starter’s index.qmd, with each cell explained. Read it once and every other page will look familiar: a panel of inputs, a cell or two of computation, a chart block.",
+    "crumbs": [
+      "Guide",
+      "Building a page"
+    ]
+  },
+  {
+    "objectID": "docs/first-chart.html#the-page",
+    "href": "docs/first-chart.html#the-page",
+    "title": "Building a page",
+    "section": "The page",
+    "text": "The page\n\nVM = window.VM\n\n\n\n\n\n\n\n\nviewof fText = Inputs.text({label: \"f(x)\", value: \"sin(x) + x/3\"})\n\n\n\n\n\n\n\nviewof k = Inputs.range([1, 5], {label: \"Frequency\", step: 0.1, value: 1})\n\n\n\n\n\n\n\n\n\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmainPlot = {\n  const f = VM.expressions.makeFunction(math, fText)\n  const xs = [], ys = []\n  for (let i = 0; i &lt;= 400; i++) {\n    const x = -6 + 12 * i / 400\n    xs.push(x)\n    ys.push(f ? f(k * x) : NaN)\n  }\n  const div = document.createElement(\"div\")\n  div.className = \"plotly-box-large\"\n  Plotly.newPlot(div, [\n    {x: xs, y: ys, mode: \"lines\", name: fText, line: {color: chartColors.fn, width: 2.5}, showlegend: false}\n  ], VM.plotting.layout({\n    xaxis: {title: \"x\"},\n    yaxis: {title: \"f(kx)\"},\n    annotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\n  }), VM.plotting.config())\n  VM.plotting.autoResize(div)\n  return div\n}\n\n\n\n\n\n\n\nType something unparseable into the field. Toggle the theme. Press ▶ on the slider.",
+    "crumbs": [
+      "Guide",
+      "Building a page"
+    ]
+  },
+  {
+    "objectID": "docs/first-chart.html#cell-by-cell",
+    "href": "docs/first-chart.html#cell-by-cell",
+    "title": "Building a page",
+    "section": "Cell by cell",
+    "text": "Cell by cell\n\nThe panel\n::: {.ojs-panel .ojs-row}\n```{ojs}\nviewof fText = Inputs.text({label: \"f(x)\", value: \"sin(x) + x/3\"})\n```\n```{ojs}\nviewof k = Inputs.range([1, 5], {label: \"Frequency\", step: 0.1, value: 1})\n```\n:::\nA Quarto div with two classes around ordinary Observable inputs. ojs-panel is the look – border, background, consistent input styling; ojs-row is the layout – one wrapping row, the first control stretching to fill. The slider gets its play button for free. All the classes are on the Markup page.\n\n\nThe theme pair\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)\nPut these two lines on every chart page. chartColors is the palette – chartColors.fn, .alt, .ok, … – and it changes when the reader toggles light/dark, so every cell that reads it redraws with the right colors. Without them, the chart’s axes follow the toggle but your traces keep their old colors. (Why that is, and why colors takes an argument it ignores: onThemeChange.)\n\n\nThe function\nconst f = VM.expressions.makeFunction(math, fText)\nmath is the math.js global the extension loaded. makeFunction turns the typed text into a JavaScript function, or gives null if it won’t parse – it never throws, so a half-typed expression can’t break the page. Where evaluation fails (sqrt(x) at x = -1) the function gives NaN, which Plotly draws as a gap.\n\n\nThe sampling loop\nfor (let i = 0; i &lt;= 400; i++) {\n  const x = -6 + 12 * i / 400\n  xs.push(x)\n  ys.push(f ? f(k * x) : NaN)\n}\nA plain loop filling xs and ys. For a probability density, sampleCurve does this for you.\n\n\nThe chart\nconst div = document.createElement(\"div\")\ndiv.className = \"plotly-box-large\"\nPlotly.newPlot(div, [...], VM.plotting.layout({...}), VM.plotting.config())\nVM.plotting.autoResize(div)\nreturn div\nMake a div, draw into it, return it. Three library calls: layout() gives the themed layout with your own axis titles merged in, config() the sensible Plotly config, and autoResize() sizes the chart once it’s on the page. plotly-box-large is the one size class shipped – full width, tall; set div.style.height for anything else.\n\n\nThe empty state\nannotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\nWhen f is null the chart would be an empty grid, indistinguishable from a valid function that’s off-screen. emptyState puts a message in the middle so the reader knows it’s their input.\n\n\nThe chart block\n::: {.ojs-chart-block}\n...\n:::\nThe wrapper around the chart cells. It’s what the fullscreen button enlarges, and where a floating legend or a slider bar attaches. Every chart wants one, even a chart with neither today, so that adding them later is just dropping in a cell.",
+    "crumbs": [
+      "Guide",
+      "Building a page"
+    ]
+  },
+  {
+    "objectID": "docs/first-chart.html#where-to-go-from-here",
+    "href": "docs/first-chart.html#where-to-go-from-here",
+    "title": "Building a page",
+    "section": "Where to go from here",
+    "text": "Where to go from here\nEach of the starter’s other pages adds one thing to this pattern:\n\n\n\nPage\nAdds\n\n\n\n\nfunction-explorer.qmd\na floating legend (legendOverlay); a field that turns red on bad input\n\n\nstep-slider.qmd\nan iteration slider above the chart (ojs-chart-controls) with playback; a results table\n\n\node-convergence.qmd\nODE steppers; a Plotly chart and an Observable Plot chart sharing the theme\n\n\ndistribution-explorer.qmd\nan exact density over a histogram of seeded samples\n\n\ntry-an-example.qmd\npresets that fill the fields and run the page\n\n\nobservable-plot.qmd\nObservable Plot with a fullscreen button\n\n\n\nThen make the palette yours: Theming.",
+    "crumbs": [
+      "Guide",
+      "Building a page"
+    ]
+  },
+  {
+    "objectID": "docs/index.html",
+    "href": "docs/index.html",
+    "title": "mathviz",
+    "section": "",
+    "text": "mathviz is the machinery behind Visual Math Lab, packaged so any site can use it: a Quarto extension that drops into an OJS page with one line of front matter, and the same code as a plain script bundle for everything else.\nEvery chart, panel and slider on this site is drawn by the library itself. Toggle the theme in the navbar and watch them follow.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Guide",
+      "mathviz"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#quick-start",
+    "href": "docs/index.html#quick-start",
+    "title": "mathviz",
+    "section": "Quick start",
+    "text": "Quick start\n\nA new siteAn existing Quarto site\n\n\nCopy the starter – a complete Quarto website with seven working pages and the extension already installed:\ngit clone https://github.com/apurvanakade/mathviz\ncp -r mathviz/starter my-site && cd my-site\nquarto preview\nThen copy any page (index.qmd is the smallest), rename it, and edit its cells. Its README lists what each page shows.\n\n\nquarto add apurvanakade/mathviz\n# _quarto.yml\nfilters:\n  - mathviz\nEvery page now has VM, math.js, Plotly and the stylesheet. Copy a page from the starter into your site to see it work.",
+    "crumbs": [
+      "Guide",
+      "mathviz"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#what-you-get",
+    "href": "docs/index.html#what-you-get",
+    "title": "mathviz",
+    "section": "What you get",
+    "text": "What you get\n\nThemed charts – Plotly and Observable Plot follow your site’s light/dark toggle, with no per-page code.\nControl panels – a few ojs-* classes lay Observable inputs out into a tidy panel; step sliders sit above the chart and get a play button.\nA better modebar and a draggable legend – fullscreen, gentler zoom, pan by default; a floating legend that toggles traces.\nNumerical helpers – safe expression parsing, ODE steppers, quadrature, fits, densities, seeded randomness.",
+    "crumbs": [
+      "Guide",
+      "mathviz"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#next",
+    "href": "docs/index.html#next",
+    "title": "mathviz",
+    "section": "Next",
+    "text": "Next\n\n\n\nBuilding a page\nThe starter’s first page, cell by cell – the pattern every page follows.\n\n\nTheming\nMake the colors and fonts yours; how dark mode is detected.\n\n\nMarkup\nThe ojs-* classes that lay out panels and charts.\n\n\nInstalling\nFilter options, pinning a version, using the bundle on a non-Quarto page.\n\n\nAPI reference\nEvery VM.* function, with live examples.\n\n\nTroubleshooting\nSymptom → cause → fix.",
+    "crumbs": [
+      "Guide",
+      "mathviz"
+    ]
+  },
+  {
+    "objectID": "docs/install.html",
+    "href": "docs/install.html",
+    "title": "Installing",
+    "section": "",
+    "text": "New site? Copy the starter instead – it has the extension installed. This page is for adding the library to a site you already have.\nmathviz ships two ways from one source tree. Both give you the same window.VM, the same CSS, and the same behaviour.",
+    "crumbs": [
+      "Guide",
+      "Installing"
+    ]
+  },
+  {
+    "objectID": "docs/install.html#quarto-site-book-or-document",
+    "href": "docs/install.html#quarto-site-book-or-document",
+    "title": "Installing",
+    "section": "Quarto site, book or document",
+    "text": "Quarto site, book or document\nquarto add apurvanakade/mathviz\nThis copies the extension into _extensions/apurvanakade/mathviz/ in your project. Enable it project-wide in _quarto.yml, or per page in front matter:\nfilters:\n  - mathviz\nThe filter puts math.js and Plotly (from a CDN, pinned to the versions the library is tested against), then mathviz.js and mathviz.css (served from your own site_libs/), into every HTML page’s &lt;head&gt;.\n\nOptions\nAll optional, under a mathviz: key in _quarto.yml or a page’s front matter:\nmathviz:\n  plotly: false             # your pages draw with D3/canvas/Plot -- skip Plotly\n  mathjs: false             # ...or math.js. Either also accepts a URL string\n  css: false                # bring your own stylesheet\n  referrer: same-origin     # emit &lt;meta name=\"referrer\"&gt; ahead of the CDN tags\n\n\n\nKey\nValues\nEffect\n\n\n\n\nplotly\ntrue (default), false, or a URL\nWhether to add the Plotly tag, and from where. With false the Plotly patch is a silent no-op and the VM.plotting theme functions still work for Observable Plot.\n\n\nmathjs\ntrue (default), false, or a URL\nWhether to add the math.js tag, and from where. VM.expressions.* take the instance as an argument, so a page that loads math.js another way passes that.\n\n\ncss\ntrue (default) or false\nWhether to add mathviz.css. With false you supply the --vm-* tokens and the ojs-* rules yourself – see Theming.\n\n\nreferrer\na referrer policy string\nEmits &lt;meta name=\"referrer\" content=\"…\"&gt; before the CDN tags, so the third-party origins don’t see a page’s path or query string – which on a math page is the reader’s own input. Visual Math Lab uses same-origin.\n\n\n\nFurther keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, embedding, a Share button, a Report bug popup, a phone notice), and the extension ships an optional Quarto theme. All are off by default – see Site extras.\n\n\nVersions and updating\nquarto update apurvanakade/mathviz            # latest tag\nquarto update apurvanakade/mathviz@v0.1.11    # a specific tag\nquarto add apurvanakade/mathviz@v0.1.11       # pin at install time",
+    "crumbs": [
+      "Guide",
+      "Installing"
+    ]
+  },
+  {
+    "objectID": "docs/install.html#any-other-web-page",
+    "href": "docs/install.html#any-other-web-page",
+    "title": "Installing",
+    "section": "Any other web page",
+    "text": "Any other web page\n&lt;link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.11/dist/mathviz.css\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js\"&gt;&lt;/script&gt;\n&lt;script src=\"https://cdn.plot.ly/plotly-2.35.2.min.js\"&gt;&lt;/script&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.11/dist/mathviz.js\"&gt;&lt;/script&gt;\n\nLoad Plotly before mathviz.js. If Plotly arrives later (a dynamic import), call VM.plotting.installPlotlyPatch() yourself.\nPin the tag in the URL. jsDelivr also serves @main, but a tag is what you can reason about.\nWithout Quarto and Observable Inputs, some CSS has nothing to attach to; Internals says what degrades and what doesn’t.",
+    "crumbs": [
+      "Guide",
+      "Installing"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html",
+    "href": "docs/reference/discrete-math.html",
+    "title": "VM.discreteMath",
+    "section": "",
+    "text": "The combinatorics behind a Sperner’s-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color names into palette colors at the moment of drawing. Two graph helpers at the end build a random walk’s transition matrix and a layout to draw the graph with.\nEvery Sperner helper works in the names 'red', 'green', 'blue' – those are the keys the logic compares – and only the three *Color functions under Drawing touch the actual palette. Keep that split: fill: d =&gt; VM.discreteMath.vertexColor(d.color), never fill: \"red\", which is not the site’s red and doesn’t lighten in dark mode.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#live",
+    "href": "docs/reference/discrete-math.html#live",
+    "title": "VM.discreteMath",
+    "section": "Live",
+    "text": "Live\n\n\nviewof N = Inputs.range([1, 12], {label: \"order N\", step: 1, value: 5})\n\n\n\n\n\n\n\nviewof recolor = Inputs.button(\"Recolor\")\n\n\n\n\n\n\n\n\n\n{\n  recolor; chartColors   // re-run on the button and on a theme toggle\n  const toXY = ([i, j, k]) =&gt; ({x: (j + k / 2) / N, y: (Math.sqrt(3) / 2) * k / N})\n  const coloring = new Map()\n  for (const t of VM.discreteMath.barycentricTriples(N)) coloring.set(t.join(\",\"), VM.discreteMath.spernerColor(...t))\n  const colorOf = t =&gt; coloring.get(t.join(\",\"))\n  const triangles = []\n  for (const tri of VM.discreteMath.subTriangleTriples(N)) {\n    const fill = VM.discreteMath.triangleFillColor(tri.map(colorOf))\n    triangles.push({points: tri.map(toXY), fill})\n  }\n  const edges = []\n  for (const {a, b} of VM.discreteMath.triangulationEdges(N)) {\n    edges.push({...toXY(a), x2: toXY(b).x, y2: toXY(b).y, stroke: VM.discreteMath.pairColor(colorOf(a), colorOf(b)) ?? chartColors.muted})\n  }\n  const dots = []\n  for (const t of VM.discreteMath.barycentricTriples(N)) dots.push({...toXY(t), color: colorOf(t)})\n  const rainbow = triangles.filter(t =&gt; t.fill !== \"none\").length\n  return Plot.plot(VM.plotting.plotOptions({\n    width: 520, height: 470, axis: null, grid: false, x: {domain: [-0.05, 1.05]}, y: {domain: [-0.05, 0.92]},\n    marks: [\n      ...triangles.map(t =&gt; Plot.line(t.points.concat([t.points[0]]), {x: \"x\", y: \"y\", fill: t.fill, stroke: \"none\"})),\n      Plot.link(edges, {x1: \"x\", y1: \"y\", x2: \"x2\", y2: \"y2\", stroke: \"stroke\", strokeWidth: 2}),\n      Plot.dot(dots, {x: \"x\", y: \"y\", fill: d =&gt; VM.discreteMath.vertexColor(d.color), r: N &gt; 8 ? 4 : 6, stroke: chartColors.halo}),\n      Plot.text([{x: 0.5, y: -0.03, t: `${rainbow} rainbow triangle${rainbow === 1 ? \"\" : \"s\"} (Sperner: always odd)`}], {x: \"x\", y: \"y\", text: \"t\", fill: chartColors.ink})\n    ]\n  }))\n}",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#triangulation",
+    "href": "docs/reference/discrete-math.html#triangulation",
+    "title": "VM.discreteMath",
+    "section": "Triangulation",
+    "text": "Triangulation\nA uniform order-N triangulation has (N+1)(N+2)/2 vertices, each a triple [i, j, k] of non-negative integers with i + j + k = N; a vertex is a corner when two coordinates are zero and on an edge when one is.\n\nVM.discreteMath.barycentricTriples(N)\nEvery vertex, i-major.\nReturns number[][] – (N+1)(N+2)/2 triples. [[0,0,0]] for N = 0; empty for negative N.\n\nVM.discreteMath.barycentricTriples(2)\n\n\n\n\n\n\n\n\nVM.discreteMath.subTriangleTriples(N)\nThe N² small triangles, each as a triple of vertex triples: the N(N+1)/2 “upward” ones first, then the N(N−1)/2 “downward” ones.\nReturns number[][][].\n\nVM.discreteMath.subTriangleTriples(2)\n\n\n\n\n\n\n\n\nVM.discreteMath.triangulationEdges(N)\nEvery edge exactly once, derived from subTriangleTriples with each interior edge (shared by two triangles) deduplicated.\nReturns {a: number[], b: number[]}[].\n\nVM.discreteMath.triangulationEdges(2).length   // 3N(N+1)/2 = 9",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#coloring",
+    "href": "docs/reference/discrete-math.html#coloring",
+    "title": "VM.discreteMath",
+    "section": "Coloring",
+    "text": "Coloring\n\nVM.discreteMath.spernerColor(a, b, c)\nColors one vertex so the whole labelling satisfies Sperner’s condition: the corners get fixed colors – (0,0,N) red, (N,0,0) green, (0,N,0) blue – a vertex on a boundary edge gets one of that edge’s two corner colors uniformly at random, and an interior vertex any of the three uniformly at random.\nReturns 'red' | 'green' | 'blue'.\nUses Math.random(), so it isn’t reproducible from a seed; a page that needs a URL-shareable coloring draws its own randomness from seededRandom and applies the same three rules.\n\n\nVM.discreteMath.randomColor()\nOne of the three names uniformly at random, ignoring position – for showing what breaks when the boundary condition is violated.\nReturns 'red' | 'green' | 'blue'.",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#drawing",
+    "href": "docs/reference/discrete-math.html#drawing",
+    "title": "VM.discreteMath",
+    "section": "Drawing",
+    "text": "Drawing\nThese read VM.plotting.colors() / alpha() when called. A cell that stores their output (an array of colored edges, a triangle’s fillColor) must itself depend on chartColors – a bare chartColors; line at the top, as in the live example above – or the stored colors go stale on a toggle.\n\nVM.discreteMath.vertexColor(name)\n'red' → colors().alt, 'green' → colors().ok, 'blue' → colors().fn. The prose swatches .vm-swatch-alt / -ok / -fn use the same tokens, so a word and a dot agree.\nReturns a CSS color, or null for any other name.\n\n\nVM.discreteMath.pairColor(colorA, colorB)\nThe shared color for a pair of distinct names, at 80% opacity: red+green → warn (amber), green+blue → accent3 (teal), red+blue → accent2 (purple). Order doesn’t matter.\nReturns an rgba(...) string, or null when the names are equal or the pair isn’t one of the three.\n\n\nVM.discreteMath.triangleFillColor(colors)\nThe fill for a small triangle given its vertex names: translucent accent2 (55%) when all three are distinct – a “rainbow” triangle, the object of the lemma – and the string 'none' otherwise.\nReturns string.\n\n[VM.discreteMath.vertexColor(\"red\"), VM.discreteMath.pairColor(\"green\", \"blue\"), VM.discreteMath.triangleFillColor([\"red\", \"green\", \"blue\"]), VM.discreteMath.triangleFillColor([\"red\", \"red\", \"blue\"])]",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/discrete-math.html#graphs",
+    "href": "docs/reference/discrete-math.html#graphs",
+    "title": "VM.discreteMath",
+    "section": "Graphs",
+    "text": "Graphs\nTwo helpers for a random-walk page. Vertices are 0..nodeCount-1 and edges are [u, v] pairs, each undirected edge listed once.\n\nVM.discreteMath.randomWalkMatrix(nodeCount, edges, opts?)\nThe simple random walk on an undirected graph: from a vertex, move to a uniformly chosen neighbor, so P[i][j] = 1 / deg(i) for each edge. Its stationary distribution, pi_i = deg(i) / (2|E|), is returned with it.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nnodeCount\nnumber\n\nNumber of vertices.\n\n\nedges\n[number, number][]\n\nUndirected edges. Self-loops and repeated edges are not checked for.\n\n\nopts.lazy\nboolean\nfalse\nReturn the lazy walk (I + P) / 2, which stays put with probability ½. It has the same stationary distribution but no eigenvalue at -1, so it converges on a bipartite graph (a path, a tree, a grid, an even cycle), where the simple walk oscillates forever.\n\n\n\nReturns {P, degrees, stationary}. P is row-stochastic. An isolated vertex gets a row that stays put (P[i][i] = 1) and stationary mass 0; with no edges at all, stationary is uniform.\n\nVM.discreteMath.randomWalkMatrix(3, [[0, 1], [1, 2]], {lazy: true})\n\n\n\n\n\n\n\n\nVM.discreteMath.springLayout(nodeCount, edges, opts?)\nForce-directed (Fruchterman–Reingold) layout: every pair of vertices repels, every edge pulls its ends together, and each vertex’s step is capped by a temperature that cools linearly to zero. Dense clusters come out as tight blobs and a bottleneck edge as a long bridge between them.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nnodeCount\nnumber\n\nNumber of vertices.\n\n\nedges\n[number, number][]\n\nUndirected edges.\n\n\nopts.seed\nnumber\n42\nSeed for the starting positions. The same graph and seed always give the same picture.\n\n\nopts.iterations\nnumber\n300\nNumber of steps.\n\n\n\nReturns [x, y][], one per vertex, centered on the origin and scaled so the larger coordinate extent is [-1, 1]. A single vertex sits at [0, 0]; no vertices gives [].\n\n{\n  chartColors;\n  // Two triangles joined by one edge.\n  const edges = [[0, 1], [1, 2], [2, 0], [3, 4], [4, 5], [5, 3], [2, 3]]\n  const pos = VM.discreteMath.springLayout(6, edges)\n  return Plot.plot(VM.plotting.plotOptions({\n    width: 360, height: 240, axis: null, x: {domain: [-1.2, 1.2]}, y: {domain: [-1.2, 1.2]},\n    marks: [\n      Plot.link(edges, {x1: e =&gt; pos[e[0]][0], y1: e =&gt; pos[e[0]][1], x2: e =&gt; pos[e[1]][0], y2: e =&gt; pos[e[1]][1], stroke: chartColors.muted}),\n      Plot.dot(pos, {x: p =&gt; p[0], y: p =&gt; p[1], r: 6, fill: chartColors.fn})\n    ]\n  }))\n}",
+    "crumbs": [
+      "Reference",
+      "VM.discreteMath"
+    ]
+  },
+  {
+    "objectID": "docs/reference/expressions.html",
+    "href": "docs/reference/expressions.html",
+    "title": "VM.expressions",
+    "section": "",
+    "text": "Every function here takes a math.js instance as its first argument – on a page rendered through the extension that is the global math – and an expression string as typed by a reader. The string is normalized first (trimmed, π replaced by pi), then compiled. Nothing here throws on bad input: an expression that can’t be parsed gives null, and a compiled function that fails at a point (a domain error, say) gives NaN there. Branch on the null and draw an emptyState rather than an empty grid.\nThe one exception to the pattern is makeRational, which takes no math.js instance and parses only literals.\n\nVM = window.VM\n\n\n\n\n\n\n\nVM.expressions.makeFunction(mathjs, expr)\nCompiles an expression in x into a plain (x) =&gt; number.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\nThe global math on a page that loads it.\n\n\nexpr\nstring\nAn expression in x, e.g. \"sin(x) + x^2/4\".\n\n\n\nReturns ((x: number) =&gt; number) | null – null if the expression can’t be parsed. The returned function yields NaN (never throws) where evaluation fails.\n\nviewof fxText = Inputs.text({label: \"f(x) =\", value: \"sin(x) + x^2/4\"})\n\n\n\n\n\n\n\n{\n  const f = VM.expressions.makeFunction(math, fxText)\n  if (f === null) return html`&lt;em&gt;Couldn't parse that.&lt;/em&gt;`\n  return html`f(0) = &lt;b&gt;${f(0)}&lt;/b&gt;, f(π) = &lt;b&gt;${f(Math.PI).toFixed(4)}&lt;/b&gt;, f(\"a\") = &lt;b&gt;${f(\"a\")}&lt;/b&gt;`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeDerivative(mathjs, expr)\nLike makeFunction, but compiles the symbolic derivative df/dx via math.derivative.\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in x.\n\n\n\nReturns ((x: number) =&gt; number) | null – null if the expression can’t be parsed or differentiated.\n\n{\n  const df = VM.expressions.makeDerivative(math, \"x^3 - 2x\")\n  return html`d/dx (x³ − 2x) at x = 2: &lt;b&gt;${df(2)}&lt;/b&gt; (expect 10)`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeNumber(mathjs, expr)\nEvaluates a constant expression to a JavaScript number. Use it for every numeric field on a page – an initial guess, an endpoint, a step count – so readers can type pi/4 or 2^10, not only literals.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nA constant expression, e.g. \"1 + 2*3 + pi - e\".\n\n\n\nReturns number | null – null if the expression can’t be parsed, references a free variable, or doesn’t evaluate to a finite number.\n\n[VM.expressions.makeNumber(math, \"1 + 2*3 + pi - e\"), VM.expressions.makeNumber(math, \"x + 1\"), VM.expressions.makeNumber(math, \"1/0\")]\n\n\n\n\n\n\n\n\nVM.expressions.makeFunction2(mathjs, expr)\nCompiles an expression in t and y into a two-argument (t, y) =&gt; number: the right-hand side of a first-order ODE y' = f(t, y), in the shape eulerSolve and rk4Solve take.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in t and y, e.g. \"y - t^2 + 1\".\n\n\n\nReturns ((t: number, y: number) =&gt; number) | null.\n\n{\n  const f = VM.expressions.makeFunction2(math, \"y - t^2 + 1\")\n  return html`f(t = 0, y = 0.5) = &lt;b&gt;${f(0, 0.5)}&lt;/b&gt;`\n}\n\n\n\n\n\n\n\n\nVM.expressions.makeFunctionOfT(mathjs, expr)\nLike makeFunction, but the free variable is t – for a parametric curve x(t), y(t) or anything else where time is the natural parameter.\n\n\n\nParameter\nType\nDescription\n\n\n\n\nmathjs\nmath.js instance\n\n\n\nexpr\nstring\nAn expression in t, e.g. \"cos(2t)\".\n\n\n\nReturns ((t: number) =&gt; number) | null.\n\n\nVM.expressions.makeRational(expr)\nParses a rational-number literal into an exact reduced fraction – for displaying a Butcher-tableau coefficient as 1/6 rather than 0.16666666666666666.\nUnlike its siblings this takes no math.js instance and evaluates nothing. Only three forms are accepted:\n\n\n\nForm\nExamples\n\n\n\n\ninteger\n\"3\", \"-3\"\n\n\nfraction of integers\n\"1/2\", \"-1 / 3\"\n\n\ndecimal\n\"0.25\", \".5\", \"-2.75\"\n\n\n\nReturns {num: number, den: number} | null – numerator and denominator in lowest terms with den &gt; 0; null for an empty string, a zero denominator, or anything else (\"1/2 + 1\", \"pi\", \"1e3\", \"1.\" all return null).\n\n[\"6/-8\", \"0.125\", \"-3\", \"1/2 + 1\", \"1/0\"].map(s =&gt; [s, VM.expressions.makeRational(s)])",
+    "crumbs": [
+      "Reference",
+      "VM.expressions"
+    ]
+  },
+  {
+    "objectID": "docs/reference/index.html",
+    "href": "docs/reference/index.html",
+    "title": "API reference",
+    "section": "",
+    "text": "The bundle attaches one global, VM, with a namespace per concern. Each source file adds one function (a few add two or three that belong together) and nothing here has hidden state beyond what’s noted – the theme functions read CSS at call time, the self-installing UI modules keep track of what they’ve enhanced.",
+    "crumbs": [
+      "Reference",
+      "API reference"
+    ]
+  },
+  {
+    "objectID": "docs/reference/index.html#conventions",
+    "href": "docs/reference/index.html#conventions",
+    "title": "API reference",
+    "section": "Conventions",
+    "text": "Conventions\nThese hold across the whole surface, so each page states only its exceptions.\nBad input gives null, not an exception. Anything that parses reader-typed text (makeFunction, makeNumber, makeRational) returns null when it can’t; a fit with too few points returns null. Branch on it and draw an emptyState.\nOutside a distribution’s support you get 0. Never NaN, so a slider at an invalid parameter flattens a curve rather than breaking the chart.\nmath.js is passed in, not imported. VM.expressions.* and polynomialFit take the math.js instance as their first argument – the global math on a page rendered through the extension. The one exception is makeRational, which parses literals only and takes no instance.\nColors are read when you ask, not when the page loads. colors(), alpha() and the three discreteMath color helpers return whatever the active theme says right now. Call them inside the cell that builds the traces, and make that cell depend on vmTheme so it re-runs on a toggle – see onThemeChange.\nSelf-installing modules take no call. The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the markup contract.",
+    "crumbs": [
+      "Reference",
+      "API reference"
+    ]
+  },
+  {
+    "objectID": "docs/reference/index.html#what-needs-what",
+    "href": "docs/reference/index.html#what-needs-what",
+    "title": "API reference",
+    "section": "What needs what",
+    "text": "What needs what\nNothing here imports anything. Where a function needs a library, it takes it as an argument or finds it on window.\n\n\n\n\nNeeds\n\n\n\n\nVM.expressions.* (except makeRational), VM.numerical.polynomialFit\na math.js instance, passed as the first argument\n\n\nVM.numerical.*, VM.sampling.*, VM.filters.*, VM.distributions.*, VM.mcmc.*, VM.discreteMath.*\nnothing\n\n\nVM.plotting.colors / colorway / alpha / themeName / onThemeChange / configure / subscript / paddedRange / plotOptions\nnothing (a document to read tokens from; sensible fallbacks without)\n\n\nVM.plotting.layout / config / hoverLabel / emptyState / themePatch\nnothing – they build plain objects. You need Plotly to use them, of course\n\n\nVM.plotting.autoResize\nResizeObserver (returns null without); safe when Plotly is absent\n\n\nVM.plotting.installPlotlyPatch / fullscreenButton / persistentPlot\nwindow.Plotly\n\n\nVM.plotting.svgAspectRatio / figureBounds, VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame\nnothing – pure helpers\n\n\nVM.ui.statRow\nnothing – plain DOM\n\n\nVM.ui.urlParam / syncUrlParams\nlocation and history, unless opts.search is given\n\n\nVM.ui.legendOverlay\nnothing – plain DOM. It implements Observable’s view contract; it doesn’t require Observable\n\n\nVM.ui.renderTable\nhtl’s html tag, passed in. Emits Bootstrap table classes\n\n\nVM.ui.applyExampleParams\nviews that follow Observable Inputs’ value + \"input\" protocol\n\n\nslider playback, draggable legend, SVG fullscreen button, slider fill\nnothing – self-installing on the markup they look for",
+    "crumbs": [
+      "Reference",
+      "API reference"
+    ]
+  },
+  {
+    "objectID": "docs/reference/index.html#where-the-signatures-live",
+    "href": "docs/reference/index.html#where-the-signatures-live",
+    "title": "API reference",
+    "section": "Where the signatures live",
+    "text": "Where the signatures live\nEvery function’s JSDoc in src/js/&lt;category&gt;/&lt;name&gt;.js is the authoritative signature; these pages restate it with context and a live example. A test (src/docs-coverage.test.js) fails the build if a VM.* member exists without a heading here, or vice versa, so the two can’t drift.",
+    "crumbs": [
+      "Reference",
+      "API reference"
+    ]
+  },
+  {
+    "objectID": "docs/reference/mcmc.html",
+    "href": "docs/reference/mcmc.html",
+    "title": "VM.mcmc",
+    "section": "",
+    "text": "Two samplers, a finite-chain stepper, and the diagnostics that tell you whether a chain has mixed. Everything takes and returns plain arrays. The samplers draw from a generator you pass in, so a seeded one (VM.sampling.seededRandom) reproduces the same chain on every run.\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "crumbs": [
+      "Reference",
+      "VM.mcmc"
+    ]
+  },
+  {
+    "objectID": "docs/reference/mcmc.html#live",
+    "href": "docs/reference/mcmc.html#live",
+    "title": "VM.mcmc",
+    "section": "Live",
+    "text": "Live\nA random-walk Metropolis chain targeting a standard normal. A small step accepts almost everything but crawls; a large one jumps far but is mostly rejected. The effective sample size is lowest at both extremes.\n\n\nviewof mhScale = Inputs.range([0.05, 10], {label: \"proposal half-width\", step: 0.05, value: 1})\n\n\n\n\n\n\n\n\nmhChain = VM.mcmc.randomWalkMetropolis({\n  logDensity: x =&gt; -x[0] * x[0] / 2,\n  start: [3], n: 2000, scale: mhScale,\n  rng: VM.sampling.seededRandom(1)\n})\nmhXs = mhChain.samples.map(s =&gt; s[0])\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVM.ui.statRow([\n  {label: \"acceptance\", value: (mhChain.acceptedCount / (mhXs.length - 1)).toFixed(2)},\n  {label: \"ESS\", value: VM.mcmc.effectiveSampleSize(mhXs).toFixed(0), title: \"effective sample size of 2000 draws\"},\n  {label: \"mean\", value: VM.mcmc.runningMean(mhXs).at(-1).toFixed(3)}\n])\n\n\n\n\n\n\n\n{\n  const c = chartColors\n  const acf = VM.mcmc.autocorrelation(mhXs, 40)\n  const trace = Plot.plot(VM.plotting.plotOptions({\n    height: 220, x: {label: \"step\"}, y: {label: \"x\"},\n    marks: [Plot.line(mhXs, {x: (d, i) =&gt; i, y: d =&gt; d, stroke: c.fn, strokeWidth: 1})]\n  }))\n  const acfPlot = Plot.plot(VM.plotting.plotOptions({\n    height: 180, x: {label: \"lag\"}, y: {label: \"autocorrelation\", domain: [-0.2, 1]},\n    marks: [Plot.ruleY([0]), Plot.ruleX(acf, {x: (d, i) =&gt; i, y1: 0, y2: d =&gt; d, stroke: c.alt, strokeWidth: 3})]\n  }))\n  return html`&lt;div&gt;${trace}${acfPlot}&lt;/div&gt;`\n}",
+    "crumbs": [
+      "Reference",
+      "VM.mcmc"
+    ]
+  },
+  {
+    "objectID": "docs/reference/mcmc.html#samplers",
+    "href": "docs/reference/mcmc.html#samplers",
+    "title": "VM.mcmc",
+    "section": "Samplers",
+    "text": "Samplers\n\nVM.mcmc.randomWalkMetropolis({logDensity, start, n, scale, rng, proposal?})\nRandom-walk Metropolis. From x, propose y = x + step with a symmetric step, and accept with probability min(1, pi(y) / pi(x)).\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nlogDensity\n(x: number[]) =&gt; number\n\nLog target density, up to an additive constant. For a uniform target on a region, return 0 inside and -Infinity outside: proposals outside are always rejected.\n\n\nstart\nnumber[]\n\nInitial state. Its length sets the dimension; a one-dimensional chain uses [x0].\n\n\nn\nnumber\n\nNumber of states returned, including start. Must be a positive integer, or a RangeError is thrown.\n\n\nscale\nnumber\n\nProposal half-width (\"uniform\") or standard deviation (\"gaussian\").\n\n\nrng\n() =&gt; number\n\nUniform [0, 1) generator.\n\n\nproposal\nstring\n\"uniform\"\n\"uniform\": each coordinate U(-scale, scale). \"gaussian\": each coordinate N(0, scale²).\n\n\n\nReturns {samples, proposals, accepted, acceptedCount}. The three arrays have length n and are indexed by step: samples[t] is the state after step t, proposals[t] the point proposed at step t, and accepted[t] whether it was taken. At index 0 (the start), proposals[0] is null and accepted[0] is true. acceptedCount counts only steps 1..n-1, so the acceptance rate is acceptedCount / (n - 1).\nEach step consumes randomness in a fixed order: the proposal’s coordinates, then one uniform for the accept test. So a seeded rng reproduces the chain, and two runs that differ only in scale share their underlying draws, which makes a scale slider change the chain smoothly instead of reshuffling it. A start outside the support (log density -Infinity) accepts the first proposal that lands inside it.\n\n\nVM.mcmc.gibbsBivariateNormal({rho, n, start, gaussian})\nSystematic-scan Gibbs sampler for a standard bivariate normal with correlation rho. Each sweep draws x ~ N(rho·y, 1 − rho²) and then y ~ N(rho·x, 1 − rho²), so the chain moves in axis-parallel steps.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nrho\nnumber\nCorrelation, strictly inside (-1, 1). Not validated; at |rho| = 1 the chain never moves.\n\n\nn\nnumber\nNumber of sweeps.\n\n\nstart\n[x0, y0]\nInitial point.\n\n\ngaussian\n() =&gt; number\nStandard-normal generator, e.g. VM.sampling.gaussianRandom(VM.sampling.seededRandom(seed)). Two draws per sweep, x first.\n\n\n\nReturns {x, y, halfX, halfY}, arrays of length n + 1 with index 0 the start. (x[t], y[t]) is the state after sweep t, and (halfX[t], halfY[t]) = (x[t], y[t−1]) is the corner between its two moves. Joining start, corner and end of each sweep draws the staircase that shows why a strongly correlated target mixes slowly.\n\nVM.mcmc.gibbsBivariateNormal({rho: 0.9, n: 3, start: [0, 0], gaussian: VM.sampling.gaussianRandom(VM.sampling.seededRandom(2))})",
+    "crumbs": [
+      "Reference",
+      "VM.mcmc"
+    ]
+  },
+  {
+    "objectID": "docs/reference/mcmc.html#finite-chains",
+    "href": "docs/reference/mcmc.html#finite-chains",
+    "title": "VM.mcmc",
+    "section": "Finite chains",
+    "text": "Finite chains\n\nVM.mcmc.evolveDistribution(P, p0, steps)\nPushes a distribution forward through a finite Markov chain, p_{t+1} = p_t P, with distributions as row vectors.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nP\nnumber[][]\nk × k transition matrix; P[i][j] is the probability of moving from i to j. Rows should sum to 1 (not validated).\n\n\np0\nnumber[]\nInitial distribution, length k.\n\n\nsteps\nnumber\nNumber of steps to take.\n\n\n\nReturns number[][]: steps + 1 distributions, [p0, p1, …, p_steps]. p0 is copied, not aliased.\n\n\nVM.mcmc.totalVariation(p, q)\nTotal variation distance ½ Σ |p_i − q_i| between two distributions on the same finite set: the largest difference in probability they assign to any one event, and the distance mixing times are measured in. q must have the same length as p (not validated).\nReturns number, in [0, 1] for probability vectors.\n\n{\n  const P = [[0.9, 0.1], [0.5, 0.5]]\n  const ps = VM.mcmc.evolveDistribution(P, [0, 1], 5)\n  const stationary = [5 / 6, 1 / 6]\n  return ps.map(p =&gt; VM.mcmc.totalVariation(p, stationary).toFixed(4))   // shrinks by 0.4 each step\n}",
+    "crumbs": [
+      "Reference",
+      "VM.mcmc"
+    ]
+  },
+  {
+    "objectID": "docs/reference/mcmc.html#diagnostics",
+    "href": "docs/reference/mcmc.html#diagnostics",
+    "title": "VM.mcmc",
+    "section": "Diagnostics",
+    "text": "Diagnostics\n\nVM.mcmc.runningMean(values)\nCumulative mean: out[i] is the average of values[0..i]. Draw it to show a Monte Carlo estimate converging.\nReturns number[], same length as values ([] for an empty series). Non-finite entries are not skipped: one NaN makes every later mean NaN.\n\n\nVM.mcmc.autocorrelation(values, maxLag?)\nSample autocorrelation function: acf[k] is the correlation between x[t] and x[t + k]. It uses the biased estimator (whole-series mean, lag-0 sum of squares as the denominator), so every value lies in [-1, 1].\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nvalues\nnumber[]\n\nThe series, e.g. one coordinate of a chain.\n\n\nmaxLag\nnumber\n50\nLargest lag returned; capped at values.length − 1.\n\n\n\nReturns number[], acf[0..maxLag] with acf[0] = 1. A constant series returns [1, 0, 0, …] rather than NaNs, and an empty or one-element series returns [1]. Whether a series counts as constant is judged relative to its own magnitude, so rescaling a series never changes its autocorrelations.\n\n\nVM.mcmc.effectiveSampleSize(values, maxLag?)\nEffective sample size, n / (1 + 2·(rho_1 + rho_2 + …)). The sum stops before the first autocorrelation that is &lt;= 0, so the noisy tail of the ACF doesn’t swamp it.\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nvalues\nnumber[]\n\nThe series.\n\n\nmaxLag\nnumber\n1000\nLargest lag the sum may reach.\n\n\n\nReturns number, never more than n: a chain whose lag-1 autocorrelation is already negative counts as independent. 0 for an empty series. NaN for a chain that never moves (every value equal), because its autocorrelation is undefined and reporting n would call the worst possible chain a perfectly mixing one.",
+    "crumbs": [
+      "Reference",
+      "VM.mcmc"
     ]
   },
   {
@@ -774,7 +851,7 @@
     "href": "docs/reference/plotting.html#building-a-chart",
     "title": "VM.plotting",
     "section": "Building a chart",
-    "text": "Building a chart\n\nVM.plotting.layout(overrides?)\nThe shared Plotly layout, themed from the live tokens:\n\ntransparent paper_bgcolor / plot_bgcolor, so the page’s own background shows through (no #E5ECF6 plate, no white box in dark mode)\nfont in --vm-font-sans, --vm-text; axes, ticks, gridlines in --vm-text-soft / --vm-border / --vm-grid, automargin: true\ncolorway(), hoverLabel(), themed modebar colors, textfont for trace labels\na transition of 300 ms cubic-in-out (0 under prefers-reduced-motion; while a slider playback sweep runs, shortened to the gap between values so the tween lands before the next one arrives)\nsmall non-zero margin ({l: 8, r: 12, t: 12, b: 8}) that automargin grows as needed\n\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\noverrides\nobject (optional)\nDeep-merged on top, so {xaxis: {title: \"x\", range: [0, 1]}} extends the shared axis chrome rather than replacing it. Arrays and primitives replace wholesale.\n\n\n\nReturns a Plotly layout object.\n\n\n\n\n\n\nWarningDon’t pass margin: {l: 0, r: 0, t: 0, b: 0}\n\n\n\nIt was a common convention and it defeats automargin: the rotated y-title and tick labels end up jammed against the container edge.\n\n\nWith the patch installed this is merged under every newPlot/react layout automatically. Calling it explicitly is harmless and makes the dependency visible.\n\n\nVM.plotting.config(overrides?)\n{responsive: true, displaylogo: false}, deep-merged with overrides. The patch also applies this and then sets the modebar button list on top.\n\n\nVM.plotting.hoverLabel()\nThe themed tooltip style: --vm-surface background, --vm-border border, left-aligned, 12 px --vm-font-sans in --vm-text.\nIt has to be set on each trace, not only the layout – Plotly derives a trace’s tooltip background from that trace’s own color unless the trace sets hoverlabel itself, so a layout-level default never actually shows. The patch injects it onto every trace that doesn’t set one. Call it yourself only for a chart built outside the patch.\n\n\nVM.plotting.emptyState(message)\nA centered message for an empty plot area, as an annotations array. Use it whenever the page’s computation bailed out; without it an unparseable input draws an empty grid indistinguishable from a valid-but-empty result.\nannotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\nReturns a one-element Plotly annotations array at paper coordinates (0.5, 0.5) in --vm-text-soft.\n\n\nVM.plotting.autoResize(div)\nKeeps a graph div sized to its container, and stops once the div leaves the document. Every chart built detached (the usual OJS pattern: create a div, Plotly.newPlot into it, return it) needs this, because Plotly measures 0×0 at newPlot time. A bare ResizeObserver outlives its div and throws \"Resize must be passed a displayed plot div element.\" once a re-run replaces it; this one disconnects itself.\nReturns the ResizeObserver, or null where ResizeObserver doesn’t exist. Skips resizing while the div is hidden (display: none) and is safe when Plotly isn’t loaded.\n\n\nVM.plotting.paddedRange(values, opts?)\nA {lo, hi} axis range covering an array of values with some breathing room.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nvalues\nnumber[]\n\nNon-finite entries are ignored.\n\n\nopts.emptyRange\n[number, number]\n[-1, 1]\nReturned when values has no finite entry.\n\n\nopts.relativePadding\nnumber\n0.1\nPadding as a fraction of the span hi − lo.\n\n\nopts.minPadding\nnumber\n0.5\nFloor on the padding, for small or zero spans (every value identical).\n\n\n\nReturns {lo, hi}.\n\n[VM.plotting.paddedRange([1, 2, 3, NaN, 10]), VM.plotting.paddedRange([5, 5, 5]), VM.plotting.paddedRange([])]\n\n\n\n\n\n\n\n\nVM.plotting.plotOptions(overrides?)\nThe Observable Plot equivalent of layout(): same font, grid color and colorway, so a Plot.plot under a Plotly chart reads as the same chart system.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\noverrides\nobject (optional)\nDeep-merged on top. If it names an x or y scale without a stroke, that axis is stroked in --vm-border; scales it doesn’t name are left for Plot to default.\n\n\n\nReturns options for Plot.plot(...).\n\n{\n  const pts = []\n  for (let i = 0; i &lt;= 40; i++) pts.push({x: i / 4, y: Math.exp(-i / 16) * Math.cos(i / 3)})\n  return Plot.plot(VM.plotting.plotOptions({\n    height: 220, x: {label: \"t\"}, y: {label: \"damped\"},\n    marks: [Plot.line(pts, {x: \"x\", y: \"y\", stroke: chartColors.fn, strokeWidth: 2}), Plot.ruleY([0])]\n  }))\n}\n\n\n\n\n\n\n\n\nVM.plotting.themePatch()\nThe theme-dependent style attributes as a flat, dotted-path object for Plotly.relayout – {\"xaxis.gridcolor\": …, \"hoverlabel.bgcolor\": …, colorway: […]}. relayout replaces whatever attribute each key names wholesale, so a nested {xaxis: {...}} would wipe the page’s own xaxis.title/range; dotted keys patch only the one sub-property. The patch runs this over every live .js-plotly-plot on each theme flip. A page shouldn’t need to call it.\nReturns an object with 24 keys.",
+    "text": "Building a chart\n\nVM.plotting.layout(overrides?)\nThe shared Plotly layout, themed from the live tokens:\n\ntransparent paper_bgcolor / plot_bgcolor, so the page’s own background shows through (no #E5ECF6 plate, no white box in dark mode)\nfont in --vm-font-sans, --vm-text; axes, ticks, gridlines in --vm-text-soft / --vm-border / --vm-grid, automargin: true\ncolorway(), hoverLabel(), themed modebar colors, textfont for trace labels\na transition of 300 ms cubic-in-out (0 under prefers-reduced-motion; while a slider playback sweep runs, shortened to the gap between values so the tween lands before the next one arrives)\nsmall non-zero margin ({l: 8, r: 12, t: 12, b: 8}) that automargin grows as needed\n\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\noverrides\nobject (optional)\nDeep-merged on top, so {xaxis: {title: \"x\", range: [0, 1]}} extends the shared axis chrome rather than replacing it. Arrays and primitives replace wholesale.\n\n\n\nReturns a Plotly layout object.\n\n\n\n\n\n\nWarningDon’t pass margin: {l: 0, r: 0, t: 0, b: 0}\n\n\n\nIt was a common convention and it defeats automargin: the rotated y-title and tick labels end up jammed against the container edge.\n\n\nWith the patch installed this is merged under every newPlot/react layout automatically. Calling it explicitly is harmless and makes the dependency visible.\n\n\nVM.plotting.config(overrides?)\n{responsive: true, displaylogo: false}, deep-merged with overrides. The patch also applies this and then sets the modebar button list on top.\n\n\nVM.plotting.hoverLabel()\nThe themed tooltip style: --vm-surface background, --vm-border border, left-aligned, 12 px --vm-font-sans in --vm-text.\nIt has to be set on each trace, not only the layout – Plotly derives a trace’s tooltip background from that trace’s own color unless the trace sets hoverlabel itself, so a layout-level default never actually shows. The patch injects it onto every trace that doesn’t set one. Call it yourself only for a chart built outside the patch.\n\n\nVM.plotting.emptyState(message)\nA centered message for an empty plot area, as an annotations array. Use it whenever the page’s computation bailed out; without it an unparseable input draws an empty grid indistinguishable from a valid-but-empty result.\nannotations: f ? [] : VM.plotting.emptyState(\"Couldn't parse that expression\")\nReturns a one-element Plotly annotations array at paper coordinates (0.5, 0.5) in --vm-text-soft.\n\n\nVM.plotting.autoResize(div)\nKeeps a graph div sized to its container, and stops once the div leaves the document. Every chart built detached (the usual OJS pattern: create a div, Plotly.newPlot into it, return it) needs this, because Plotly measures 0×0 at newPlot time. A bare ResizeObserver outlives its div and throws \"Resize must be passed a displayed plot div element.\" once a re-run replaces it; this one disconnects itself.\nReturns the ResizeObserver, or null where ResizeObserver doesn’t exist. Skips resizing while the div is hidden (display: none) and is safe when Plotly isn’t loaded.\n\n\nVM.plotting.persistentPlot(opts?)\nThe draw-once, redraw-in-place chart closure most pages write by hand, packaged. Call it once in a cell that depends on nothing reactive, and call the function it returns from the cell that builds the traces:\nmainPlot = VM.plotting.persistentPlot()\nmainPlot(traces, VM.plotting.layout({xaxis: {title: {text: \"x\"}}}))\nThe first call creates the div, Plotly.newPlots into it and hands it to autoResize. Every later call Plotly.reacts into the same div, which (with uirevision) keeps the reader’s zoom and pan while a slider moves.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nopts.className\nstring\n\"plotly-box-large\"\nClass of the graph div.\n\n\nopts.height\nstring\n\nInline CSS height, for a secondary chart that shouldn’t take the main chart’s box, e.g. \"320px\".\n\n\n\nReturns (data, layout, config?) =&gt; HTMLElement, which draws or redraws and returns the same div every time. config defaults to config(). Needs window.Plotly.\n\n\nVM.plotting.paddedRange(values, opts?)\nA {lo, hi} axis range covering an array of values with some breathing room.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nvalues\nnumber[]\n\nNon-finite entries are ignored.\n\n\nopts.emptyRange\n[number, number]\n[-1, 1]\nReturned when values has no finite entry.\n\n\nopts.relativePadding\nnumber\n0.1\nPadding as a fraction of the span hi − lo.\n\n\nopts.minPadding\nnumber\n0.5\nFloor on the padding, for small or zero spans (every value identical).\n\n\n\nReturns {lo, hi}.\n\n[VM.plotting.paddedRange([1, 2, 3, NaN, 10]), VM.plotting.paddedRange([5, 5, 5]), VM.plotting.paddedRange([])]\n\n\n\n\n\n\n\n\nVM.plotting.plotOptions(overrides?)\nThe Observable Plot equivalent of layout(): same font, grid color and colorway, so a Plot.plot under a Plotly chart reads as the same chart system.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\noverrides\nobject (optional)\nDeep-merged on top. If it names an x or y scale without a stroke, that axis is stroked in --vm-border; scales it doesn’t name are left for Plot to default.\n\n\n\nReturns options for Plot.plot(...).\n\n{\n  const pts = []\n  for (let i = 0; i &lt;= 40; i++) pts.push({x: i / 4, y: Math.exp(-i / 16) * Math.cos(i / 3)})\n  return Plot.plot(VM.plotting.plotOptions({\n    height: 220, x: {label: \"t\"}, y: {label: \"damped\"},\n    marks: [Plot.line(pts, {x: \"x\", y: \"y\", stroke: chartColors.fn, strokeWidth: 2}), Plot.ruleY([0])]\n  }))\n}\n\n\n\n\n\n\n\n\nVM.plotting.themePatch()\nThe theme-dependent style attributes as a flat, dotted-path object for Plotly.relayout – {\"xaxis.gridcolor\": …, \"hoverlabel.bgcolor\": …, colorway: […]}. relayout replaces whatever attribute each key names wholesale, so a nested {xaxis: {...}} would wipe the page’s own xaxis.title/range; dotted keys patch only the one sub-property. The patch runs this over every live .js-plotly-plot on each theme flip. A page shouldn’t need to call it.\nReturns an object with 24 keys.",
     "crumbs": [
       "Reference",
       "VM.plotting"
@@ -807,7 +884,7 @@
     "href": "docs/reference/ui.html",
     "title": "VM.ui",
     "section": "",
-    "text": "Most of what VM.ui does needs no call at all. Three modules are self-installing: they watch the page for the markup they enhance and attach themselves to it whenever it appears, including elements Observable Inputs recreates on a re-run.\nThe callable API is four functions: a legend that is also an Observable view, a table renderer, an “apply this example” helper, and the pure arithmetic behind playback (exported for tests and for anyone building their own).\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
+    "text": "Most of what VM.ui does needs no call at all. Three modules are self-installing: they watch the page for the markup they enhance and attach themselves to it whenever it appears, including elements Observable Inputs recreates on a re-run.\nThe callable API is small: a legend that is also an Observable view, a table renderer, a row of stat readouts, a pair of URL-state helpers, the “try an example” helpers, and the pure arithmetic behind playback (exported for tests and for anyone building their own).\nVM = window.VM\nvmTheme = Generators.observe(notify =&gt; VM.plotting.onThemeChange(notify))\nchartColors = VM.plotting.colors(vmTheme)",
     "crumbs": [
       "Reference",
       "VM.ui"
@@ -830,6 +907,28 @@
     "title": "VM.ui",
     "section": "Table",
     "text": "Table\n\nVM.ui.renderTable({html, headers, rows, csvHeaders?, filename?})\nA compact, horizontally scrollable results table with a “Download csv” link above it.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nhtml\nfunction\n\nhtl’s html tag – an OJS global.\n\n\nheaders\nArray\n\nHeader cells. May be DOM nodes (a tex template’s output) as well as strings.\n\n\nrows\nArray[]\n\nBody rows. The first column is centered, the rest right-aligned, all nowrap.\n\n\ncsvHeaders\nstring[]\nheaders\nPlain-text labels for the download, for when headers holds KaTeX nodes that don’t serialize.\n\n\nfilename\nstring\n\"iteration-table.csv\"\nThe download’s name.\n\n\n\nReturns one fragment: &lt;div class=\"ojs-table-toolbar\"&gt; (the link) then &lt;div class=\"ojs-table-container\"&gt;&lt;table class=\"table table-sm table-bordered small\"&gt;. The table classes are Bootstrap’s, so it inherits the Quarto theme’s table styling.\n\n{\n  const rows = []\n  let x = 1\n  for (let n = 0; n &lt; 6; n++) { rows.push([n, x.toFixed(10), Math.abs(x - Math.SQRT2).toExponential(2)]); x = x - (x * x - 2) / (2 * x) }\n  return VM.ui.renderTable({html, headers: [\"n\", tex`x_n`, tex`|x_n - \\sqrt2|`], rows, csvHeaders: [\"n\", \"x_n\", \"error\"], filename: \"newton-sqrt2.csv\"})\n}",
+    "crumbs": [
+      "Reference",
+      "VM.ui"
+    ]
+  },
+  {
+    "objectID": "docs/reference/ui.html#readouts",
+    "href": "docs/reference/ui.html#readouts",
+    "title": "VM.ui",
+    "section": "Readouts",
+    "text": "Readouts\n\nVM.ui.statRow(items)\nA row of small label-over-value tiles, for the handful of numbers a Monte Carlo page reports on every slider move – an estimate, its standard error, an acceptance rate. Put it between the controls panel and the chart. The tiles share the panel’s surface and border, show values in the monospace face so digits don’t jitter, and wrap onto more rows on a narrow screen.\n\n\n\n\n\n\n\n\nParameter\nType\nDescription\n\n\n\n\nitems\n{label, value, title?}[]\nOne tile each, in order. A number value is shown as-is, so format it first. title becomes the tile’s tooltip, for a definition too long for the label.\n\n\n\nReturns &lt;div class=\"vm-stat-row\"&gt; holding one &lt;div class=\"vm-stat\"&gt; per item, each a .vm-stat-label above a .vm-stat-value.\n\nVM.ui.statRow([\n  {label: \"estimate\", value: (3.14159).toFixed(4)},\n  {label: \"std. error\", value: (0.0123).toFixed(4)},\n  {label: \"acceptance\", value: \"43%\", title: \"fraction of proposals accepted\"}\n])",
+    "crumbs": [
+      "Reference",
+      "VM.ui"
+    ]
+  },
+  {
+    "objectID": "docs/reference/ui.html#url-state",
+    "href": "docs/reference/ui.html#url-state",
+    "title": "VM.ui",
+    "section": "URL state",
+    "text": "URL state\nA page can make every input shareable: read each default from the query string, and write the current values back as they change, so the address bar is always a link to what the reader sees.\nviewof n = Inputs.range([10, 5000], {label: \"n\", step: 10, value: VM.ui.urlParam(\"pi_n\", 1000)})\nVM.ui.syncUrlParams({pi_n: [n, 1000], pi_seed: [seed, 1]})\nGive each app’s keys a prefix when several share one page. A key at its default is removed rather than written, so a reader who never touches an app doesn’t find its parameters appended to the URL.\n\nVM.ui.urlParam(key, fallback, opts?)\nReads one query-string parameter, typed like its fallback.\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nkey\nstring\n\nThe parameter name.\n\n\nfallback\nnumber \\| string \\| boolean\n\nReturned when the key is absent or doesn’t parse. A number fallback parses with Number (a blank or non-finite result falls back); a boolean fallback accepts \"1\"/\"true\" and \"0\"/\"false\"; a string fallback returns the raw value.\n\n\nopts.search\nstring\nlocation.search\nThe query string to read.\n\n\n\nReturns a value of the fallback’s type.\n\n[VM.ui.urlParam(\"n\", 10, {search: \"?n=250\"}), VM.ui.urlParam(\"n\", 10, {search: \"?n=abc\"}), VM.ui.urlParam(\"lazy\", false, {search: \"?lazy=1\"})]\n\n\n\n\n\n\n\n\nVM.ui.syncUrlParams(entries, opts?)\nWrites inputs into the current URL’s query string with history.replaceState – no navigation, no history entry – leaving every other key alone (another app’s, or embed).\n\n\n\n\n\n\n\n\n\nParameter\nType\nDefault\nDescription\n\n\n\n\nentries\n{key: [value, default]}\n\nA key whose value equals its default (compared as strings) is removed rather than written.\n\n\nopts.search\nstring\nlocation.search\nStart from this query string instead. When given, the URL is not touched and only the result is returned.\n\n\n\nReturns string, the new query string without the leading ? (\"\" when nothing is left).\n\nVM.ui.syncUrlParams({pi_n: [5000, 1000], pi_seed: [1, 1]}, {search: \"?pi_seed=3&embed=1\"})",
     "crumbs": [
       "Reference",
       "VM.ui"

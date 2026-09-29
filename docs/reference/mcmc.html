@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Internals – mathviz</title>
+<title>VM.mcmc – mathviz</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -117,6 +117,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script type="module" src="../../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
 
 </head>
@@ -331,7 +333,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../docs/reference/internals.html">Internals</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../docs/reference/mcmc.html">VM.mcmc</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -393,7 +395,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/mcmc.html" class="sidebar-item-text sidebar-link">
+  <a href="../../docs/reference/mcmc.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">VM.mcmc</span></a>
   </div>
 </li>
@@ -405,7 +407,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../docs/reference/internals.html" class="sidebar-item-text sidebar-link active">
+  <a href="../../docs/reference/internals.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Internals</span></a>
   </div>
 </li>
@@ -419,19 +421,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#layout" id="toc-layout" class="nav-link active" data-scroll-target="#layout">Layout</a></li>
-  <li><a href="#one-global-many-small-files" id="toc-one-global-many-small-files" class="nav-link" data-scroll-target="#one-global-many-small-files">One global, many small files</a></li>
-  <li><a href="#the-build-is-a-concatenation" id="toc-the-build-is-a-concatenation" class="nav-link" data-scroll-target="#the-build-is-a-concatenation">The build is a concatenation</a></li>
-  <li><a href="#tests-run-the-real-files" id="toc-tests-run-the-real-files" class="nav-link" data-scroll-target="#tests-run-the-real-files">Tests run the real files</a></li>
-  <li><a href="#the-version-is-in-three-places" id="toc-the-version-is-in-three-places" class="nav-link" data-scroll-target="#the-version-is-in-three-places">The version is in three places</a></li>
-  <li><a href="#the-lua-filters-odd-shape" id="toc-the-lua-filters-odd-shape" class="nav-link" data-scroll-target="#the-lua-filters-odd-shape">The Lua filter’s odd shape</a></li>
-  <li><a href="#token-specificity" id="toc-token-specificity" class="nav-link" data-scroll-target="#token-specificity">Token specificity</a></li>
-  <li><a href="#dark-mode-detection" id="toc-dark-mode-detection" class="nav-link" data-scroll-target="#dark-mode-detection">Dark-mode detection</a></li>
-  <li><a href="#self-installing-modules" id="toc-self-installing-modules" class="nav-link" data-scroll-target="#self-installing-modules">Self-installing modules</a></li>
-  <li><a href="#generated-classes" id="toc-generated-classes" class="nav-link" data-scroll-target="#generated-classes">Generated classes</a></li>
-  <li><a href="#host-markup" id="toc-host-markup" class="nav-link" data-scroll-target="#host-markup">Host markup the CSS depends on</a></li>
-  <li><a href="#site-extras" id="toc-site-extras" class="nav-link" data-scroll-target="#site-extras">Site extras</a></li>
-  <li><a href="#style" id="toc-style" class="nav-link" data-scroll-target="#style">Style</a></li>
+  <li><a href="#live" id="toc-live" class="nav-link active" data-scroll-target="#live">Live</a></li>
+  <li><a href="#samplers" id="toc-samplers" class="nav-link" data-scroll-target="#samplers">Samplers</a>
+  <ul class="collapse">
+  <li><a href="#randomWalkMetropolis" id="toc-randomWalkMetropolis" class="nav-link" data-scroll-target="#randomWalkMetropolis">VM.mcmc.randomWalkMetropolis({logDensity, start, n, scale, rng, proposal?})</a></li>
+  <li><a href="#gibbsBivariateNormal" id="toc-gibbsBivariateNormal" class="nav-link" data-scroll-target="#gibbsBivariateNormal">VM.mcmc.gibbsBivariateNormal({rho, n, start, gaussian})</a></li>
+  </ul></li>
+  <li><a href="#finite-chains" id="toc-finite-chains" class="nav-link" data-scroll-target="#finite-chains">Finite chains</a>
+  <ul class="collapse">
+  <li><a href="#evolveDistribution" id="toc-evolveDistribution" class="nav-link" data-scroll-target="#evolveDistribution">VM.mcmc.evolveDistribution(P, p0, steps)</a></li>
+  <li><a href="#totalVariation" id="toc-totalVariation" class="nav-link" data-scroll-target="#totalVariation">VM.mcmc.totalVariation(p, q)</a></li>
+  </ul></li>
+  <li><a href="#diagnostics" id="toc-diagnostics" class="nav-link" data-scroll-target="#diagnostics">Diagnostics</a>
+  <ul class="collapse">
+  <li><a href="#runningMean" id="toc-runningMean" class="nav-link" data-scroll-target="#runningMean">VM.mcmc.runningMean(values)</a></li>
+  <li><a href="#autocorrelation" id="toc-autocorrelation" class="nav-link" data-scroll-target="#autocorrelation">VM.mcmc.autocorrelation(values, maxLag?)</a></li>
+  <li><a href="#effectiveSampleSize" id="toc-effectiveSampleSize" class="nav-link" data-scroll-target="#effectiveSampleSize">VM.mcmc.effectiveSampleSize(values, maxLag?)</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -441,8 +447,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Internals</h1>
-<p class="subtitle lead">How it’s put together, and the mechanics behind the guide’s rules</p>
+<h1 class="title">VM.mcmc</h1>
+<p class="subtitle lead">Markov chain samplers, finite chains and mixing diagnostics</p>
 </div>
 
 
@@ -464,174 +470,357 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>A map of the repository, the decisions that shape it, and the mechanics behind the rules the guide states without explaining. Nothing here is needed to build a page. The working rules for contributors – headers, style, the release checklist – are in <a href="https://github.com/apurvanakade/mathviz/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>; the deeper “why” behind each invariant, written as instructions for someone editing the code, is in <a href="https://github.com/apurvanakade/mathviz/blob/main/CLAUDE.md">CLAUDE.md</a>.</p>
-<section id="layout" class="level2">
-<h2 class="anchored" data-anchor-id="layout">Layout</h2>
-<pre><code>_extensions/mathviz/   the Quarto extension: _extension.yml, mathviz.lua, dist/ (copied by the build)
-dist/                  the generated bundle, committed (jsDelivr serves it by tag); never hand-edited
-src/manifest.mjs       THE load order, for the build and the tests
-src/js/&lt;category&gt;/     one VM.&lt;category&gt;.&lt;name&gt; per file; tests colocated as &lt;name&gt;.test.js
-src/css/               tokens.css first, then one file per concern
-src/chrome/            the opt-in site chrome: one .js + .css per piece, plus site.js (shared helpers); not in the bundle
-src/fonts/             fonts.css and the self-hosted Inter / JetBrains Mono woff2 files
-src/theme/theme.scss   template the build fills into dist/theme/mathviz-{light,dark}.scss
-scripts/               build.mjs (concatenate + syntax-check), load-vm.mjs (test loader)
-docs/                  this site
-starter/               the clone-and-go site; its _extensions/mathviz/ is mirrored in by the build</code></pre>
+<p>Two samplers, a finite-chain stepper, and the diagnostics that tell you whether a chain has mixed. Everything takes and returns plain arrays. The samplers draw from a generator you pass in, so a seeded one (<a href="../../docs/reference/sampling.html#seededRandom"><code>VM.sampling.seededRandom</code></a>) reproduces the same chain on every run.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="16" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 15;"><span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>chartColors <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">colors</span>(vmTheme)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<section id="live" class="level2">
+<h2 class="anchored" data-anchor-id="live">Live</h2>
+<p>A random-walk Metropolis chain targeting a standard normal. A small step accepts almost everything but crawls; a large one jumps far but is mostly rejected. The effective sample size is lowest at both extremes.</p>
+<div class="ojs-panel ojs-row">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="27" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 26;"><span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>viewof mhScale <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.05</span><span class="op">,</span> <span class="dv">10</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"proposal half-width"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.05</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">1</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" data-startfrom="33" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 32;"><span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>mhChain <span class="op">=</span> VM<span class="op">.</span><span class="at">mcmc</span><span class="op">.</span><span class="fu">randomWalkMetropolis</span>({</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="dt">logDensity</span><span class="op">:</span> x <span class="kw">=&gt;</span> <span class="op">-</span>x[<span class="dv">0</span>] <span class="op">*</span> x[<span class="dv">0</span>] <span class="op">/</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="dt">start</span><span class="op">:</span> [<span class="dv">3</span>]<span class="op">,</span> <span class="dt">n</span><span class="op">:</span> <span class="dv">2000</span><span class="op">,</span> <span class="dt">scale</span><span class="op">:</span> mhScale<span class="op">,</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">rng</span><span class="op">:</span> VM<span class="op">.</span><span class="at">sampling</span><span class="op">.</span><span class="fu">seededRandom</span>(<span class="dv">1</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>mhXs <span class="op">=</span> mhChain<span class="op">.</span><span class="at">samples</span><span class="op">.</span><span class="fu">map</span>(s <span class="kw">=&gt;</span> s[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" data-startfrom="41" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 40;"><span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">statRow</span>([</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">label</span><span class="op">:</span> <span class="st">"acceptance"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> (mhChain<span class="op">.</span><span class="at">acceptedCount</span> <span class="op">/</span> (mhXs<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>))<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)}<span class="op">,</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">label</span><span class="op">:</span> <span class="st">"ESS"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> VM<span class="op">.</span><span class="at">mcmc</span><span class="op">.</span><span class="fu">effectiveSampleSize</span>(mhXs)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">0</span>)<span class="op">,</span> <span class="dt">title</span><span class="op">:</span> <span class="st">"effective sample size of 2000 draws"</span>}<span class="op">,</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">label</span><span class="op">:</span> <span class="st">"mean"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> VM<span class="op">.</span><span class="at">mcmc</span><span class="op">.</span><span class="fu">runningMean</span>(mhXs)<span class="op">.</span><span class="fu">at</span>(<span class="op">-</span><span class="dv">1</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)}</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-4" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-startfrom="49" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 48;"><span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> c <span class="op">=</span> chartColors</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> acf <span class="op">=</span> VM<span class="op">.</span><span class="at">mcmc</span><span class="op">.</span><span class="fu">autocorrelation</span>(mhXs<span class="op">,</span> <span class="dv">40</span>)</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> trace <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>    <span class="dt">height</span><span class="op">:</span> <span class="dv">220</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"step"</span>}<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"x"</span>}<span class="op">,</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [Plot<span class="op">.</span><span class="fu">line</span>(mhXs<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> (d<span class="op">,</span> i) <span class="kw">=&gt;</span> i<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> c<span class="op">.</span><span class="at">fn</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">1</span>})]</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> acfPlot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    <span class="dt">height</span><span class="op">:</span> <span class="dv">180</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"lag"</span>}<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"autocorrelation"</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> [<span class="op">-</span><span class="fl">0.2</span><span class="op">,</span> <span class="dv">1</span>]}<span class="op">,</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span> Plot<span class="op">.</span><span class="fu">ruleX</span>(acf<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> (d<span class="op">,</span> i) <span class="kw">=&gt;</span> i<span class="op">,</span> <span class="dt">y1</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">y2</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> c<span class="op">.</span><span class="at">alt</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">3</span>})]</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">html</span><span class="vs">`&lt;div&gt;</span><span class="sc">${</span>trace<span class="sc">}${</span>acfPlot<span class="sc">}</span><span class="vs">&lt;/div&gt;`</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-5" data-nodetype="expression">
+
+</div>
+</div>
+</div>
 </section>
-<section id="one-global-many-small-files" class="level2">
-<h2 class="anchored" data-anchor-id="one-global-many-small-files">One global, many small files</h2>
-<p>Every file under <code>src/js</code> is an IIFE that adds one member (occasionally two or three that belong together) to <code>window.VM</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">function</span> <span class="fu">attachVM</span>(globalThis) {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">/** JSDoc … */</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> simpsonEstimate <span class="op">=</span> (f<span class="op">,</span> lo<span class="op">,</span> hi<span class="op">,</span> n) <span class="kw">=&gt;</span> { … }</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  globalThis<span class="op">.</span><span class="at">VM</span> <span class="op">=</span> {<span class="op">...</span>globalThis<span class="op">.</span><span class="at">VM</span><span class="op">,</span> <span class="dt">numerical</span><span class="op">:</span> {<span class="op">...</span>globalThis<span class="op">.</span><span class="at">VM</span><span class="op">?.</span><span class="at">numerical</span><span class="op">,</span> simpsonEstimate}}</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>})(<span class="bu">window</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The spread-merge means files can load in any order <em>as far as attaching goes</em>; the manifest exists for the few real load-time dependencies (every <code>*Pmf</code>/<code>*Pdf</code> reads <code>logGamma</code>; the <code>discreteMath</code> color helpers read <code>VM.plotting</code>; the SVG fullscreen button reuses the Plotly button’s icon). <code>mustPrecede</code> in <code>src/manifest.mjs</code> records them and <code>src/manifest.test.js</code> enforces them, along with “every file on disk is listed exactly once”.</p>
-</section>
-<section id="the-build-is-a-concatenation" class="level2">
-<h2 class="anchored" data-anchor-id="the-build-is-a-concatenation">The build is a concatenation</h2>
-<p><code>scripts/build.mjs</code> reads the manifest, joins the files with a separator, syntax-checks the result with <code>node --check</code>, writes <code>dist/mathviz.{js,css}</code>, copies both into <code>_extensions/mathviz/dist/</code>, and mirrors the whole extension into <code>starter/_extensions/mathviz/</code> (what <code>quarto add</code> would install there), so the starter is committed working and tracks the working tree. No bundler, no minifier, no dependencies: the output is the readable source with <code>// ---- src/js/… ----</code> markers, so a stack trace in a consumer’s browser points at a recognizable file, and the JSDoc travels with it.</p>
-<p>The one subtlety is the separator. For JS it is a lone <code>;</code>. Each file ends in a call – <code>})(window)</code>, or <code>})()</code> for a module with nothing to export – and two of those back to back parse as <code>})(window)(function …)</code>: the first file’s return value called with the second file as its argument. That is syntactically valid, so <code>node --check</code> can’t catch it, and the page dies after the first file with <code>(intermediate value)(...) is not a function</code>. The semicolon makes each file its own statement.</p>
-<p><code>dist/</code> is committed because both distribution channels serve the repository as-is: <code>quarto add</code> downloads an archive and runs nothing, and jsDelivr serves files straight from a tag. CI rebuilds and fails on a diff, so <code>src/</code> and <code>dist/</code> can’t drift.</p>
-</section>
-<section id="tests-run-the-real-files" class="level2">
-<h2 class="anchored" data-anchor-id="tests-run-the-real-files">Tests run the real files</h2>
-<p><code>scripts/load-vm.mjs</code> evaluates every manifest entry, in order, into the Node process’s global scope (indirect <code>eval</code>, so the IIFEs see a <code>window</code>), with a minimal <code>document</code> and <code>Plotly</code> stub for the modules that touch them at load time. The <code>*.test.js</code> files import it and test <code>VM.*</code> – the production code, not re-implementations. <code>node --test</code> finds them; math.js is the only dev dependency, for the expression tests.</p>
-<p>Two tests guard the documentation itself: <code>manifest.test.js</code> (above) and <code>docs-coverage.test.js</code>, which fails if any <code>VM.*</code> member lacks a <code>### VM.&lt;category&gt;.&lt;name&gt;</code> heading in <code>docs/reference/</code>, or a heading names something that doesn’t exist.</p>
-</section>
-<section id="the-version-is-in-three-places" class="level2">
-<h2 class="anchored" data-anchor-id="the-version-is-in-three-places">The version is in three places</h2>
-<p><code>package.json</code>, <code>_extensions/mathviz/_extension.yml</code> and <code>VERSION</code> in <code>mathviz.lua</code>. The build refuses to run unless they agree. The Lua one names the <code>site_libs/quarto-contrib/mathviz-&lt;version&gt;/</code> folder in a consumer’s output, which is what busts their browser cache on upgrade.</p>
-</section>
-<section id="the-lua-filters-odd-shape" class="level2">
-<h2 class="anchored" data-anchor-id="the-lua-filters-odd-shape">The Lua filter’s odd shape</h2>
-<p><code>mathviz.lua</code> adds <strong>one HTML dependency per vendor <code>&lt;script&gt;</code> tag</strong> (<code>mathviz-mathjs</code>, <code>mathviz-plotly</code>, <code>mathviz-referrer</code>), each <em>before</em> the <code>mathviz</code> dependency that carries the bundle. Three facts about Quarto’s dependency handling, verified against Quarto 1.7’s source, force this:</p>
-<ol type="1">
-<li><code>quarto.doc.include_text("in-header", …)</code> lands in <code>header-includes</code>, which is emitted <em>below</em> the whole dependency block – so a Plotly tag added that way loads after <code>mathviz.js</code>, and the patch finds no <code>Plotly</code> to patch.</li>
-<li>Within one dependency, <code>scripts</code> entries are emitted before the <code>head</code> string, so the vendor tags can’t share the bundle’s dependency.</li>
-<li>Quarto’s <code>injectHtml</code> iterates a <em>live</em> <code>children</code> collection while moving nodes out of it, so a <code>head</code> string holding several tags loses every second one. One tag per dependency is the workaround.</li>
-</ol>
-<p><code>scripts</code>/<code>stylesheets</code> entries must be local files (Quarto copies them into <code>site_libs</code>), hence raw <code>&lt;script&gt;</code> tags in <code>head</code> for the CDN URLs. A head-only dependency creates no <code>site_libs</code> folder.</p>
-</section>
-<section id="token-specificity" class="level2">
-<h2 class="anchored" data-anchor-id="token-specificity">Token specificity</h2>
-<p>The CSS reads the <code>--vm-*</code> tokens the ordinary way; the JavaScript reads them with <code>getComputedStyle</code> <strong>at call time</strong>, so a chart built after a theme toggle sees the new values.</p>
-<p>The defaults live in <a href="https://github.com/apurvanakade/mathviz/blob/main/src/css/tokens.css"><code>src/css/tokens.css</code></a>, and every one of them is wrapped in <code>:where()</code>, which has <strong>zero specificity</strong>. That is why a plain <code>:root { --vm-x: … }</code> in a consumer’s stylesheet wins no matter which file loads first. It matters in Quarto specifically: an extension’s stylesheet is injected <strong>before</strong> a project’s <code>css:</code> files but <strong>after</strong> its compiled theme SCSS, so without <code>:where()</code> the library’s <code>:root</code> block would beat a theme’s own <code>:root</code> declarations. Don’t unwrap them if you fork the CSS.</p>
-</section>
-<section id="dark-mode-detection" class="level2">
-<h2 class="anchored" data-anchor-id="dark-mode-detection">Dark-mode detection</h2>
-<p>Two places hold the dark-mode selector list and must stay identical: the <code>:where(…)</code> block in <code>src/css/tokens.css</code>, and <code>settings.darkSelector</code> in <code>src/js/plotting/chart-theme.js</code>. The CSS half declares the dark tokens; the JS half decides <code>themeName()</code> by testing the list against <code>&lt;body&gt;</code> and then <code>&lt;html&gt;</code>.</p>
-<p><strong>Root-scoped on purpose.</strong> A bare <code>[data-bs-theme="dark"]</code> looks equivalent to <code>html[data-bs-theme="dark"], body[data-bs-theme="dark"]</code> but isn’t: Quarto sets that attribute directly on its <code>&lt;nav&gt;</code> to force a dark navbar on an otherwise-light page, and custom properties inherit down the DOM – so an unscoped match painted the entire dark palette into the navbar (shipped in v0.1.0, fixed in v0.1.1). Match on <code>html</code> or <code>body</code> only, including in a <code>configure({darkSelector})</code> override.</p>
-<p><strong>JS reads from <code>&lt;body&gt;</code>, never <code>&lt;html&gt;</code>.</strong> The light tokens are declared on <code>:root</code>, but the dark ones under selectors that match <code>&lt;body&gt;</code> (Quarto flips a body class). So <code>getComputedStyle(document.documentElement)</code> returns the <strong>light</strong> value even in dark mode. Every <code>--vm-*</code> read in the library goes through <code>document.body</code>; if you write your own token-reading code, do the same. This exact mistake once turned every chart tooltip into a white box on the dark theme.</p>
-<p><strong>Toggles are two steps.</strong> Quarto’s toggle flips the body class and swaps the stylesheet as <strong>separate steps</strong>, class first. A callback that reads tokens synchronously on the class change sees the outgoing theme’s values. <a href="../../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a> waits two animation frames before notifying for exactly this reason, and compares the theme name inside that wait so unrelated body-class changes (a sidebar opening) don’t fire it. Use it rather than your own <code>MutationObserver</code>.</p>
-</section>
-<section id="self-installing-modules" class="level2">
-<h2 class="anchored" data-anchor-id="self-installing-modules">Self-installing modules</h2>
-<p>Slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill share a pattern: a <code>MutationObserver</code> on <code>document.body</code> plus delegated document-level listeners, so they enhance elements Observable Inputs creates at runtime and recreates on every upstream change – there is no single moment at which “all the sliders exist” to wire them up individually. Each marks what it has enhanced (<code>data-vm-play-ready</code>, <code>data-vm-draggable</code>) to stay idempotent. <code>plotly-fullscreen-button.js</code> does the same job for Plotly by wrapping <code>Plotly.newPlot</code>/<code>react</code>, since there is no DOM to watch before the chart exists.</p>
-</section>
-<section id="generated-classes" class="level2">
-<h2 class="anchored" data-anchor-id="generated-classes">Generated classes</h2>
-<p>The library writes these itself; a page never authors them.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Class / property</th>
-<th>Written by</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>ojs-legend-overlay</code>, <code>ojs-legend-item</code>, <code>ojs-legend-swatch</code></td>
-<td><code>VM.ui.legendOverlay</code></td>
-</tr>
-<tr class="even">
-<td><code>vm-overlay-grip</code>, <code>vm-overlay-dragging</code>, <code>data-vm-draggable</code></td>
-<td>the draggable-legend module</td>
-</tr>
-<tr class="odd">
-<td><code>vm-play</code>, <code>vm-play-button</code>, <code>vm-play-more</code>, <code>vm-play-panel</code>, <code>vm-play-group</code>, <code>vm-play-pills</code>, <code>vm-play-pill</code>, <code>vm-play-pill-on</code>, <code>vm-playing</code>, <code>vm-has-play</code>, <code>data-vm-play-ready</code></td>
-<td>slider playback</td>
-</tr>
-<tr class="even">
-<td><code>vm-fullscreen-toggle</code>, <code>vm-fs-figure</code></td>
-<td>the SVG fullscreen button</td>
-</tr>
-<tr class="odd">
-<td><code>ojs-table-toolbar</code>, <code>ojs-table-container</code></td>
-<td><code>VM.ui.renderTable</code></td>
-</tr>
-<tr class="even">
-<td><code>vm-stat-row</code>, <code>vm-stat</code>, <code>vm-stat-label</code>, <code>vm-stat-value</code></td>
-<td><code>VM.ui.statRow</code></td>
-</tr>
-<tr class="odd">
-<td><code>vm-embed</code>, <code>vm-app-active</code>, <code>vm-sidebar-open</code>, <code>vm-sidebar-pinned</code>, <code>vm-rail-cluster</code>, <code>vm-share-*</code>, <code>vm-report-bug-popup</code>, <code>vm-mobile-warning*</code>, <code>--vm-secondary-nav-height</code></td>
-<td>the opt-in <a href="#site-extras">site extras</a></td>
-</tr>
-<tr class="even">
-<td><code>--sx</code>, <code>--vm-plot-aspect-ratio</code>, <code>--vm-fs-plot-width</code>, <code>--vm-svg-aspect</code>, <code>--vm-swatch</code></td>
-<td>runtime layout state: a slider’s fill fraction, fullscreen letterboxing, a swatch’s tint</td>
-</tr>
-</tbody>
-</table>
-<p><code>vm-dark</code> is neither: it is a <strong>theme hook</strong> you may put on <code>&lt;html&gt;</code> or <code>&lt;body&gt;</code> to tell the library your site is in dark mode – see <a href="../../docs/theming.html#dark-mode">Theming</a>. It styles nothing by itself.</p>
-</section>
-<section id="host-markup" class="level2">
-<h2 class="anchored" data-anchor-id="host-markup">Host markup the CSS depends on</h2>
-<p>Quarto OJS is the primary host, and several rules target markup mathviz doesn’t own. They are harmless elsewhere, but on a non-Quarto page the corresponding behaviour is simply absent:</p>
+<section id="samplers" class="level2">
+<h2 class="anchored" data-anchor-id="samplers">Samplers</h2>
+<section id="randomWalkMetropolis" class="level3">
+<h3 class="anchored" data-anchor-id="randomWalkMetropolis">VM.mcmc.randomWalkMetropolis({logDensity, start, n, scale, rng, proposal?})</h3>
+<p>Random-walk Metropolis. From <code>x</code>, propose <code>y = x + step</code> with a symmetric step, and accept with probability <code>min(1, pi(y) / pi(x))</code>.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Selector</th>
-<th>What it fixes</th>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>.cell-output-display</code>, <code>[id^="ojs-cell-"]</code></td>
-<td>Quarto wraps every OJS output in a scroll container (<code>overflow: auto</code>). The legend rules set <code>overflow: visible</code> on the ones inside a chart block, or the floating legend would be clipped to a zero-height box. The same clip is why the playback popover is a top-layer <code>[popover]</code>.</td>
+<td><code>logDensity</code></td>
+<td><code>(x: number[]) =&gt; number</code></td>
+<td></td>
+<td>Log target density, up to an additive constant. For a uniform target on a region, return <code>0</code> inside and <code>-Infinity</code> outside: proposals outside are always rejected.</td>
 </tr>
 <tr class="even">
-<td><code>.quarto-layout-cell { min-width: 0 }</code></td>
-<td>lets a chart in a <code>layout-ncol</code> column shrink with it</td>
+<td><code>start</code></td>
+<td><code>number[]</code></td>
+<td></td>
+<td>Initial state. Its length sets the dimension; a one-dimensional chain uses <code>[x0]</code>.</td>
 </tr>
 <tr class="odd">
-<td><code>form[class^="oi-"]</code></td>
-<td>Observable Inputs’ generated forms carry a hashed class. The panel rules override their fixed <code>360px</code> width and <code>120px</code> label column, and theme their buttons. Observable injects its own <code>.oi-&lt;hash&gt;</code> rules into <code>&lt;head&gt;</code> at runtime, <em>after</em> any stylesheet, so a mathviz rule that ties on specificity loses silently – the shipped rules out-specify them or use <code>!important</code>. Bear this in mind if you add rules of your own.</td>
+<td><code>n</code></td>
+<td><code>number</code></td>
+<td></td>
+<td>Number of states returned, <strong>including</strong> <code>start</code>. Must be a positive integer, or a <code>RangeError</code> is thrown.</td>
 </tr>
 <tr class="even">
-<td><code>.js-plotly-plot .modebar*</code></td>
-<td>Plotly’s modebar DOM; the pill, blur and hover-fade live here</td>
+<td><code>scale</code></td>
+<td><code>number</code></td>
+<td></td>
+<td>Proposal half-width (<code>"uniform"</code>) or standard deviation (<code>"gaussian"</code>).</td>
+</tr>
+<tr class="odd">
+<td><code>rng</code></td>
+<td><code>() =&gt; number</code></td>
+<td></td>
+<td>Uniform <code>[0, 1)</code> generator.</td>
+</tr>
+<tr class="even">
+<td><code>proposal</code></td>
+<td><code>string</code></td>
+<td><code>"uniform"</code></td>
+<td><code>"uniform"</code>: each coordinate <code>U(-scale, scale)</code>. <code>"gaussian"</code>: each coordinate <code>N(0, scale²)</code>.</td>
 </tr>
 </tbody>
 </table>
-<p>With plain <code>&lt;input&gt;</code>s in a <code>&lt;div class="ojs-panel ojs-row"&gt;</code> everything panel-related still works – the <code>form[class^="oi-"]</code> rules just find nothing to match.</p>
+<p><strong>Returns</strong> <code>{samples, proposals, accepted, acceptedCount}</code>. The three arrays have length <code>n</code> and are indexed by step: <code>samples[t]</code> is the state after step <code>t</code>, <code>proposals[t]</code> the point proposed at step <code>t</code>, and <code>accepted[t]</code> whether it was taken. At index <code>0</code> (the start), <code>proposals[0]</code> is <code>null</code> and <code>accepted[0]</code> is <code>true</code>. <code>acceptedCount</code> counts only steps <code>1..n-1</code>, so the acceptance rate is <code>acceptedCount / (n - 1)</code>.</p>
+<p>Each step consumes randomness in a fixed order: the proposal’s coordinates, then one uniform for the accept test. So a seeded <code>rng</code> reproduces the chain, and two runs that differ only in <code>scale</code> share their underlying draws, which makes a scale slider change the chain smoothly instead of reshuffling it. A start outside the support (log density <code>-Infinity</code>) accepts the first proposal that lands inside it.</p>
 </section>
-<section id="site-extras" class="level2">
-<h2 class="anchored" data-anchor-id="site-extras">Site extras</h2>
-<p>The pieces on <a href="../../docs/site.html">Site extras</a> sit beside the bundle, not inside it. The build copies <code>src/chrome/</code>, <code>src/fonts/</code> and the generated <code>dist/theme/</code> into <code>_extensions/mathviz/{chrome,fonts,theme}/</code>, and none of them reaches <code>mathviz.js</code> or <code>mathviz.css</code>.</p>
-<p><strong>One dependency per piece.</strong> For each option that is set, <code>mathviz.lua</code> adds a dependency of its own (<code>mathviz-sidebar-rail</code>, <code>mathviz-mobile-warning</code>, <code>mathviz-embed</code>, <code>mathviz-share</code>, <code>mathviz-report-bug</code>, <code>mathviz-fonts</code>), so a site loads only what it turned on. <code>share</code> and <code>report-bug</code> also pull in <code>mathviz-chrome-site</code> (<code>chrome/site.js</code>), which defines the shared helpers under <code>VM.chrome</code>; Quarto emits it once however many ask. <code>VM.chrome</code> exists only on pages with one of those two on, so the <a href="../../docs/reference/index.html">reference</a> doesn’t list it.</p>
-<p><strong>Settings travel as meta tags.</strong> A filter can’t template a script, so each option’s values become <code>&lt;meta name="mathviz:…"&gt;</code> tags, one per dependency for the injector bug <a href="#the-lua-filters-odd-shape">above</a>: <code>mathviz:sidebar-pin-key</code>, <code>mathviz:mobile-warning-key</code>, <code>mathviz:share-site-url</code>, <code>mathviz:share-embed-docs</code>, <code>mathviz:report-bug-repo</code>, <code>mathviz:report-bug-branch</code>. The scripts read them at run time. A filter also can’t see project config such as <code>website.site-url</code> (Quarto keeps it out of a page’s metadata), which is why <code>share.site-url</code> repeats it.</p>
-<p><strong>Embed mode runs first.</strong> <code>embed.js</code> is a synchronous <code>&lt;head&gt;</code> script, so it puts <code>vm-embed</code> on <code>&lt;html&gt;</code> before anything paints, and every other chrome script checks for that class and skips itself. On <code>DOMContentLoaded</code> it marks the chosen block <code>vm-app-active</code>; <code>embed.css</code> then shows only that block, its descendants and its ancestors (Quarto wraps a <code>##</code> section in a <code>&lt;section&gt;</code>, so an app is not always a direct child of the content column). An id no <code>.vm-app</code> carries falls back to the first. It also wraps <code>history.replaceState</code> so a page that rebuilds its query string from scratch can’t drop <code>embed</code>.</p>
-<p><strong>Paths are site-relative.</strong> Share links and the Report bug source link need the page’s path from the site root, not <code>location.pathname</code>, which carries a prefix when the site is served below the root (a GitHub Pages project site, a local server over the repository). <code>VM.chrome.siteRelativePath</code> resolves Quarto’s <code>quarto:offset</code> meta against the page to find the root as served and strips it. Report bug then maps <code>…/</code> or <code>….html</code> to the <code>.qmd</code> beside it, which holds for a project rendered from the repository root.</p>
-<p><strong>The sidebar rail owns two body classes.</strong> <code>sidebar-rail.css</code> forces Quarto’s below-992 px off-canvas sidebar at every width, driven by <code>vm-sidebar-open</code> and <code>vm-sidebar-pinned</code> on <code>&lt;body&gt;</code> instead of Bootstrap’s collapse classes; <code>sidebar-rail.js</code> writes them and measures Quarto’s mobile breadcrumb bar into <code>--vm-secondary-nav-height</code>. Those are writes to <code>&lt;body&gt;</code>’s class list, which is why <a href="../../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a> compares the theme name rather than firing on every class change.</p>
-<p><strong>The theme is generated.</strong> <code>build.mjs</code> reads the chrome tokens out of <code>src/css/tokens.css</code> (the light block, and the dark block over it) and fills them into <code>src/theme/theme.scss</code> twice, as <code>$vm-* … !default</code> variables and as the <code>--vm-*</code> properties they re-emit. So the Bootstrap chrome and the panels can’t disagree, and a <code>$vm-*</code> override reaches both. The Bootstrap variables it derives are deliberately not <code>!default</code>: Quarto presets some of them as <code>!default</code> ahead of the theme, and a <code>!default</code> here would silently lose.</p>
-<p><strong>Fonts sit flat.</strong> <code>fonts.css</code> names each <code>.woff2</code> by bare file name, and Quarto copies a dependency’s files flat into <code>site_libs/quarto-contrib/mathviz-fonts-&lt;version&gt;/</code>, so they land side by side. A root-relative <code>url(/fonts/…)</code> is rewritten wrongly by Quarto, which is why it isn’t used; <code>src/fonts/fonts.test.js</code> checks every <code>url()</code> resolves and nothing points at Google.</p>
+<section id="gibbsBivariateNormal" class="level3">
+<h3 class="anchored" data-anchor-id="gibbsBivariateNormal">VM.mcmc.gibbsBivariateNormal({rho, n, start, gaussian})</h3>
+<p>Systematic-scan Gibbs sampler for a standard bivariate normal with correlation <code>rho</code>. Each sweep draws <code>x ~ N(rho·y, 1 − rho²)</code> and then <code>y ~ N(rho·x, 1 − rho²)</code>, so the chain moves in axis-parallel steps.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>rho</code></td>
+<td><code>number</code></td>
+<td>Correlation, strictly inside <code>(-1, 1)</code>. Not validated; at <code>|rho| = 1</code> the chain never moves.</td>
+</tr>
+<tr class="even">
+<td><code>n</code></td>
+<td><code>number</code></td>
+<td>Number of sweeps.</td>
+</tr>
+<tr class="odd">
+<td><code>start</code></td>
+<td><code>[x0, y0]</code></td>
+<td>Initial point.</td>
+</tr>
+<tr class="even">
+<td><code>gaussian</code></td>
+<td><code>() =&gt; number</code></td>
+<td>Standard-normal generator, e.g.&nbsp;<code>VM.sampling.gaussianRandom(VM.sampling.seededRandom(seed))</code>. Two draws per sweep, x first.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>{x, y, halfX, halfY}</code>, arrays of length <code>n + 1</code> with index <code>0</code> the start. <code>(x[t], y[t])</code> is the state after sweep <code>t</code>, and <code>(halfX[t], halfY[t]) = (x[t], y[t−1])</code> is the corner between its two moves. Joining start, corner and end of each sweep draws the staircase that shows why a strongly correlated target mixes slowly.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-startfrom="97" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 96;"><span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">mcmc</span><span class="op">.</span><span class="fu">gibbsBivariateNormal</span>({<span class="dt">rho</span><span class="op">:</span> <span class="fl">0.9</span><span class="op">,</span> <span class="dt">n</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">start</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> <span class="dt">gaussian</span><span class="op">:</span> VM<span class="op">.</span><span class="at">sampling</span><span class="op">.</span><span class="fu">gaussianRandom</span>(VM<span class="op">.</span><span class="at">sampling</span><span class="op">.</span><span class="fu">seededRandom</span>(<span class="dv">2</span>))})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-6" data-nodetype="expression">
+
+</div>
+</div>
+</div>
 </section>
-<section id="style" class="level2">
-<h2 class="anchored" data-anchor-id="style">Style</h2>
-<p>Explicit <code>for</code>/<code>while</code> loops and <code>if</code>/<code>else</code> over <code>.map()/.filter()/.reduce()</code> chains and ternaries, throughout <code>src/js</code>. The code is read by a mathematics audience more at home in Python than in functional JavaScript. Callbacks an API requires (Plotly config values, <code>Plot</code> accessors, <code>addEventListener</code>) are the exception.</p>
+</section>
+<section id="finite-chains" class="level2">
+<h2 class="anchored" data-anchor-id="finite-chains">Finite chains</h2>
+<section id="evolveDistribution" class="level3">
+<h3 class="anchored" data-anchor-id="evolveDistribution">VM.mcmc.evolveDistribution(P, p0, steps)</h3>
+<p>Pushes a distribution forward through a finite Markov chain, <code>p_{t+1} = p_t P</code>, with distributions as row vectors.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>P</code></td>
+<td><code>number[][]</code></td>
+<td><code>k × k</code> transition matrix; <code>P[i][j]</code> is the probability of moving from <code>i</code> to <code>j</code>. Rows should sum to 1 (not validated).</td>
+</tr>
+<tr class="even">
+<td><code>p0</code></td>
+<td><code>number[]</code></td>
+<td>Initial distribution, length <code>k</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>steps</code></td>
+<td><code>number</code></td>
+<td>Number of steps to take.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>number[][]</code>: <code>steps + 1</code> distributions, <code>[p0, p1, …, p_steps]</code>. <code>p0</code> is copied, not aliased.</p>
+</section>
+<section id="totalVariation" class="level3">
+<h3 class="anchored" data-anchor-id="totalVariation">VM.mcmc.totalVariation(p, q)</h3>
+<p>Total variation distance <code>½ Σ |p_i − q_i|</code> between two distributions on the same finite set: the largest difference in probability they assign to any one event, and the distance mixing times are measured in. <code>q</code> must have the same length as <code>p</code> (not validated).</p>
+<p><strong>Returns</strong> <code>number</code>, in <code>[0, 1]</code> for probability vectors.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-startfrom="121" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 120;"><span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> P <span class="op">=</span> [[<span class="fl">0.9</span><span class="op">,</span> <span class="fl">0.1</span>]<span class="op">,</span> [<span class="fl">0.5</span><span class="op">,</span> <span class="fl">0.5</span>]]</span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ps <span class="op">=</span> VM<span class="op">.</span><span class="at">mcmc</span><span class="op">.</span><span class="fu">evolveDistribution</span>(P<span class="op">,</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> <span class="dv">5</span>)</span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> stationary <span class="op">=</span> [<span class="dv">5</span> <span class="op">/</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span>]</span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> ps<span class="op">.</span><span class="fu">map</span>(p <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">mcmc</span><span class="op">.</span><span class="fu">totalVariation</span>(p<span class="op">,</span> stationary)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">4</span>))   <span class="co">// shrinks by 0.4 each step</span></span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-7" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="diagnostics">Diagnostics</h2>
+<section id="runningMean" class="level3">
+<h3 class="anchored" data-anchor-id="runningMean">VM.mcmc.runningMean(values)</h3>
+<p>Cumulative mean: <code>out[i]</code> is the average of <code>values[0..i]</code>. Draw it to show a Monte Carlo estimate converging.</p>
+<p><strong>Returns</strong> <code>number[]</code>, same length as <code>values</code> (<code>[]</code> for an empty series). Non-finite entries are not skipped: one <code>NaN</code> makes every later mean <code>NaN</code>.</p>
+</section>
+<section id="autocorrelation" class="level3">
+<h3 class="anchored" data-anchor-id="autocorrelation">VM.mcmc.autocorrelation(values, maxLag?)</h3>
+<p>Sample autocorrelation function: <code>acf[k]</code> is the correlation between <code>x[t]</code> and <code>x[t + k]</code>. It uses the biased estimator (whole-series mean, lag-0 sum of squares as the denominator), so every value lies in <code>[-1, 1]</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>values</code></td>
+<td><code>number[]</code></td>
+<td></td>
+<td>The series, e.g.&nbsp;one coordinate of a chain.</td>
+</tr>
+<tr class="even">
+<td><code>maxLag</code></td>
+<td><code>number</code></td>
+<td><code>50</code></td>
+<td>Largest lag returned; capped at <code>values.length − 1</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>number[]</code>, <code>acf[0..maxLag]</code> with <code>acf[0] = 1</code>. A constant series returns <code>[1, 0, 0, …]</code> rather than <code>NaN</code>s, and an empty or one-element series returns <code>[1]</code>. Whether a series counts as constant is judged relative to its own magnitude, so rescaling a series never changes its autocorrelations.</p>
+</section>
+<section id="effectiveSampleSize" class="level3">
+<h3 class="anchored" data-anchor-id="effectiveSampleSize">VM.mcmc.effectiveSampleSize(values, maxLag?)</h3>
+<p>Effective sample size, <code>n / (1 + 2·(rho_1 + rho_2 + …))</code>. The sum stops before the first autocorrelation that is <code>&lt;= 0</code>, so the noisy tail of the ACF doesn’t swamp it.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>values</code></td>
+<td><code>number[]</code></td>
+<td></td>
+<td>The series.</td>
+</tr>
+<tr class="even">
+<td><code>maxLag</code></td>
+<td><code>number</code></td>
+<td><code>1000</code></td>
+<td>Largest lag the sum may reach.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>number</code>, never more than <code>n</code>: a chain whose lag-1 autocorrelation is already negative counts as independent. <code>0</code> for an empty series. <code>NaN</code> for a chain that never moves (every value equal), because its autocorrelation is undefined and reporting <code>n</code> would call the worst possible chain a perfectly mixing one.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIG1oU2NhbGUgPSBJbnB1dHMucmFuZ2UoWzAuMDUsIDEwXSwge2xhYmVsOiBcInByb3Bvc2FsIGhhbGYtd2lkdGhcIiwgc3RlcDogMC4wNSwgdmFsdWU6IDF9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0zIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoibWhDaGFpbiA9IFZNLm1jbWMucmFuZG9tV2Fsa01ldHJvcG9saXMoe1xuICBsb2dEZW5zaXR5OiB4ID0+IC14WzBdICogeFswXSAvIDIsXG4gIHN0YXJ0OiBbM10sIG46IDIwMDAsIHNjYWxlOiBtaFNjYWxlLFxuICBybmc6IFZNLnNhbXBsaW5nLnNlZWRlZFJhbmRvbSgxKVxufSlcbm1oWHMgPSBtaENoYWluLnNhbXBsZXMubWFwKHMgPT4gc1swXSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLnVpLnN0YXRSb3coW1xuICB7bGFiZWw6IFwiYWNjZXB0YW5jZVwiLCB2YWx1ZTogKG1oQ2hhaW4uYWNjZXB0ZWRDb3VudCAvIChtaFhzLmxlbmd0aCAtIDEpKS50b0ZpeGVkKDIpfSxcbiAge2xhYmVsOiBcIkVTU1wiLCB2YWx1ZTogVk0ubWNtYy5lZmZlY3RpdmVTYW1wbGVTaXplKG1oWHMpLnRvRml4ZWQoMCksIHRpdGxlOiBcImVmZmVjdGl2ZSBzYW1wbGUgc2l6ZSBvZiAyMDAwIGRyYXdzXCJ9LFxuICB7bGFiZWw6IFwibWVhblwiLCB2YWx1ZTogVk0ubWNtYy5ydW5uaW5nTWVhbihtaFhzKS5hdCgtMSkudG9GaXhlZCgzKX1cbl0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IGMgPSBjaGFydENvbG9yc1xuICBjb25zdCBhY2YgPSBWTS5tY21jLmF1dG9jb3JyZWxhdGlvbihtaFhzLCA0MClcbiAgY29uc3QgdHJhY2UgPSBQbG90LnBsb3QoVk0ucGxvdHRpbmcucGxvdE9wdGlvbnMoe1xuICAgIGhlaWdodDogMjIwLCB4OiB7bGFiZWw6IFwic3RlcFwifSwgeToge2xhYmVsOiBcInhcIn0sXG4gICAgbWFya3M6IFtQbG90LmxpbmUobWhYcywge3g6IChkLCBpKSA9PiBpLCB5OiBkID0+IGQsIHN0cm9rZTogYy5mbiwgc3Ryb2tlV2lkdGg6IDF9KV1cbiAgfSkpXG4gIGNvbnN0IGFjZlBsb3QgPSBQbG90LnBsb3QoVk0ucGxvdHRpbmcucGxvdE9wdGlvbnMoe1xuICAgIGhlaWdodDogMTgwLCB4OiB7bGFiZWw6IFwibGFnXCJ9LCB5OiB7bGFiZWw6IFwiYXV0b2NvcnJlbGF0aW9uXCIsIGRvbWFpbjogWy0wLjIsIDFdfSxcbiAgICBtYXJrczogW1Bsb3QucnVsZVkoWzBdKSwgUGxvdC5ydWxlWChhY2YsIHt4OiAoZCwgaSkgPT4gaSwgeTE6IDAsIHkyOiBkID0+IGQsIHN0cm9rZTogYy5hbHQsIHN0cm9rZVdpZHRoOiAzfSldXG4gIH0pKVxuICByZXR1cm4gaHRtbGA8ZGl2PiR7dHJhY2V9JHthY2ZQbG90fTwvZGl2PmBcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm1jbWMuZ2liYnNCaXZhcmlhdGVOb3JtYWwoe3JobzogMC45LCBuOiAzLCBzdGFydDogWzAsIDBdLCBnYXVzc2lhbjogVk0uc2FtcGxpbmcuZ2F1c3NpYW5SYW5kb20oVk0uc2FtcGxpbmcuc2VlZGVkUmFuZG9tKDIpKX0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IFAgPSBbWzAuOSwgMC4xXSwgWzAuNSwgMC41XV1cbiAgY29uc3QgcHMgPSBWTS5tY21jLmV2b2x2ZURpc3RyaWJ1dGlvbihQLCBbMCwgMV0sIDUpXG4gIGNvbnN0IHN0YXRpb25hcnkgPSBbNSAvIDYsIDEgLyA2XVxuICByZXR1cm4gcHMubWFwKHAgPT4gVk0ubWNtYy50b3RhbFZhcmlhdGlvbihwLCBzdGF0aW9uYXJ5KS50b0ZpeGVkKDQpKSAgIC8vIHNocmlua3MgYnkgMC40IGVhY2ggc3RlcFxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdtaFNjYWxlJykifV19
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../docs/reference";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "../..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

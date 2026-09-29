@@ -88,8 +88,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.js"></script>
-<link href="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/mathviz-0.1.11/mathviz.js"></script>
+<link href="../../site_libs/quarto-contrib/mathviz-0.1.11/mathviz.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -395,6 +395,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/mcmc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.mcmc</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../../docs/reference/discrete-math.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">VM.discreteMath</span></a>
   </div>
@@ -433,6 +439,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#pairColor" id="toc-pairColor" class="nav-link" data-scroll-target="#pairColor">VM.discreteMath.pairColor(colorA, colorB)</a></li>
   <li><a href="#triangleFillColor" id="toc-triangleFillColor" class="nav-link" data-scroll-target="#triangleFillColor">VM.discreteMath.triangleFillColor(colors)</a></li>
   </ul></li>
+  <li><a href="#graphs" id="toc-graphs" class="nav-link" data-scroll-target="#graphs">Graphs</a>
+  <ul class="collapse">
+  <li><a href="#randomWalkMatrix" id="toc-randomWalkMatrix" class="nav-link" data-scroll-target="#randomWalkMatrix">VM.discreteMath.randomWalkMatrix(nodeCount, edges, opts?)</a></li>
+  <li><a href="#springLayout" id="toc-springLayout" class="nav-link" data-scroll-target="#springLayout">VM.discreteMath.springLayout(nodeCount, edges, opts?)</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -443,7 +454,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">VM.discreteMath</h1>
-<p class="subtitle lead">Triangulations and Sperner colorings</p>
+<p class="subtitle lead">Triangulations, Sperner colorings and random walks on graphs</p>
 </div>
 
 
@@ -465,8 +476,8 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>The combinatorics behind a Sperner’s-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color <strong>names</strong> into palette colors at the moment of drawing.</p>
-<p>Every helper works in the names <code>'red'</code>, <code>'green'</code>, <code>'blue'</code> – those are the keys the logic compares – and only the three <code>*Color</code> functions at the end touch the actual palette. Keep that split: <code>fill: d =&gt; VM.discreteMath.vertexColor(d.color)</code>, never <code>fill: "red"</code>, which is not the site’s red and doesn’t lighten in dark mode.</p>
+<p>The combinatorics behind a Sperner’s-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color <strong>names</strong> into palette colors at the moment of drawing. Two <a href="#graphs">graph helpers</a> at the end build a random walk’s transition matrix and a layout to draw the graph with.</p>
+<p>Every Sperner helper works in the names <code>'red'</code>, <code>'green'</code>, <code>'blue'</code> – those are the keys the logic compares – and only the three <code>*Color</code> functions under <a href="#drawing">Drawing</a> touch the actual palette. Keep that split: <code>fill: d =&gt; VM.discreteMath.vertexColor(d.color)</code>, never <code>fill: "red"</code>, which is not the site’s red and doesn’t lighten in dark mode.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="18" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 17;"><span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
@@ -633,6 +644,126 @@ Authors: Apurva Nakade
 </div>
 </div>
 </div>
+</section>
+</section>
+<section id="graphs" class="level2">
+<h2 class="anchored" data-anchor-id="graphs">Graphs</h2>
+<p>Two helpers for a random-walk page. Vertices are <code>0..nodeCount-1</code> and edges are <code>[u, v]</code> pairs, each undirected edge listed once.</p>
+<section id="randomWalkMatrix" class="level3">
+<h3 class="anchored" data-anchor-id="randomWalkMatrix">VM.discreteMath.randomWalkMatrix(nodeCount, edges, opts?)</h3>
+<p>The simple random walk on an undirected graph: from a vertex, move to a uniformly chosen neighbor, so <code>P[i][j] = 1 / deg(i)</code> for each edge. Its stationary distribution, <code>pi_i = deg(i) / (2|E|)</code>, is returned with it.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>nodeCount</code></td>
+<td><code>number</code></td>
+<td></td>
+<td>Number of vertices.</td>
+</tr>
+<tr class="even">
+<td><code>edges</code></td>
+<td><code>[number, number][]</code></td>
+<td></td>
+<td>Undirected edges. Self-loops and repeated edges are not checked for.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.lazy</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>Return the lazy walk <code>(I + P) / 2</code>, which stays put with probability ½. It has the same stationary distribution but no eigenvalue at <code>-1</code>, so it converges on a bipartite graph (a path, a tree, a grid, an even cycle), where the simple walk oscillates forever.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>{P, degrees, stationary}</code>. <code>P</code> is row-stochastic. An isolated vertex gets a row that stays put (<code>P[i][i] = 1</code>) and stationary mass <code>0</code>; with no edges at all, <code>stationary</code> is uniform.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-startfrom="162" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 161;"><span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">randomWalkMatrix</span>(<span class="dv">3</span><span class="op">,</span> [[<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>]]<span class="op">,</span> {<span class="dt">lazy</span><span class="op">:</span> <span class="kw">true</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="springLayout" class="level3">
+<h3 class="anchored" data-anchor-id="springLayout">VM.discreteMath.springLayout(nodeCount, edges, opts?)</h3>
+<p>Force-directed (Fruchterman–Reingold) layout: every pair of vertices repels, every edge pulls its ends together, and each vertex’s step is capped by a temperature that cools linearly to zero. Dense clusters come out as tight blobs and a bottleneck edge as a long bridge between them.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>nodeCount</code></td>
+<td><code>number</code></td>
+<td></td>
+<td>Number of vertices.</td>
+</tr>
+<tr class="even">
+<td><code>edges</code></td>
+<td><code>[number, number][]</code></td>
+<td></td>
+<td>Undirected edges.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.seed</code></td>
+<td><code>number</code></td>
+<td><code>42</code></td>
+<td>Seed for the starting positions. The same graph and seed always give the same picture.</td>
+</tr>
+<tr class="even">
+<td><code>opts.iterations</code></td>
+<td><code>number</code></td>
+<td><code>300</code></td>
+<td>Number of steps.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>[x, y][]</code>, one per vertex, centered on the origin and scaled so the larger coordinate extent is <code>[-1, 1]</code>. A single vertex sits at <code>[0, 0]</code>; no vertices gives <code>[]</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" data-startfrom="179" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 178;"><span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a>  chartColors<span class="op">;</span></span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Two triangles joined by one edge.</span></span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> edges <span class="op">=</span> [[<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>]<span class="op">,</span> [<span class="dv">2</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> [<span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> [<span class="dv">4</span><span class="op">,</span> <span class="dv">5</span>]<span class="op">,</span> [<span class="dv">5</span><span class="op">,</span> <span class="dv">3</span>]<span class="op">,</span> [<span class="dv">2</span><span class="op">,</span> <span class="dv">3</span>]]</span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pos <span class="op">=</span> VM<span class="op">.</span><span class="at">discreteMath</span><span class="op">.</span><span class="fu">springLayout</span>(<span class="dv">6</span><span class="op">,</span> edges)</span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a>    <span class="dt">width</span><span class="op">:</span> <span class="dv">360</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">240</span><span class="op">,</span> <span class="dt">axis</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="op">-</span><span class="fl">1.2</span><span class="op">,</span> <span class="fl">1.2</span>]}<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="op">-</span><span class="fl">1.2</span><span class="op">,</span> <span class="fl">1.2</span>]}<span class="op">,</span></span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">link</span>(edges<span class="op">,</span> {<span class="dt">x1</span><span class="op">:</span> e <span class="kw">=&gt;</span> pos[e[<span class="dv">0</span>]][<span class="dv">0</span>]<span class="op">,</span> <span class="dt">y1</span><span class="op">:</span> e <span class="kw">=&gt;</span> pos[e[<span class="dv">0</span>]][<span class="dv">1</span>]<span class="op">,</span> <span class="dt">x2</span><span class="op">:</span> e <span class="kw">=&gt;</span> pos[e[<span class="dv">1</span>]][<span class="dv">0</span>]<span class="op">,</span> <span class="dt">y2</span><span class="op">:</span> e <span class="kw">=&gt;</span> pos[e[<span class="dv">1</span>]][<span class="dv">1</span>]<span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">muted</span>})<span class="op">,</span></span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">dot</span>(pos<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> p <span class="kw">=&gt;</span> p[<span class="dv">0</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> p <span class="kw">=&gt;</span> p[<span class="dv">1</span>]<span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">6</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">fn</span>})</span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-10" data-nodetype="expression">
+
+</div>
+</div>
+</div>
 
 
 </section>
@@ -640,7 +771,7 @@ Authors: Apurva Nakade
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIE4gPSBJbnB1dHMucmFuZ2UoWzEsIDEyXSwge2xhYmVsOiBcIm9yZGVyIE5cIiwgc3RlcDogMSwgdmFsdWU6IDV9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0zIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIHJlY29sb3IgPSBJbnB1dHMuYnV0dG9uKFwiUmVjb2xvclwiKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICByZWNvbG9yOyBjaGFydENvbG9ycyAgIC8vIHJlLXJ1biBvbiB0aGUgYnV0dG9uIGFuZCBvbiBhIHRoZW1lIHRvZ2dsZVxuICBjb25zdCB0b1hZID0gKFtpLCBqLCBrXSkgPT4gKHt4OiAoaiArIGsgLyAyKSAvIE4sIHk6IChNYXRoLnNxcnQoMykgLyAyKSAqIGsgLyBOfSlcbiAgY29uc3QgY29sb3JpbmcgPSBuZXcgTWFwKClcbiAgZm9yIChjb25zdCB0IG9mIFZNLmRpc2NyZXRlTWF0aC5iYXJ5Y2VudHJpY1RyaXBsZXMoTikpIGNvbG9yaW5nLnNldCh0LmpvaW4oXCIsXCIpLCBWTS5kaXNjcmV0ZU1hdGguc3Blcm5lckNvbG9yKC4uLnQpKVxuICBjb25zdCBjb2xvck9mID0gdCA9PiBjb2xvcmluZy5nZXQodC5qb2luKFwiLFwiKSlcbiAgY29uc3QgdHJpYW5nbGVzID0gW11cbiAgZm9yIChjb25zdCB0cmkgb2YgVk0uZGlzY3JldGVNYXRoLnN1YlRyaWFuZ2xlVHJpcGxlcyhOKSkge1xuICAgIGNvbnN0IGZpbGwgPSBWTS5kaXNjcmV0ZU1hdGgudHJpYW5nbGVGaWxsQ29sb3IodHJpLm1hcChjb2xvck9mKSlcbiAgICB0cmlhbmdsZXMucHVzaCh7cG9pbnRzOiB0cmkubWFwKHRvWFkpLCBmaWxsfSlcbiAgfVxuICBjb25zdCBlZGdlcyA9IFtdXG4gIGZvciAoY29uc3Qge2EsIGJ9IG9mIFZNLmRpc2NyZXRlTWF0aC50cmlhbmd1bGF0aW9uRWRnZXMoTikpIHtcbiAgICBlZGdlcy5wdXNoKHsuLi50b1hZKGEpLCB4MjogdG9YWShiKS54LCB5MjogdG9YWShiKS55LCBzdHJva2U6IFZNLmRpc2NyZXRlTWF0aC5wYWlyQ29sb3IoY29sb3JPZihhKSwgY29sb3JPZihiKSkgPz8gY2hhcnRDb2xvcnMubXV0ZWR9KVxuICB9XG4gIGNvbnN0IGRvdHMgPSBbXVxuICBmb3IgKGNvbnN0IHQgb2YgVk0uZGlzY3JldGVNYXRoLmJhcnljZW50cmljVHJpcGxlcyhOKSkgZG90cy5wdXNoKHsuLi50b1hZKHQpLCBjb2xvcjogY29sb3JPZih0KX0pXG4gIGNvbnN0IHJhaW5ib3cgPSB0cmlhbmdsZXMuZmlsdGVyKHQgPT4gdC5maWxsICE9PSBcIm5vbmVcIikubGVuZ3RoXG4gIHJldHVybiBQbG90LnBsb3QoVk0ucGxvdHRpbmcucGxvdE9wdGlvbnMoe1xuICAgIHdpZHRoOiA1MjAsIGhlaWdodDogNDcwLCBheGlzOiBudWxsLCBncmlkOiBmYWxzZSwgeDoge2RvbWFpbjogWy0wLjA1LCAxLjA1XX0sIHk6IHtkb21haW46IFstMC4wNSwgMC45Ml19LFxuICAgIG1hcmtzOiBbXG4gICAgICAuLi50cmlhbmdsZXMubWFwKHQgPT4gUGxvdC5saW5lKHQucG9pbnRzLmNvbmNhdChbdC5wb2ludHNbMF1dKSwge3g6IFwieFwiLCB5OiBcInlcIiwgZmlsbDogdC5maWxsLCBzdHJva2U6IFwibm9uZVwifSkpLFxuICAgICAgUGxvdC5saW5rKGVkZ2VzLCB7eDE6IFwieFwiLCB5MTogXCJ5XCIsIHgyOiBcIngyXCIsIHkyOiBcInkyXCIsIHN0cm9rZTogXCJzdHJva2VcIiwgc3Ryb2tlV2lkdGg6IDJ9KSxcbiAgICAgIFBsb3QuZG90KGRvdHMsIHt4OiBcInhcIiwgeTogXCJ5XCIsIGZpbGw6IGQgPT4gVk0uZGlzY3JldGVNYXRoLnZlcnRleENvbG9yKGQuY29sb3IpLCByOiBOID4gOCA/IDQgOiA2LCBzdHJva2U6IGNoYXJ0Q29sb3JzLmhhbG99KSxcbiAgICAgIFBsb3QudGV4dChbe3g6IDAuNSwgeTogLTAuMDMsIHQ6IGAke3JhaW5ib3d9IHJhaW5ib3cgdHJpYW5nbGUke3JhaW5ib3cgPT09IDEgPyBcIlwiIDogXCJzXCJ9IChTcGVybmVyOiBhbHdheXMgb2RkKWB9XSwge3g6IFwieFwiLCB5OiBcInlcIiwgdGV4dDogXCJ0XCIsIGZpbGw6IGNoYXJ0Q29sb3JzLmlua30pXG4gICAgXVxuICB9KSlcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLmRpc2NyZXRlTWF0aC5iYXJ5Y2VudHJpY1RyaXBsZXMoMilcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLmRpc2NyZXRlTWF0aC5zdWJUcmlhbmdsZVRyaXBsZXMoMilcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLmRpc2NyZXRlTWF0aC50cmlhbmd1bGF0aW9uRWRnZXMoMikubGVuZ3RoICAgLy8gM04oTisxKS8yID0gOVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC04IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiW1ZNLmRpc2NyZXRlTWF0aC52ZXJ0ZXhDb2xvcihcInJlZFwiKSwgVk0uZGlzY3JldGVNYXRoLnBhaXJDb2xvcihcImdyZWVuXCIsIFwiYmx1ZVwiKSwgVk0uZGlzY3JldGVNYXRoLnRyaWFuZ2xlRmlsbENvbG9yKFtcInJlZFwiLCBcImdyZWVuXCIsIFwiYmx1ZVwiXSksIFZNLmRpc2NyZXRlTWF0aC50cmlhbmdsZUZpbGxDb2xvcihbXCJyZWRcIiwgXCJyZWRcIiwgXCJibHVlXCJdKV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnTicpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdyZWNvbG9yJykifV19
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIE4gPSBJbnB1dHMucmFuZ2UoWzEsIDEyXSwge2xhYmVsOiBcIm9yZGVyIE5cIiwgc3RlcDogMSwgdmFsdWU6IDV9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0zIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIHJlY29sb3IgPSBJbnB1dHMuYnV0dG9uKFwiUmVjb2xvclwiKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICByZWNvbG9yOyBjaGFydENvbG9ycyAgIC8vIHJlLXJ1biBvbiB0aGUgYnV0dG9uIGFuZCBvbiBhIHRoZW1lIHRvZ2dsZVxuICBjb25zdCB0b1hZID0gKFtpLCBqLCBrXSkgPT4gKHt4OiAoaiArIGsgLyAyKSAvIE4sIHk6IChNYXRoLnNxcnQoMykgLyAyKSAqIGsgLyBOfSlcbiAgY29uc3QgY29sb3JpbmcgPSBuZXcgTWFwKClcbiAgZm9yIChjb25zdCB0IG9mIFZNLmRpc2NyZXRlTWF0aC5iYXJ5Y2VudHJpY1RyaXBsZXMoTikpIGNvbG9yaW5nLnNldCh0LmpvaW4oXCIsXCIpLCBWTS5kaXNjcmV0ZU1hdGguc3Blcm5lckNvbG9yKC4uLnQpKVxuICBjb25zdCBjb2xvck9mID0gdCA9PiBjb2xvcmluZy5nZXQodC5qb2luKFwiLFwiKSlcbiAgY29uc3QgdHJpYW5nbGVzID0gW11cbiAgZm9yIChjb25zdCB0cmkgb2YgVk0uZGlzY3JldGVNYXRoLnN1YlRyaWFuZ2xlVHJpcGxlcyhOKSkge1xuICAgIGNvbnN0IGZpbGwgPSBWTS5kaXNjcmV0ZU1hdGgudHJpYW5nbGVGaWxsQ29sb3IodHJpLm1hcChjb2xvck9mKSlcbiAgICB0cmlhbmdsZXMucHVzaCh7cG9pbnRzOiB0cmkubWFwKHRvWFkpLCBmaWxsfSlcbiAgfVxuICBjb25zdCBlZGdlcyA9IFtdXG4gIGZvciAoY29uc3Qge2EsIGJ9IG9mIFZNLmRpc2NyZXRlTWF0aC50cmlhbmd1bGF0aW9uRWRnZXMoTikpIHtcbiAgICBlZGdlcy5wdXNoKHsuLi50b1hZKGEpLCB4MjogdG9YWShiKS54LCB5MjogdG9YWShiKS55LCBzdHJva2U6IFZNLmRpc2NyZXRlTWF0aC5wYWlyQ29sb3IoY29sb3JPZihhKSwgY29sb3JPZihiKSkgPz8gY2hhcnRDb2xvcnMubXV0ZWR9KVxuICB9XG4gIGNvbnN0IGRvdHMgPSBbXVxuICBmb3IgKGNvbnN0IHQgb2YgVk0uZGlzY3JldGVNYXRoLmJhcnljZW50cmljVHJpcGxlcyhOKSkgZG90cy5wdXNoKHsuLi50b1hZKHQpLCBjb2xvcjogY29sb3JPZih0KX0pXG4gIGNvbnN0IHJhaW5ib3cgPSB0cmlhbmdsZXMuZmlsdGVyKHQgPT4gdC5maWxsICE9PSBcIm5vbmVcIikubGVuZ3RoXG4gIHJldHVybiBQbG90LnBsb3QoVk0ucGxvdHRpbmcucGxvdE9wdGlvbnMoe1xuICAgIHdpZHRoOiA1MjAsIGhlaWdodDogNDcwLCBheGlzOiBudWxsLCBncmlkOiBmYWxzZSwgeDoge2RvbWFpbjogWy0wLjA1LCAxLjA1XX0sIHk6IHtkb21haW46IFstMC4wNSwgMC45Ml19LFxuICAgIG1hcmtzOiBbXG4gICAgICAuLi50cmlhbmdsZXMubWFwKHQgPT4gUGxvdC5saW5lKHQucG9pbnRzLmNvbmNhdChbdC5wb2ludHNbMF1dKSwge3g6IFwieFwiLCB5OiBcInlcIiwgZmlsbDogdC5maWxsLCBzdHJva2U6IFwibm9uZVwifSkpLFxuICAgICAgUGxvdC5saW5rKGVkZ2VzLCB7eDE6IFwieFwiLCB5MTogXCJ5XCIsIHgyOiBcIngyXCIsIHkyOiBcInkyXCIsIHN0cm9rZTogXCJzdHJva2VcIiwgc3Ryb2tlV2lkdGg6IDJ9KSxcbiAgICAgIFBsb3QuZG90KGRvdHMsIHt4OiBcInhcIiwgeTogXCJ5XCIsIGZpbGw6IGQgPT4gVk0uZGlzY3JldGVNYXRoLnZlcnRleENvbG9yKGQuY29sb3IpLCByOiBOID4gOCA/IDQgOiA2LCBzdHJva2U6IGNoYXJ0Q29sb3JzLmhhbG99KSxcbiAgICAgIFBsb3QudGV4dChbe3g6IDAuNSwgeTogLTAuMDMsIHQ6IGAke3JhaW5ib3d9IHJhaW5ib3cgdHJpYW5nbGUke3JhaW5ib3cgPT09IDEgPyBcIlwiIDogXCJzXCJ9IChTcGVybmVyOiBhbHdheXMgb2RkKWB9XSwge3g6IFwieFwiLCB5OiBcInlcIiwgdGV4dDogXCJ0XCIsIGZpbGw6IGNoYXJ0Q29sb3JzLmlua30pXG4gICAgXVxuICB9KSlcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLmRpc2NyZXRlTWF0aC5iYXJ5Y2VudHJpY1RyaXBsZXMoMilcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLmRpc2NyZXRlTWF0aC5zdWJUcmlhbmdsZVRyaXBsZXMoMilcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLmRpc2NyZXRlTWF0aC50cmlhbmd1bGF0aW9uRWRnZXMoMikubGVuZ3RoICAgLy8gM04oTisxKS8yID0gOVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC04IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiW1ZNLmRpc2NyZXRlTWF0aC52ZXJ0ZXhDb2xvcihcInJlZFwiKSwgVk0uZGlzY3JldGVNYXRoLnBhaXJDb2xvcihcImdyZWVuXCIsIFwiYmx1ZVwiKSwgVk0uZGlzY3JldGVNYXRoLnRyaWFuZ2xlRmlsbENvbG9yKFtcInJlZFwiLCBcImdyZWVuXCIsIFwiYmx1ZVwiXSksIFZNLmRpc2NyZXRlTWF0aC50cmlhbmdsZUZpbGxDb2xvcihbXCJyZWRcIiwgXCJyZWRcIiwgXCJibHVlXCJdKV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLmRpc2NyZXRlTWF0aC5yYW5kb21XYWxrTWF0cml4KDMsIFtbMCwgMV0sIFsxLCAyXV0sIHtsYXp5OiB0cnVlfSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTAiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNoYXJ0Q29sb3JzO1xuICAvLyBUd28gdHJpYW5nbGVzIGpvaW5lZCBieSBvbmUgZWRnZS5cbiAgY29uc3QgZWRnZXMgPSBbWzAsIDFdLCBbMSwgMl0sIFsyLCAwXSwgWzMsIDRdLCBbNCwgNV0sIFs1LCAzXSwgWzIsIDNdXVxuICBjb25zdCBwb3MgPSBWTS5kaXNjcmV0ZU1hdGguc3ByaW5nTGF5b3V0KDYsIGVkZ2VzKVxuICByZXR1cm4gUGxvdC5wbG90KFZNLnBsb3R0aW5nLnBsb3RPcHRpb25zKHtcbiAgICB3aWR0aDogMzYwLCBoZWlnaHQ6IDI0MCwgYXhpczogbnVsbCwgeDoge2RvbWFpbjogWy0xLjIsIDEuMl19LCB5OiB7ZG9tYWluOiBbLTEuMiwgMS4yXX0sXG4gICAgbWFya3M6IFtcbiAgICAgIFBsb3QubGluayhlZGdlcywge3gxOiBlID0+IHBvc1tlWzBdXVswXSwgeTE6IGUgPT4gcG9zW2VbMF1dWzFdLCB4MjogZSA9PiBwb3NbZVsxXV1bMF0sIHkyOiBlID0+IHBvc1tlWzFdXVsxXSwgc3Ryb2tlOiBjaGFydENvbG9ycy5tdXRlZH0pLFxuICAgICAgUGxvdC5kb3QocG9zLCB7eDogcCA9PiBwWzBdLCB5OiBwID0+IHBbMV0sIHI6IDYsIGZpbGw6IGNoYXJ0Q29sb3JzLmZufSlcbiAgICBdXG4gIH0pKVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdOJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3JlY29sb3InKSJ9XX0=
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }

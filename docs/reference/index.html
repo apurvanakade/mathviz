@@ -53,8 +53,8 @@ ul.task-list li input[type="checkbox"] {
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.js"></script>
-<link href="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/mathviz-0.1.11/mathviz.js"></script>
+<link href="../../site_libs/quarto-contrib/mathviz-0.1.11/mathviz.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -358,6 +358,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/mcmc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.mcmc</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../../docs/reference/discrete-math.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">VM.discreteMath</span></a>
   </div>
@@ -430,7 +436,7 @@ Authors: Apurva Nakade
 </tr>
 <tr class="even">
 <td><a href="../../docs/reference/numerical.html"><code>VM.numerical</code></a></td>
-<td>Euler and RK4 steppers, Simpson’s rule, a Lagrange parabola, L1/L2/polynomial fits</td>
+<td>Euler and RK4 steppers, Simpson’s rule, a Lagrange parabola, L1/L2/polynomial fits, symmetric eigenvalues</td>
 <td>– (<code>polynomialFit</code> takes math.js)</td>
 </tr>
 <tr class="odd">
@@ -450,17 +456,22 @@ Authors: Apurva Nakade
 </tr>
 <tr class="even">
 <td><a href="../../docs/reference/plotting.html"><code>VM.plotting</code></a></td>
-<td>the theme (<code>colors</code>, <code>layout</code>, <code>plotOptions</code>, …), theme detection, the Plotly patch, fullscreen helpers</td>
+<td>the theme (<code>colors</code>, <code>layout</code>, <code>plotOptions</code>, …), theme detection, a reusable Plotly chart, the Plotly patch, fullscreen helpers</td>
 <td>Plotly for the patch; otherwise none</td>
 </tr>
 <tr class="odd">
 <td><a href="../../docs/reference/ui.html"><code>VM.ui</code></a></td>
-<td>legend overlay, results table, example presets, slider playback</td>
+<td>legend overlay, results table, stat readouts, URL state, example presets, slider playback</td>
 <td><code>renderTable</code> needs htl’s <code>html</code></td>
 </tr>
 <tr class="even">
+<td><a href="../../docs/reference/mcmc.html"><code>VM.mcmc</code></a></td>
+<td>Metropolis and Gibbs samplers, finite-chain evolution, total variation, running mean, autocorrelation, effective sample size</td>
+<td>–</td>
+</tr>
+<tr class="odd">
 <td><a href="../../docs/reference/discrete-math.html"><code>VM.discreteMath</code></a></td>
-<td>triangulations and Sperner colorings</td>
+<td>triangulations, Sperner colorings, random-walk matrices and spring layouts</td>
 <td>–</td>
 </tr>
 </tbody>
@@ -490,7 +501,7 @@ Authors: Apurva Nakade
 <td>a math.js instance, <strong>passed as the first argument</strong></td>
 </tr>
 <tr class="even">
-<td><code>VM.numerical.*</code>, <code>VM.sampling.*</code>, <code>VM.filters.*</code>, <code>VM.distributions.*</code>, <code>VM.discreteMath.*</code></td>
+<td><code>VM.numerical.*</code>, <code>VM.sampling.*</code>, <code>VM.filters.*</code>, <code>VM.distributions.*</code>, <code>VM.mcmc.*</code>, <code>VM.discreteMath.*</code></td>
 <td>nothing</td>
 </tr>
 <tr class="odd">
@@ -506,12 +517,20 @@ Authors: Apurva Nakade
 <td><code>ResizeObserver</code> (returns <code>null</code> without); safe when Plotly is absent</td>
 </tr>
 <tr class="even">
-<td><code>VM.plotting.installPlotlyPatch / fullscreenButton</code></td>
+<td><code>VM.plotting.installPlotlyPatch / fullscreenButton / persistentPlot</code></td>
 <td><code>window.Plotly</code></td>
 </tr>
 <tr class="odd">
 <td><code>VM.plotting.svgAspectRatio / figureBounds</code>, <code>VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame</code></td>
 <td>nothing – pure helpers</td>
+</tr>
+<tr class="even">
+<td><code>VM.ui.statRow</code></td>
+<td>nothing – plain DOM</td>
+</tr>
+<tr class="odd">
+<td><code>VM.ui.urlParam / syncUrlParams</code></td>
+<td><code>location</code> and <code>history</code>, unless <code>opts.search</code> is given</td>
 </tr>
 <tr class="even">
 <td><code>VM.ui.legendOverlay</code></td>

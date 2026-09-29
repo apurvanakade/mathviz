@@ -88,8 +88,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.js"></script>
-<link href="../../site_libs/quarto-contrib/mathviz-0.1.10/mathviz.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/mathviz-0.1.11/mathviz.js"></script>
+<link href="../../site_libs/quarto-contrib/mathviz-0.1.11/mathviz.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -395,6 +395,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../../docs/reference/mcmc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VM.mcmc</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../../docs/reference/discrete-math.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">VM.discreteMath</span></a>
   </div>
@@ -426,6 +432,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#renderTable" id="toc-renderTable" class="nav-link" data-scroll-target="#renderTable">VM.ui.renderTable({html, headers, rows, csvHeaders?, filename?})</a></li>
   </ul></li>
+  <li><a href="#readouts" id="toc-readouts" class="nav-link" data-scroll-target="#readouts">Readouts</a>
+  <ul class="collapse">
+  <li><a href="#statRow" id="toc-statRow" class="nav-link" data-scroll-target="#statRow">VM.ui.statRow(items)</a></li>
+  </ul></li>
+  <li><a href="#url-state" id="toc-url-state" class="nav-link" data-scroll-target="#url-state">URL state</a>
+  <ul class="collapse">
+  <li><a href="#urlParam" id="toc-urlParam" class="nav-link" data-scroll-target="#urlParam">VM.ui.urlParam(key, fallback, opts?)</a></li>
+  <li><a href="#syncUrlParams" id="toc-syncUrlParams" class="nav-link" data-scroll-target="#syncUrlParams">VM.ui.syncUrlParams(entries, opts?)</a></li>
+  </ul></li>
   <li><a href="#example-presets" id="toc-example-presets" class="nav-link" data-scroll-target="#example-presets">Example presets</a>
   <ul class="collapse">
   <li><a href="#applyExampleParams" id="toc-applyExampleParams" class="nav-link" data-scroll-target="#applyExampleParams">VM.ui.applyExampleParams(fieldSelectors, params, triggerEl)</a></li>
@@ -448,7 +463,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">VM.ui</h1>
-<p class="subtitle lead">Controls: legend overlay, results table, example presets, slider playback</p>
+<p class="subtitle lead">Controls: legend overlay, results table, readouts, URL state, example presets, slider playback</p>
 </div>
 
 
@@ -497,7 +512,7 @@ Authors: Apurva Nakade
 </tr>
 </tbody>
 </table>
-<p>The callable API is four functions: a legend that is also an Observable view, a table renderer, an “apply this example” helper, and the pure arithmetic behind playback (exported for tests and for anyone building their own).</p>
+<p>The callable API is small: a legend that is also an Observable view, a table renderer, a row of stat readouts, a pair of URL-state helpers, the “try an example” helpers, and the pure arithmetic behind playback (exported for tests and for anyone building their own).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="24" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 23;"><span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>vmTheme <span class="op">=</span> Generators<span class="op">.</span><span class="fu">observe</span>(notify <span class="kw">=&gt;</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">onThemeChange</span>(notify))</span>
@@ -704,6 +719,146 @@ Authors: Apurva Nakade
 </div>
 </section>
 </section>
+<section id="readouts" class="level2">
+<h2 class="anchored" data-anchor-id="readouts">Readouts</h2>
+<section id="statRow" class="level3">
+<h3 class="anchored" data-anchor-id="statRow">VM.ui.statRow(items)</h3>
+<p>A row of small label-over-value tiles, for the handful of numbers a Monte Carlo page reports on every slider move – an estimate, its standard error, an acceptance rate. Put it between the controls panel and the chart. The tiles share the panel’s surface and border, show values in the monospace face so digits don’t jitter, and wrap onto more rows on a narrow screen.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>items</code></td>
+<td><code>{label, value, title?}[]</code></td>
+<td>One tile each, in order. A number <code>value</code> is shown as-is, so format it first. <code>title</code> becomes the tile’s tooltip, for a definition too long for the label.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>&lt;div class="vm-stat-row"&gt;</code> holding one <code>&lt;div class="vm-stat"&gt;</code> per item, each a <code>.vm-stat-label</code> above a <code>.vm-stat-value</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-startfrom="143" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 142;"><span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">statRow</span>([</span>
+<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">label</span><span class="op">:</span> <span class="st">"estimate"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> (<span class="fl">3.14159</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">4</span>)}<span class="op">,</span></span>
+<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">label</span><span class="op">:</span> <span class="st">"std. error"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> (<span class="fl">0.0123</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">4</span>)}<span class="op">,</span></span>
+<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">label</span><span class="op">:</span> <span class="st">"acceptance"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"43%"</span><span class="op">,</span> <span class="dt">title</span><span class="op">:</span> <span class="st">"fraction of proposals accepted"</span>}</span>
+<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-7" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="url-state" class="level2">
+<h2 class="anchored" data-anchor-id="url-state">URL state</h2>
+<p>A page can make every input shareable: read each default from the query string, and write the current values back as they change, so the address bar is always a link to what the reader sees.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>viewof n <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">10</span><span class="op">,</span> <span class="dv">5000</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">urlParam</span>(<span class="st">"pi_n"</span><span class="op">,</span> <span class="dv">1000</span>)})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">syncUrlParams</span>({<span class="dt">pi_n</span><span class="op">:</span> [n<span class="op">,</span> <span class="dv">1000</span>]<span class="op">,</span> <span class="dt">pi_seed</span><span class="op">:</span> [seed<span class="op">,</span> <span class="dv">1</span>]})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Give each app’s keys a prefix when several share one page. A key at its default is removed rather than written, so a reader who never touches an app doesn’t find its parameters appended to the URL.</p>
+<section id="urlParam" class="level3">
+<h3 class="anchored" data-anchor-id="urlParam">VM.ui.urlParam(key, fallback, opts?)</h3>
+<p>Reads one query-string parameter, typed like its fallback.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>key</code></td>
+<td><code>string</code></td>
+<td></td>
+<td>The parameter name.</td>
+</tr>
+<tr class="even">
+<td><code>fallback</code></td>
+<td><code>number \| string \| boolean</code></td>
+<td></td>
+<td>Returned when the key is absent or doesn’t parse. A number fallback parses with <code>Number</code> (a blank or non-finite result falls back); a boolean fallback accepts <code>"1"</code>/<code>"true"</code> and <code>"0"</code>/<code>"false"</code>; a string fallback returns the raw value.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.search</code></td>
+<td><code>string</code></td>
+<td><code>location.search</code></td>
+<td>The query string to read.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> a value of the fallback’s type.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" data-startfrom="176" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 175;"><span id="cb11-176"><a href="#cb11-176" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">urlParam</span>(<span class="st">"n"</span><span class="op">,</span> <span class="dv">10</span><span class="op">,</span> {<span class="dt">search</span><span class="op">:</span> <span class="st">"?n=250"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">urlParam</span>(<span class="st">"n"</span><span class="op">,</span> <span class="dv">10</span><span class="op">,</span> {<span class="dt">search</span><span class="op">:</span> <span class="st">"?n=abc"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">urlParam</span>(<span class="st">"lazy"</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> {<span class="dt">search</span><span class="op">:</span> <span class="st">"?lazy=1"</span>})]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-8" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="syncUrlParams" class="level3">
+<h3 class="anchored" data-anchor-id="syncUrlParams">VM.ui.syncUrlParams(entries, opts?)</h3>
+<p>Writes inputs into the current URL’s query string with <code>history.replaceState</code> – no navigation, no history entry – leaving every other key alone (another app’s, or <code>embed</code>).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>entries</code></td>
+<td><code>{key: [value, default]}</code></td>
+<td></td>
+<td>A key whose value equals its default (compared as strings) is removed rather than written.</td>
+</tr>
+<tr class="even">
+<td><code>opts.search</code></td>
+<td><code>string</code></td>
+<td><code>location.search</code></td>
+<td>Start from this query string instead. When given, the URL is <strong>not</strong> touched and only the result is returned.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>string</code>, the new query string without the leading <code>?</code> (<code>""</code> when nothing is left).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" data-startfrom="191" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 190;"><span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">syncUrlParams</span>({<span class="dt">pi_n</span><span class="op">:</span> [<span class="dv">5000</span><span class="op">,</span> <span class="dv">1000</span>]<span class="op">,</span> <span class="dt">pi_seed</span><span class="op">:</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>]}<span class="op">,</span> {<span class="dt">search</span><span class="op">:</span> <span class="st">"?pi_seed=3&amp;embed=1"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+</section>
 <section id="example-presets" class="level2">
 <h2 class="anchored" data-anchor-id="example-presets">Example presets</h2>
 <section id="applyExampleParams" class="level3">
@@ -800,10 +955,10 @@ Authors: Apurva Nakade
 </table>
 <p><strong>Returns</strong> nothing. It sets the view’s value <strong>without dispatching an event</strong>, so nothing downstream re-runs and the page’s <code>"change"</code> listener doesn’t re-apply the example.</p>
 <p>The leading <code>null</code> option (format it as “Custom inputs”) is disabled and hidden in the list on every call, so it shows only when no example matches (a shared link with its own inputs, or a field the reader has edited) and can’t be picked. Because of that, a page’s default inputs should equal one of its examples. While an <code>applyExampleParams</code> call is in flight the function does nothing, since the fields pass through half-applied states that match no example.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>syncExampleFromFields <span class="op">=</span> {</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  fText<span class="op">;</span> x0Text<span class="op">;</span> maxText   <span class="co">// every example field, so this re-runs when any changes</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">syncExampleSelect</span>(viewof exampleSelect<span class="op">,</span> examples<span class="op">,</span> exampleFieldSelectors)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>syncExampleFromFields <span class="op">=</span> {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  fText<span class="op">;</span> x0Text<span class="op">;</span> maxText   <span class="co">// every example field, so this re-runs when any changes</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">syncExampleSelect</span>(viewof exampleSelect<span class="op">,</span> examples<span class="op">,</span> exampleFieldSelectors)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="findMatchingExample" class="level3">
 <h3 class="anchored" data-anchor-id="findMatchingExample">VM.ui.findMatchingExample(examples, values)</h3>
@@ -836,13 +991,13 @@ Authors: Apurva Nakade
 </table>
 <p><strong>Returns</strong> the matching example object, or <code>null</code> when none matches or when no param key had a value to compare. The comparison is loose: scalars compare as trimmed strings (a URL-style <code>"20"</code> equals a slider’s <code>20</code>), arrays compare element by element in order, and plain objects key by key.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-startfrom="187" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 186;"><span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">findMatchingExample</span>(</span>
-<span id="cb9-188"><a href="#cb9-188" aria-hidden="true" tabindex="-1"></a>  [{<span class="dt">title</span><span class="op">:</span> <span class="st">"Square root of 2"</span><span class="op">,</span> <span class="dt">params</span><span class="op">:</span> {<span class="dt">f</span><span class="op">:</span> <span class="st">"x^2 - 2"</span><span class="op">,</span> <span class="dt">x0</span><span class="op">:</span> <span class="st">"1"</span>}}<span class="op">,</span></span>
-<span id="cb9-189"><a href="#cb9-189" aria-hidden="true" tabindex="-1"></a>   {<span class="dt">title</span><span class="op">:</span> <span class="st">"Cube root of 5"</span><span class="op">,</span> <span class="dt">params</span><span class="op">:</span> {<span class="dt">f</span><span class="op">:</span> <span class="st">"x^3 - 5"</span><span class="op">,</span> <span class="dt">x0</span><span class="op">:</span> <span class="st">"2"</span>}}]<span class="op">,</span></span>
-<span id="cb9-190"><a href="#cb9-190" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">f</span><span class="op">:</span> <span class="st">"x^3 - 5"</span><span class="op">,</span> <span class="dt">x0</span><span class="op">:</span> <span class="dv">2</span>}</span>
-<span id="cb9-191"><a href="#cb9-191" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" data-startfrom="251" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 250;"><span id="cb14-251"><a href="#cb14-251" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">findMatchingExample</span>(</span>
+<span id="cb14-252"><a href="#cb14-252" aria-hidden="true" tabindex="-1"></a>  [{<span class="dt">title</span><span class="op">:</span> <span class="st">"Square root of 2"</span><span class="op">,</span> <span class="dt">params</span><span class="op">:</span> {<span class="dt">f</span><span class="op">:</span> <span class="st">"x^2 - 2"</span><span class="op">,</span> <span class="dt">x0</span><span class="op">:</span> <span class="st">"1"</span>}}<span class="op">,</span></span>
+<span id="cb14-253"><a href="#cb14-253" aria-hidden="true" tabindex="-1"></a>   {<span class="dt">title</span><span class="op">:</span> <span class="st">"Cube root of 5"</span><span class="op">,</span> <span class="dt">params</span><span class="op">:</span> {<span class="dt">f</span><span class="op">:</span> <span class="st">"x^3 - 5"</span><span class="op">,</span> <span class="dt">x0</span><span class="op">:</span> <span class="st">"2"</span>}}]<span class="op">,</span></span>
+<span id="cb14-254"><a href="#cb14-254" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">f</span><span class="op">:</span> <span class="st">"x^3 - 5"</span><span class="op">,</span> <span class="dt">x0</span><span class="op">:</span> <span class="dv">2</span>}</span>
+<span id="cb14-255"><a href="#cb14-255" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-7" data-nodetype="expression">
+<div id="ojs-cell-10" data-nodetype="expression">
 
 </div>
 </div>
@@ -855,26 +1010,26 @@ Authors: Apurva Nakade
 <div class="ojs-chart-block">
 <div class="ojs-chart-controls">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="202" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 201;"><span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a>viewof playDemo <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"phase (press ▶)"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.05</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">0</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb15" data-startfrom="266" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 265;"><span id="cb15-266"><a href="#cb15-266" aria-hidden="true" tabindex="-1"></a>viewof playDemo <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"phase (press ▶)"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.05</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">0</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-8" data-nodetype="declaration">
+<div id="ojs-cell-11" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="207" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 206;"><span id="cb11-207"><a href="#cb11-207" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb11-208"><a href="#cb11-208" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xs <span class="op">=</span> []<span class="op">,</span> ys <span class="op">=</span> []</span>
-<span id="cb11-209"><a href="#cb11-209" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">300</span><span class="op">;</span> i<span class="op">++</span>) { <span class="kw">const</span> x <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> i <span class="op">/</span> <span class="dv">300</span><span class="op">;</span> xs<span class="op">.</span><span class="fu">push</span>(x)<span class="op">;</span> ys<span class="op">.</span><span class="fu">push</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(x <span class="op">-</span> playDemo)) }</span>
-<span id="cb11-210"><a href="#cb11-210" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> div <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
-<span id="cb11-211"><a href="#cb11-211" aria-hidden="true" tabindex="-1"></a>  div<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">height</span> <span class="op">=</span> <span class="st">"220px"</span></span>
-<span id="cb11-212"><a href="#cb11-212" aria-hidden="true" tabindex="-1"></a>  Plotly<span class="op">.</span><span class="fu">newPlot</span>(div<span class="op">,</span> [{<span class="dt">x</span><span class="op">:</span> xs<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> ys<span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">fn</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="fl">2.5</span>}}]<span class="op">,</span> {<span class="dt">showlegend</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">yaxis</span><span class="op">:</span> {<span class="dt">range</span><span class="op">:</span> [<span class="op">-</span><span class="fl">1.2</span><span class="op">,</span> <span class="fl">1.2</span>]}<span class="op">,</span> <span class="dt">margin</span><span class="op">:</span> {<span class="dt">t</span><span class="op">:</span> <span class="dv">8</span>}})</span>
-<span id="cb11-213"><a href="#cb11-213" aria-hidden="true" tabindex="-1"></a>  VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">autoResize</span>(div)</span>
-<span id="cb11-214"><a href="#cb11-214" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> div</span>
-<span id="cb11-215"><a href="#cb11-215" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="271" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 270;"><span id="cb16-271"><a href="#cb16-271" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb16-272"><a href="#cb16-272" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xs <span class="op">=</span> []<span class="op">,</span> ys <span class="op">=</span> []</span>
+<span id="cb16-273"><a href="#cb16-273" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> <span class="dv">300</span><span class="op">;</span> i<span class="op">++</span>) { <span class="kw">const</span> x <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> i <span class="op">/</span> <span class="dv">300</span><span class="op">;</span> xs<span class="op">.</span><span class="fu">push</span>(x)<span class="op">;</span> ys<span class="op">.</span><span class="fu">push</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(x <span class="op">-</span> playDemo)) }</span>
+<span id="cb16-274"><a href="#cb16-274" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> div <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb16-275"><a href="#cb16-275" aria-hidden="true" tabindex="-1"></a>  div<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">height</span> <span class="op">=</span> <span class="st">"220px"</span></span>
+<span id="cb16-276"><a href="#cb16-276" aria-hidden="true" tabindex="-1"></a>  Plotly<span class="op">.</span><span class="fu">newPlot</span>(div<span class="op">,</span> [{<span class="dt">x</span><span class="op">:</span> xs<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> ys<span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">fn</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="fl">2.5</span>}}]<span class="op">,</span> {<span class="dt">showlegend</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">yaxis</span><span class="op">:</span> {<span class="dt">range</span><span class="op">:</span> [<span class="op">-</span><span class="fl">1.2</span><span class="op">,</span> <span class="fl">1.2</span>]}<span class="op">,</span> <span class="dt">margin</span><span class="op">:</span> {<span class="dt">t</span><span class="op">:</span> <span class="dv">8</span>}})</span>
+<span id="cb16-277"><a href="#cb16-277" aria-hidden="true" tabindex="-1"></a>  VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">autoResize</span>(div)</span>
+<span id="cb16-278"><a href="#cb16-278" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> div</span>
+<span id="cb16-279"><a href="#cb16-279" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-9" data-nodetype="expression">
+<div id="ojs-cell-12" data-nodetype="expression">
 
 </div>
 </div>
@@ -884,22 +1039,22 @@ Authors: Apurva Nakade
 <p>The sweep’s length scales with the slider’s own stop count – about 350 ms per stop, clamped to 2–10 s – which is what lets the module enhance every slider with no per-page tuning. A page opts a slider <strong>out</strong> with <code>data-vm-play="off"</code> on the input or an ancestor:</p>
 <div class="ojs-panel ojs-row">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="226" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 225;"><span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> wrap <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
-<span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a>  wrap<span class="op">.</span><span class="at">dataset</span><span class="op">.</span><span class="at">vmPlay</span> <span class="op">=</span> <span class="st">"off"</span></span>
-<span id="cb12-229"><a href="#cb12-229" aria-hidden="true" tabindex="-1"></a>  wrap<span class="op">.</span><span class="fu">appendChild</span>(Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">10</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"data-vm-play=</span><span class="sc">\"</span><span class="st">off</span><span class="sc">\"</span><span class="st">: no play button"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">3</span>}))</span>
-<span id="cb12-230"><a href="#cb12-230" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> wrap</span>
-<span id="cb12-231"><a href="#cb12-231" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb17" data-startfrom="290" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 289;"><span id="cb17-290"><a href="#cb17-290" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb17-291"><a href="#cb17-291" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> wrap <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb17-292"><a href="#cb17-292" aria-hidden="true" tabindex="-1"></a>  wrap<span class="op">.</span><span class="at">dataset</span><span class="op">.</span><span class="at">vmPlay</span> <span class="op">=</span> <span class="st">"off"</span></span>
+<span id="cb17-293"><a href="#cb17-293" aria-hidden="true" tabindex="-1"></a>  wrap<span class="op">.</span><span class="fu">appendChild</span>(Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">10</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"data-vm-play=</span><span class="sc">\"</span><span class="st">off</span><span class="sc">\"</span><span class="st">: no play button"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">3</span>}))</span>
+<span id="cb17-294"><a href="#cb17-294" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> wrap</span>
+<span id="cb17-295"><a href="#cb17-295" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-10" data-nodetype="expression">
+<div id="ojs-cell-13" data-nodetype="expression">
 
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb13" data-startfrom="235" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 234;"><span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">10</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"a sibling without it"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">3</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="299" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 298;"><span id="cb18-299"><a href="#cb18-299" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">10</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"a sibling without it"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">3</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-11" data-nodetype="expression">
+<div id="ojs-cell-14" data-nodetype="expression">
 
 </div>
 </div>
@@ -923,9 +1078,9 @@ Authors: Apurva Nakade
 <p>Takes one object: <code>{min, max, step, speed}</code>. Total length of one end-to-end sweep, in ms: <code>350 ms × stops</code>, clamped to <code>[2000, 10000]</code>, divided by <code>speed</code>. A non-finite or non-positive <code>step</code> (a slider with <code>step="any"</code>) counts as 100 stops; a non-finite or non-positive <code>speed</code> as <code>1</code>.</p>
 <p><strong>Returns</strong> <code>number</code>; <code>0</code> when the slider can’t be swept (<code>max ≤ min</code>, or a non-finite bound).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" data-startfrom="250" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 249;"><span id="cb14-250"><a href="#cb14-250" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">playbackDuration</span>({<span class="dt">min</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">max</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">speed</span><span class="op">:</span> <span class="dv">1</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">playbackDuration</span>({<span class="dt">min</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">max</span><span class="op">:</span> <span class="dv">100</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">speed</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">playbackDuration</span>({<span class="dt">min</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">max</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">speed</span><span class="op">:</span> <span class="dv">1</span>})]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19" data-startfrom="314" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 313;"><span id="cb19-314"><a href="#cb19-314" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">playbackDuration</span>({<span class="dt">min</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">max</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">speed</span><span class="op">:</span> <span class="dv">1</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">playbackDuration</span>({<span class="dt">min</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">max</span><span class="op">:</span> <span class="dv">100</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">speed</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">playbackDuration</span>({<span class="dt">min</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">max</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">speed</span><span class="op">:</span> <span class="dv">1</span>})]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-12" data-nodetype="expression">
+<div id="ojs-cell-15" data-nodetype="expression">
 
 </div>
 </div>
@@ -936,9 +1091,9 @@ Authors: Apurva Nakade
 <p>Takes one object: <code>{min, max, step, elapsed, duration, mode, start}</code>. Where the thumb should be after <code>elapsed</code> ms of a sweep of length <code>duration</code> that began at fraction <code>start</code> of the track. <code>mode</code> is <code>"once"</code>, <code>"loop"</code> (sawtooth) or <code>"bounce"</code> (triangle wave); anything else behaves as <code>"once"</code>.</p>
 <p><strong>Returns</strong> <code>{value, direction, done}</code> – <code>value</code> snapped to the step grid (by whole-step count from <code>min</code>, then trimmed to 12 significant digits, then clamped into <code>[min, max]</code>); <code>direction</code> is <code>−1</code> only on a bounce’s return leg; <code>done</code> is <code>true</code> once a <code>"once"</code> sweep reaches the end, and for any degenerate input.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15" data-startfrom="260" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 259;"><span id="cb15-260"><a href="#cb15-260" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">playbackFrame</span>({<span class="dt">min</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">max</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">elapsed</span><span class="op">:</span> <span class="dv">750</span><span class="op">,</span> <span class="dt">duration</span><span class="op">:</span> <span class="dv">3000</span><span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"bounce"</span><span class="op">,</span> <span class="dt">start</span><span class="op">:</span> <span class="dv">0</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20" data-startfrom="324" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 323;"><span id="cb20-324"><a href="#cb20-324" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="fu">playbackFrame</span>({<span class="dt">min</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">max</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">elapsed</span><span class="op">:</span> <span class="dv">750</span><span class="op">,</span> <span class="dt">duration</span><span class="op">:</span> <span class="dv">3000</span><span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"bounce"</span><span class="op">,</span> <span class="dt">start</span><span class="op">:</span> <span class="dv">0</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-13" data-nodetype="expression">
+<div id="ojs-cell-16" data-nodetype="expression">
 
 </div>
 </div>
@@ -948,9 +1103,9 @@ Authors: Apurva Nakade
 <h3 class="anchored" data-anchor-id="playbackTweenMs">VM.ui.playbackTweenMs</h3>
 <p>A <strong>number</strong>, not a function: the chart transition length <code>VM.plotting.layout()</code> should use right now. <code>0</code> while no sweep is running; during one, 90% of the gap between consecutive slider values, capped at 300 ms, so each tween settles just before the next value arrives instead of a flat 300 ms overrunning a faster gap and leaving the chart permanently mid-tween. Read it if you build your own layout; don’t set it.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" data-startfrom="268" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 267;"><span id="cb16-268"><a href="#cb16-268" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="at">playbackTweenMs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21" data-startfrom="332" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 331;"><span id="cb21-332"><a href="#cb21-332" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">ui</span><span class="op">.</span><span class="at">playbackTweenMs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-14" data-nodetype="expression">
+<div id="ojs-cell-17" data-nodetype="expression">
 
 </div>
 </div>
@@ -962,7 +1117,7 @@ Authors: Apurva Nakade
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIGxlZ2VuZFNob3duID0gVk0udWkubGVnZW5kT3ZlcmxheShbXG4gIHtsYWJlbDogXCJzaW5cIiwgY29sb3I6IGNoYXJ0Q29sb3JzLmZufSxcbiAge2xhYmVsOiBcImNvc1wiLCBjb2xvcjogY2hhcnRDb2xvcnMuYWx0fSxcbiAge2xhYmVsOiBcInNpbsK3Y29zXCIsIGNvbG9yOiBjaGFydENvbG9ycy5va31cbl0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHhzID0gW10sIHMgPSBbXSwgYyA9IFtdLCBzYyA9IFtdXG4gIGZvciAobGV0IGkgPSAwOyBpIDw9IDIwMDsgaSsrKSB7IGNvbnN0IHggPSAtTWF0aC5QSSArIDIgKiBNYXRoLlBJICogaSAvIDIwMDsgeHMucHVzaCh4KTsgcy5wdXNoKE1hdGguc2luKHgpKTsgYy5wdXNoKE1hdGguY29zKHgpKTsgc2MucHVzaChNYXRoLnNpbih4KSAqIE1hdGguY29zKHgpKSB9XG4gIGNvbnN0IGRhdGEgPSBbXG4gICAge25hbWU6IFwic2luXCIsIHg6IHhzLCB5OiBzLCBsaW5lOiB7Y29sb3I6IGNoYXJ0Q29sb3JzLmZufX0sXG4gICAge25hbWU6IFwiY29zXCIsIHg6IHhzLCB5OiBjLCBsaW5lOiB7Y29sb3I6IGNoYXJ0Q29sb3JzLmFsdH19LFxuICAgIHtuYW1lOiBcInNpbsK3Y29zXCIsIHg6IHhzLCB5OiBzYywgbGluZToge2NvbG9yOiBjaGFydENvbG9ycy5va319XG4gIF1cbiAgZm9yIChjb25zdCB0cmFjZSBvZiBkYXRhKSB0cmFjZS52aXNpYmxlID0gbGVnZW5kU2hvd24uaW5jbHVkZXModHJhY2UubmFtZSkgPyB0cnVlIDogXCJsZWdlbmRvbmx5XCJcbiAgY29uc3QgZGl2ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICBkaXYuc3R5bGUuaGVpZ2h0ID0gXCIzMDBweFwiXG4gIFBsb3RseS5uZXdQbG90KGRpdiwgZGF0YSwge3Nob3dsZWdlbmQ6IGZhbHNlLCB4YXhpczoge3RpdGxlOiBcInhcIn19KVxuICBWTS5wbG90dGluZy5hdXRvUmVzaXplKGRpdilcbiAgcmV0dXJuIGRpdlxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoibGVnZW5kU2hvd25cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLnVpLm92ZXJsYXlTdG9yYWdlS2V5KFwiL2FwcHMvbmV3dG9uLW1ldGhvZC9cIiwgXCJsZWdlbmRcIiwgMClcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgY29uc3Qgcm93cyA9IFtdXG4gIGxldCB4ID0gMVxuICBmb3IgKGxldCBuID0gMDsgbiA8IDY7IG4rKykgeyByb3dzLnB1c2goW24sIHgudG9GaXhlZCgxMCksIE1hdGguYWJzKHggLSBNYXRoLlNRUlQyKS50b0V4cG9uZW50aWFsKDIpXSk7IHggPSB4IC0gKHggKiB4IC0gMikgLyAoMiAqIHgpIH1cbiAgcmV0dXJuIFZNLnVpLnJlbmRlclRhYmxlKHtodG1sLCBoZWFkZXJzOiBbXCJuXCIsIHRleGB4X25gLCB0ZXhgfHhfbiAtIFxcc3FydDJ8YF0sIHJvd3MsIGNzdkhlYWRlcnM6IFtcIm5cIiwgXCJ4X25cIiwgXCJlcnJvclwiXSwgZmlsZW5hbWU6IFwibmV3dG9uLXNxcnQyLmNzdlwifSlcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLnVpLmZpbmRNYXRjaGluZ0V4YW1wbGUoXG4gIFt7dGl0bGU6IFwiU3F1YXJlIHJvb3Qgb2YgMlwiLCBwYXJhbXM6IHtmOiBcInheMiAtIDJcIiwgeDA6IFwiMVwifX0sXG4gICB7dGl0bGU6IFwiQ3ViZSByb290IG9mIDVcIiwgcGFyYW1zOiB7ZjogXCJ4XjMgLSA1XCIsIHgwOiBcIjJcIn19XSxcbiAge2Y6IFwieF4zIC0gNVwiLCB4MDogMn1cbilcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBwbGF5RGVtbyA9IElucHV0cy5yYW5nZShbMCwgMiAqIE1hdGguUEldLCB7bGFiZWw6IFwicGhhc2UgKHByZXNzIOKWtilcIiwgc3RlcDogMC4wNSwgdmFsdWU6IDB9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC05IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCB4cyA9IFtdLCB5cyA9IFtdXG4gIGZvciAobGV0IGkgPSAwOyBpIDw9IDMwMDsgaSsrKSB7IGNvbnN0IHggPSA0ICogTWF0aC5QSSAqIGkgLyAzMDA7IHhzLnB1c2goeCk7IHlzLnB1c2goTWF0aC5zaW4oeCAtIHBsYXlEZW1vKSkgfVxuICBjb25zdCBkaXYgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIGRpdi5zdHlsZS5oZWlnaHQgPSBcIjIyMHB4XCJcbiAgUGxvdGx5Lm5ld1Bsb3QoZGl2LCBbe3g6IHhzLCB5OiB5cywgbGluZToge2NvbG9yOiBjaGFydENvbG9ycy5mbiwgd2lkdGg6IDIuNX19XSwge3Nob3dsZWdlbmQ6IGZhbHNlLCB5YXhpczoge3JhbmdlOiBbLTEuMiwgMS4yXX0sIG1hcmdpbjoge3Q6IDh9fSlcbiAgVk0ucGxvdHRpbmcuYXV0b1Jlc2l6ZShkaXYpXG4gIHJldHVybiBkaXZcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTAiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHdyYXAgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHdyYXAuZGF0YXNldC52bVBsYXkgPSBcIm9mZlwiXG4gIHdyYXAuYXBwZW5kQ2hpbGQoSW5wdXRzLnJhbmdlKFswLCAxMF0sIHtsYWJlbDogXCJkYXRhLXZtLXBsYXk9XFxcIm9mZlxcXCI6IG5vIHBsYXkgYnV0dG9uXCIsIHN0ZXA6IDEsIHZhbHVlOiAzfSkpXG4gIHJldHVybiB3cmFwXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTExIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiSW5wdXRzLnJhbmdlKFswLCAxMF0sIHtsYWJlbDogXCJhIHNpYmxpbmcgd2l0aG91dCBpdFwiLCBzdGVwOiAxLCB2YWx1ZTogM30pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEyIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiW1ZNLnVpLnBsYXliYWNrRHVyYXRpb24oe21pbjogMCwgbWF4OiAxMCwgc3RlcDogMSwgc3BlZWQ6IDF9KSwgVk0udWkucGxheWJhY2tEdXJhdGlvbih7bWluOiAwLCBtYXg6IDEwMCwgc3RlcDogMSwgc3BlZWQ6IDJ9KSwgVk0udWkucGxheWJhY2tEdXJhdGlvbih7bWluOiAwLCBtYXg6IDAsIHN0ZXA6IDEsIHNwZWVkOiAxfSldXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEzIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiVk0udWkucGxheWJhY2tGcmFtZSh7bWluOiAwLCBtYXg6IDEwLCBzdGVwOiAwLjUsIGVsYXBzZWQ6IDc1MCwgZHVyYXRpb246IDMwMDAsIG1vZGU6IFwiYm91bmNlXCIsIHN0YXJ0OiAwfSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTQiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS51aS5wbGF5YmFja1R3ZWVuTXNcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnbGVnZW5kU2hvd24nKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncGxheURlbW8nKSJ9XX0=
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIGxlZ2VuZFNob3duID0gVk0udWkubGVnZW5kT3ZlcmxheShbXG4gIHtsYWJlbDogXCJzaW5cIiwgY29sb3I6IGNoYXJ0Q29sb3JzLmZufSxcbiAge2xhYmVsOiBcImNvc1wiLCBjb2xvcjogY2hhcnRDb2xvcnMuYWx0fSxcbiAge2xhYmVsOiBcInNpbsK3Y29zXCIsIGNvbG9yOiBjaGFydENvbG9ycy5va31cbl0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHhzID0gW10sIHMgPSBbXSwgYyA9IFtdLCBzYyA9IFtdXG4gIGZvciAobGV0IGkgPSAwOyBpIDw9IDIwMDsgaSsrKSB7IGNvbnN0IHggPSAtTWF0aC5QSSArIDIgKiBNYXRoLlBJICogaSAvIDIwMDsgeHMucHVzaCh4KTsgcy5wdXNoKE1hdGguc2luKHgpKTsgYy5wdXNoKE1hdGguY29zKHgpKTsgc2MucHVzaChNYXRoLnNpbih4KSAqIE1hdGguY29zKHgpKSB9XG4gIGNvbnN0IGRhdGEgPSBbXG4gICAge25hbWU6IFwic2luXCIsIHg6IHhzLCB5OiBzLCBsaW5lOiB7Y29sb3I6IGNoYXJ0Q29sb3JzLmZufX0sXG4gICAge25hbWU6IFwiY29zXCIsIHg6IHhzLCB5OiBjLCBsaW5lOiB7Y29sb3I6IGNoYXJ0Q29sb3JzLmFsdH19LFxuICAgIHtuYW1lOiBcInNpbsK3Y29zXCIsIHg6IHhzLCB5OiBzYywgbGluZToge2NvbG9yOiBjaGFydENvbG9ycy5va319XG4gIF1cbiAgZm9yIChjb25zdCB0cmFjZSBvZiBkYXRhKSB0cmFjZS52aXNpYmxlID0gbGVnZW5kU2hvd24uaW5jbHVkZXModHJhY2UubmFtZSkgPyB0cnVlIDogXCJsZWdlbmRvbmx5XCJcbiAgY29uc3QgZGl2ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICBkaXYuc3R5bGUuaGVpZ2h0ID0gXCIzMDBweFwiXG4gIFBsb3RseS5uZXdQbG90KGRpdiwgZGF0YSwge3Nob3dsZWdlbmQ6IGZhbHNlLCB4YXhpczoge3RpdGxlOiBcInhcIn19KVxuICBWTS5wbG90dGluZy5hdXRvUmVzaXplKGRpdilcbiAgcmV0dXJuIGRpdlxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoibGVnZW5kU2hvd25cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLnVpLm92ZXJsYXlTdG9yYWdlS2V5KFwiL2FwcHMvbmV3dG9uLW1ldGhvZC9cIiwgXCJsZWdlbmRcIiwgMClcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgY29uc3Qgcm93cyA9IFtdXG4gIGxldCB4ID0gMVxuICBmb3IgKGxldCBuID0gMDsgbiA8IDY7IG4rKykgeyByb3dzLnB1c2goW24sIHgudG9GaXhlZCgxMCksIE1hdGguYWJzKHggLSBNYXRoLlNRUlQyKS50b0V4cG9uZW50aWFsKDIpXSk7IHggPSB4IC0gKHggKiB4IC0gMikgLyAoMiAqIHgpIH1cbiAgcmV0dXJuIFZNLnVpLnJlbmRlclRhYmxlKHtodG1sLCBoZWFkZXJzOiBbXCJuXCIsIHRleGB4X25gLCB0ZXhgfHhfbiAtIFxcc3FydDJ8YF0sIHJvd3MsIGNzdkhlYWRlcnM6IFtcIm5cIiwgXCJ4X25cIiwgXCJlcnJvclwiXSwgZmlsZW5hbWU6IFwibmV3dG9uLXNxcnQyLmNzdlwifSlcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLnVpLnN0YXRSb3coW1xuICB7bGFiZWw6IFwiZXN0aW1hdGVcIiwgdmFsdWU6ICgzLjE0MTU5KS50b0ZpeGVkKDQpfSxcbiAge2xhYmVsOiBcInN0ZC4gZXJyb3JcIiwgdmFsdWU6ICgwLjAxMjMpLnRvRml4ZWQoNCl9LFxuICB7bGFiZWw6IFwiYWNjZXB0YW5jZVwiLCB2YWx1ZTogXCI0MyVcIiwgdGl0bGU6IFwiZnJhY3Rpb24gb2YgcHJvcG9zYWxzIGFjY2VwdGVkXCJ9XG5dKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC04IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiW1ZNLnVpLnVybFBhcmFtKFwiblwiLCAxMCwge3NlYXJjaDogXCI/bj0yNTBcIn0pLCBWTS51aS51cmxQYXJhbShcIm5cIiwgMTAsIHtzZWFyY2g6IFwiP249YWJjXCJ9KSwgVk0udWkudXJsUGFyYW0oXCJsYXp5XCIsIGZhbHNlLCB7c2VhcmNoOiBcIj9sYXp5PTFcIn0pXVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC05IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiVk0udWkuc3luY1VybFBhcmFtcyh7cGlfbjogWzUwMDAsIDEwMDBdLCBwaV9zZWVkOiBbMSwgMV19LCB7c2VhcmNoOiBcIj9waV9zZWVkPTMmZW1iZWQ9MVwifSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTAiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS51aS5maW5kTWF0Y2hpbmdFeGFtcGxlKFxuICBbe3RpdGxlOiBcIlNxdWFyZSByb290IG9mIDJcIiwgcGFyYW1zOiB7ZjogXCJ4XjIgLSAyXCIsIHgwOiBcIjFcIn19LFxuICAge3RpdGxlOiBcIkN1YmUgcm9vdCBvZiA1XCIsIHBhcmFtczoge2Y6IFwieF4zIC0gNVwiLCB4MDogXCIyXCJ9fV0sXG4gIHtmOiBcInheMyAtIDVcIiwgeDA6IDJ9XG4pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTExIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIHBsYXlEZW1vID0gSW5wdXRzLnJhbmdlKFswLCAyICogTWF0aC5QSV0sIHtsYWJlbDogXCJwaGFzZSAocHJlc3Mg4pa2KVwiLCBzdGVwOiAwLjA1LCB2YWx1ZTogMH0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEyIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCB4cyA9IFtdLCB5cyA9IFtdXG4gIGZvciAobGV0IGkgPSAwOyBpIDw9IDMwMDsgaSsrKSB7IGNvbnN0IHggPSA0ICogTWF0aC5QSSAqIGkgLyAzMDA7IHhzLnB1c2goeCk7IHlzLnB1c2goTWF0aC5zaW4oeCAtIHBsYXlEZW1vKSkgfVxuICBjb25zdCBkaXYgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIGRpdi5zdHlsZS5oZWlnaHQgPSBcIjIyMHB4XCJcbiAgUGxvdGx5Lm5ld1Bsb3QoZGl2LCBbe3g6IHhzLCB5OiB5cywgbGluZToge2NvbG9yOiBjaGFydENvbG9ycy5mbiwgd2lkdGg6IDIuNX19XSwge3Nob3dsZWdlbmQ6IGZhbHNlLCB5YXhpczoge3JhbmdlOiBbLTEuMiwgMS4yXX0sIG1hcmdpbjoge3Q6IDh9fSlcbiAgVk0ucGxvdHRpbmcuYXV0b1Jlc2l6ZShkaXYpXG4gIHJldHVybiBkaXZcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHdyYXAgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHdyYXAuZGF0YXNldC52bVBsYXkgPSBcIm9mZlwiXG4gIHdyYXAuYXBwZW5kQ2hpbGQoSW5wdXRzLnJhbmdlKFswLCAxMF0sIHtsYWJlbDogXCJkYXRhLXZtLXBsYXk9XFxcIm9mZlxcXCI6IG5vIHBsYXkgYnV0dG9uXCIsIHN0ZXA6IDEsIHZhbHVlOiAzfSkpXG4gIHJldHVybiB3cmFwXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTE0IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiSW5wdXRzLnJhbmdlKFswLCAxMF0sIHtsYWJlbDogXCJhIHNpYmxpbmcgd2l0aG91dCBpdFwiLCBzdGVwOiAxLCB2YWx1ZTogM30pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTE1IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiW1ZNLnVpLnBsYXliYWNrRHVyYXRpb24oe21pbjogMCwgbWF4OiAxMCwgc3RlcDogMSwgc3BlZWQ6IDF9KSwgVk0udWkucGxheWJhY2tEdXJhdGlvbih7bWluOiAwLCBtYXg6IDEwMCwgc3RlcDogMSwgc3BlZWQ6IDJ9KSwgVk0udWkucGxheWJhY2tEdXJhdGlvbih7bWluOiAwLCBtYXg6IDAsIHN0ZXA6IDEsIHNwZWVkOiAxfSldXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTE2IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiVk0udWkucGxheWJhY2tGcmFtZSh7bWluOiAwLCBtYXg6IDEwLCBzdGVwOiAwLjUsIGVsYXBzZWQ6IDc1MCwgZHVyYXRpb246IDMwMDAsIG1vZGU6IFwiYm91bmNlXCIsIHN0YXJ0OiAwfSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS51aS5wbGF5YmFja1R3ZWVuTXNcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnbGVnZW5kU2hvd24nKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncGxheURlbW8nKSJ9XX0=
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
