@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.plotting.persistentPlot3d`, `persistentPlot` for 3-D charts (`surface`, `scatter3d`, ...). Dragging rotates the scene the way Plotly's own 3-D charts do (turntable), and the modebar has the 3-D tools.
+
+### Fixed
+
+- 3-D charts now rotate on drag. The patch's default `dragmode: "pan"` also reached a 3-D scene, so a drag slid the chart instead of turning it. A chart with a `scene` now gets `scene.dragmode: "turntable"` (unless it set one), Plotly's 3-D modebar instead of the 2-D one, and scene axes that follow the theme. `VM.plotting.themePatch({scene: true})` re-themes those axes on a dark-mode toggle.
+
 ## [0.1.12] - 2026-09-29
 
 ### Added

@@ -23,6 +23,7 @@ export const js = [
   'plotting/plotly-fullscreen-button.js',
   'plotting/svg-fullscreen-button.js',
   'plotting/persistent-plot.js',
+  'plotting/persistent-plot-3d.js',
   'plotting/plot-with-legend.js',
   'numerical/linear-regression.js',
   'numerical/l1-regression.js',

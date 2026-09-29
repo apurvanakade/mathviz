@@ -212,6 +212,26 @@ The first call creates the div, `Plotly.newPlot`s into it and hands it to [`auto
 
 **Returns** `(data, layout, config?) => HTMLElement`, which draws or redraws and returns the same div every time. `config` defaults to [`config()`](#config). Needs `window.Plotly`.
 
+### VM.plotting.persistentPlot3d(opts?) {#persistentPlot3d}
+
+[`persistentPlot`](#persistentPlot) for 3-D traces (`surface`, `scatter3d`, `mesh3d`, ...). Use it for every 3-D chart, in exactly the same way:
+
+```js
+surfacePlot = VM.plotting.persistentPlot3d({height: "420px"})
+```
+```js
+surfacePlot([{type: "surface", z}], {scene: {zaxis: {title: {text: "density"}}}})
+```
+
+Dragging rotates the scene about its vertical axis (`turntable`, Plotly's own 3-D default), the scroll wheel zooms, and the modebar carries the 3-D tools. The scene's axes follow the theme, including on a dark-mode toggle. All of that comes from the [Plotly patch](#the-plotly-patch), which treats a chart as 3-D when its layout has a `scene`. A 3-D trace draws without one, though, and would then pan on drag with the 2-D buttons. This closure always passes a `scene`, keeping the page's own (camera, axis titles, `dragmode`, ...).
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `opts.className` | `string` | `"plotly-box-large"` | As for `persistentPlot`. |
+| `opts.height` | `string` | | As for `persistentPlot`. |
+
+**Returns** `(data, layout, config?) => HTMLElement`, as for `persistentPlot`. Needs `window.Plotly`.
+
 ### VM.plotting.plotWithLegend(plot, data, layout) {#plotWithLegend}
 
 For a figure with no controls of its own: draws the chart with a [`VM.ui.legendOverlay`](ui.qmd#legendOverlay) over it instead of Plotly's legend, and returns both wrapped in an `.ojs-chart-block`, in one cell. Clicking a row hides or shows every trace of that name; unnamed traces and `showlegend: false` ones are always drawn. Hiding a trace never rescales the chart or moves its grid: the first click pins every axis at the range it had with all traces shown (see [`lockedAxes`](#lockedAxes)), and a new call -- new data, a theme toggle -- starts unpinned again. It is the three-cell `viewof` wiring the legend's reference shows, for pages with many such figures.
@@ -277,11 +297,15 @@ The Observable Plot equivalent of `layout()`: same font, grid color and `colorwa
 }
 ```
 
-### VM.plotting.themePatch() {#themePatch}
+### VM.plotting.themePatch(opts?) {#themePatch}
 
 The theme-dependent style attributes as a **flat**, dotted-path object for `Plotly.relayout` -- `{"xaxis.gridcolor": …, "hoverlabel.bgcolor": …, colorway: […]}`. `relayout` replaces whatever attribute each key names wholesale, so a nested `{xaxis: {...}}` would wipe the page's own `xaxis.title`/`range`; dotted keys patch only the one sub-property. The patch runs this over every live `.js-plotly-plot` on each theme flip. A page shouldn't need to call it.
 
-**Returns** an object with 24 keys.
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `opts.scene` | `boolean` | `false` | Also patch the colors of a 3-D chart's `scene.xaxis`/`yaxis`/`zaxis`. Leave it off for a 2-D chart: relayout-ing a `scene.*` key would add a scene to it. |
+
+**Returns** an object with 24 keys, or 42 with `opts.scene`.
 
 ## The Plotly patch
 
@@ -290,7 +314,7 @@ On load (and again on `DOMContentLoaded`) the library wraps `Plotly.newPlot` and
 - `layout()` merged **under** the page's layout
 - `hoverLabel()` on every trace that lacks a `hoverlabel`
 - `dragmode: "pan"`, unless the page set its own
-- `config()` merged under the page's config, then this modebar:
+- `config()` merged under the page's config, then this modebar (a 3-D chart gets its own, below):
 
   | Group | Buttons |
   |---|---|
@@ -299,9 +323,11 @@ On load (and again on `DOMContentLoaded`) the library wraps `Plotly.newPlot` and
   | 3 | zoom in, zoom out (each step scales the visible span by **1.25×**, not Plotly's 2×, which overshoots when framing a curve), autoscale, reset |
   | 4 | fullscreen |
 
-  Box select and lasso are absent. The list is spelled out as `config.modeBarButtons`, replacing whatever a page passes there -- which is safe only because every chart the library targets is 2-D cartesian.
+  Box select and lasso are absent. The list is spelled out as `config.modeBarButtons`, replacing whatever a page passes there.
 
-- a `relayout(themePatch())` on every theme flip
+- for a 3-D chart, meaning one whose layout has a `scene` (draw it with [`persistentPlot3d`](#persistentPlot3d), which guarantees one): `scene.dragmode: "turntable"` unless the page set one, since a scene otherwise inherits `"pan"` and slides instead of rotating; themed scene axes; and the modebar download PNG | turntable rotation, orbit rotation, pan, zoom | reset camera | fullscreen
+
+- a `relayout(themePatch())` on every theme flip (`themePatch({scene: true})` for a 3-D chart)
 
 The patch is idempotent and a silent no-op when `Plotly` isn't on the page (`mathviz: {plotly: false}`).
 
