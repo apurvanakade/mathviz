@@ -9,6 +9,14 @@
 #
 # The PR lands like any other (the land-pr skill), and nothing merges itself.
 # When it reaches main, tag-release.yml sees the new version and tags it.
+#
+# The branch is pushed and the PR opened with RELEASE_TOKEN, a fine-grained
+# personal access token (Contents and Pull requests: read and write on this
+# repository), not the built-in GITHUB_TOKEN. A PR opened with GITHUB_TOKEN
+# gets no ordinary CI: its pull_request run waits for a manual approval, and
+# a run started any other way doesn't count as the PR's required `check`
+# (v0.1.12 needed the approval by hand). Opened with the token, the PR is
+# yours and CI runs as on any other.
 
 name: Release
 
@@ -20,10 +28,9 @@ on:
         required: true
         type: string
 
+# The pushes and the PR go through RELEASE_TOKEN; GITHUB_TOKEN only reads.
 permissions:
-  actions: write
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: release
@@ -34,9 +41,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Check that RELEASE_TOKEN is set
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$RELEASE_TOKEN" ]; then
+            echo "::error::Add a RELEASE_TOKEN repository secret (see the header of release.yml)."
+            exit 1
+          fi
+
+      # The token given here is the one checkout leaves configured for
+      # `git push` below.
       - uses: actions/checkout@v4
         with:
           ref: main
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -60,7 +79,7 @@ jobs:
 
       - name: Open the pull request
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
@@ -74,7 +93,3 @@ jobs:
           gh pr create --base main --head "$branch" \
             --title "Release v$VERSION" \
             --body "Sets the version to $VERSION, moves the [Unreleased] CHANGELOG entries under it and bumps the install snippets. tag-release.yml tags v$VERSION when this merges."
-          # Neither the push nor the PR above starts CI: events caused by
-          # GITHUB_TOKEN deliberately trigger no workflows. workflow_dispatch
-          # is the exception, and its checks attach to the same commit.
-          gh workflow run ci.yml --ref "$branch"
