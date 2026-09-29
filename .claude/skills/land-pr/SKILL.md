@@ -23,10 +23,11 @@ ask.
 
 ## 2. Wait for the review
 
-Copilot reviews a few minutes after a PR opens or a push lands. If
-`reviewRequests` still names a reviewer, or the latest push is newer than the
-latest review, poll `gh pr view <N> --json reviews` every minute or two, for
-up to ~10 minutes. If nothing arrives, go on and say so in the final report.
+Copilot reviews a few minutes after a PR opens, once only: pushes to the PR
+don't bring a new review (the ruleset has re-review on push off, to save
+Copilot quota). If the PR has no review yet, poll `gh pr view <N> --json
+reviews` every minute or two, for up to ~10 minutes. If nothing arrives, go
+on and say so in the final report.
 
 ## 3. Triage every review comment
 
@@ -86,9 +87,8 @@ quarto render starter    # if starter/ changed
 ```
 
 Commit the fixes on the PR branch, with one message that lists what each
-review comment and drift fix changed, and push. If the push starts a new
-Copilot review, go back to step 2. Stop after two rounds and report whatever
-is still open.
+review comment and drift fix changed, and push. The push brings no new
+review, so this is a single round.
 
 ## 6. Wait for CI
 
