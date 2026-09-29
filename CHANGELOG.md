@@ -25,6 +25,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Fixed
 
+- Charts in a `layout-ncol` block no longer overflow a phone screen. Quarto stacks the cells there and each sized itself to the chart's initial 700px, so the chart never shrank to fit; `.quarto-layout-cell` now has `max-width: 100%`.
 - `VM.plotting.persistentPlot({height})` now takes effect below 500px. The `plotly-box-large` class's `min-height: 500px` overrode the inline height, so a `"320px"` secondary chart rendered 500px tall.
 
 ## [0.1.11] - 2026-09-28

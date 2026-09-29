@@ -6,9 +6,15 @@
 
 /* ── Output area ─────────────────────────────────────────────────── */
 
-/* Let layout-ncol cells shrink below the Plotly chart's intrinsic width */
+/* Let layout-ncol cells shrink below the Plotly chart's intrinsic width.
+ * min-width covers the side-by-side row; max-width covers a narrow screen,
+ * where Quarto stacks the cells in a column and each one otherwise sizes to
+ * its content -- the 700px a chart drawn while detached starts at -- so the
+ * chart never gets a smaller box to resize into and the page scrolls
+ * sideways. */
 .quarto-layout-cell {
   min-width: 0;
+  max-width: 100%;
 }
 
 /* 72vh rather than the 78vh this was while the step bar floated over the
