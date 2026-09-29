@@ -56,7 +56,7 @@ quarto render starter  # the starter site, through the extension the build mirro
 
 ## Releasing
 
-1. Run the **Release** workflow (Actions tab) with the new version. It runs `scripts/release.mjs` -- which sets the version in `package.json`, `_extensions/mathviz/_extension.yml` and `mathviz.lua`, moves `CHANGELOG.md`'s `Unreleased` section under it, and bumps the tag in the install snippets -- then rebuilds, tests and opens a release PR.
+1. Run the **Release** workflow (Actions tab) with the new version. It runs `scripts/release.mjs` -- which sets the version in `package.json`, `_extensions/mathviz/_extension.yml` and `mathviz.lua`, moves `CHANGELOG.md`'s `Unreleased` section under it, and bumps the tag in the install snippets -- then rebuilds, tests and opens a release PR. It opens the PR with the `RELEASE_TOKEN` repository secret, a fine-grained personal access token with Contents and Pull requests read/write on this repository, so the PR's CI runs as on any other; without the secret the workflow stops at its first step.
 2. Merge that PR once CI is green. `tag-release.yml` tags the version on `main`, and the docs site republishes.
 3. Sites using `kit/update-mathviz.sh` pick the release up on their next render. Others run `quarto update apurvanakade/mathviz@vX.Y.Z`, or change the tag in their jsDelivr URL.
 

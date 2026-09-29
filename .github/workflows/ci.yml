@@ -9,8 +9,7 @@ on:
   pull_request:
     # labeled/unlabeled so adding `no-changelog` re-runs the changelog job.
     types: [opened, synchronize, reopened, labeled, unlabeled]
-  # release.yml dispatches this on the release branch it pushes, since a
-  # push made with GITHUB_TOKEN starts no workflows.
+  # For re-running CI by hand from the Actions tab.
   workflow_dispatch:
 
 jobs:
