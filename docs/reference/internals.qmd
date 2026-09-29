@@ -101,6 +101,7 @@ The library writes these itself; a page never authors them.
 | `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |
 | `vm-fullscreen-toggle`, `vm-fs-figure` | the SVG fullscreen button |
 | `ojs-table-toolbar`, `ojs-table-container` | `VM.ui.renderTable` |
+| `vm-stat-row`, `vm-stat`, `vm-stat-label`, `vm-stat-value` | `VM.ui.statRow` |
 | `vm-embed`, `vm-app-active`, `vm-sidebar-open`, `vm-sidebar-pinned`, `vm-rail-cluster`, `vm-share-*`, `vm-report-bug-popup`, `vm-mobile-warning*`, `--vm-secondary-nav-height` | the opt-in [site extras](#site-extras) |
 | `--sx`, `--vm-plot-aspect-ratio`, `--vm-fs-plot-width`, `--vm-svg-aspect`, `--vm-swatch` | runtime layout state: a slider's fill fraction, fullscreen letterboxing, a swatch's tint |
 

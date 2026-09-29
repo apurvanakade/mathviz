@@ -1,6 +1,6 @@
 ---
 title: "VM.numerical"
-subtitle: "ODE steppers, quadrature, interpolation and least-squares fits"
+subtitle: "ODE steppers, quadrature, interpolation, least-squares fits and symmetric eigenvalues"
 ---
 
 <!--
@@ -158,4 +158,22 @@ Samples the unique quadratic through three points -- the parabola one Simpson pa
 
 ```{ojs}
 VM.numerical.lagrangeQuadratic(0, 0, 1, 1, 2, 4, 4)   // the parabola y = x² sampled at 0, .5, 1, 1.5, 2
+```
+
+## Eigenvalues
+
+### VM.numerical.symmetricEigenvalues(A, opts?) {#symmetricEigenvalues}
+
+Eigenvalues of a real symmetric matrix, by the cyclic Jacobi method: sweep over every off-diagonal entry, zeroing each with a plane rotation, until the off-diagonal part is negligible. `O(k³)` per sweep, so meant for the few-dozen-row matrices a page draws -- e.g. a random walk's symmetrized transition matrix `D^{1/2} P D^{-1/2}`, whose eigenvalues are `P`'s.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `A` | `number[][]` | | Symmetric `k × k` matrix. Symmetry is assumed, not checked; `A` is not modified. |
+| `opts.tolerance` | `number` | `1e-12` | Stop once the off-diagonal sum of squares falls below this fraction of the whole matrix's, so the result doesn't depend on the matrix's scale. |
+| `opts.maxSweeps` | `number` | `100` | Cap on sweeps. |
+
+**Returns** `number[]`, the `k` eigenvalues sorted descending, with multiplicity. `[]` for an empty matrix.
+
+```{ojs}
+VM.numerical.symmetricEigenvalues([[2, 1, 0], [1, 2, 1], [0, 1, 2]])   // 2 + √2, 2, 2 − √2
 ```

@@ -10,6 +10,17 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-09-28
+
+### Added
+
+- `VM.mcmc`, a new namespace for Markov chain Monte Carlo pages: `randomWalkMetropolis` (uniform or Gaussian steps, reproducible from a seeded generator), `gibbsBivariateNormal`, `evolveDistribution` and `totalVariation` for finite chains, and the diagnostics `runningMean`, `autocorrelation` and `effectiveSampleSize`.
+- `VM.numerical.symmetricEigenvalues`, the eigenvalues of a symmetric matrix by the Jacobi method.
+- `VM.discreteMath.randomWalkMatrix` (the simple or lazy random walk on a graph, with its stationary distribution) and `VM.discreteMath.springLayout` (a seeded force-directed layout for drawing the graph).
+- `VM.plotting.persistentPlot`, the draw-once, redraw-in-place Plotly chart that keeps the reader's zoom while a slider moves, so a page no longer writes that closure by hand.
+- `VM.ui.statRow`, a row of label-over-value readout tiles, styled by the new `vm-stat-*` classes.
+- `VM.ui.urlParam` and `VM.ui.syncUrlParams`, for inputs whose values live in the page's URL so the address bar is always a shareable link. A value at its default is left out of the URL.
+
 ## [0.1.10] - 2026-09-28
 
 0.1.8 and 0.1.9 were never tagged; their changes are part of this release.
@@ -115,7 +126,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.11...HEAD
+[0.1.11]: https://github.com/apurvanakade/mathviz/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/apurvanakade/mathviz/compare/v0.1.7...v0.1.10
 [0.1.7]: https://github.com/apurvanakade/mathviz/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/apurvanakade/mathviz/compare/v0.1.4...v0.1.6

@@ -14,13 +14,14 @@ The bundle attaches one global, `VM`, with a namespace per concern. Each source 
 | Namespace | What's in it | Depends on |
 |---|---|---|
 | [`VM.expressions`](expressions.qmd) | typed formulas → JavaScript functions and numbers, never throwing | math.js (passed in) |
-| [`VM.numerical`](numerical.qmd) | Euler and RK4 steppers, Simpson's rule, a Lagrange parabola, L1/L2/polynomial fits | -- (`polynomialFit` takes math.js) |
+| [`VM.numerical`](numerical.qmd) | Euler and RK4 steppers, Simpson's rule, a Lagrange parabola, L1/L2/polynomial fits, symmetric eigenvalues | -- (`polynomialFit` takes math.js) |
 | [`VM.sampling`](sampling.qmd) | seeded uniform and Gaussian generators | -- |
 | [`VM.filters`](filters.qmd) | moving average, EMA, scalar Kalman | -- |
 | [`VM.distributions`](distributions.qmd) | 16 closed-form PDFs/PMFs, `logGamma`, `sampleCurve`, `histogramBins` | -- |
-| [`VM.plotting`](plotting.qmd) | the theme (`colors`, `layout`, `plotOptions`, …), theme detection, the Plotly patch, fullscreen helpers | Plotly for the patch; otherwise none |
-| [`VM.ui`](ui.qmd) | legend overlay, results table, example presets, slider playback | `renderTable` needs htl's `html` |
-| [`VM.discreteMath`](discrete-math.qmd) | triangulations and Sperner colorings | -- |
+| [`VM.plotting`](plotting.qmd) | the theme (`colors`, `layout`, `plotOptions`, …), theme detection, a reusable Plotly chart, the Plotly patch, fullscreen helpers | Plotly for the patch; otherwise none |
+| [`VM.ui`](ui.qmd) | legend overlay, results table, stat readouts, URL state, example presets, slider playback | `renderTable` needs htl's `html` |
+| [`VM.mcmc`](mcmc.qmd) | Metropolis and Gibbs samplers, finite-chain evolution, total variation, running mean, autocorrelation, effective sample size | -- |
+| [`VM.discreteMath`](discrete-math.qmd) | triangulations, Sperner colorings, random-walk matrices and spring layouts | -- |
 
 ## Conventions
 
@@ -43,12 +44,14 @@ Nothing here imports anything. Where a function needs a library, it takes it as 
 | | Needs |
 |---|---|
 | `VM.expressions.*` (except `makeRational`), `VM.numerical.polynomialFit` | a math.js instance, **passed as the first argument** |
-| `VM.numerical.*`, `VM.sampling.*`, `VM.filters.*`, `VM.distributions.*`, `VM.discreteMath.*` | nothing |
+| `VM.numerical.*`, `VM.sampling.*`, `VM.filters.*`, `VM.distributions.*`, `VM.mcmc.*`, `VM.discreteMath.*` | nothing |
 | `VM.plotting.colors / colorway / alpha / themeName / onThemeChange / configure / subscript / paddedRange / plotOptions` | nothing (a `document` to read tokens from; sensible fallbacks without) |
 | `VM.plotting.layout / config / hoverLabel / emptyState / themePatch` | nothing -- they build plain objects. You need Plotly to *use* them, of course |
 | `VM.plotting.autoResize` | `ResizeObserver` (returns `null` without); safe when Plotly is absent |
-| `VM.plotting.installPlotlyPatch / fullscreenButton` | `window.Plotly` |
+| `VM.plotting.installPlotlyPatch / fullscreenButton / persistentPlot` | `window.Plotly` |
 | `VM.plotting.svgAspectRatio / figureBounds`, `VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame` | nothing -- pure helpers |
+| `VM.ui.statRow` | nothing -- plain DOM |
+| `VM.ui.urlParam / syncUrlParams` | `location` and `history`, unless `opts.search` is given |
 | `VM.ui.legendOverlay` | nothing -- plain DOM. It *implements* Observable's view contract; it doesn't require Observable |
 | `VM.ui.renderTable` | htl's `html` tag, passed in. Emits Bootstrap table classes |
 | `VM.ui.applyExampleParams` | views that follow Observable Inputs' `value` + `"input"` protocol |

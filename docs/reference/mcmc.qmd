@@ -1,0 +1,158 @@
+---
+title: "VM.mcmc"
+subtitle: "Markov chain samplers, finite chains and mixing diagnostics"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Two samplers, a finite-chain stepper, and the diagnostics that tell you whether a chain has mixed. Everything takes and returns plain arrays. The samplers draw from a generator you pass in, so a seeded one ([`VM.sampling.seededRandom`](sampling.qmd#seededRandom)) reproduces the same chain on every run.
+
+```{ojs}
+//| echo: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## Live
+
+A random-walk Metropolis chain targeting a standard normal. A small step accepts almost everything but crawls; a large one jumps far but is mostly rejected. The effective sample size is lowest at both extremes.
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+//| echo: false
+viewof mhScale = Inputs.range([0.05, 10], {label: "proposal half-width", step: 0.05, value: 1})
+```
+:::
+
+```{ojs}
+mhChain = VM.mcmc.randomWalkMetropolis({
+  logDensity: x => -x[0] * x[0] / 2,
+  start: [3], n: 2000, scale: mhScale,
+  rng: VM.sampling.seededRandom(1)
+})
+mhXs = mhChain.samples.map(s => s[0])
+```
+
+```{ojs}
+VM.ui.statRow([
+  {label: "acceptance", value: (mhChain.acceptedCount / (mhXs.length - 1)).toFixed(2)},
+  {label: "ESS", value: VM.mcmc.effectiveSampleSize(mhXs).toFixed(0), title: "effective sample size of 2000 draws"},
+  {label: "mean", value: VM.mcmc.runningMean(mhXs).at(-1).toFixed(3)}
+])
+```
+
+```{ojs}
+{
+  const c = chartColors
+  const acf = VM.mcmc.autocorrelation(mhXs, 40)
+  const trace = Plot.plot(VM.plotting.plotOptions({
+    height: 220, x: {label: "step"}, y: {label: "x"},
+    marks: [Plot.line(mhXs, {x: (d, i) => i, y: d => d, stroke: c.fn, strokeWidth: 1})]
+  }))
+  const acfPlot = Plot.plot(VM.plotting.plotOptions({
+    height: 180, x: {label: "lag"}, y: {label: "autocorrelation", domain: [-0.2, 1]},
+    marks: [Plot.ruleY([0]), Plot.ruleX(acf, {x: (d, i) => i, y1: 0, y2: d => d, stroke: c.alt, strokeWidth: 3})]
+  }))
+  return html`<div>${trace}${acfPlot}</div>`
+}
+```
+
+## Samplers
+
+### VM.mcmc.randomWalkMetropolis({logDensity, start, n, scale, rng, proposal?}) {#randomWalkMetropolis}
+
+Random-walk Metropolis. From `x`, propose `y = x + step` with a symmetric step, and accept with probability `min(1, pi(y) / pi(x))`.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `logDensity` | `(x: number[]) => number` | | Log target density, up to an additive constant. For a uniform target on a region, return `0` inside and `-Infinity` outside: proposals outside are always rejected. |
+| `start` | `number[]` | | Initial state. Its length sets the dimension; a one-dimensional chain uses `[x0]`. |
+| `n` | `number` | | Number of states returned, **including** `start`. Must be a positive integer, or a `RangeError` is thrown. |
+| `scale` | `number` | | Proposal half-width (`"uniform"`) or standard deviation (`"gaussian"`). |
+| `rng` | `() => number` | | Uniform `[0, 1)` generator. |
+| `proposal` | `string` | `"uniform"` | `"uniform"`: each coordinate `U(-scale, scale)`. `"gaussian"`: each coordinate `N(0, scale²)`. |
+
+**Returns** `{samples, proposals, accepted, acceptedCount}`. The three arrays have length `n` and are indexed by step: `samples[t]` is the state after step `t`, `proposals[t]` the point proposed at step `t`, and `accepted[t]` whether it was taken. At index `0` (the start), `proposals[0]` is `null` and `accepted[0]` is `true`. `acceptedCount` counts only steps `1..n-1`, so the acceptance rate is `acceptedCount / (n - 1)`.
+
+Each step consumes randomness in a fixed order: the proposal's coordinates, then one uniform for the accept test. So a seeded `rng` reproduces the chain, and two runs that differ only in `scale` share their underlying draws, which makes a scale slider change the chain smoothly instead of reshuffling it. A start outside the support (log density `-Infinity`) accepts the first proposal that lands inside it.
+
+### VM.mcmc.gibbsBivariateNormal({rho, n, start, gaussian}) {#gibbsBivariateNormal}
+
+Systematic-scan Gibbs sampler for a standard bivariate normal with correlation `rho`. Each sweep draws `x ~ N(rho·y, 1 − rho²)` and then `y ~ N(rho·x, 1 − rho²)`, so the chain moves in axis-parallel steps.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `rho` | `number` | Correlation, strictly inside `(-1, 1)`. Not validated; at `|rho| = 1` the chain never moves. |
+| `n` | `number` | Number of sweeps. |
+| `start` | `[x0, y0]` | Initial point. |
+| `gaussian` | `() => number` | Standard-normal generator, e.g. `VM.sampling.gaussianRandom(VM.sampling.seededRandom(seed))`. Two draws per sweep, x first. |
+
+**Returns** `{x, y, halfX, halfY}`, arrays of length `n + 1` with index `0` the start. `(x[t], y[t])` is the state after sweep `t`, and `(halfX[t], halfY[t]) = (x[t], y[t−1])` is the corner between its two moves. Joining start, corner and end of each sweep draws the staircase that shows why a strongly correlated target mixes slowly.
+
+```{ojs}
+VM.mcmc.gibbsBivariateNormal({rho: 0.9, n: 3, start: [0, 0], gaussian: VM.sampling.gaussianRandom(VM.sampling.seededRandom(2))})
+```
+
+## Finite chains
+
+### VM.mcmc.evolveDistribution(P, p0, steps) {#evolveDistribution}
+
+Pushes a distribution forward through a finite Markov chain, `p_{t+1} = p_t P`, with distributions as row vectors.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `P` | `number[][]` | `k × k` transition matrix; `P[i][j]` is the probability of moving from `i` to `j`. Rows should sum to 1 (not validated). |
+| `p0` | `number[]` | Initial distribution, length `k`. |
+| `steps` | `number` | Number of steps to take. |
+
+**Returns** `number[][]`: `steps + 1` distributions, `[p0, p1, …, p_steps]`. `p0` is copied, not aliased.
+
+### VM.mcmc.totalVariation(p, q) {#totalVariation}
+
+Total variation distance `½ Σ |p_i − q_i|` between two distributions on the same finite set: the largest difference in probability they assign to any one event, and the distance mixing times are measured in. `q` must have the same length as `p` (not validated).
+
+**Returns** `number`, in `[0, 1]` for probability vectors.
+
+```{ojs}
+{
+  const P = [[0.9, 0.1], [0.5, 0.5]]
+  const ps = VM.mcmc.evolveDistribution(P, [0, 1], 5)
+  const stationary = [5 / 6, 1 / 6]
+  return ps.map(p => VM.mcmc.totalVariation(p, stationary).toFixed(4))   // shrinks by 0.4 each step
+}
+```
+
+## Diagnostics
+
+### VM.mcmc.runningMean(values) {#runningMean}
+
+Cumulative mean: `out[i]` is the average of `values[0..i]`. Draw it to show a Monte Carlo estimate converging.
+
+**Returns** `number[]`, same length as `values` (`[]` for an empty series). Non-finite entries are not skipped: one `NaN` makes every later mean `NaN`.
+
+### VM.mcmc.autocorrelation(values, maxLag?) {#autocorrelation}
+
+Sample autocorrelation function: `acf[k]` is the correlation between `x[t]` and `x[t + k]`. It uses the biased estimator (whole-series mean, lag-0 sum of squares as the denominator), so every value lies in `[-1, 1]`.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `values` | `number[]` | | The series, e.g. one coordinate of a chain. |
+| `maxLag` | `number` | `50` | Largest lag returned; capped at `values.length − 1`. |
+
+**Returns** `number[]`, `acf[0..maxLag]` with `acf[0] = 1`. A constant series returns `[1, 0, 0, …]` rather than `NaN`s, and an empty or one-element series returns `[1]`. Whether a series counts as constant is judged relative to its own magnitude, so rescaling a series never changes its autocorrelations.
+
+### VM.mcmc.effectiveSampleSize(values, maxLag?) {#effectiveSampleSize}
+
+Effective sample size, `n / (1 + 2·(rho_1 + rho_2 + …))`. The sum stops before the first autocorrelation that is `<= 0`, so the noisy tail of the ACF doesn't swamp it.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `values` | `number[]` | | The series. |
+| `maxLag` | `number` | `1000` | Largest lag the sum may reach. |
+
+**Returns** `number`, never more than `n`: a chain whose lag-1 autocorrelation is already negative counts as independent. `0` for an empty series. `NaN` for a chain that never moves (every value equal), because its autocorrelation is undefined and reporting `n` would call the worst possible chain a perfectly mixing one.

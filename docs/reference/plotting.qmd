@@ -192,6 +192,26 @@ Keeps a graph div sized to its container, and stops once the div leaves the docu
 
 **Returns** the `ResizeObserver`, or `null` where `ResizeObserver` doesn't exist. Skips resizing while the div is hidden (`display: none`) and is safe when Plotly isn't loaded.
 
+### VM.plotting.persistentPlot(opts?) {#persistentPlot}
+
+The draw-once, redraw-in-place chart closure most pages write by hand, packaged. Call it once in a cell that depends on nothing reactive, and call the function it returns from the cell that builds the traces:
+
+```js
+mainPlot = VM.plotting.persistentPlot()
+```
+```js
+mainPlot(traces, VM.plotting.layout({xaxis: {title: {text: "x"}}}))
+```
+
+The first call creates the div, `Plotly.newPlot`s into it and hands it to [`autoResize`](#autoResize). Every later call `Plotly.react`s into the same div, which (with `uirevision`) keeps the reader's zoom and pan while a slider moves.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `opts.className` | `string` | `"plotly-box-large"` | Class of the graph div. |
+| `opts.height` | `string` | | Inline CSS height, for a secondary chart that shouldn't take the main chart's box, e.g. `"320px"`. |
+
+**Returns** `(data, layout, config?) => HTMLElement`, which draws or redraws and returns the same div every time. `config` defaults to [`config()`](#config). Needs `window.Plotly`.
+
 ### VM.plotting.paddedRange(values, opts?) {#paddedRange}
 
 A `{lo, hi}` axis range covering an array of values with some breathing room.

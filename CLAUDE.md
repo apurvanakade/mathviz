@@ -91,11 +91,11 @@ Consumers then `quarto update apurvanakade/mathviz@vX.Y.Z`, or bump the tag in t
 
 ## API surface
 
-`window.VM` has eight namespaces — `expressions`, `numerical`, `sampling`, `filters`, `distributions`, `plotting`, `ui`, `discreteMath` — one per `src/js/<category>/` folder. When adding a category, follow the same pattern (a new folder, a new `VM.<category>`, a new `docs/reference/<category>.qmd`, a new entry in the `pageFor` map in `scripts/docs-coverage.test.js`) rather than adding flat top-level functions.
+`window.VM` has nine namespaces — `expressions`, `numerical`, `sampling`, `filters`, `distributions`, `plotting`, `ui`, `mcmc`, `discreteMath` — one per `src/js/<category>/` folder. When adding a category, follow the same pattern (a new folder, a new `VM.<category>`, a new `docs/reference/<category>.qmd`, a new entry in the `pageFor` map in `scripts/docs-coverage.test.js`) rather than adding flat top-level functions.
 
 Signatures and behaviour live in the JSDoc in each source file and, with context and live examples, in `docs/reference/`. Don't duplicate them here. What belongs here is what a consumer doesn't need and an editor does — the invariants below.
 
-Files that export more than one member, by design: `plotting/chart-theme.js` (14 — the theme is one concern), `ui/slider-play.js` (`playbackDuration`, `playbackFrame`, and the number `playbackTweenMs`), `filters/kalman-1d-filter.js` (`kalman1DStep`, `kalman1DFilter`), `plotting/plotly-fullscreen-button.js` (`fullscreenButton` object, `installPlotlyPatch`), `plotting/svg-fullscreen-button.js` and `ui/draggable-overlay.js` (two pure helpers each, exported for tests). `ui/range-progress.js` exports nothing.
+Files that export more than one member, by design: `plotting/chart-theme.js` (14 — the theme is one concern), `ui/slider-play.js` (`playbackDuration`, `playbackFrame`, and the number `playbackTweenMs`), `filters/kalman-1d-filter.js` (`kalman1DStep`, `kalman1DFilter`), `ui/url-params.js` (`urlParam`, `syncUrlParams`), `plotting/plotly-fullscreen-button.js` (`fullscreenButton` object, `installPlotlyPatch`), `plotting/svg-fullscreen-button.js` and `ui/draggable-overlay.js` (two pure helpers each, exported for tests). `ui/range-progress.js` exports nothing.
 
 ## Invariants and gotchas
 

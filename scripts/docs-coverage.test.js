@@ -32,6 +32,7 @@ const pageFor = {
   distributions: 'distributions',
   plotting: 'plotting',
   ui: 'ui',
+  mcmc: 'mcmc',
   discreteMath: 'discrete-math'
 }
 
