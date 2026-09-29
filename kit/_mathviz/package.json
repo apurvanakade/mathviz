@@ -1,0 +1,11 @@
+{
+  "name": "mathviz-local",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Functions this site adds to mathviz, laid out as mathviz's src/ so they can move upstream file-for-file.",
+  "scripts": {
+    "test": "node --test",
+    "build": "node scripts/build.mjs"
+  }
+}

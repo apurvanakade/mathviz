@@ -1,7 +1,7 @@
 ---
 name: land-pr
-description: Land a mathviz pull request (by default the standing "Sync from VisualMathLab" PR) -- address its review comments, catch docs/CHANGELOG drift the tests can't see, wait for CI, then squash-merge. Use when asked to merge, land, finish or review-and-merge a PR in this repository.
-argument-hint: "[PR number]  (default: the open sync/from-visualmathlab PR)"
+description: Land a mathviz pull request (by default the one for the current branch) -- address its review comments, catch docs/CHANGELOG drift the tests can't see, wait for CI, then squash-merge. Use when asked to merge, land, finish or review-and-merge a PR in this repository.
+argument-hint: "[PR number]  (default: the current branch's PR)"
 ---
 
 # Land a pull request
@@ -12,7 +12,7 @@ below, in order. Never pass `--auto` or `--admin` to `gh pr merge`.
 ## 1. Find the PR and take it off auto-merge
 
 ```sh
-gh pr list --head sync/from-visualmathlab --state open   # if no number was given
+gh pr view --json number                                 # if no number was given: the current branch's PR
 gh pr view <N> --json number,title,headRefName,autoMergeRequest,reviewRequests,mergeable
 ```
 
@@ -39,22 +39,17 @@ gh api repos/apurvanakade/mathviz/pulls/<N>/comments   # inline comments
 
 Only unresolved threads need handling. For each one, decide:
 
-- **Relevant, and in a file authored here** (`docs/**`, `starter/**` except
-  its `_extensions/` mirror, `CHANGELOG.md`, root Markdown, `.github/**`,
-  `scripts/*.test.js`): fix it.
-- **Relevant, but in a mirrored file** (`src/**`, `scripts/build.mjs`,
-  `scripts/load-vm.mjs`, `package.json`, `_extensions/mathviz/{_extension.yml,mathviz.lua}`):
-  do **not** edit it here, because the next sync overwrites it. Reply that the fix
-  belongs in VisualMathLab's `_mathviz/`, and list it for the user. If it is a
-  real bug, ask the user before merging.
+- **Relevant**: fix it. Generated files (`dist/`, `_extensions/mathviz/dist/`,
+  `starter/_extensions/`) are fixed at the source and rebuilt, never by hand.
+  If the fix changes library behaviour beyond what the PR set out to do, ask
+  the user before merging.
 - **Not relevant** (wrong, already handled, or style that contradicts
   CLAUDE.md, e.g. asking for `.map()` chains): don't change anything.
 
 Reply to every thread with one line saying what was done, or why nothing
 was (`gh api .../pulls/<N>/comments/<id>/replies -f body=...`). Resolve the
 ones you fixed or declined, using the `resolveReviewThread` GraphQL mutation (look
-up thread ids with `pullRequest.reviewThreads`). Leave the mirrored-file
-threads open.
+up thread ids with `pullRequest.reviewThreads`).
 
 ## 4. Drift pass: what the tests can't see
 
@@ -102,13 +97,13 @@ gh pr checks <N> --watch --fail-fast
 ```
 
 If a check fails, read the log (`gh run view <run-id> --log-failed`), fix it,
-and go back to step 5. A failure in mirrored code is not fixed here: stop and
-tell the user.
+and go back to step 5. If the fix would change library behaviour beyond the
+PR's scope, stop and tell the user.
 
 ## 7. Merge
 
-Only when every check is green, every thread is replied to, and no
-mirrored-file bug is waiting on the user:
+Only when every check is green, every thread is replied to, and nothing is
+waiting on the user:
 
 ```sh
 gh pr merge <N> --squash --delete-branch
@@ -128,8 +123,6 @@ git push origin --delete <head-branch> 2>/dev/null   # remote, if the merge left
 git fetch --prune
 ```
 
-The sync branch can be deleted like any other. The mirror workflow recreates
-it from `main` on the next sync.
-
-Report the result: the comments fixed, declined (with the reason) or left for
-VisualMathLab, the drift fixed, the merge commit, and the branch deleted.
+Report the result: the comments fixed or declined (with the reason), the
+drift fixed, the merge commit, and the branch deleted. For a release PR, also
+confirm `tag-release.yml` tagged the version (`gh run list -w "Tag release"`).

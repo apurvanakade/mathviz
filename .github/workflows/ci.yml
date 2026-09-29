@@ -9,6 +9,9 @@ on:
   pull_request:
     # labeled/unlabeled so adding `no-changelog` re-runs the changelog job.
     types: [opened, synchronize, reopened, labeled, unlabeled]
+  # release.yml dispatches this on the release branch it pushes, since a
+  # push made with GITHUB_TOKEN starts no workflows.
+  workflow_dispatch:
 
 jobs:
   check:
@@ -37,11 +40,9 @@ jobs:
       - run: quarto render starter
 
   # A pull request that changes the library must say so in CHANGELOG.md.
-  # Sync PRs arrive without an entry (the change was authored in
-  # VisualMathLab), so this keeps them red until one is written on the sync
-  # branch -- the same arrangement as docs-coverage. Three syncs once landed
-  # with none and had to be back-filled. A change with nothing to tell a
-  # consumer (a test, a comment) can carry the `no-changelog` label.
+  # Three changes once landed with none and had to be back-filled. A change
+  # with nothing to tell a consumer (a test, a comment) can carry the
+  # `no-changelog` label.
   changelog:
     if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'no-changelog')
     runs-on: ubuntu-latest

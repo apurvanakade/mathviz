@@ -4,10 +4,8 @@
  * Authors: Apurva Nakade
  */
 
-// Lives in scripts/ rather than src/ on purpose: src/ is mirrored from
-// VisualMathLab (see CLAUDE.md) with `rsync --delete`, and this test is
-// authored here -- it checks docs/reference/, which is also authored here.
-// A copy left in src/ would be deleted by the next sync.
+// Lives in scripts/ rather than src/ because it tests docs/, not a
+// function: the tests under src/ are one per source file.
 //
 // Keeps docs/reference/ complete: every member the bundle attaches to
 // VM.<category> must have a `### VM.<category>.<name>` heading in that

@@ -57,6 +57,12 @@ quarto update apurvanakade/mathviz@v0.1.11    # a specific tag
 quarto add apurvanakade/mathviz@v0.1.11       # pin at install time
 ```
 
+To stay on the latest release without thinking about it, run the [site kit](https://github.com/apurvanakade/mathviz/tree/main/kit)'s `update-mathviz.sh` as a `pre-render` hook. It updates the extension before each render and keeps the installed copy when you're offline.
+
+### Adding your own functions
+
+A site that needs functions mathviz doesn't have can keep them in a second, local extension that loads after mathviz and adds to the same `VM`. The [site kit](https://github.com/apurvanakade/mathviz/tree/main/kit) has the template: copy it in and add `mathviz-local` after `mathviz` under `filters:`. It is laid out like mathviz's own source, so a function other sites could use can go upstream as a pull request.
+
 ## Any other web page
 
 ```html

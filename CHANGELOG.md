@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- A site kit (`kit/`) for sites that use mathviz: `update-mathviz.sh`, a pre-render hook that keeps the extension on the latest release, and a `mathviz-local` overlay template for a site's own functions, laid out like `src/` so they can move upstream as a pull request (`scripts/port.mjs` does the copy).
+
+### Changed
+
+- mathviz is now where its library code is authored. Changes arrive as pull requests here, not by mirroring from Visual Math Lab. Releases are cut with the new `Release` workflow, and the tag follows automatically when the release PR merges.
+
 ## [0.1.11] - 2026-09-28
 
 ### Added

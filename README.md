@@ -13,13 +13,6 @@ use it.
 
 **Documentation: <https://apurvanakade.github.io/mathviz/>**
 
-> **Note for contributors.** The library's code (`src/`, the build scripts and
-> the extension's `_extension.yml`/`mathviz.lua`) is authored in
-> [VisualMathLab](https://github.com/apurvanakade/VisualMathLab) under
-> `_mathviz/` and mirrored here; the docs, the starter and this repository's
-> chrome are authored here. See [CONTRIBUTING.md](CONTRIBUTING.md) for which
-> is which.
-
 ## Quick start
 
 **A new site** -- copy the starter, a complete Quarto website with seven
@@ -33,6 +26,11 @@ quarto preview
 
 Then copy any page, rename it, and edit its cells. [`starter/README.md`](starter/README.md)
 lists what each page shows.
+
+**A site that adds functions of its own** -- copy in the [site kit](kit/): a
+pre-render hook that keeps mathviz on the latest release, and a local overlay
+laid out like `src/`, so anything worth sharing moves upstream as a pull
+request.
 
 **An existing Quarto site:**
 
@@ -71,7 +69,7 @@ The site is the repository's `docs/` folder rendered with Quarto; `quarto previe
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: edit `src/`, add JSDoc and a reference entry, `npm test`, `npm run build`, commit `dist/` too. Changes are listed in [CHANGELOG.md](CHANGELOG.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: edit `src/` (or port from your site's overlay with `scripts/port.mjs`), add JSDoc and a reference entry, `npm test`, `npm run build`, commit `dist/` too. Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
