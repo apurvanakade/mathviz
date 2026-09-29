@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Two generator factories. Each returns a zero-argument function you call for the next value, so a page seeds once and draws as many samples as it needs -- and because the seed can live in the URL, a link reproduces exactly the same "random" data.
+Three generator factories. Each returns a zero-argument function you call for the next value, so a page seeds once and draws as many samples as it needs -- and because the seed can live in the URL, a link reproduces exactly the same "random" data.
 
 ```{ojs}
 //| echo: false
@@ -60,3 +60,24 @@ Box-Muller transform: turns a uniform generator into a standard-normal one (mean
 ```
 
 See the starter's [distribution-explorer.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd) for these feeding a histogram under a theoretical curve.
+
+### VM.sampling.exponentialRandom(rng, rate?) {#exponentialRandom}
+
+Inverse transform: turns a uniform generator into an Exponential(`rate`) one, mean `1 / rate`, via `−log(1 − U) / rate`.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `rng` | `() => number` | | A uniform `[0, 1)` generator -- typically `seededRandom`'s return value. One draw is consumed per sample. |
+| `rate` | `number` | `1` | Must be `> 0`; not validated. |
+
+**Returns** `() => number`, Exponential(`rate`).
+
+```{ojs}
+{
+  const draw = VM.sampling.exponentialRandom(VM.sampling.seededRandom(seed), 2)
+  let sum = 0
+  const n = 10000
+  for (let i = 0; i < n; i++) sum += draw()
+  return html`Over ${n} draws with rate 2: mean <b>${(sum / n).toFixed(3)}</b> (expected 0.5)`
+}
+```

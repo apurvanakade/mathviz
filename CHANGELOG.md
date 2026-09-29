@@ -12,11 +12,21 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Added
 
+- CDFs and quantiles in `VM.distributions`: `normalCdf`, `normalQuantile`, `chiSquaredCdf` and `chiSquaredQuantile`, with the incomplete gamma function they are built on as `regularizedGamma`. They give exact answers and critical values to compare a Monte Carlo estimate against.
+- `VM.distributions.sampleStats`, the mean, variance (`n − 1` or, with `ddof: 0`, `n`) and standard deviation of an array of draws.
+- `VM.sampling.exponentialRandom`, an Exponential(rate) generator from a seeded uniform one.
+- `VM.filters.systematicResample`, the resampling step of a particle filter.
+- `VM.plotting.plotWithLegend`, a chart with mathviz's overlay legend in one cell, for figures with no controls of their own. Hiding a trace keeps the axes and grid where they were. `VM.plotting.legendItems` and `VM.plotting.lockedAxes` are the legend rows and pinned axis ranges it builds.
 - A site kit (`kit/`) for sites that use mathviz: `update-mathviz.sh`, a pre-render hook that keeps the extension on the latest release, and a `mathviz-local` overlay template for a site's own functions, laid out like `src/` so they can move upstream as a pull request (`scripts/port.mjs` does the copy).
 
 ### Changed
 
 - mathviz is now where its library code is authored. Changes arrive as pull requests here, not by mirroring from Visual Math Lab. Releases are cut with the new `Release` workflow, and the tag follows automatically when the release PR merges.
+
+### Fixed
+
+- Charts in a `layout-ncol` block no longer overflow a phone screen. Quarto stacks the cells there and each sized itself to the chart's initial 700px, so the chart never shrank to fit; `.quarto-layout-cell` now has `max-width: 100%`.
+- `VM.plotting.persistentPlot({height})` now takes effect below 500px. The `plotly-box-large` class's `min-height: 500px` overrode the inline height, so a `"320px"` secondary chart rendered 500px tall.
 
 ## [0.1.11] - 2026-09-28
 

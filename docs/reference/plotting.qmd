@@ -208,9 +208,36 @@ The first call creates the div, `Plotly.newPlot`s into it and hands it to [`auto
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `opts.className` | `string` | `"plotly-box-large"` | Class of the graph div. |
-| `opts.height` | `string` | | Inline CSS height, for a secondary chart that shouldn't take the main chart's box, e.g. `"320px"`. |
+| `opts.height` | `string` | | Inline CSS height, for a secondary chart that shouldn't take the main chart's box, e.g. `"320px"`. Sets `min-height` to the same value, so it holds below the box's own 500px minimum. |
 
 **Returns** `(data, layout, config?) => HTMLElement`, which draws or redraws and returns the same div every time. `config` defaults to [`config()`](#config). Needs `window.Plotly`.
+
+### VM.plotting.plotWithLegend(plot, data, layout) {#plotWithLegend}
+
+For a figure with no controls of its own: draws the chart with a [`VM.ui.legendOverlay`](ui.qmd#legendOverlay) over it instead of Plotly's legend, and returns both wrapped in an `.ojs-chart-block`, in one cell. Clicking a row hides or shows every trace of that name; unnamed traces and `showlegend: false` ones are always drawn. Hiding a trace never rescales the chart or moves its grid: the first click pins every axis at the range it had with all traces shown (see [`lockedAxes`](#lockedAxes)), and a new call -- new data, a theme toggle -- starts unpinned again. It is the three-cell `viewof` wiring the legend's reference shows, for pages with many such figures.
+
+```js
+figPlot = VM.plotting.persistentPlot({height: "360px"})
+```
+```js
+VM.plotting.plotWithLegend(figPlot, traces, {xaxis: {title: "n"}})
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `plot` | `(data, layout) => HTMLElement` | A chart function, such as `persistentPlot()`'s return value. |
+| `data` | `Object[]` | Plotly traces. |
+| `layout` | `Object` | Plotly layout; `showlegend` is forced `false`. |
+
+**Returns** the `div.ojs-chart-block`: a div holding the legend, then the one `plot` returned. With no named traces it holds only the chart. The legend hides below a 600px-wide chart, like every overlay legend, and then every trace is drawn.
+
+### VM.plotting.legendItems(data) {#legendItems}
+
+The legend rows `plotWithLegend` builds: `{label, color}` for each trace with a `name` and without `showlegend: false`, in trace order, one row per name. The color is the trace's `line.color`, else its `marker.color` (when a single color), else its `fillcolor`.
+
+### VM.plotting.lockedAxes(fullLayout, layout) {#lockedAxes}
+
+The layout overrides `plotWithLegend` uses to pin a chart's axes: `{xaxis: {...layout.xaxis, range, autorange: false}, ...}` for every cartesian axis (`xaxis`, `yaxis`, `xaxis2`, ...) in a drawn div's `_fullLayout`, at the range Plotly resolved -- already in log units on a log axis, which is what `range` expects there. An axis with a `range` in the page's own `layout` is left out, and so is everything that isn't a cartesian axis (a 3-D `scene`). `{}` when `fullLayout` is missing.
 
 ### VM.plotting.paddedRange(values, opts?) {#paddedRange}
 

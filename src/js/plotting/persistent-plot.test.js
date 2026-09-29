@@ -26,6 +26,8 @@ test('persistentPlot creates the div once, then reacts on the same div', () => {
   assert.equal(first, second)
   assert.equal(first.className, 'plotly-box-large')
   assert.equal(first.style.height, '300px')
+  // plotly-box-large's min-height: 500px would otherwise override it.
+  assert.equal(first.style.minHeight, '300px')
   assert.deepEqual(calls.map((c) => c[0]), ['newPlot', 'react'])
   VM.plotting.autoResize = originalAutoResize
 })

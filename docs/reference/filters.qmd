@@ -84,6 +84,21 @@ Runs `kalman1DStep` over a precomputed array.
 
 **Returns** `{xs, Ps, Ks}` -- estimate, error variance and gain after each step, each the same length as `zs` (all empty for an empty input).
 
+### VM.filters.systematicResample(weights, u) {#systematicResample}
+
+The resampling step of a particle filter. `n` evenly spaced pointers `(i + u) / n` are read off the cumulative weights, so particle `j` is copied either ⌊n·w~j~⌋ or ⌈n·w~j~⌉ times -- lower variance than `n` independent draws, from a single uniform.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `weights` | `number[]` | Non-negative particle weights; normalized here, so they need not sum to 1. |
+| `u` | `number` | One uniform draw in `[0, 1)`, e.g. `rng()`. |
+
+**Returns** `number[]` -- `weights.length` indices into `weights`, in increasing order. `[]` for an empty array or when every weight is 0.
+
+```{ojs}
+VM.filters.systematicResample([0.1, 0.5, 0.15, 0.25], 0.3)
+```
+
 ## The three side by side
 
 ```{ojs}

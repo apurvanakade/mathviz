@@ -36,7 +36,7 @@ A floating legend of clickable swatch+label rows that toggles which traces a cha
 viewof shown = VM.ui.legendOverlay([{label: "f(x)", color: chartColors.fn}, {label: "f'(x)", color: chartColors.alt}])
 ```
 
-and `shown` is the array of checked labels. Put the cell inside the chart's `.ojs-chart-block`: the CSS floats it over the chart's top-left corner, and the draggable-legend module picks it up.
+and `shown` is the array of checked labels. Put the cell inside the chart's `.ojs-chart-block`: the CSS floats it over the chart's top-left corner, and the draggable-legend module picks it up. For a figure with no controls, [`VM.plotting.plotWithLegend`](plotting.qmd#plotWithLegend) does this wiring in one cell.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
