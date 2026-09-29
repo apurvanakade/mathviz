@@ -146,6 +146,21 @@ Bins an array of draws into equal-width bins, normalized to **densities** so the
 
 See the starter's [distribution-explorer.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd) for the histogram-under-a-curve chart.
 
+### VM.distributions.sampleStats(values, opts?) {#sampleStats}
+
+Mean, variance and standard deviation of an array of draws, in one pass (Welford's update, which stays accurate when the mean is large compared with the spread).
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `values` | `number[]` | | The draws. |
+| `opts.ddof` | `number` | `1` | The variance divides by `n − ddof`: `1` is the unbiased sample variance, `0` the population variance of the values themselves (NumPy's `np.var` default). |
+
+**Returns** `{n, mean, variance, sd}`. `mean` is `NaN` for an empty array; `variance` and `sd` are `NaN` when `n ≤ ddof`.
+
+```{ojs}
+VM.distributions.sampleStats([2, 4, 4, 4, 5, 5, 7, 9], {ddof: 0})
+```
+
 ## Discrete masses
 
 All return `0` when `k` is not an integer in the support.
@@ -215,3 +230,37 @@ The Cauchy has no mean and no variance, so `location` is its **median** and `sca
 ### VM.distributions.weibullPdf(x, shape, scale) {#weibullPdf}
 
 Parameterized by **scale**, not rate, so `shape = 1` is the exponential with rate `1 / scale`. Shape below 1 gives a failure rate that falls with age, above 1 one that rises. `0` for `x < 0` or a non-positive parameter; at `x = 0` the density is `1/scale` when `shape = 1` and `0` otherwise.
+
+## CDFs and quantiles
+
+For a critical value, a p-value, or the exact answer a Monte Carlo estimate is compared against.
+
+### VM.distributions.regularizedGamma(a, x) {#regularizedGamma}
+
+The regularized incomplete gamma functions: `lower` is P(a, x), the CDF at `x` of a Gamma(shape `a`, rate 1) variable, and `upper` is Q(a, x) = 1 − P(a, x). So `regularizedGamma(shape, rate * x).lower` is the Gamma(shape, rate) CDF. Both are returned because each is computed directly where it is accurate (the series below `a + 1`, the continued fraction above), so a small tail probability keeps its relative precision instead of coming out as `1 − 1 = 0`.
+
+**Returns** `{lower, upper}`. `{lower: 0, upper: 1}` for `x ≤ 0`; both `NaN` for `a ≤ 0` or a `NaN` input.
+
+### VM.distributions.normalCdf(x, mean?, variance?) {#normalCdf}
+
+P(X ≤ x) for X ~ Normal(mean, variance), defaulting to the standard normal. Parameterized by **variance**, like `normalPdf`. Accurate to about 1e-15, and relatively accurate far into either tail: `normalCdf(-10)` is about 7.6e-24, not 0. `NaN` for `variance ≤ 0`.
+
+### VM.distributions.normalQuantile(p, mean?, variance?) {#normalQuantile}
+
+The inverse of `normalCdf`: `normalQuantile(0.975)` is the 1.96 of a 95% confidence interval. Acklam's approximation refined by one Halley step, so it is accurate to double precision. `-Infinity` at `p = 0`, `Infinity` at `p = 1`, `NaN` outside `[0, 1]` or for `variance ≤ 0`.
+
+### VM.distributions.chiSquaredCdf(x, k) {#chiSquaredCdf}
+
+`k` degrees of freedom -- exactly `regularizedGamma(k / 2, x / 2).lower`. `0` for `x ≤ 0`.
+
+### VM.distributions.chiSquaredQuantile(p, k) {#chiSquaredQuantile}
+
+The x with `chiSquaredCdf(x, k) = p`, i.e. the critical value of a chi-squared test at significance `1 − p`. Found by bisection, so it is exact to about 1e-12 relative but costs a hundred or so CDF evaluations: compute a critical value once, not inside a loop over thousands of points. `0` at `p = 0`, `Infinity` at `p = 1`, `NaN` outside `[0, 1]` or for `k ≤ 0`.
+
+```{ojs}
+({
+  z95: VM.distributions.normalQuantile(0.975),
+  chi2_95_3df: VM.distributions.chiSquaredQuantile(0.95, 3),
+  upperTailBeyond2: 1 - VM.distributions.normalCdf(2)
+})
+```

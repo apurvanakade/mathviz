@@ -24,7 +24,9 @@
    * @param {string} [opts.className="plotly-box-large"] - Class of the
    *   graph div; `plotly-box-large` is mathviz's 72vh main-chart box.
    * @param {string} [opts.height] - Inline CSS height, for a secondary chart
-   *   that shouldn't take the main chart's box (e.g. `"320px"`).
+   *   that shouldn't take the main chart's box (e.g. `"320px"`). It sets the
+   *   min-height too, since the class's own min-height (500px) would
+   *   otherwise win over any smaller height.
    * @returns {(data: Object[], layout: Object, config?: Object) => HTMLElement}
    *   Draws or redraws and returns the same div every time. `config`
    *   defaults to `VM.plotting.config()`.
@@ -39,7 +41,10 @@
       if (div === null) {
         div = document.createElement("div")
         div.className = className
-        if (opts.height !== undefined) div.style.height = opts.height
+        if (opts.height !== undefined) {
+          div.style.height = opts.height
+          div.style.minHeight = opts.height
+        }
         Plotly.newPlot(div, data, layout, plotConfig)
         globalThis.VM.plotting.autoResize(div)
       } else {

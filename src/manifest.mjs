@@ -23,6 +23,7 @@ export const js = [
   'plotting/plotly-fullscreen-button.js',
   'plotting/svg-fullscreen-button.js',
   'plotting/persistent-plot.js',
+  'plotting/plot-with-legend.js',
   'numerical/linear-regression.js',
   'numerical/l1-regression.js',
   'numerical/polynomial-fit.js',
@@ -33,9 +34,16 @@ export const js = [
   'numerical/symmetric-eigenvalues.js',
   'sampling/seeded-random.js',
   'sampling/gaussian-random.js',
+  'sampling/exponential-random.js',
   'distributions/log-gamma.js',
   'distributions/sample-curve.js',
   'distributions/histogram-bins.js',
+  'distributions/sample-stats.js',
+  'distributions/regularized-gamma.js',
+  'distributions/normal-cdf.js',
+  'distributions/normal-quantile.js',
+  'distributions/chi-squared-cdf.js',
+  'distributions/chi-squared-quantile.js',
   'distributions/bernoulli-pmf.js',
   'distributions/binomial-pmf.js',
   'distributions/poisson-pmf.js',
@@ -55,6 +63,7 @@ export const js = [
   'filters/moving-average-filter.js',
   'filters/ema-filter.js',
   'filters/kalman-1d-filter.js',
+  'filters/systematic-resample.js',
   'mcmc/autocorrelation.js',
   'mcmc/effective-sample-size.js',
   'mcmc/running-mean.js',
@@ -117,4 +126,10 @@ export const mustPrecede = [
   // its start positions with VM.sampling.seededRandom.
   ['plotting/chart-theme.js', 'plotting/persistent-plot.js'],
   ['sampling/seeded-random.js', 'discrete-math/spring-layout.js'],
+  // The CDFs and quantiles are built on the incomplete gamma function, which
+  // is built on logGamma; each quantile inverts its CDF.
+  ['distributions/log-gamma.js', 'distributions/regularized-gamma.js'],
+  ['distributions/regularized-gamma.js', /^distributions\/(normal|chi-squared)-(cdf|quantile)\.js$/],
+  ['distributions/normal-cdf.js', 'distributions/normal-quantile.js'],
+  ['distributions/chi-squared-cdf.js', 'distributions/chi-squared-quantile.js'],
 ]
