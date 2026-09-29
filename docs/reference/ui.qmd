@@ -1,6 +1,6 @@
 ---
 title: "VM.ui"
-subtitle: "Controls: legend overlay, results table, example presets, slider playback"
+subtitle: "Controls: legend overlay, results table, readouts, URL state, example presets, slider playback"
 ---
 
 <!--
@@ -17,7 +17,7 @@ Most of what `VM.ui` does needs **no call at all**. Three modules are self-insta
 | [Draggable legend](#draggable-legend) -- a grip that lets the reader move the floating legend, remembered per page | every `.ojs-legend-overlay` inside `.ojs-chart-block` | -- |
 | Slider fill -- paints the filled part of the track in WebKit/Blink, which have no native progress pseudo-element | every `input[type="range"]` | -- |
 
-The callable API is four functions: a legend that is also an Observable view, a table renderer, an "apply this example" helper, and the pure arithmetic behind playback (exported for tests and for anyone building their own).
+The callable API is small: a legend that is also an Observable view, a table renderer, a row of stat readouts, a pair of URL-state helpers, the "try an example" helpers, and the pure arithmetic behind playback (exported for tests and for anyone building their own).
 
 ```{ojs}
 //| echo: false
@@ -126,6 +126,70 @@ A compact, horizontally scrollable results table with a "Download csv" link abov
   for (let n = 0; n < 6; n++) { rows.push([n, x.toFixed(10), Math.abs(x - Math.SQRT2).toExponential(2)]); x = x - (x * x - 2) / (2 * x) }
   return VM.ui.renderTable({html, headers: ["n", tex`x_n`, tex`|x_n - \sqrt2|`], rows, csvHeaders: ["n", "x_n", "error"], filename: "newton-sqrt2.csv"})
 }
+```
+
+## Readouts
+
+### VM.ui.statRow(items) {#statRow}
+
+A row of small label-over-value tiles, for the handful of numbers a Monte Carlo page reports on every slider move -- an estimate, its standard error, an acceptance rate. Put it between the controls panel and the chart. The tiles share the panel's surface and border, show values in the monospace face so digits don't jitter, and wrap onto more rows on a narrow screen.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `items` | `{label, value, title?}[]` | One tile each, in order. A number `value` is shown as-is, so format it first. `title` becomes the tile's tooltip, for a definition too long for the label. |
+
+**Returns** `<div class="vm-stat-row">` holding one `<div class="vm-stat">` per item, each a `.vm-stat-label` above a `.vm-stat-value`.
+
+```{ojs}
+VM.ui.statRow([
+  {label: "estimate", value: (3.14159).toFixed(4)},
+  {label: "std. error", value: (0.0123).toFixed(4)},
+  {label: "acceptance", value: "43%", title: "fraction of proposals accepted"}
+])
+```
+
+## URL state
+
+A page can make every input shareable: read each default from the query string, and write the current values back as they change, so the address bar is always a link to what the reader sees.
+
+```js
+viewof n = Inputs.range([10, 5000], {label: "n", step: 10, value: VM.ui.urlParam("pi_n", 1000)})
+```
+```js
+VM.ui.syncUrlParams({pi_n: [n, 1000], pi_seed: [seed, 1]})
+```
+
+Give each app's keys a prefix when several share one page. A key at its default is removed rather than written, so a reader who never touches an app doesn't find its parameters appended to the URL.
+
+### VM.ui.urlParam(key, fallback, opts?) {#urlParam}
+
+Reads one query-string parameter, typed like its fallback.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `key` | `string` | | The parameter name. |
+| `fallback` | `number \| string \| boolean` | | Returned when the key is absent or doesn't parse. A number fallback parses with `Number` (a blank or non-finite result falls back); a boolean fallback accepts `"1"`/`"true"` and `"0"`/`"false"`; a string fallback returns the raw value. |
+| `opts.search` | `string` | `location.search` | The query string to read. |
+
+**Returns** a value of the fallback's type.
+
+```{ojs}
+[VM.ui.urlParam("n", 10, {search: "?n=250"}), VM.ui.urlParam("n", 10, {search: "?n=abc"}), VM.ui.urlParam("lazy", false, {search: "?lazy=1"})]
+```
+
+### VM.ui.syncUrlParams(entries, opts?) {#syncUrlParams}
+
+Writes inputs into the current URL's query string with `history.replaceState` -- no navigation, no history entry -- leaving every other key alone (another app's, or `embed`).
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entries` | `{key: [value, default]}` | | A key whose value equals its default (compared as strings) is removed rather than written. |
+| `opts.search` | `string` | `location.search` | Start from this query string instead. When given, the URL is **not** touched and only the result is returned. |
+
+**Returns** `string`, the new query string without the leading `?` (`""` when nothing is left).
+
+```{ojs}
+VM.ui.syncUrlParams({pi_n: [5000, 1000], pi_seed: [1, 1]}, {search: "?pi_seed=3&embed=1"})
 ```
 
 ## Example presets

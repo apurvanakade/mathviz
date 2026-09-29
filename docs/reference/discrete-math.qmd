@@ -1,6 +1,6 @@
 ---
 title: "VM.discreteMath"
-subtitle: "Triangulations and Sperner colorings"
+subtitle: "Triangulations, Sperner colorings and random walks on graphs"
 ---
 
 <!--
@@ -9,9 +9,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-The combinatorics behind a Sperner's-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color **names** into palette colors at the moment of drawing.
+The combinatorics behind a Sperner's-lemma page: enumerate a uniform triangulation of a triangle in barycentric coordinates, color its vertices, and turn color **names** into palette colors at the moment of drawing. Two [graph helpers](#graphs) at the end build a random walk's transition matrix and a layout to draw the graph with.
 
-Every helper works in the names `'red'`, `'green'`, `'blue'` -- those are the keys the logic compares -- and only the three `*Color` functions at the end touch the actual palette. Keep that split: `fill: d => VM.discreteMath.vertexColor(d.color)`, never `fill: "red"`, which is not the site's red and doesn't lighten in dark mode.
+Every Sperner helper works in the names `'red'`, `'green'`, `'blue'` -- those are the keys the logic compares -- and only the three `*Color` functions under [Drawing](#drawing) touch the actual palette. Keep that split: `fill: d => VM.discreteMath.vertexColor(d.color)`, never `fill: "red"`, which is not the site's red and doesn't lighten in dark mode.
 
 ```{ojs}
 //| echo: false
@@ -141,4 +141,53 @@ The fill for a small triangle given its vertex names: translucent `accent2` (55%
 
 ```{ojs}
 [VM.discreteMath.vertexColor("red"), VM.discreteMath.pairColor("green", "blue"), VM.discreteMath.triangleFillColor(["red", "green", "blue"]), VM.discreteMath.triangleFillColor(["red", "red", "blue"])]
+```
+
+## Graphs
+
+Two helpers for a random-walk page. Vertices are `0..nodeCount-1` and edges are `[u, v]` pairs, each undirected edge listed once.
+
+### VM.discreteMath.randomWalkMatrix(nodeCount, edges, opts?) {#randomWalkMatrix}
+
+The simple random walk on an undirected graph: from a vertex, move to a uniformly chosen neighbor, so `P[i][j] = 1 / deg(i)` for each edge. Its stationary distribution, `pi_i = deg(i) / (2|E|)`, is returned with it.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `nodeCount` | `number` | | Number of vertices. |
+| `edges` | `[number, number][]` | | Undirected edges. Self-loops and repeated edges are not checked for. |
+| `opts.lazy` | `boolean` | `false` | Return the lazy walk `(I + P) / 2`, which stays put with probability ½. It has the same stationary distribution but no eigenvalue at `-1`, so it converges on a bipartite graph (a path, a tree, a grid, an even cycle), where the simple walk oscillates forever. |
+
+**Returns** `{P, degrees, stationary}`. `P` is row-stochastic. An isolated vertex gets a row that stays put (`P[i][i] = 1`) and stationary mass `0`; with no edges at all, `stationary` is uniform.
+
+```{ojs}
+VM.discreteMath.randomWalkMatrix(3, [[0, 1], [1, 2]], {lazy: true})
+```
+
+### VM.discreteMath.springLayout(nodeCount, edges, opts?) {#springLayout}
+
+Force-directed (Fruchterman–Reingold) layout: every pair of vertices repels, every edge pulls its ends together, and each vertex's step is capped by a temperature that cools linearly to zero. Dense clusters come out as tight blobs and a bottleneck edge as a long bridge between them.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `nodeCount` | `number` | | Number of vertices. |
+| `edges` | `[number, number][]` | | Undirected edges. |
+| `opts.seed` | `number` | `42` | Seed for the starting positions. The same graph and seed always give the same picture. |
+| `opts.iterations` | `number` | `300` | Number of steps. |
+
+**Returns** `[x, y][]`, one per vertex, centered on the origin and scaled so the larger coordinate extent is `[-1, 1]`. A single vertex sits at `[0, 0]`; no vertices gives `[]`.
+
+```{ojs}
+{
+  chartColors;
+  // Two triangles joined by one edge.
+  const edges = [[0, 1], [1, 2], [2, 0], [3, 4], [4, 5], [5, 3], [2, 3]]
+  const pos = VM.discreteMath.springLayout(6, edges)
+  return Plot.plot(VM.plotting.plotOptions({
+    width: 360, height: 240, axis: null, x: {domain: [-1.2, 1.2]}, y: {domain: [-1.2, 1.2]},
+    marks: [
+      Plot.link(edges, {x1: e => pos[e[0]][0], y1: e => pos[e[0]][1], x2: e => pos[e[1]][0], y2: e => pos[e[1]][1], stroke: chartColors.muted}),
+      Plot.dot(pos, {x: p => p[0], y: p => p[1], r: 6, fill: chartColors.fn})
+    ]
+  }))
+}
 ```

@@ -71,6 +71,7 @@ website:
         - docs/reference/distributions.qmd
         - docs/reference/plotting.qmd
         - docs/reference/ui.qmd
+        - docs/reference/mcmc.qmd
         - docs/reference/discrete-math.qmd
         - docs/reference/internals.qmd
   page-footer:
