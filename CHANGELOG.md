@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- DUMMY entry for testing the Release workflow's token. Never merged.
+
 ## [0.1.12] - 2026-09-29
 
 ### Added

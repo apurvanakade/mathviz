@@ -54,7 +54,7 @@ jobs:
       # `git push` below.
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref }}
           token: ${{ secrets.RELEASE_TOKEN }}
 
       - uses: actions/setup-node@v4
