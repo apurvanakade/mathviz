@@ -49,7 +49,18 @@ const versionFiles = [
 ]
 
 const previous = read('package.json').match(versionFiles[0][1])[2]
-if (previous === version) fail(`Already at ${version}.`)
+
+// Strictly newer only: an older version would duplicate a CHANGELOG heading,
+// and tag-release.yml would quietly accept its existing tag.
+function isNewer(next, current) {
+  const a = next.split('.')
+  const b = current.split('.')
+  for (let i = 0; i < 3; i++) {
+    if (Number(a[i]) !== Number(b[i])) return Number(a[i]) > Number(b[i])
+  }
+  return false
+}
+if (!isNewer(version, previous)) fail(`${version} is not newer than the current ${previous}.`)
 
 // Every check runs before anything is written, so a refusal leaves the tree
 // untouched.

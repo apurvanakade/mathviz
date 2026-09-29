@@ -28,10 +28,12 @@ jobs:
   tag:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main
+          # On a push, the commit that bumped the version -- not whatever
+          # main has moved on to by the time this job starts.
+          ref: ${{ github.event_name == 'push' && github.sha || 'main' }}
           fetch-depth: 0
 
       - name: Tag the version main declares

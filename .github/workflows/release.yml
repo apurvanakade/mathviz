@@ -44,8 +44,13 @@ jobs:
 
       - run: npm ci
 
+      # Through an env var, not interpolated into the script: a dispatch
+      # input is arbitrary text, and release.mjs can only validate what
+      # reaches it.
       - name: Set the version, CHANGELOG and install snippets
-        run: node scripts/release.mjs "${{ inputs.version }}"
+        env:
+          VERSION: ${{ inputs.version }}
+        run: node scripts/release.mjs "$VERSION"
 
       # The bundle banner and the starter mirror carry the version, so the
       # release commit includes the rebuilt copies or CI's freshness gate

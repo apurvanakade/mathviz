@@ -26,6 +26,7 @@ this kit once the site needs functions of its own.
 ```sh
 git clone https://github.com/apurvanakade/mathviz /tmp/mathviz
 cd my-site
+rm -rf _extensions/mathviz    # a site copied from starter/ vendors one here; the hook manages its own copy
 mkdir -p scripts _extensions
 cp /tmp/mathviz/kit/update-mathviz.sh scripts/
 cp -R /tmp/mathviz/kit/_mathviz .
