@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `vm-flow`, a flowchart written as nested divs: a column of boxes joined by arrows, with optional input boxes on the right, output boxes on the left and a labelled loop back to an earlier step. The boxes hold ordinary prose and math, and the diagram stacks into one column on a narrow screen. See [Markup](https://apurvanakade.github.io/mathviz/docs/markup.html#vm-flow).
+
 ## [0.1.13] - 2026-09-29
 
 ### Added

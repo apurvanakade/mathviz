@@ -31,6 +31,7 @@ chartColors = VM.plotting.colors(vmTheme)
 | [`plotly-box-large`](#plotly-box-large) | the Plotly graph div | the one shipped chart size |
 | [`vm-swatch vm-swatch-alt`](#vm-swatch) (one modifier per palette color, plus `-accent`) | a `<span>` in prose | tints a color word with the matching palette color |
 | [`vm-invalid`](#vm-invalid) | an `<input>` | red border and tint for a field that failed validation |
+| [`vm-flow`](#vm-flow) and its parts | nested divs in prose | a flowchart: boxes joined by arrows, with side inputs, outputs and a loop |
 | [`vm-app`](site.qmd#vm-app) | a div around one app's controls and chart | what embedding and the Share button act on (only with those [site extras](site.qmd) on) |
 | [`data-vm-play="off"`](#data-vm-play) | a slider or any ancestor | opt that slider out of the play button |
 | [`data-example-field="…"`](#data-example-field) | a `viewof` element | a stable handle for `applyExampleParams` |
@@ -221,6 +222,120 @@ viewof x0 = {
 It pairs with [`emptyState`](reference/plotting.qmd#emptyState): the field says *what* is wrong, the chart says *that* something is.
 
 <input class="vm-invalid" value="1/0 + " readonly style="max-width: 12em" aria-label="an input with vm-invalid">
+
+## Diagrams
+
+### `vm-flow` {#vm-flow}
+
+A flowchart written as nested divs, so the boxes hold ordinary prose and math. The stylesheet draws every arrow and line; a page writes boxes and nothing else.
+
+| Class | Put it on | Effect |
+|---|---|---|
+| `vm-flow` | the outer div | the diagram |
+| `vm-flow-step` | a div inside it, one per row | a row; a down arrow joins it to the next |
+| `vm-flow-box` | a div inside a step | a box in the center column |
+| `vm-flow-in` | alongside `vm-flow-box` | the box sits to the right and feeds the step (←) |
+| `vm-flow-out` | alongside `vm-flow-box` | the box sits to the left, read out of the step (←) |
+| `vm-flow-label` | a span in a box | the box's bold title |
+| `vm-flow-loop-to`, `vm-flow-loop-from` | two steps | a loop up the left edge, from the `-from` step back into the `-to` step |
+| `vm-flow-loop-label` | a div in the `-from` step, after its box | the loop's label, under the return line |
+| `vm-flow-nowrap` | a span around an equation | keeps it on one line |
+
+Write the loop's label to say where it goes ("back to Step"): it is real text, so a screen reader hears it, while the lines and arrows are decoration hidden from assistive technology. A loop's two end steps can't have a `vm-flow-out` box, since the loop runs through that column; steps between them can.
+
+Write the boxes in **reading order** -- an input before the box it feeds, an output after it. That is the order they stack in on a screen 760px wide or less, where the side columns don't fit: one column, a down arrow before every box, and the loop's label as a "↺" line under the `-from` step. A flow with no side boxes and no loop is a single centered column at every width.
+
+```markdown
+:::::: {.vm-flow}
+::::: {.vm-flow-step}
+::: {.vm-flow-box}
+[Start]{.vm-flow-label}
+
+an initial guess $x_0$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-loop-to}
+::: {.vm-flow-box}
+[Step]{.vm-flow-label}
+
+$x_{n+1} = x_n - f(x_n) / f'(x_n)$
+:::
+:::::
+::::: {.vm-flow-step}
+::: {.vm-flow-box .vm-flow-in}
+[Tolerance]{.vm-flow-label}
+
+$\varepsilon$
+:::
+::: {.vm-flow-box}
+[Check]{.vm-flow-label}
+
+stop if $|x_{n+1} - x_n| < \varepsilon$
+:::
+::: {.vm-flow-box .vm-flow-out}
+[Output]{.vm-flow-label}
+
+the root estimate $x_{n+1}$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-loop-from}
+::: {.vm-flow-box}
+[Continue]{.vm-flow-label}
+
+$n \leftarrow n + 1$
+:::
+::: {.vm-flow-loop-label}
+back to Step
+:::
+:::::
+::::::
+```
+
+renders as
+
+:::::: {.vm-flow}
+::::: {.vm-flow-step}
+::: {.vm-flow-box}
+[Start]{.vm-flow-label}
+
+an initial guess $x_0$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-loop-to}
+::: {.vm-flow-box}
+[Step]{.vm-flow-label}
+
+$x_{n+1} = x_n - f(x_n) / f'(x_n)$
+:::
+:::::
+::::: {.vm-flow-step}
+::: {.vm-flow-box .vm-flow-in}
+[Tolerance]{.vm-flow-label}
+
+$\varepsilon$
+:::
+::: {.vm-flow-box}
+[Check]{.vm-flow-label}
+
+stop if $|x_{n+1} - x_n| < \varepsilon$
+:::
+::: {.vm-flow-box .vm-flow-out}
+[Output]{.vm-flow-label}
+
+the root estimate $x_{n+1}$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-loop-from}
+::: {.vm-flow-box}
+[Continue]{.vm-flow-label}
+
+$n \leftarrow n + 1$
+:::
+::: {.vm-flow-loop-label}
+back to Step
+:::
+:::::
+::::::
 
 ## Data attributes
 

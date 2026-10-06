@@ -103,6 +103,7 @@ export const css = [
   'sliders.css',
   'table.css',
   'stat-row.css',
+  'flow.css',
 ]
 
 // [before, after] pairs -- `after` may be a string or a RegExp matched against
