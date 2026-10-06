@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-10-06
+
 ### Added
 
 - `vm-flow`, a flowchart written as nested divs: a column of boxes joined by arrows, with optional input boxes on the right, output boxes on the left and a labelled loop back to an earlier step. The boxes hold ordinary prose and math, and the diagram stacks into one column on a narrow screen. See [Markup](https://apurvanakade.github.io/mathviz/docs/markup.html#vm-flow).
@@ -160,7 +162,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.14...HEAD
+[0.1.14]: https://github.com/apurvanakade/mathviz/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/apurvanakade/mathviz/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/apurvanakade/mathviz/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/apurvanakade/mathviz/compare/v0.1.10...v0.1.11
