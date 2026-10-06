@@ -106,8 +106,6 @@ The library writes these itself; a page never authors them.
 | `vm-embed`, `vm-app-active`, `vm-sidebar-open`, `vm-sidebar-pinned`, `vm-rail-cluster`, `vm-share-*`, `vm-report-bug-popup`, `vm-mobile-warning*`, `--vm-secondary-nav-height` | the opt-in [site extras](#site-extras) |
 | `--sx`, `--vm-plot-aspect-ratio`, `--vm-fs-plot-width`, `--vm-svg-aspect`, `--vm-swatch` | runtime layout state: a slider's fill fraction, fullscreen letterboxing, a swatch's tint |
 
-`--vm-flow-loop-label` is the exception to that heading: a page sets it, on a [`vm-flow`](../markup.qmd#vm-flow), to label the diagram's loop.
-
 `vm-dark` is neither: it is a **theme hook** you may put on `<html>` or `<body>` to tell the library your site is in dark mode -- see [Theming](../theming.qmd#dark-mode). It styles nothing by itself.
 
 ## Host markup the CSS depends on {#host-markup}

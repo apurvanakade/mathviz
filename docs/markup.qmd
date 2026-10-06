@@ -238,14 +238,15 @@ A flowchart written as nested divs, so the boxes hold ordinary prose and math. T
 | `vm-flow-out` | alongside `vm-flow-box` | the box sits to the left, read out of the step (←) |
 | `vm-flow-label` | a span in a box | the box's bold title |
 | `vm-flow-loop-to`, `vm-flow-loop-from` | two steps | a loop up the left edge, from the `-from` step back into the `-to` step |
+| `vm-flow-loop-label` | a div in the `-from` step, after its box | the loop's label, under the return line |
 | `vm-flow-nowrap` | a span around an equation | keeps it on one line |
 
-The loop's label is the CSS string `--vm-flow-loop-label`, set on the `vm-flow` (none by default). A loop's two end steps can't have a `vm-flow-out` box, since the loop runs through that column; steps between them can.
+Write the loop's label to say where it goes ("back to Step"): it is real text, so a screen reader hears it, while the lines and arrows are decoration hidden from assistive technology. A loop's two end steps can't have a `vm-flow-out` box, since the loop runs through that column; steps between them can.
 
-Write the boxes in **reading order** -- an input before the box it feeds, an output after it. That is the order they stack in on a screen 760px wide or less, where the side columns don't fit: one column, a down arrow before every box, and the loop as a "↺" line with its label under the `-from` step. A flow with no side boxes and no loop is a single centered column at every width.
+Write the boxes in **reading order** -- an input before the box it feeds, an output after it. That is the order they stack in on a screen 760px wide or less, where the side columns don't fit: one column, a down arrow before every box, and the loop's label as a "↺" line under the `-from` step. A flow with no side boxes and no loop is a single centered column at every width.
 
 ```markdown
-:::::: {.vm-flow style="--vm-flow-loop-label: 'next step'"}
+:::::: {.vm-flow}
 ::::: {.vm-flow-step}
 ::: {.vm-flow-box}
 [Start]{.vm-flow-label}
@@ -282,6 +283,9 @@ the root estimate $x_{n+1}$
 [Continue]{.vm-flow-label}
 
 $n \leftarrow n + 1$
+:::
+::: {.vm-flow-loop-label}
+back to Step
 :::
 :::::
 ::::::
@@ -289,7 +293,7 @@ $n \leftarrow n + 1$
 
 renders as
 
-:::::: {.vm-flow style="--vm-flow-loop-label: 'next step'"}
+:::::: {.vm-flow}
 ::::: {.vm-flow-step}
 ::: {.vm-flow-box}
 [Start]{.vm-flow-label}
@@ -326,6 +330,9 @@ the root estimate $x_{n+1}$
 [Continue]{.vm-flow-label}
 
 $n \leftarrow n + 1$
+:::
+::: {.vm-flow-loop-label}
+back to Step
 :::
 :::::
 ::::::
