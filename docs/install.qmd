@@ -16,7 +16,7 @@ mathviz ships two ways from one source tree. Both give you the same `window.VM`,
 ## Quarto site, book or document
 
 ```sh
-quarto add apurvanakade/mathviz@v0.1.14
+quarto add apurvanakade/mathviz@v0.1.15
 ```
 
 This copies the extension into `_extensions/apurvanakade/mathviz/` in your project. Enable it project-wide in `_quarto.yml`, or per page in front matter:
@@ -52,8 +52,8 @@ Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, emb
 ### Versions and updating
 
 ```sh
-quarto update apurvanakade/mathviz@v0.1.14    # move to a release
-quarto add apurvanakade/mathviz@v0.1.14       # pin at install time
+quarto update apurvanakade/mathviz@v0.1.15    # move to a release
+quarto add apurvanakade/mathviz@v0.1.15       # pin at install time
 ```
 
 Always name the tag. Without one (or with `@latest`), Quarto installs the `main` branch, which can be ahead of the last release.
@@ -67,10 +67,10 @@ A site that needs functions mathviz doesn't have can keep them in a second, loca
 ## Any other web page
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.14/dist/mathviz.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.15/dist/mathviz.css">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.14/dist/mathviz.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.1.15/dist/mathviz.js"></script>
 ```
 
 - Load **Plotly before `mathviz.js`**. If Plotly arrives later (a dynamic import), call [`VM.plotting.installPlotlyPatch()`](reference/plotting.qmd#installPlotlyPatch) yourself.
