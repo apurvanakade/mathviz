@@ -240,6 +240,8 @@ A flowchart written as nested divs, so the boxes hold ordinary prose and math. T
 | `vm-flow-loop-to`, `vm-flow-loop-from` | two steps | a loop up the left edge, from the `-from` step back into the `-to` step |
 | `vm-flow-loop-label` | a div in the `-from` step, after its box | the loop's label, under the return line |
 | `vm-flow-nowrap` | a span around an equation | keeps it on one line |
+| `vm-flow-phase` | each step of a run of consecutive steps | groups them into a phase: a dashed outline around their boxes |
+| `vm-flow-phase-label` | a div at the start of the phase's first step | the phase's name, on the outline's top edge |
 
 Write the loop's label to say where it goes ("back to Step"): it is real text, so a screen reader hears it, while the lines and arrows are decoration hidden from assistive technology. A loop's two end steps can't have a `vm-flow-out` box, since the loop runs through that column; steps between them can.
 
@@ -333,6 +335,89 @@ $n \leftarrow n + 1$
 :::
 ::: {.vm-flow-loop-label}
 back to Step
+:::
+:::::
+::::::
+
+#### Phases
+
+When an algorithm's steps fall into named phases (the predict and update halves of a Kalman filter), put `vm-flow-phase` on every step of a phase and a `vm-flow-phase-label` div at the start of its first step. The label is what starts a phase, so two phases can sit back to back, and a step without the class ends the one before it. The outline goes around the steps' center boxes only: an input box feeds the phase from outside, and an output box is read out of it. Phases and the loop are independent; the loop can start and end inside phases. On a narrow screen a phase is a rule down its steps' left edge, under its label.
+
+```markdown
+::::: {.vm-flow-step .vm-flow-phase .vm-flow-loop-to}
+::: {.vm-flow-phase-label}
+Predict
+:::
+::: {.vm-flow-box}
+[Grow variance]{.vm-flow-label}
+
+$\bar P_i \leftarrow P_{i-1} + Q$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-phase}
+::: {.vm-flow-phase-label}
+Update
+:::
+::: {.vm-flow-box}
+[Compute gain]{.vm-flow-label}
+...
+```
+
+renders, with the rest of a Kalman filter, as
+
+:::::: {.vm-flow}
+::::: {.vm-flow-step}
+::: {.vm-flow-box}
+[Start]{.vm-flow-label}
+
+$\hat x \leftarrow$ the first measurement, $P \leftarrow R$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-phase .vm-flow-loop-to}
+::: {.vm-flow-phase-label}
+Predict
+:::
+::: {.vm-flow-box}
+[Grow variance]{.vm-flow-label}
+
+$\bar P_i \leftarrow P_{i-1} + Q$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-phase}
+::: {.vm-flow-phase-label}
+Update
+:::
+::: {.vm-flow-box}
+[Compute gain]{.vm-flow-label}
+
+$K_i \leftarrow \bar P_i / (\bar P_i + R)$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-phase}
+::: {.vm-flow-box .vm-flow-in}
+[Measure]{.vm-flow-label}
+
+$z_i$, the newest measurement
+:::
+::: {.vm-flow-box}
+[Update estimate]{.vm-flow-label}
+
+$\hat x_i \leftarrow \hat x_{i-1} + K_i (z_i - \hat x_{i-1})$
+:::
+::: {.vm-flow-box .vm-flow-out}
+[Output]{.vm-flow-label}
+
+the estimate $\hat x_i$
+:::
+:::::
+::::: {.vm-flow-step .vm-flow-phase .vm-flow-loop-from}
+::: {.vm-flow-box}
+[Update variance]{.vm-flow-label}
+
+$P_i \leftarrow (1 - K_i)\, \bar P_i$
+:::
+::: {.vm-flow-loop-label}
+next measurement
 :::
 :::::
 ::::::

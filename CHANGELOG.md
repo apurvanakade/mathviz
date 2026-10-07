@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `vm-flow-phase` and `vm-flow-phase-label`, to group a flowchart's consecutive steps into named phases (a Kalman filter's predict and update halves). A phase is a dashed outline around its steps' boxes, with its name on the top edge; on a narrow screen, a rule down its left edge. See [Markup](https://apurvanakade.github.io/mathviz/docs/markup.html#vm-flow).
+
 ## [0.1.14] - 2026-10-06
 
 ### Added
