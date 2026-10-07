@@ -139,6 +139,10 @@ The pieces on [Site extras](../site.qmd) sit beside the bundle, not inside it. T
 
 **Fonts sit flat.** `fonts.css` names each `.woff2` by bare file name, and Quarto copies a dependency's files flat into `site_libs/quarto-contrib/mathviz-fonts-<version>/`, so they land side by side. A root-relative `url(/fonts/…)` is rewritten wrongly by Quarto, which is why it isn't used; `src/fonts/fonts.test.js` checks every `url()` resolves and nothing points at Google.
 
+## Flow phases {#flow-phases}
+
+`vm-flow-phase` is a class on each step rather than a wrapper div around a run of steps, because `flow.css` draws the down arrows and the loop's vertical line with sibling combinators between steps (`.vm-flow-step + .vm-flow-step`, `.vm-flow-loop-to ~ .vm-flow-step`), and a wrapper would hide the steps inside it from those. Each main box draws its own piece of the phase's dashed outline in its `::after`. The space above a step is `--vm-flow-gap` (1.6rem by default): the first step of a phase raises it to make room for the label, the step after a phase raises it so its arrow clears the outline, and the loop's line reads it to bridge the gap above the `-from` step.
+
 ## Style
 
 Explicit `for`/`while` loops and `if`/`else` over `.map()/.filter()/.reduce()` chains and ternaries, throughout `src/js`. The code is read by a mathematics audience more at home in Python than in functional JavaScript. Callbacks an API requires (Plotly config values, `Plot` accessors, `addEventListener`) are the exception.
