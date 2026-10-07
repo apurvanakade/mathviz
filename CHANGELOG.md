@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-10-07
+
 ### Added
 
 - `vm-flow-phase` and `vm-flow-phase-label`, to group a flowchart's consecutive steps into named phases (a Kalman filter's predict and update halves). A phase is a dashed outline around its steps' boxes, with its name on the top edge; on a narrow screen, a rule down its left edge. See [Markup](https://apurvanakade.github.io/mathviz/docs/markup.html#vm-flow).
@@ -166,7 +168,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.14...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.15...HEAD
+[0.1.15]: https://github.com/apurvanakade/mathviz/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/apurvanakade/mathviz/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/apurvanakade/mathviz/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/apurvanakade/mathviz/compare/v0.1.11...v0.1.12
