@@ -88,8 +88,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="referrer" content="same-origin">
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../site_libs/quarto-contrib/mathviz-0.1.15/mathviz.js"></script>
-<link href="../../site_libs/quarto-contrib/mathviz-0.1.15/mathviz.css" rel="stylesheet">
+<script src="../../site_libs/quarto-contrib/mathviz-0.1.16/mathviz.js"></script>
+<link href="../../site_libs/quarto-contrib/mathviz-0.1.16/mathviz.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -650,14 +650,14 @@ update:   K = P⁻ / (P⁻ + R),   xHat = xHat⁻ + K·(z − xHat⁻),   P = (1
 <tr class="even">
 <td><code>opts.x0</code></td>
 <td><code>number</code></td>
-<td><code>zs[0]</code></td>
-<td>Initial estimate.</td>
+<td></td>
+<td>A prior estimate going into the first update, e.g.&nbsp;a known starting state. Without it the first measurement <em>is</em> the first estimate (<code>xs[0] = zs[0]</code>, <code>Ks[0] = 1</code>) and the updates start at <code>zs[1]</code>, so no measurement counts twice – the same as one update from a prior of infinite variance.</td>
 </tr>
 <tr class="odd">
 <td><code>opts.P0</code></td>
 <td><code>number</code></td>
 <td><code>opts.R</code></td>
-<td>Initial error variance – “the first estimate is as uncertain as one measurement”. Not <code>1</code>, not <code>Q</code>.</td>
+<td>The variance of the starting estimate – “the first estimate is as uncertain as one measurement”. Not <code>1</code>, not <code>Q</code>.</td>
 </tr>
 </tbody>
 </table>
