@@ -944,6 +944,16 @@ Authors: Apurva Nakade
 <td>a span around an equation</td>
 <td>keeps it on one line</td>
 </tr>
+<tr class="even">
+<td><code>vm-flow-phase</code></td>
+<td>each step of a run of consecutive steps</td>
+<td>groups them into a phase: a dashed outline around their boxes</td>
+</tr>
+<tr class="odd">
+<td><code>vm-flow-phase-label</code></td>
+<td>a div at the start of the phase’s first step</td>
+<td>the phase’s name, on the outline’s top edge</td>
+</tr>
 </tbody>
 </table>
 <p>Write the loop’s label to say where it goes (“back to Step”): it is real text, so a screen reader hears it, while the lines and arrows are decoration hidden from assistive technology. A loop’s two end steps can’t have a <code>vm-flow-out</code> box, since the loop runs through that column; steps between them can.</p>
@@ -1029,6 +1039,77 @@ Authors: Apurva Nakade
 </div>
 </div>
 </div>
+<section id="phases" class="level4">
+<h4 class="anchored" data-anchor-id="phases">Phases</h4>
+<p>When an algorithm’s steps fall into named phases (the predict and update halves of a Kalman filter), put <code>vm-flow-phase</code> on every step of a phase and a <code>vm-flow-phase-label</code> div at the start of its first step. The label is what starts a phase, so two phases can sit back to back, and a step without the class ends the one before it. The outline goes around the steps’ center boxes only: an input box feeds the phase from outside, and an output box is read out of it. Phases and the loop are independent; the loop can start and end inside phases. On a narrow screen a phase is a rule down its steps’ left edge, under its label.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>::::: {.vm-flow-step .vm-flow-phase .vm-flow-loop-to}</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>::: {.vm-flow-phase-label}</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>Predict</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>::: {.vm-flow-box}</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Grow variance</span><span class="co">]</span>{.vm-flow-label}</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>$\bar P_i \leftarrow P_{i-1} + Q$</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>:::::</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>::::: {.vm-flow-step .vm-flow-phase}</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>::: {.vm-flow-phase-label}</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>Update</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>::: {.vm-flow-box}</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Compute gain</span><span class="co">]</span>{.vm-flow-label}</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>...</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>renders, with the rest of a Kalman filter, as</p>
+<div class="vm-flow">
+<div class="vm-flow-step">
+<div class="vm-flow-box">
+<p><span class="vm-flow-label">Start</span></p>
+<p><span class="math inline">\hat x \leftarrow</span> the first measurement, <span class="math inline">P \leftarrow R</span></p>
+</div>
+</div>
+<div class="vm-flow-step vm-flow-phase vm-flow-loop-to">
+<div class="vm-flow-phase-label">
+<p>Predict</p>
+</div>
+<div class="vm-flow-box">
+<p><span class="vm-flow-label">Grow variance</span></p>
+<p><span class="math inline">\bar P_i \leftarrow P_{i-1} + Q</span></p>
+</div>
+</div>
+<div class="vm-flow-step vm-flow-phase">
+<div class="vm-flow-phase-label">
+<p>Update</p>
+</div>
+<div class="vm-flow-box">
+<p><span class="vm-flow-label">Compute gain</span></p>
+<p><span class="math inline">K_i \leftarrow \bar P_i / (\bar P_i + R)</span></p>
+</div>
+</div>
+<div class="vm-flow-step vm-flow-phase">
+<div class="vm-flow-box vm-flow-in">
+<p><span class="vm-flow-label">Measure</span></p>
+<p><span class="math inline">z_i</span>, the newest measurement</p>
+</div>
+<div class="vm-flow-box">
+<p><span class="vm-flow-label">Update estimate</span></p>
+<p><span class="math inline">\hat x_i \leftarrow \hat x_{i-1} + K_i (z_i - \hat x_{i-1})</span></p>
+</div>
+<div class="vm-flow-box vm-flow-out">
+<p><span class="vm-flow-label">Output</span></p>
+<p>the estimate <span class="math inline">\hat x_i</span></p>
+</div>
+</div>
+<div class="vm-flow-step vm-flow-phase vm-flow-loop-from">
+<div class="vm-flow-box">
+<p><span class="vm-flow-label">Update variance</span></p>
+<p><span class="math inline">P_i \leftarrow (1 - K_i)\, \bar P_i</span></p>
+</div>
+<div class="vm-flow-loop-label">
+<p>next measurement</p>
+</div>
+</div>
+</div>
+</section>
 </section>
 </section>
 <section id="data-attributes" class="level2">
@@ -1040,11 +1121,11 @@ Authors: Apurva Nakade
 <section id="data-example-field" class="level3">
 <h3 class="anchored" data-anchor-id="data-example-field"><code>data-example-field="&lt;name&gt;"</code></h3>
 <p>On a <code>viewof</code> element, set by the cell that creates it, as a stable handle for <a href="../docs/reference/ui.html#applyExampleParams"><code>applyExampleParams</code></a>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>viewof fx <span class="op">=</span> {</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> view <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"sin(x)"</span>})</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  view<span class="op">.</span><span class="at">dataset</span><span class="op">.</span><span class="at">exampleField</span> <span class="op">=</span> <span class="st">"fx"</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> view</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>viewof fx <span class="op">=</span> {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> view <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">"sin(x)"</span>})</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  view<span class="op">.</span><span class="at">dataset</span><span class="op">.</span><span class="at">exampleField</span> <span class="op">=</span> <span class="st">"fx"</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> view</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The page’s <code>fieldSelectors</code> map is then <code>{fx: '[data-example-field="fx"]', …}</code>. Selectors rather than references, for a reason that entry explains.</p>
 
 

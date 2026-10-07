@@ -431,6 +431,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#generated-classes" id="toc-generated-classes" class="nav-link" data-scroll-target="#generated-classes">Generated classes</a></li>
   <li><a href="#host-markup" id="toc-host-markup" class="nav-link" data-scroll-target="#host-markup">Host markup the CSS depends on</a></li>
   <li><a href="#site-extras" id="toc-site-extras" class="nav-link" data-scroll-target="#site-extras">Site extras</a></li>
+  <li><a href="#flow-phases" id="toc-flow-phases" class="nav-link" data-scroll-target="#flow-phases">Flow phases</a></li>
   <li><a href="#style" id="toc-style" class="nav-link" data-scroll-target="#style">Style</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -624,6 +625,10 @@ kit/                   what a consumer site copies in: the update hook and the m
 <p><strong>The sidebar rail owns two body classes.</strong> <code>sidebar-rail.css</code> forces Quarto’s below-992 px off-canvas sidebar at every width, driven by <code>vm-sidebar-open</code> and <code>vm-sidebar-pinned</code> on <code>&lt;body&gt;</code> instead of Bootstrap’s collapse classes; <code>sidebar-rail.js</code> writes them and measures Quarto’s mobile breadcrumb bar into <code>--vm-secondary-nav-height</code>. Those are writes to <code>&lt;body&gt;</code>’s class list, which is why <a href="../../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a> compares the theme name rather than firing on every class change.</p>
 <p><strong>The theme is generated.</strong> <code>build.mjs</code> reads the chrome tokens out of <code>src/css/tokens.css</code> (the light block, and the dark block over it) and fills them into <code>src/theme/theme.scss</code> twice, as <code>$vm-* … !default</code> variables and as the <code>--vm-*</code> properties they re-emit. So the Bootstrap chrome and the panels can’t disagree, and a <code>$vm-*</code> override reaches both. The Bootstrap variables it derives are deliberately not <code>!default</code>: Quarto presets some of them as <code>!default</code> ahead of the theme, and a <code>!default</code> here would silently lose.</p>
 <p><strong>Fonts sit flat.</strong> <code>fonts.css</code> names each <code>.woff2</code> by bare file name, and Quarto copies a dependency’s files flat into <code>site_libs/quarto-contrib/mathviz-fonts-&lt;version&gt;/</code>, so they land side by side. A root-relative <code>url(/fonts/…)</code> is rewritten wrongly by Quarto, which is why it isn’t used; <code>src/fonts/fonts.test.js</code> checks every <code>url()</code> resolves and nothing points at Google.</p>
+</section>
+<section id="flow-phases" class="level2">
+<h2 class="anchored" data-anchor-id="flow-phases">Flow phases</h2>
+<p><code>vm-flow-phase</code> is a class on each step rather than a wrapper div around a run of steps, because <code>flow.css</code> draws the down arrows and the loop’s vertical line with sibling combinators between steps (<code>.vm-flow-step + .vm-flow-step</code>, <code>.vm-flow-loop-to ~ .vm-flow-step</code>), and a wrapper would hide the steps inside it from those. Each main box draws its own piece of the phase’s dashed outline in its <code>::after</code>. The space above a step is <code>--vm-flow-gap</code> (1.6rem by default): the first step of a phase raises it to make room for the label, the step after a phase raises it so its arrow clears the outline, and the loop’s line reads it to bridge the gap above the <code>-from</code> step.</p>
 </section>
 <section id="style" class="level2">
 <h2 class="anchored" data-anchor-id="style">Style</h2>
