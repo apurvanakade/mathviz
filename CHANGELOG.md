@@ -10,6 +10,12 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-10-07
+
+### Fixed
+
+- `VM.filters.kalman1DFilter` no longer uses the first measurement twice when no `x0` is given. It used to start from `zs[0]` and then also update on `zs[0]`, which halved the starting variance and made the filter overconfident early on. Now the first measurement is the first estimate (`xs[0] = zs[0]`, `Ps[0] = P0`, `Ks[0] = 1`) and the updates start at `zs[1]`. With an `x0`, nothing changes.
+
 ## [0.1.15] - 2026-10-07
 
 ### Added
@@ -168,7 +174,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.15...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.16...HEAD
+[0.1.16]: https://github.com/apurvanakade/mathviz/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/apurvanakade/mathviz/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/apurvanakade/mathviz/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/apurvanakade/mathviz/compare/v0.1.12...v0.1.13

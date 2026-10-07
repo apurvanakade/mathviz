@@ -63,3 +63,22 @@ test('kalman1DStep chained by hand matches kalman1DFilter over the same measurem
   }
   assert.deepEqual(xs, batch.xs)
 })
+
+test('kalman1DFilter without x0 takes the first measurement as the estimate and never reuses it', () => {
+  const zs = [3, 5, 4]
+  const opts = {R: 2, Q: 0.5}
+  const {xs, Ps, Ks} = kalman1DFilter(zs, opts)
+  assert.equal(xs[0], 3)
+  assert.equal(Ps[0], 2)
+  assert.equal(Ks[0], 1)
+  // The second output is one step from (z_0, R) on z_1, not two steps.
+  const step = kalman1DStep({xHat: 3, P: 2}, 5, opts)
+  assert.equal(xs[1], step.xHat)
+  assert.equal(Ps[1], step.P)
+  assert.equal(Ks[1], step.K)
+})
+
+test('kalman1DFilter without x0 honours P0 as the first estimate\'s variance', () => {
+  const {Ps} = kalman1DFilter([1, 2], {R: 2, Q: 0, P0: 7})
+  assert.equal(Ps[0], 7)
+})

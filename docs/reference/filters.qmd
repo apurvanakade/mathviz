@@ -79,8 +79,8 @@ Runs `kalman1DStep` over a precomputed array.
 | `zs` | `number[]` | | The measurements. |
 | `opts.R` | `number` | | Measurement-noise variance. |
 | `opts.Q` | `number` | | Process-noise variance. |
-| `opts.x0` | `number` | `zs[0]` | Initial estimate. |
-| `opts.P0` | `number` | `opts.R` | Initial error variance -- "the first estimate is as uncertain as one measurement". Not `1`, not `Q`. |
+| `opts.x0` | `number` | | A prior estimate going into the first update, e.g. a known starting state. Without it the first measurement *is* the first estimate (`xs[0] = zs[0]`, `Ks[0] = 1`) and the updates start at `zs[1]`, so no measurement counts twice -- the same as one update from a prior of infinite variance. |
+| `opts.P0` | `number` | `opts.R` | The variance of the starting estimate -- "the first estimate is as uncertain as one measurement". Not `1`, not `Q`. |
 
 **Returns** `{xs, Ps, Ks}` -- estimate, error variance and gain after each step, each the same length as `zs` (all empty for an empty input).
 
