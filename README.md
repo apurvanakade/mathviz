@@ -35,7 +35,7 @@ request.
 **An existing Quarto site:**
 
 ```sh
-quarto add apurvanakade/mathviz@v0.1.16
+quarto add apurvanakade/mathviz@v0.2.0
 ```
 
 ```yaml
