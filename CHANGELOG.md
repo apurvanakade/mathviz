@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Removed
+
+- `VM.discreteMath.pairColor`. Coloring each mixed edge of a Sperner triangulation by its pair of endpoint colors (amber, teal, purple) added three more hues to a diagram that already has three vertex colors and a rainbow fill, and the purple clashed with the rainbow fill. Draw the triangulation's edges in `chartColors.muted` and let the vertex dots carry the coloring, as the reference example now does.
+
 ## [0.1.16] - 2026-10-07
 
 ### Fixed
