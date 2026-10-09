@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-09
+
 ### Removed
 
 - `VM.discreteMath.pairColor`. Coloring each mixed edge of a Sperner triangulation by its pair of endpoint colors (amber, teal, purple) added three more hues to a diagram that already has three vertex colors and a rainbow fill, and the purple clashed with the rainbow fill. Draw the triangulation's edges in `chartColors.muted` and let the vertex dots carry the coloring, as the reference example now does.
@@ -178,7 +180,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.1.16...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/apurvanakade/mathviz/compare/v0.1.16...v0.2.0
 [0.1.16]: https://github.com/apurvanakade/mathviz/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/apurvanakade/mathviz/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/apurvanakade/mathviz/compare/v0.1.13...v0.1.14

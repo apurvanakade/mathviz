@@ -48,7 +48,7 @@ Each file starts with a comment saying what it demonstrates and where the releva
 ## Upgrade the library
 
 ```sh
-quarto update apurvanakade/mathviz@v0.1.16
+quarto update apurvanakade/mathviz@v0.2.0
 ```
 
 Name the release you want (the newest is at the top of the [changelog](https://github.com/apurvanakade/mathviz/blob/main/CHANGELOG.md)); without a tag Quarto installs the `main` branch. `quarto update` replaces `_extensions/mathviz/` with that release. Don't edit it by hand.
