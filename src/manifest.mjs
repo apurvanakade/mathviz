@@ -86,7 +86,6 @@ export const js = [
   'discrete-math/sperner-color.js',
   'discrete-math/random-color.js',
   'discrete-math/vertex-color.js',
-  'discrete-math/mixed-pair-color.js',
   'discrete-math/triangle-fill-color.js',
   'discrete-math/random-walk-matrix.js',
   'discrete-math/spring-layout.js',
@@ -117,7 +116,7 @@ export const mustPrecede = [
   // plotly-fullscreen-button reads VM.plotting.layout/config/themePatch;
   // the discrete-math color helpers read VM.plotting.colors/alpha.
   ['plotting/chart-theme.js', 'plotting/plotly-fullscreen-button.js'],
-  ['plotting/chart-theme.js', /^discrete-math\/(vertex|mixed-pair|triangle-fill)-color\.js$/],
+  ['plotting/chart-theme.js', /^discrete-math\/(vertex|triangle-fill)-color\.js$/],
   // svg-fullscreen-button reuses VM.plotting.fullscreenButton.icon.
   ['plotting/plotly-fullscreen-button.js', 'plotting/svg-fullscreen-button.js'],
   ['discrete-math/sub-triangles.js', 'discrete-math/triangulation-edges.js'],
