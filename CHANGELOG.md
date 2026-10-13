@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-13
+
 ### Fixed
 
 - On a phone, a page with a sidebar no longer runs its author/date line straight into the page text. Quarto removes the title block's bottom margin below 992px when there is a sidebar; the theme puts back the 1rem it has at wider widths.
@@ -184,7 +186,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/apurvanakade/mathviz/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/apurvanakade/mathviz/compare/v0.1.16...v0.2.0
 [0.1.16]: https://github.com/apurvanakade/mathviz/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/apurvanakade/mathviz/compare/v0.1.14...v0.1.15
