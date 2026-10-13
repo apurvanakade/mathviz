@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- On a phone, a page with a sidebar no longer runs its author/date line straight into the page text. Quarto removes the title block's bottom margin below 992px when there is a sidebar; the theme puts back the 1rem it has at wider widths.
+
 ## [0.2.0] - 2026-10-09
 
 ### Removed
