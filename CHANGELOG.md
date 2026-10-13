@@ -10,6 +10,11 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- A fullscreen chart on a split page fills the screen again. The pane's chart-height rule also matched the chart in fullscreen and, loading later at the same specificity, held it at the pane's height.
+- The split divider keeps the reader's width through a window resize. A window too narrow for it clamped the pane and saved the clamped width as the preference, so widening the window again didn't bring it back.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
