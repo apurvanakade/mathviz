@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-13
+
 ### Added
 
 - A split layout, opt-in with `mathviz: {split: true}` (or a storage key). A page that wraps its content in `::: {.vm-split}` shows its `vm-app` as a fixed pane on the right, under the navbar and down to the bottom of the window, while the text scrolls beside it. The pane's charts take the height its controls leave, and the divider can be dragged or moved with the arrow keys; its width is remembered in `localStorage`. Below 992px, and in an embed, the page is one column as before. See [Site extras](https://apurvanakade.github.io/mathviz/docs/site.html#split).
@@ -196,7 +198,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/apurvanakade/mathviz/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/apurvanakade/mathviz/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/apurvanakade/mathviz/compare/v0.1.16...v0.2.0
 [0.1.16]: https://github.com/apurvanakade/mathviz/compare/v0.1.15...v0.1.16
