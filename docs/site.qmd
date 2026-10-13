@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, embedding, a Share button, a "Report bug" popup, a phone notice). Each is one key under `mathviz:` in `_quarto.yml`. A site pays only for the pieces it turns on.
+Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a split layout, embedding, a Share button, a "Report bug" popup, a phone notice). Each is one key under `mathviz:` in `_quarto.yml`. A site pays only for the pieces it turns on.
 
 These come with the Quarto extension only. The plain script bundle doesn't include them.
 
@@ -20,6 +20,7 @@ mathviz:
   fonts: true
   sidebar-rail: my-site-sidebar-pinned     # or true
   mobile-warning: my-site-mobile-warning   # or true
+  split: my-site-split-width               # or true
   embed: true
   share:
     site-url: https://example.com
@@ -34,11 +35,12 @@ mathviz:
 | `fonts` | `true` | Serves Inter and JetBrains Mono from your own site. |
 | `sidebar-rail` | `true`, or a storage key | Hides Quarto's sidebar behind a slim rail at the left edge. |
 | `mobile-warning` | `true`, or a storage key | Shows a one-time "built for a bigger screen" notice on phones. |
+| `split` | `true`, or a storage key | Lets a page show its app as a fixed pane beside the text. |
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
 | `share` | a map (see [Share](#share)) | Adds a "Share" button to every app. Turns `embed` on too. |
 | `report-bug` | a map with `repo` (required) and `branch` | Adds a "Report bug" popup when a reader selects text. |
 
-Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the defaults are `vm-sidebar-pinned` and `vm-mobile-warning-dismissed`.
+Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the defaults are `vm-sidebar-pinned`, `vm-mobile-warning-dismissed` and `vm-split-width`.
 
 ## Fonts
 
@@ -116,6 +118,34 @@ Puts a "Share" button above every `vm-app`. It opens a dialog with the page's li
 
 - `site-url` is your site's public address. Set it: the links then work even when copied from `quarto preview` or a test deploy. (Quarto doesn't pass `website.site-url` to extensions, so you write it again here.)
 - `embed-docs` is optional: a page on your site, relative to its root, that the dialog links to as "Embedding an app".
+
+## Split layout {#split}
+
+```yaml
+mathviz:
+  split: true
+```
+
+For a page that is mostly its app: the app sits in a pane on the right, from under the navbar to the bottom of the window, and stays put while the text scrolls beside it. A page opts in by wrapping its content in a `vm-split` div around its [`vm-app`](#vm-app):
+
+````markdown
+::::: {.vm-split}
+
+<div class="vm-app">
+...controls panel, chart block...
+</div>
+
+The explanation, before or after the app, reads as one column.
+
+:::::
+````
+
+- **From 992px up** the pane takes about half the window (`clamp(30rem, 56vw, 64rem)`), and the title, text, page navigation and footer share the rest. The charts in the pane take the height the controls leave, shared equally between them. An app with no Plotly chart is centered in the pane.
+- **Below 992px** the page is one column, app first.
+- **The divider** between text and pane can be dragged, or focused and moved with the arrow keys. The pane stays at least 480px wide and the text 320px. The width is remembered in `localStorage` under the storage key (`vm-split-width` with `true`); double-click or `Home` resets it and forgets it.
+- **In an embed** the app is the whole frame, as on any other page.
+
+Pages without `vm-split` are unchanged, so a site can split its app-first pages and leave its articles as they are. Keep every slider above the chart it drives: in a pane fitted to the window, a control below the chart is the first thing pushed out of view.
 
 ## Sidebar rail
 

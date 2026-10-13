@@ -20,6 +20,7 @@ export const js = [
   'expressions/make-function-of-t.js',
   'plotting/padded-range.js',
   'plotting/chart-theme.js',
+  'plotting/anchored-view.js',
   'plotting/plotly-fullscreen-button.js',
   'plotting/svg-fullscreen-button.js',
   'plotting/persistent-plot.js',

@@ -192,6 +192,8 @@ Keeps a graph div sized to its container, and stops once the div leaves the docu
 
 **Returns** the `ResizeObserver`, or `null` where `ResizeObserver` doesn't exist. Skips resizing while the div is hidden (`display: none`) and is safe when Plotly isn't loaded.
 
+A chart with a `scaleanchor` axis is refitted to the reader's view after each resize ([`fitView`](#fitView)), so resizing it never zooms it out.
+
 ### VM.plotting.persistentPlot(opts?) {#persistentPlot}
 
 The draw-once, redraw-in-place chart closure most pages write by hand, packaged. Call it once in a cell that depends on nothing reactive, and call the function it returns from the cell that builds the traces:
@@ -330,6 +332,28 @@ On load (and again on `DOMContentLoaded`) the library wraps `Plotly.newPlot` and
 - a `relayout(themePatch())` on every theme flip (`themePatch({scene: true})` for a 3-D chart)
 
 The patch is idempotent and a silent no-op when `Plotly` isn't on the page (`mathviz: {plotly: false}`).
+
+### Locked axes keep their view {#anchored-view}
+
+A chart whose axes are locked to each other (`yaxis: {scaleanchor: "x"}`, so a circle looks round) needs nothing extra: the patch records the view and [`autoResize`](#autoResize) refits it. Plotly honours `scaleanchor` by widening one axis past the range asked for and writing the widened range back into the layout. Left alone, every resize would fit from the widened range and zoom the chart further out, and `uirevision` could never keep a reader's zoom, because the page's range never matches the widened one. The patch remembers the range the page asked for, replaced by the reader's own once they zoom or pan, and fits from that instead. A redraw with the same `uirevision` keeps a view the reader moved; a double-click puts back the page's range; the modebar's autoscale hands the axis to Plotly. Charts without `scaleanchor` are untouched.
+
+### VM.plotting.trackView(gd, layout) {#trackView}
+
+Records the view of a chart with a `scaleanchor` axis (see [above](#anchored-view)). The patch calls it on every `newPlot`/`react`; call it yourself only on a chart drawn with the patch off.
+
+**Returns** the layout to draw: `layout` itself, or, when the reader has zoomed or panned and `layout.uirevision` is unchanged, a copy with the reader's ranges. A layout with no `scaleanchor` axis comes back as is, and the chart forgets any view it had.
+
+### VM.plotting.fitView(gd) {#fitView}
+
+Puts a chart's recorded view back on screen, fitted to its current box. [`autoResize`](#autoResize) calls it after every resize.
+
+**Returns** Plotly's relayout promise, or `null` when there is no view to restore (no `scaleanchor` axis, no explicit range, every axis autoscaled) or Plotly isn't loaded.
+
+### VM.plotting.rangeFromRelayout(event, axis) {#rangeFromRelayout}
+
+Reads one axis's range out of a `plotly_relayout` event, which spells it either as `"xaxis.range": [a, b]` or as `"xaxis.range[0]"` and `"xaxis.range[1]"`.
+
+**Returns** `[lo, hi]`; `"auto"` when the event switched the axis to autorange; `null` when the event doesn't set this axis's range, or sets only one end.
 
 ### VM.plotting.installPlotlyPatch() {#installPlotlyPatch}
 

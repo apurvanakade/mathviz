@@ -418,7 +418,9 @@
    * @param {HTMLElement} div - The graph div.
    * @returns {ResizeObserver|null} The observer, or `null` where
    *   `ResizeObserver` doesn't exist. Skips resizing while the div is
-   *   hidden (`display: none`) and is safe when Plotly isn't loaded.
+   *   hidden (`display: none`) and is safe when Plotly isn't loaded. A
+   *   chart with a `scaleanchor` axis is refitted to the reader's view
+   *   after each resize (see `fitView`), so resizing never zooms it out.
    */
   const autoResize = (div) => {
     if (typeof ResizeObserver === "undefined") return null
@@ -430,7 +432,15 @@
       // A detached-but-connected div can still be display:none (a collapsed
       // callout, an inactive tab), which Plotly also refuses to resize.
       if (div.offsetParent === null && div.getClientRects().length === 0) return
-      globalThis.Plotly?.Plots?.resize(div)
+      const resized = globalThis.Plotly?.Plots?.resize(div)
+      // A chart with a scaleanchor axis is refitted from the reader's view,
+      // not from the range on screen, which scaleanchor has already widened
+      // -- otherwise every resize zooms it further out (anchored-view.js).
+      if (resized && typeof resized.then === "function" && globalThis.VM?.plotting?.fitView) {
+        resized.then(() => {
+          if (div.isConnected) globalThis.VM.plotting.fitView(div)
+        })
+      }
     })
     observer.observe(div)
     return observer
