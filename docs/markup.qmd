@@ -128,7 +128,7 @@ Every chart wants one, even a chart that has neither a legend nor controls today
 
 ### `ojs-chart-controls` {#ojs-chart-controls}
 
-A **direct child** of the chart block, holding the sliders that drive the chart -- an iteration count, a step size. It renders as a bar directly above the chart, stays with the chart in fullscreen, and lays its controls out for that width: fluid slider tracks, compact number fields, labels beside controls.
+A **direct child** of the chart block, holding the sliders that drive the chart -- an iteration count, a step size. It renders as a bar directly above the chart, stays with the chart in fullscreen, and lays its controls out for that width: fluid slider tracks, compact number fields, labels beside controls -- or, in a bar under 30rem wide (a phone), each label on a line of its own above its control.
 
 Sliders in it get the play button. Combine with `ojs-grid` (`class="ojs-chart-controls ojs-grid"`) for several sliders side by side.
 

@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- A slider in a narrow chart-controls bar has a usable track again. The label, play button and number readout sat on one line with the track, which got whatever was left: 0px on a phone for a long label like "Number of subdivisions". Below 30rem of bar the label now takes a line of its own, as it already did in a multi-slider `.ojs-grid` bar.
+
 ## [0.2.1] - 2026-10-13
 
 ### Fixed
