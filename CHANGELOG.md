@@ -10,8 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- A split layout, opt-in with `mathviz: {split: true}` (or a storage key). A page that wraps its content in `::: {.vm-split}` shows its `vm-app` as a fixed pane on the right, under the navbar and down to the bottom of the window, while the text scrolls beside it. The pane's charts take the height its controls leave, and the divider can be dragged or moved with the arrow keys; its width is remembered in `localStorage`. Below 992px, and in an embed, the page is one column as before. See [Site extras](https://apurvanakade.github.io/mathviz/docs/site.html#split).
+- `VM.plotting.trackView`, `fitView` and `rangeFromRelayout`, which the patch and `autoResize` use to keep a reader's view on a chart with a `scaleanchor` axis.
+
 ### Fixed
 
+- A chart with locked axes (`scaleanchor`) no longer zooms further out every time it is resized, and `uirevision` now keeps a reader's zoom on it across a redraw. Plotly widens one axis to honour the lock and writes the widened range back, so each resize fitted from an already-widened range, and the page's range never matched the stored one. The view the page asked for, or the reader's own zoom, is now remembered and refitted after each resize.
 - A slider in a narrow chart-controls bar has a usable track again. The label, play button and number readout sat on one line with the track, which got whatever was left: 0px on a phone for a long label like "Number of subdivisions". Below 30rem of bar the label now takes a line of its own, as it already did in a multi-slider `.ojs-grid` bar.
 
 ## [0.2.1] - 2026-10-13

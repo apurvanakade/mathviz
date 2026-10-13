@@ -276,6 +276,15 @@
     return out
   }
 
+  // A chart with a scaleanchor axis keeps the reader's view across resizes
+  // and same-uirevision redraws (anchored-view.js). Applied to the page's
+  // own layout, before the theme is layered under it, so it sees only the
+  // ranges the page asked for.
+  const withView = (gd, layout) => {
+    if (!globalThis.VM?.plotting?.trackView) return layout
+    return globalThis.VM.plotting.trackView(gd, layout)
+  }
+
   // Installs the newPlot/react patch onto whatever Plotly is on the page.
   // Idempotent, and a no-op (returning false) when Plotly isn't loaded --
   // this library is also used on pages that draw with D3 or a canvas and
@@ -289,7 +298,8 @@
    * themed layout, per-trace hover labels, `dragmode: "pan"` (unless the
    * page set one) and the shared modebar. A chart whose layout has a
    * `scene` gets `scene.dragmode: "turntable"` (unless set) and the 3-D
-   * modebar instead. Runs by itself at load and on
+   * modebar instead. A chart with a `scaleanchor` axis keeps the reader's
+   * view (see `trackView`). Runs by itself at load and on
    * `DOMContentLoaded`; call it only when Plotly arrives later than that.
    *
    * @returns {boolean} `true` once patched (also when already patched);
@@ -302,7 +312,7 @@
     for (const name of ["newPlot", "react"]) {
       const original = Plotly[name]
       Plotly[name] = (gd, data, layout, config) =>
-        original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(layout)), addButton(Plotly, globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config, is3d(layout)))
+        original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(withView(gd, layout))), addButton(Plotly, globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config, is3d(layout)))
     }
     Plotly.__vmPatched = true
     return true
