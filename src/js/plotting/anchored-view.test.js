@@ -108,6 +108,25 @@ test('a double-click resets to the requested ranges', async () => {
   assert.deepEqual(trackView(gd, anchored(7, 'curve')).xaxis.range, [-7, 7])
 })
 
+test('scaleanchor: false is not a lock', () => {
+  const gd = fakeDiv()
+  const layout = {xaxis: {range: [0, 1]}, yaxis: {range: [0, 1], scaleanchor: false}}
+  assert.equal(trackView(gd, layout), layout)
+  assert.equal(fitView(gd), null)
+})
+
+test('an autoscaled axis stays autoscaled across a same-uirevision redraw', async () => {
+  const gd = fakeDiv()
+  trackView(gd, anchored(5, 'curve'))
+  await settle()
+  gd.fire('plotly_relayout', {'xaxis.autorange': true, 'yaxis.autorange': true})
+  const redrawn = trackView(gd, anchored(5, 'curve'))
+  assert.equal(redrawn.xaxis.autorange, true)
+  assert.equal(redrawn.xaxis.range, undefined)
+  assert.equal(redrawn.yaxis.autorange, true)
+  assert.equal(redrawn.yaxis.scaleanchor, 'x')
+})
+
 test('an autoscaled axis is left to Plotly on resize', async () => {
   const gd = fakeDiv()
   const relayouts = []

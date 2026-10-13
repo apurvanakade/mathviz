@@ -31,7 +31,8 @@
   const isAnchored = (layout) => {
     if (!layout || typeof layout !== "object") return false
     for (const key of Object.keys(layout)) {
-      if (AXIS.test(key) && layout[key] && layout[key].scaleanchor !== undefined) return true
+      // An axis id ("x", "y2"); `false` is Plotly's way of switching a lock off.
+      if (AXIS.test(key) && layout[key] && typeof layout[key].scaleanchor === "string") return true
     }
     return false
   }
@@ -153,7 +154,16 @@
       state.requested = requested
       const out = {...layout}
       for (const key of Object.keys(state.view)) {
-        if (state.view[key] !== null && out[key]) out[key] = {...out[key], range: state.view[key].slice()}
+        if (!out[key]) continue
+        if (state.view[key] === null) {
+          // Autoscaled by the reader: the page's range would switch
+          // autorange back off, so drop it.
+          const axis = {...out[key], autorange: true}
+          delete axis.range
+          out[key] = axis
+        } else {
+          out[key] = {...out[key], range: state.view[key].slice()}
+        }
       }
       return out
     }

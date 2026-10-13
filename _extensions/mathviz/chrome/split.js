@@ -159,6 +159,15 @@
     handle.title = "Drag to resize; double-click to reset"
     document.body.appendChild(handle)
 
+    // A separator's value is the pane width in px, so its range is too
+    // (the ARIA default is 0-100). Kept current for the stylesheet's
+    // default width as well as a dragged one, and on window resize.
+    handle.setAttribute("aria-valuemin", String(MIN_APP))
+    function updateAria() {
+      handle.setAttribute("aria-valuemax", String(Math.max(MIN_APP, window.innerWidth - MIN_TEXT)))
+      handle.setAttribute("aria-valuenow", String(Math.round(app.getBoundingClientRect().width)))
+    }
+
     // The reader's width, or null for the stylesheet's default.
     var appWidth = null
     function setAppWidth(px) {
@@ -166,13 +175,13 @@
       if (width === null) return
       appWidth = width
       document.body.style.setProperty("--vm-split-app-w", width + "px")
-      handle.setAttribute("aria-valuenow", String(width))
+      updateAria()
     }
     function resetAppWidth() {
       appWidth = null
       document.body.style.removeProperty("--vm-split-app-w")
-      handle.removeAttribute("aria-valuenow")
       writeStored(WIDTH_KEY, null)
+      updateAria()
       scheduleFit()
     }
 
@@ -218,6 +227,7 @@
     })
 
     followNavbar()
+    updateAria()
     // OJS fills the controls in after load, so refit whenever the pane, the
     // panel or a slider bar changes size.
     var observer = new ResizeObserver(scheduleFit)
@@ -228,6 +238,7 @@
     window.addEventListener("resize", function () {
       followNavbar()
       if (appWidth !== null) setAppWidth(appWidth)
+      else updateAria()
       scheduleFit()
     })
     scheduleFit()
