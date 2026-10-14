@@ -1,6 +1,6 @@
 ---
 name: land-pr
-description: Land a mathviz pull request (by default the one for the current branch) -- address its review comments, catch docs/CHANGELOG drift the tests can't see, wait for CI, then squash-merge. Use when asked to merge, land, finish or review-and-merge a PR in this repository.
+description: Land a mathviz pull request (by default the one for the current branch) -- address its review comments (Copilot's, or a local maintainer agent's when Copilot is out of credits), catch docs/CHANGELOG drift the tests can't see, wait for CI, then squash-merge. Use when asked to merge, land, finish or review-and-merge a PR in this repository.
 argument-hint: "[PR number]  (default: the current branch's PR)"
 ---
 
@@ -28,6 +28,43 @@ don't bring a new review (the ruleset has re-review on push off, to save
 Copilot quota). If the PR has no review yet, poll `gh pr view <N> --json
 reviews` every minute or two, for up to ~10 minutes. If nothing arrives, go
 on and say so in the final report.
+
+### 2b. Copilot out of credits: a local maintainer review instead
+
+When Copilot's quota runs out it still posts a review, with no findings and
+this body: *"Copilot was unable to review this pull request because the user
+who requested the review has reached their quota limit."* Check for it:
+
+```sh
+gh pr view <N> --json reviews \
+  -q '.reviews[] | select(.author.login | startswith("copilot")) | .body' \
+  | grep -i "unable to review"
+```
+
+If it matches, run a local review in Copilot's place:
+
+1. Spawn a fresh `general-purpose` agent (the Agent tool, not a fork, so it
+   starts without this session's context) with the prompt in
+   [maintainer-review.md](maintainer-review.md), filling in the PR number and
+   the folder holding the PR's head branch. Add nothing about the change: the
+   point is a reviewer who knows the codebase but not the reasoning behind
+   this work, the way a maintainer reading the PR cold would. Run it in the
+   foreground; the next step needs its answer.
+2. Post its findings on the PR as one review, so they become threads the same
+   as Copilot's would. Write the payload to the scratchpad and send it:
+
+   ```sh
+   gh api repos/apurvanakade/mathviz/pulls/<N>/reviews --input review.json
+   ```
+
+   with `{"event": "COMMENT", "body": "Local maintainer review (Copilot out of credits).\n\n<VERDICT line>", "comments": [{"path": ..., "line": ..., "side": "RIGHT", "body": "**<severity>**: <comment>"}, ...]}`.
+   A finding whose line isn't part of the diff can't be an inline comment
+   (the API rejects the whole review); put it in `body` instead, as
+   `` `path:line` -- comment ``. With no findings, post the verdict alone.
+3. Go on to step 3 and triage these threads exactly like Copilot's. The agent
+   read CLAUDE.md, so a finding that contradicts it is rarer than with Copilot,
+   but it can still be wrong: check each one against the code. Its docs
+   findings overlap step 4's drift pass; that pass still runs in full.
 
 ## 3. Triage every review comment
 
@@ -123,6 +160,6 @@ git push origin --delete <head-branch> 2>/dev/null   # remote, if the merge left
 git fetch --prune
 ```
 
-Report the result: the comments fixed or declined (with the reason), the
+Report the result: who reviewed it (Copilot or the local maintainer agent), the comments fixed or declined (with the reason), the
 drift fixed, the merge commit, and the branch deleted. For a release PR, also
 confirm `tag-release.yml` tagged the version (`gh run list -w "Tag release"`).
