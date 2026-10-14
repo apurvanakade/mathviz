@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- An Observable Plot chart wrapped in a `<div>` (say, with a `Plot.legend` appended under it) no longer keeps a white background on the dark theme. Quarto clears Plot's `background: white` only on an SVG that is a cell's direct output; the stylesheet now clears it everywhere.
+
 ## [0.3.1] - 2026-10-13
 
 ### Fixed
