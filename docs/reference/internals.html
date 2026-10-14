@@ -608,6 +608,10 @@ kit/                   what a consumer site copies in: the update hook and the m
 <td>Observable Inputs’ generated forms carry a hashed class. The panel rules override their fixed <code>360px</code> width and <code>120px</code> label column, and theme their buttons. Observable injects its own <code>.oi-&lt;hash&gt;</code> rules into <code>&lt;head&gt;</code> at runtime, <em>after</em> any stylesheet, so a mathviz rule that ties on specificity loses silently – the shipped rules out-specify them or use <code>!important</code>. Bear this in mind if you add rules of your own.</td>
 </tr>
 <tr class="even">
+<td><code>svg[class^="plot-"] { background: none }</code></td>
+<td>Observable Plot styles its SVG <code>background: white</code>, which stays white on the dark theme. Quarto clears it inline, but only on an SVG that is a cell’s direct output, so a Plot wrapped in a <code>&lt;div&gt;</code> (a chart with a <code>Plot.legend</code> under it) kept the white box. The attribute selector outranks Plot’s single generated <code>.plot-&lt;hash&gt;</code> class. A Plot given its own <code>className</code> isn’t matched.</td>
+</tr>
+<tr class="odd">
 <td><code>.js-plotly-plot .modebar*</code></td>
 <td>Plotly’s modebar DOM; the pill, blur and hover-fade live here</td>
 </tr>
