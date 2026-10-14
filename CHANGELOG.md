@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-10-14
+
 ### Fixed
 
 - An Observable Plot chart wrapped in a `<div>` (say, with a `Plot.legend` appended under it) no longer keeps a white background on the dark theme. Quarto clears Plot's `background: white` only on an SVG that is a cell's direct output; the stylesheet now clears it everywhere.
@@ -209,7 +211,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/apurvanakade/mathviz/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/apurvanakade/mathviz/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/apurvanakade/mathviz/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/apurvanakade/mathviz/compare/v0.2.0...v0.2.1
