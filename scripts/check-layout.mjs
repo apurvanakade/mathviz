@@ -194,9 +194,15 @@ async function load(page, url) {
   try {
     await page.goto(url, { waitUntil: 'load', timeout: navigationTimeoutMs })
   } catch (err) {
-    // Report it against this page and carry on to the next, rather than
-    // abort the whole run; the settle wait below says whether anything came.
-    problems.push(`page did not load within ${navigationTimeoutMs}ms: ${err.message.split('\n')[0]}`)
+    // Report it against this page rather than abort the whole run, and still
+    // run the settle wait and checks below: they say whether anything came.
+    // Not every failure is a timeout (a refused connection, an aborted
+    // navigation), so name the timeout only when it was one.
+    if (err.name === 'TimeoutError') {
+      problems.push(`page did not load within ${navigationTimeoutMs}ms: ${err.message.split('\n')[0]}`)
+    } else {
+      problems.push(`page.goto failed: ${err.message.split('\n')[0]}`)
+    }
   }
   try {
     await page.waitForFunction(isSettled, true, { timeout: settleTimeoutMs, polling: 50 })
