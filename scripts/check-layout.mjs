@@ -35,8 +35,11 @@ import { chromium } from 'playwright'
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const siteDir = path.join(repoRoot, 'fixtures', 'layout')
 const outDir = path.join(siteDir, '_site')
-// A ceiling, not a delay: a settled page costs one poll.
-const settleTimeoutMs = 15000
+// Ceilings, not delays: a settled page costs one poll. Generous because the
+// first load on a cold CI runner fetches Plotly, math.js and MathJax from
+// their CDNs; every later load is served from the shared context's cache.
+const navigationTimeoutMs = 60000
+const settleTimeoutMs = 30000
 const pages = ['index.html', 'sliders.html', 'multi.html']
 
 // The fixture site is its own Quarto project, which only finds an extension
@@ -181,9 +184,26 @@ function isSettled(isApp) {
 // Returns the problems found while loading: a page that never settles, or a
 // failed OJS cell, would otherwise pass every check below by having nothing
 // to measure.
+//
+// Waits for `load`, not `networkidle`: the latter needs 500ms with no request
+// in flight, which a page still pulling MathJax's lazy pieces from a CDN on a
+// busy runner may not reach -- Visual Math Lab's crawl timed out that way.
+// isSettled is the real readiness test, and it doesn't care about the network.
 async function load(page, url) {
   const problems = []
-  await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 })
+  try {
+    await page.goto(url, { waitUntil: 'load', timeout: navigationTimeoutMs })
+  } catch (err) {
+    // Report it against this page rather than abort the whole run, and still
+    // run the settle wait and checks below: they say whether anything came.
+    // Not every failure is a timeout (a refused connection, an aborted
+    // navigation), so name the timeout only when it was one.
+    if (err.name === 'TimeoutError') {
+      problems.push(`page did not load within ${navigationTimeoutMs}ms: ${err.message.split('\n')[0]}`)
+    } else {
+      problems.push(`page.goto failed: ${err.message.split('\n')[0]}`)
+    }
+  }
   try {
     await page.waitForFunction(isSettled, true, { timeout: settleTimeoutMs, polling: 50 })
   } catch {
@@ -261,7 +281,7 @@ async function shareProblems(page) {
   return []
 }
 
-async function checkPage(browser, base, relPath) {
+async function checkPage(context, base, relPath) {
   const errors = []
   const watch = (page, prefix) => {
     page.on('pageerror', err => errors.push(`${prefix}pageerror: ${err.message}`))
@@ -271,7 +291,7 @@ async function checkPage(browser, base, relPath) {
   }
 
   // Desktop, at Playwright's default 1280x720.
-  const page = await browser.newPage()
+  const page = await context.newPage()
   watch(page, '')
   for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
   for (const problem of await page.evaluate(sliderTrackProblems)) errors.push(`desktop: ${problem}`)
@@ -281,7 +301,8 @@ async function checkPage(browser, base, relPath) {
   await page.close()
 
   // A phone (390x844, an iPhone 14).
-  const phone = await browser.newPage({ viewport: { width: 390, height: 844 } })
+  const phone = await context.newPage()
+  await phone.setViewportSize({ width: 390, height: 844 })
   watch(phone, 'phone ')
   for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
   for (const problem of await phone.evaluate(sliderTrackProblems)) errors.push(`phone: ${problem}`)
@@ -290,7 +311,7 @@ async function checkPage(browser, base, relPath) {
   await phone.close()
 
   // Embed mode: ?embed=1, then ?embed=<id> for every id-tagged block.
-  const embed = await browser.newPage()
+  const embed = await context.newPage()
   watch(embed, 'embed ')
   for (const problem of await load(embed, `${base}${relPath}?embed=1`)) errors.push(`embed=1: ${problem}`)
   if (!(await embed.evaluate(() => document.documentElement.classList.contains('vm-embed')))) {
@@ -321,10 +342,19 @@ async function main() {
   const server = await serve()
   const base = `http://127.0.0.1:${server.address().port}/`
   const browser = await chromium.launch()
+  // One context for every load, so its HTTP cache keeps the CDN scripts
+  // (browser.newPage() would open a fresh, empty-cached context each time).
+  // Storage is cleared before each navigation instead: the chrome remembers
+  // state there (mobile-warning's "shown once", the sidebar pin, the split
+  // width), and every load should see a first visit.
+  const context = await browser.newContext()
+  await context.addInitScript(() => {
+    try { localStorage.clear(); sessionStorage.clear() } catch (e) { /* storage unavailable */ }
+  })
   let failed = false
   try {
     for (const relPath of pages) {
-      const errors = await checkPage(browser, base, relPath)
+      const errors = await checkPage(context, base, relPath)
       if (errors.length === 0) {
         console.log(`OK    ${relPath}`)
       } else {
