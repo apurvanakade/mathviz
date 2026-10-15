@@ -1,0 +1,87 @@
+---
+title: "Two figures on one page"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- An article with two tagged apps, each with an id: ?embed=<id> must show
+     that one alone, ?embed=1 the first. The second draws an SVG
+     (ojs-svg-block) rather than a Plotly chart. -->
+
+```{ojs}
+//| output: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+Some prose before the first figure.
+
+<div class="vm-app" id="wave">
+
+<div class="ojs-chart-block">
+
+<div class="ojs-chart-controls">
+
+```{ojs}
+viewof frequency = Inputs.range([1, 10], {step: 1, value: 3, label: "Frequency"})
+```
+
+</div>
+
+```{ojs}
+wavePlot = {
+  const x = [], y = []
+  for (let i = 0; i <= 200; i++) {
+    x.push(i / 200)
+    y.push(Math.sin(2 * Math.PI * frequency * i / 200))
+  }
+  const div = document.createElement("div")
+  div.className = "plotly-box-large"
+  Plotly.newPlot(div, [{x, y, showlegend: false, line: {color: chartColors.fn}}],
+    VM.plotting.layout({yaxis: {range: [-1.2, 1.2]}}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+
+</div>
+
+</div>
+
+## A second figure
+
+Prose between the figures.
+
+<div class="vm-app" id="dots">
+
+<div class="ojs-chart-block ojs-svg-block">
+
+<div class="ojs-chart-controls">
+
+```{ojs}
+viewof dotCount = Inputs.range([1, 50], {step: 1, value: 20, label: "Dots"})
+```
+
+</div>
+
+```{ojs}
+{
+  const points = []
+  for (let i = 0; i < dotCount; i++) points.push([i, Math.sin(i)])
+  return Plot.plot(VM.plotting.plotOptions({
+    height: 300,
+    marks: [Plot.dot(points, {fill: chartColors.alt})]
+  }))
+}
+```
+
+</div>
+
+</div>
+
+Prose after the last figure.

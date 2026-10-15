@@ -1,0 +1,131 @@
+---
+title: "Split page with a step slider"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- A method page as a consumer writes one: the split layout, a controls
+     panel (formula + button row, then a grid of fields), and a chart block
+     whose single step slider sits in the bar above a Plotly chart. -->
+
+::::::::: {.vm-split}
+
+```{ojs}
+//| output: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+<div class="vm-app">
+
+<div class="ojs-panel">
+
+<div class="ojs-row">
+
+```{ojs}
+viewof fText = {
+  const input = Inputs.text({label: "Function f(x)", value: "cos(x) - x"})
+  input.classList.add("ojs-fill")
+  return input
+}
+```
+
+```{ojs}
+viewof plotTrigger = {
+  const button = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
+  button.classList.add("ojs-auto")
+  return button
+}
+```
+
+</div>
+
+<div class="ojs-grid">
+
+```{ojs}
+viewof x0Text = Inputs.text({label: "Initial guess x₀", value: "3"})
+```
+
+```{ojs}
+viewof maxText = Inputs.text({label: "Max iterations", value: "12"})
+```
+
+```{ojs}
+viewof exampleSelect = Inputs.select(["cos(x) - x", "x^2 - 2"], {label: "Try an example"})
+```
+
+</div>
+
+</div>
+
+```{ojs}
+//| output: false
+iterates = {
+  plotTrigger
+  const f = VM.expressions.makeFunction(math, fText)
+  const df = VM.expressions.makeDerivative(math, fText)
+  const xs = [Number(x0Text)]
+  for (let n = 0; n < Number(maxText); n++) {
+    const x = xs[xs.length - 1]
+    xs.push(x - f(x) / df(x))
+  }
+  return {f, xs}
+}
+```
+
+<div class="ojs-chart-block">
+
+<div class="ojs-chart-controls">
+
+```{ojs}
+viewof step = {
+  const slider = Inputs.range([0, iterates.xs.length - 1], {step: 1, value: 0, label: "n"})
+  slider.classList.add("ojs-fill")
+  return slider
+}
+```
+
+</div>
+
+```{ojs}
+mainPlot = {
+  const xs = iterates.xs.slice(0, step + 1)
+  const zeros = []
+  for (let i = 0; i < xs.length; i++) zeros.push(0)
+  const cx = [], cy = []
+  for (let i = 0; i <= 200; i++) {
+    const x = -4 + 8 * i / 200
+    cx.push(x)
+    cy.push(iterates.f(x))
+  }
+  const data = [
+    {x: cx, y: cy, showlegend: false, line: {color: chartColors.fn}},
+    {x: xs, y: zeros, mode: "markers", showlegend: false, marker: {color: chartColors.ok}}
+  ]
+  const div = document.createElement("div")
+  div.className = "plotly-box-large"
+  Plotly.newPlot(div, data, VM.plotting.layout({xaxis: {range: [-4, 4]}, yaxis: {range: [-6, 6]}}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+
+</div>
+
+</div>
+
+Newton's method replaces $x_n$ by
+
+$$
+x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)},
+$$
+
+the root of the tangent line at $x_n$. The prose column scrolls beside the
+app on a wide screen and follows it on a phone.
+
+:::::::::

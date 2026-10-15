@@ -1,0 +1,49 @@
+# Copyright (c) 2026 Apurva Nakade. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+# Authors: Apurva Nakade
+
+# The fixture site for scripts/layout-test.mjs: a few small pages that use
+# every piece of mathviz chrome that affects layout (theme, fonts, sidebar
+# rail, split, share + embed), configured the way Visual Math Lab configures
+# them. Not published. The script copies _extensions/mathviz in before
+# rendering (that copy is gitignored), so the pages always use this
+# checkout's build.
+project:
+  type: website
+  output-dir: _site
+
+filters:
+  - mathviz
+mathviz:
+  referrer: same-origin
+  fonts: true
+  sidebar-rail: true
+  split: true
+  share:
+    site-url: https://example.com
+
+execute:
+  echo: false
+  warning: false
+
+website:
+  title: "mathviz layout fixtures"
+  page-navigation: true
+  sidebar:
+    - style: floating
+      contents:
+        - index.qmd
+        - sliders.qmd
+        - multi.qmd
+
+format:
+  html:
+    theme:
+      light: [_extensions/mathviz/theme/mathviz-light.scss]
+      dark: [_extensions/mathviz/theme/mathviz-dark.scss]
+    toc: false
+    html-math-method: mathjax
+    grid:
+      body-width: 1000px
+      sidebar-width: 260px
+      margin-width: 200px

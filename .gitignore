@@ -10,3 +10,9 @@ _site/
 
 **/*.quarto_ipynb
 .DS_Store
+
+# The layout-test fixture site: the extension copied in by
+# scripts/layout-test.mjs, and its render.
+/test/layout/_extensions/
+/test/layout/_site/
+/test/layout/.quarto/
