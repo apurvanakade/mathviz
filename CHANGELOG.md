@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-15
+
 ### Fixed
 
 - Grid listing thumbnails follow the listing's `image-height` again. The theme's `height: 160px` was `!important` and beat the inline height Quarto writes for that option, so every grid listing on a site using the theme had 160px thumbnails whatever it asked for. A listing that sets no `image-height` now gets Quarto's default, 150px.
@@ -227,7 +229,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/apurvanakade/mathviz/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/apurvanakade/mathviz/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/apurvanakade/mathviz/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/apurvanakade/mathviz/compare/v0.3.1...v0.3.2
