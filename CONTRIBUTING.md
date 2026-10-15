@@ -42,6 +42,8 @@ npm run build          # src/ -> dist/mathviz.{js,css} and _extensions/mathviz/d
 quarto preview         # the docs site, live-reloading, rendered through the extension in place
 quarto render          # the same, once, into _site/ (what CI runs)
 quarto render starter  # the starter site, through the extension the build mirrored into starter/_extensions/
+npx playwright install chromium   # once, for the next line
+npm run test:layout    # renders fixtures/layout/ and checks its layout in headless Chromium
 ```
 
 - **Source lives in `src/`**. `src/js/<category>/<name>.js` is one `VM.<category>.<name>` function per file (a few export two or three that belong together), wrapped in an IIFE that extends `window.VM`; `src/css/*.css` is the design system, split by concern. Colocate a `<name>.test.js` next to every function that has logic worth testing -- the tests load the real files through `scripts/load-vm.mjs`.

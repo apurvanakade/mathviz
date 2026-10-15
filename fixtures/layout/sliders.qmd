@@ -1,0 +1,87 @@
+---
+title: "Several sliders"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- The crowded cases: a chart-controls bar of four sliders in a grid (label
+     above track), and a panel with three sliders sharing one grid row --
+     where slider tracks were once squeezed to 0px by Observable Inputs'
+     runtime styles. One column, no split. -->
+
+```{ojs}
+//| output: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+<div class="vm-app">
+
+<div class="ojs-panel">
+
+<div class="ojs-grid">
+
+```{ojs}
+viewof prevalence = Inputs.range([0, 1], {step: 0.01, value: 0.1, label: "Prevalence"})
+```
+
+```{ojs}
+viewof sensitivity = Inputs.range([0, 1], {step: 0.01, value: 0.9, label: "Sensitivity"})
+```
+
+```{ojs}
+viewof specificity = Inputs.range([0, 1], {step: 0.01, value: 0.95, label: "Specificity"})
+```
+
+</div>
+
+</div>
+
+<div class="ojs-chart-block">
+
+<div class="ojs-chart-controls ojs-grid">
+
+```{ojs}
+viewof alpha = Inputs.range([0, 1], {step: 0.01, value: 0.5, label: "Smoothing α"})
+```
+
+```{ojs}
+viewof noiseR = Inputs.range([0.01, 10], {step: 0.01, value: 1, label: "Measurement noise R"})
+```
+
+```{ojs}
+viewof noiseQ = Inputs.range([0.01, 10], {step: 0.01, value: 0.1, label: "Process noise Q"})
+```
+
+```{ojs}
+viewof samples = Inputs.range([10, 500], {step: 1, value: 100, label: "Samples"})
+```
+
+</div>
+
+```{ojs}
+mainPlot = {
+  const x = [], y = []
+  let level = 0
+  for (let i = 0; i < samples; i++) {
+    level = alpha * Math.sin(i / 10) * noiseR + (1 - alpha) * level * noiseQ
+    x.push(i)
+    y.push(level + prevalence * sensitivity * specificity)
+  }
+  const div = document.createElement("div")
+  div.className = "plotly-box-large"
+  Plotly.newPlot(div, [{x, y, showlegend: false, line: {color: chartColors.fn}}],
+    VM.plotting.layout({xaxis: {range: [0, 500]}, yaxis: {range: [-12, 12]}}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+
+</div>
+
+</div>

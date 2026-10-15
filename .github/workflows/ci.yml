@@ -37,6 +37,12 @@ jobs:
       # The starter is its own Quarto project with the extension vendored in,
       # the way a consumer has it: renders it as a consumer would.
       - run: quarto render starter
+      # Layout in a real browser: slider tracks, the playback popover, a
+      # phone's width, embed mode and the Share dialog, on the fixture site
+      # in fixtures/layout/. None of it throws when it breaks, so npm test's
+      # stubbed DOM can't see it.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:layout
 
   # A pull request that changes the library must say so in CHANGELOG.md.
   # Three changes once landed with none and had to be back-filled. A change
