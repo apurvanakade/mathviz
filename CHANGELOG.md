@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-10-15
+
 ### Fixed
 
 - Embed mode (`?embed=1`) hides a page's Giscus comments (`.giscus`) along with the rest of the site chrome; they showed under the app in the frame.
@@ -233,7 +235,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/apurvanakade/mathviz/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/apurvanakade/mathviz/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/apurvanakade/mathviz/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/apurvanakade/mathviz/compare/v0.3.2...v0.3.3
