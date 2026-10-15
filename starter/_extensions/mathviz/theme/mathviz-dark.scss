@@ -213,9 +213,13 @@ main.content a {
   border-color: var(--vm-accent);
 }
 
+/* 160px is only the default. Quarto writes a listing's `image-height` as an
+ * inline style on the <img>, and that has to win: an !important here
+ * overrode every listing's own setting (190px, 220px, 250px on the consumer
+ * sites) with no way back. */
 .quarto-grid-item .card-img,
 .quarto-grid-item .thumbnail-image {
-  height: 160px !important;
+  height: 160px;
   object-fit: cover;
 }
 
