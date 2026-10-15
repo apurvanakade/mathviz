@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-10-15
+
 ### Fixed
 
 - A `VM.ui.statRow` with fewer tiles than fit on one line no longer stretches them across the row: a single tile filled the whole chart width. The row is now at most 14rem per tile wide; a phone still fits two tiles to a row.
@@ -215,7 +217,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/apurvanakade/mathviz/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/apurvanakade/mathviz/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/apurvanakade/mathviz/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/apurvanakade/mathviz/compare/v0.2.1...v0.3.0
