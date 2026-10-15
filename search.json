@@ -103,7 +103,7 @@
     "href": "docs/site.html#embedding",
     "title": "Site extras",
     "section": "Embedding",
-    "text": "Embedding\nmathviz:\n  embed: true\nAdding ?embed=1 to a page’s URL shows only the page’s first app: no navbar, sidebar, title or footer. ?embed=&lt;id&gt; shows the app with that id instead. Another site then frames it:\n&lt;iframe\n  src=\"https://example.com/apps/newton/?embed=1\"\n  width=\"100%\" height=\"900\" loading=\"lazy\"\n  title=\"Newton's method\"&gt;\n&lt;/iframe&gt;\nA page’s own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, phone notice, Share button and Report bug popup all stay hidden.",
+    "text": "Embedding\nmathviz:\n  embed: true\nAdding ?embed=1 to a page’s URL shows only the page’s first app: no navbar, sidebar, title, footer or comments. ?embed=&lt;id&gt; shows the app with that id instead. Another site then frames it:\n&lt;iframe\n  src=\"https://example.com/apps/newton/?embed=1\"\n  width=\"100%\" height=\"900\" loading=\"lazy\"\n  title=\"Newton's method\"&gt;\n&lt;/iframe&gt;\nA page’s own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, phone notice, Share button and Report bug popup all stay hidden.",
     "crumbs": [
       "Guide",
       "Site extras"
