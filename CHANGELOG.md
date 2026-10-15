@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- Embed mode (`?embed=1`) hides a page's Giscus comments (`.giscus`) along with the rest of the site chrome; they showed under the app in the frame.
+
 ## [0.4.1] - 2026-10-15
 
 ### Fixed
