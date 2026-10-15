@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- A `VM.ui.statRow` with fewer tiles than fit on one line no longer stretches them across the row: a single tile filled the whole chart width. The row is now at most 14rem per tile wide; a phone still fits two tiles to a row.
+
+### Fixed
+
+- A `VM.ui.statRow` with fewer tiles than fit on one line no longer stretches them across the row: a single tile filled the whole chart width. Each tile is now at most 14rem wide, and the row is left aligned.
+
 ## [0.3.2] - 2026-10-14
 
 ### Fixed
