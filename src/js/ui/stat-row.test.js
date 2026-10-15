@@ -13,7 +13,8 @@ const { statRow } = VM.ui
 
 test('statRow builds one labelled tile per item', () => {
   const make = (tag) => {
-    const el = {tag, className: '', title: '', textContent: '', children: []}
+    const el = {tag, className: '', title: '', textContent: '', children: [], props: {}}
+    el.style = {setProperty: (name, v) => { el.props[name] = v }}
     el.append = (...nodes) => el.children.push(...nodes)
     return el
   }
@@ -22,6 +23,7 @@ test('statRow builds one labelled tile per item', () => {
   const row = statRow([{label: 'Estimate', value: 3.14, title: 'pi hat'}, {label: 'n', value: '100'}])
   assert.equal(row.className, 'vm-stat-row')
   assert.equal(row.children.length, 2)
+  assert.equal(row.props['--vm-stat-count'], '2')
   const [label, value] = row.children[0].children
   assert.equal(row.children[0].title, 'pi hat')
   assert.equal(label.textContent, 'Estimate')

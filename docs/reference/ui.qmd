@@ -132,7 +132,7 @@ A compact, horizontally scrollable results table with a "Download csv" link abov
 
 ### VM.ui.statRow(items) {#statRow}
 
-A row of small label-over-value tiles, for the handful of numbers a Monte Carlo page reports on every slider move -- an estimate, its standard error, an acceptance rate. Put it between the controls panel and the chart. The tiles share the panel's surface and border, show values in the monospace face so digits don't jitter, and wrap onto more rows on a narrow screen.
+A row of small label-over-value tiles, for the handful of numbers a Monte Carlo page reports on every slider move -- an estimate, its standard error, an acceptance rate. Put it between the controls panel and the chart. The tiles share the panel's surface and border, show values in the monospace face so digits don't jitter, and wrap onto more rows on a narrow screen. Each tile is at most 14rem wide, so a row of one or two doesn't stretch across the page.
 
 | Parameter | Type | Description |
 |---|---|---|

@@ -5641,6 +5641,9 @@
   const statRow = (items) => {
     const row = document.createElement("div")
     row.className = "vm-stat-row"
+    // The tile count caps the row's width in stat-row.css, so a short row
+    // keeps tile-sized tiles instead of stretching them across the page.
+    row.style.setProperty("--vm-stat-count", String(items.length))
     for (const item of items) {
       const tile = document.createElement("div")
       tile.className = "vm-stat"
