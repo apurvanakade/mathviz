@@ -12,7 +12,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Fixed
 
-- A listing's `image-height` sets its card thumbnails' height again. The theme's 160px was `!important` and beat the inline height Quarto writes for that option, so every grid listing on a site using the theme had 160px thumbnails whatever it asked for; 160px is now only the default.
+- Grid listing thumbnails follow the listing's `image-height` again. The theme's `height: 160px` was `!important` and beat the inline height Quarto writes for that option, so every grid listing on a site using the theme had 160px thumbnails whatever it asked for. A listing that sets no `image-height` now gets Quarto's default, 150px.
 
 ## [0.4.0] - 2026-10-15
 
