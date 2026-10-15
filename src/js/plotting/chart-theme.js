@@ -59,7 +59,7 @@
   // flips a class there), and <html> never matches it -- so reading from
   // <html> returns the *light* value even in dark mode. Measured on a real
   // page after toggling to dark:
-  //   getComputedStyle(documentElement)["--vm-surface"] -> "#f6f5f1" (light)
+  //   getComputedStyle(documentElement)["--vm-surface"] -> "#f8f7f3" (light)
   //   getComputedStyle(document.body)["--vm-surface"]   -> "#1e2125" (right)
   // That single wrong element is what made every chart's hover label render
   // as a white box on the dark theme.
@@ -488,7 +488,7 @@
    *   font: {family: string, size: number, color: string}}}
    */
   const hoverLabel = () => ({
-    bgcolor: cssVar("--vm-surface", "#f6f5f1"),
+    bgcolor: cssVar("--vm-surface", "#f8f7f3"),
     bordercolor: cssVar("--vm-border", "rgba(28, 31, 35, 0.15)"),
     align: "left",
     font: { family: fontFamily(), size: 12, color: cssVar("--vm-text", "#1c1f23") }
@@ -553,7 +553,7 @@
     const textSoft = cssVar("--vm-text-soft", "#5c6570")
     const grid = cssVar("--vm-grid", "rgba(28, 31, 35, 0.08)")
     const border = cssVar("--vm-border", "rgba(28, 31, 35, 0.15)")
-    const surface = cssVar("--vm-surface", "#f6f5f1")
+    const surface = cssVar("--vm-surface", "#f8f7f3")
     const accent = cssVar("--vm-accent", "#10606b")
     const patch = {
       paper_bgcolor: "rgba(0,0,0,0)",

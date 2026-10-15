@@ -32,10 +32,11 @@
 :where(:root) {
   /* Chrome. Warm neutrals with a deep teal accent, the palette of
    * apurvanakade.github.io, so a post reads the same on every mathviz site.
-   * The panel surface is a warm grey at the luminance of the cool one it
-   * replaced, so no chart color loses contrast inside a panel. */
+   * The panel surface is a warm grey at the same relative luminance as the
+   * cool #f6f7f9 it replaced (0.930), so chart colors keep their contrast
+   * inside a panel. */
   --vm-bg: #fdfdfc;
-  --vm-surface: #f6f5f1;
+  --vm-surface: #f8f7f3;
   --vm-surface-hover: #ecebe6;
   --vm-text: #1c1f23;
   --vm-text-soft: #5c6570;
