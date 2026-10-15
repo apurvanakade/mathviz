@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-15
+
 ### Changed
 
 - New chrome palette, shared with apurvanakade.github.io so a post looks the same on every mathviz site: warm neutrals with a deep teal accent (`--vm-accent` `#10606b` light, `#63c3cf` dark) on a near-white page and a charcoal dark theme (`--vm-bg` `#16181b`) in place of the navy one. The chart palette (`--vm-color-*`) is unchanged except `halo` on dark, which follows the new background; on light, every chart color's contrast against the page and panel surfaces is unchanged to within 0.01; on dark, every one gains. A site that set its own `--vm-*` tokens is unaffected.
@@ -221,7 +223,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/apurvanakade/mathviz/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/apurvanakade/mathviz/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/apurvanakade/mathviz/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/apurvanakade/mathviz/compare/v0.3.0...v0.3.1
