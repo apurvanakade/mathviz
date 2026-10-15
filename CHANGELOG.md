@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Changed
+
+- New chrome palette, shared with apurvanakade.github.io so a post looks the same on every mathviz site: warm neutrals with a deep teal accent (`--vm-accent` `#10606b` light, `#63c3cf` dark) on a near-white page and a charcoal dark theme (`--vm-bg` `#16181b`) in place of the navy one. The chart palette (`--vm-color-*`) is unchanged except `halo` on dark, which follows the new background; on light, every chart color's contrast against the page and panel surfaces is unchanged to within 0.01; on dark, every one gains. A site that set its own `--vm-*` tokens is unaffected.
+
 ## [0.3.3] - 2026-10-15
 
 ### Fixed

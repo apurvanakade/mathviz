@@ -55,7 +55,7 @@ Live: each swatch is the value your browser computes for the token **right now**
     ["--vm-border", "panel borders, slider tracks; axis lines, zero lines, ticks, tooltip border (JS)"],
     ["--vm-accent", "buttons, focus rings, slider fill, the active modebar button"],
     ["--vm-accent-hover", "Observable Inputs button hover"],
-    ["--vm-on-accent", "text and icons drawn <em>on</em> --vm-accent: a filled button's label, the selected playback speed pill. Not white -- the dark accent is pale, and white on it measures 2.09:1. If you override --vm-accent, override this with your page background"],
+    ["--vm-on-accent", "text and icons drawn <em>on</em> --vm-accent: a filled button's label, the selected playback speed pill. Not white -- the dark accent is pale, and white on it measures 2.05:1. If you override --vm-accent, override this with your page background"],
     ["--vm-grid", "chart gridlines (JS only)"],
     ["--vm-radius", "panel and popover corners -- same in both themes"],
     ["--vm-radius-sm", "inputs, buttons, the legend grip -- same in both themes"],

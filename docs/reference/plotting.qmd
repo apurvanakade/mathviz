@@ -39,7 +39,7 @@ A fresh snapshot of the chart palette for whichever theme is active right now, r
 | `warn` | a warning, a diverging iterate | `#f59e0b` | `#fbbf24` |
 | `accent2` | a third series | `#9333ea` | `#c084fc` |
 | `accent3` | a fourth series | `#0d9488` | `#2dd4bf` |
-| `halo` | the ring around a marker -- white on light, the page background on dark. Use it instead of `"white"`. | `#ffffff` | `#171b29` |
+| `halo` | the ring around a marker -- white on light, the page background on dark. Use it instead of `"white"`. | `#ffffff` | `#16181b` |
 
 **Returns** `{fn, alt, ok, muted, ink, warn, accent2, accent3, halo}` as CSS color strings. Falls back to the light hexes when no stylesheet is loaded.
 
