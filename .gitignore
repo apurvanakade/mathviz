@@ -11,8 +11,6 @@ _site/
 **/*.quarto_ipynb
 .DS_Store
 
-# The layout fixture site: the extension copied in by
-# scripts/check-layout.mjs, and its render.
+# The extension scripts/check-layout.mjs copies into the layout fixture site
+# (its _site/ and .quarto/ are covered above).
 /fixtures/layout/_extensions/
-/fixtures/layout/_site/
-/fixtures/layout/.quarto/

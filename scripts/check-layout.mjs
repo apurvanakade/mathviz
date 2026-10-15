@@ -165,7 +165,9 @@ function isSettled(isApp) {
   }
   if (isApp) {
     const app = document.querySelector('.vm-app')
-    if (app && !app.querySelector('.plotly, svg')) return false
+    // A figure, not any <svg>: every slider's play button carries an icon
+    // one, which exists long before (or without) the chart.
+    if (app && !app.querySelector('.js-plotly-plot, svg:not(button svg)')) return false
   }
   // Untypeset math is raw TeX, which a nowrap span can stretch far past a
   // phone's width (a 789px line once, on Visual Math Lab), so a layout check
@@ -176,9 +178,20 @@ function isSettled(isApp) {
   return true
 }
 
+// Returns the problems found while loading: a page that never settles, or a
+// failed OJS cell, would otherwise pass every check below by having nothing
+// to measure.
 async function load(page, url) {
+  const problems = []
   await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 })
-  await page.waitForFunction(isSettled, true, { timeout: settleTimeoutMs, polling: 50 }).catch(() => {})
+  try {
+    await page.waitForFunction(isSettled, true, { timeout: settleTimeoutMs, polling: 50 })
+  } catch {
+    problems.push(`page did not settle within ${settleTimeoutMs}ms (cells running, no chart, or untypeset math)`)
+  }
+  const failedCells = await page.evaluate(() => document.querySelectorAll('.observablehq--error').length)
+  if (failedCells > 0) problems.push(`${failedCells} OJS cell(s) failed (.observablehq--error)`)
+  return problems
 }
 
 // Opens each playback popover and asserts it paints where it says it is --
@@ -260,7 +273,7 @@ async function checkPage(browser, base, relPath) {
   // Desktop, at Playwright's default 1280x720.
   const page = await browser.newPage()
   watch(page, '')
-  await load(page, base + relPath)
+  for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
   for (const problem of await page.evaluate(sliderTrackProblems)) errors.push(`desktop: ${problem}`)
   for (const problem of await page.evaluate(slidersBelowChart)) errors.push(`desktop: ${problem}`)
   for (const problem of await popoverProblems(page)) errors.push(`desktop: ${problem}`)
@@ -270,7 +283,7 @@ async function checkPage(browser, base, relPath) {
   // A phone (390x844, an iPhone 14).
   const phone = await browser.newPage({ viewport: { width: 390, height: 844 } })
   watch(phone, 'phone ')
-  await load(phone, base + relPath)
+  for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
   for (const problem of await phone.evaluate(sliderTrackProblems)) errors.push(`phone: ${problem}`)
   const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
   if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
@@ -279,18 +292,24 @@ async function checkPage(browser, base, relPath) {
   // Embed mode: ?embed=1, then ?embed=<id> for every id-tagged block.
   const embed = await browser.newPage()
   watch(embed, 'embed ')
-  await load(embed, `${base}${relPath}?embed=1`)
+  for (const problem of await load(embed, `${base}${relPath}?embed=1`)) errors.push(`embed=1: ${problem}`)
   if (!(await embed.evaluate(() => document.documentElement.classList.contains('vm-embed')))) {
     errors.push('embed: html.vm-embed not set')
   }
-  for (const problem of await embed.evaluate(embedProblems, null)) errors.push(`embed=1: ${problem}`)
+  // embed=1 shows the page's first .vm-app; when that has an id, insist on it.
+  const firstId = await embed.evaluate(() => {
+    const first = document.querySelector('.vm-app')
+    if (first && first.id) return first.id
+    return null
+  })
+  for (const problem of await embed.evaluate(embedProblems, firstId)) errors.push(`embed=1: ${problem}`)
   const ids = await embed.evaluate(() => {
     const found = []
     for (const app of document.querySelectorAll('#quarto-document-content .vm-app[id]')) found.push(app.id)
     return found
   })
   for (const id of ids) {
-    await load(embed, `${base}${relPath}?embed=${encodeURIComponent(id)}`)
+    for (const problem of await load(embed, `${base}${relPath}?embed=${encodeURIComponent(id)}`)) errors.push(`embed=${id}: ${problem}`)
     for (const problem of await embed.evaluate(embedProblems, id)) errors.push(`embed=${id}: ${problem}`)
   }
   await embed.close()
