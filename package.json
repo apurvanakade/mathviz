@@ -10,7 +10,7 @@
     "test": "node --test",
     "build": "node scripts/build.mjs",
     "check": "npm test && npm run build && git diff --exit-code -- dist _extensions/mathviz/dist starter/_extensions",
-    "test:layout": "node scripts/layout-test.mjs"
+    "test:layout": "node scripts/check-layout.mjs"
   },
   "devDependencies": {
     "mathjs": "^15.2.0",

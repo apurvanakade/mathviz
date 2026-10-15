@@ -4,7 +4,7 @@
  * Authors: Apurva Nakade
  */
 
-// Browser layout test: renders the fixture site in test/layout/ through this
+// Browser layout test: renders the fixture site in fixtures/layout/ through this
 // checkout's extension and asserts, in a real Chromium, what the unit tests'
 // stubbed DOM cannot see -- the page renders wrong without anything throwing:
 //
@@ -23,7 +23,7 @@
 // them flaky. Here they run on small fixture pages, one at a time.
 //
 // Usage: npm run test:layout              (render, then check)
-//        node scripts/layout-test.mjs --no-render   (reuse test/layout/_site)
+//        node scripts/check-layout.mjs --no-render   (reuse fixtures/layout/_site)
 
 import fs from 'node:fs'
 import http from 'node:http'
@@ -33,7 +33,7 @@ import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const siteDir = path.join(repoRoot, 'test', 'layout')
+const siteDir = path.join(repoRoot, 'fixtures', 'layout')
 const outDir = path.join(siteDir, '_site')
 // A ceiling, not a delay: a settled page costs one poll.
 const settleTimeoutMs = 15000
@@ -47,7 +47,7 @@ function render() {
   fs.rmSync(target, { recursive: true, force: true })
   fs.cpSync(path.join(repoRoot, '_extensions', 'mathviz'), target, { recursive: true })
   const result = spawnSync('quarto', ['render', siteDir], { stdio: 'inherit' })
-  if (result.status !== 0) throw new Error('quarto render test/layout failed')
+  if (result.status !== 0) throw new Error('quarto render fixtures/layout failed')
 }
 
 // Module scripts don't load from file://, so serve _site/ over HTTP.
