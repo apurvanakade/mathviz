@@ -572,6 +572,7 @@ Authors: Apurva Nakade
 <li><strong>Below 992px</strong> the page is one column, app first.</li>
 <li><strong>The divider</strong> between text and pane can be dragged, or focused and moved with the arrow keys. The pane stays at least 480px wide and the text 320px. The width is remembered in <code>localStorage</code> under the storage key (<code>vm-split-width</code> with <code>true</code>); double-click or <code>Home</code> resets it and forgets it.</li>
 <li><strong>In an embed</strong> the app is the whole frame, as on any other page.</li>
+<li><strong>Only one app goes in the pane</strong>: the <code>vm-app</code> that is a direct child of <code>vm-split</code>. A second app wrapped in a plain <code>&lt;div&gt;</code> stays in the text column, at the text’s width, and <code>?embed=&lt;id&gt;</code> still shows it across the whole frame.</li>
 </ul>
 <p>Pages without <code>vm-split</code> are unchanged, so a site can split its app-first pages and leave its articles as they are. Keep every slider above the chart it drives: in a pane fitted to the window, a control below the chart is the first thing pushed out of view.</p>
 </section>
