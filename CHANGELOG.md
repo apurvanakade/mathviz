@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- On a split page, `?embed=<id>` for a second app kept in the text column (a `vm-app` inside a plain `<div>`) fills the frame. In a frame 992px or wider it was held to the text column's centred 36rem.
+
 ## [0.4.2] - 2026-10-15
 
 ### Fixed
