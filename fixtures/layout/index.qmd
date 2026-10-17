@@ -128,4 +128,35 @@ $$
 the root of the tangent line at $x_n$. The prose column scrolls beside the
 app on a wide screen and follows it on a phone.
 
+<!-- A second app kept in the text column: a plain div keeps it out of the
+     pane (which takes only a direct-child .vm-app). ?embed=steps must
+     still give it the whole frame, not the column's 36rem. -->
+<div>
+
+<div class="vm-app" id="steps">
+
+<div class="ojs-chart-block">
+
+```{ojs}
+stepsPlot = {
+  const ns = [], gaps = []
+  for (let n = 1; n < iterates.xs.length; n++) {
+    ns.push(n)
+    gaps.push(Math.abs(iterates.xs[n] - iterates.xs[n - 1]))
+  }
+  const div = document.createElement("div")
+  div.className = "plotly-box-large"
+  Plotly.newPlot(div, [{x: ns, y: gaps, mode: "lines+markers", showlegend: false, line: {color: chartColors.alt}}],
+    VM.plotting.layout({yaxis: {type: "log"}}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+
+</div>
+
+</div>
+
+</div>
+
 :::::::::

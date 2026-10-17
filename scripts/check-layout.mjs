@@ -15,7 +15,8 @@
 //     only because it is a top-layer [popover]);
 //   - a slider below the chart it drives;
 //   - a page that scrolls sideways on a phone;
-//   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app;
+//   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app, or
+//     showing it narrower than the content column;
 //   - the Share dialog's links and <iframe> snippet.
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
@@ -150,7 +151,15 @@ function embedProblems(expectedId) {
   if (expectedId !== null && active.id !== expectedId) {
     problems.push(`active .vm-app is #${active.id || '(no id)'}, expected #${expectedId}`)
   }
-  if (active.getBoundingClientRect().height === 0) problems.push('the active .vm-app has zero height')
+  const activeBox = active.getBoundingClientRect()
+  if (activeBox.height === 0) problems.push('the active .vm-app has zero height')
+  // Nothing inside the content column (a split page's 36rem text column,
+  // say) may hold the app narrower than the column itself. A Plotly chart
+  // is fitted to its box, so this shows.
+  const columnWidth = main.getBoundingClientRect().width
+  if (activeBox.width < 0.9 * columnWidth) {
+    problems.push(`the active .vm-app is ${Math.round(activeBox.width)}px wide in a ${Math.round(columnWidth)}px content column`)
+  }
   for (const el of main.querySelectorAll('*')) {
     if (el === active || active.contains(el) || el.contains(active)) continue
     if (el.getBoundingClientRect().height > 0) {
