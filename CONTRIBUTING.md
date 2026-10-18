@@ -54,7 +54,6 @@ npm run test:layout    # renders fixtures/layout/ and checks its layout in headl
 - **To try a change in another Quarto project** before it's published: `quarto add /path/to/mathviz --no-prompt` from that project. A local directory is accepted; Quarto copies `_extensions/mathviz/` in. Re-run after each `npm run build`. A **symlink** at `_extensions/mathviz` is not discovered -- Quarto checks `isDirectory()` on the raw directory entry.
 - **Colors and fonts are CSS tokens** (`src/css/tokens.css`). JS reads them at call time through `getComputedStyle`; nothing in `src/js` hardcodes a hex except the light-mode fallbacks in `chart-theme.js`. If you add a token, add it to both the light and dark blocks and to the token table in `docs/theming.qmd`; a palette color also goes into `FALLBACK` in `chart-theme.js`.
 - **Keep the dark selector in sync in two places**: the `:where(...)` list in `src/css/tokens.css` and `settings.darkSelector` in `src/js/plotting/chart-theme.js`.
-- Prefer explicit `for`/`while` loops and `if`/`else` over `.map()/.filter()/.reduce()` chains and ternaries -- the code is read by a mathematics audience more at home in Python than in functional JavaScript. Callbacks an API requires are fine.
 
 ## Releasing
 
