@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.numerical.orderFromSuccessiveErrors(rows, errorKey, scaleKey?)`: the observed order of convergence of one run of an iterative method (Newton, secant, ...), as the slope of log e_{k+1} against log e_k. It drops errors at rounding level and fits only the trailing run where the error shrinks, so a run that diverges or cycles reports no order.
+
+### Changed
+
+- **Breaking:** `VM.numerical.convergenceFit` is renamed `VM.numerical.orderFromErrorsVsN`, a name that says what it fits. Arguments and return value are unchanged. It shipped in 0.5.0; replace the name at each call.
+
 ## [0.5.0] - 2026-10-18
 
 ### Added

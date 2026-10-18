@@ -37,7 +37,7 @@
    *   - `exactFromN`: the n from which every later finite error is at or
    *     below the floor, or `null` if the last one isn't.
    */
-  const convergenceFit = (rows, reference, errorKey) => {
+  const orderFromErrorsVsN = (rows, reference, errorKey) => {
     const roundoffFloor = 1e-12 * Math.max(1, Math.abs(reference))
     let maxN = 0
     for (const row of rows) {
@@ -71,5 +71,5 @@
     return {points, fit, order, exact, exactFromN}
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, convergenceFit}}
+  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, orderFromErrorsVsN}}
 })(window)
