@@ -14,7 +14,7 @@ The bundle attaches one global, `VM`, with a namespace per concern. Each source 
 | Namespace | What's in it | Depends on |
 |---|---|---|
 | [`VM.expressions`](expressions.qmd) | typed formulas → JavaScript functions and numbers, never throwing | math.js (passed in) |
-| [`VM.numerical`](numerical.qmd) | Euler and RK4 steppers, Simpson's rule, a Lagrange parabola, L1/L2/polynomial fits, symmetric eigenvalues | -- (`polynomialFit` takes math.js) |
+| [`VM.numerical`](numerical.qmd) | Euler and RK4 steppers, Simpson's rule, a Lagrange parabola, L1/L2/polynomial fits, observed convergence order, symmetric eigenvalues | -- (`polynomialFit` takes math.js) |
 | [`VM.sampling`](sampling.qmd) | seeded uniform and Gaussian generators | -- |
 | [`VM.filters`](filters.qmd) | moving average, EMA, scalar Kalman | -- |
 | [`VM.distributions`](distributions.qmd) | 16 closed-form PDFs/PMFs, `logGamma`, `sampleCurve`, `histogramBins` | -- |

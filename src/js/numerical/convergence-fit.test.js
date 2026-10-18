@@ -59,3 +59,9 @@ test('convergenceFit skips non-finite errors and reads the error under errorKey'
   assert.ok(Math.abs(order - 1) < 1e-10, `order ${order}`)
   assert.equal(convergenceFit(rowsOf(5, () => Infinity), 1, 'error').exact, false)
 })
+
+test('convergenceFit takes the absolute value of a signed error', () => {
+  const { order, exact } = convergenceFit(rowsOf(40, n => -2 / n ** 3), 1, 'error')
+  assert.equal(exact, false)
+  assert.ok(Math.abs(order - 3) < 1e-10, `order ${order}`)
+})

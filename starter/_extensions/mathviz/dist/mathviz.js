@@ -2159,13 +2159,17 @@
    *   error under `errorKey`. Rows whose error isn't finite are skipped.
    * @param {number} reference - The exact value the errors are measured
    *   against. It only sets the rounding floor, `1e-12 * max(1, |reference|)`.
-   * @param {string} errorKey - The row field holding the error.
-   * @returns {{points: {x: number, y: number}[], fit: Object|null,
+   * @param {string} errorKey - The row field holding the error. Its
+   *   absolute value is used, so a signed error (approx - exact) works too.
+   * @returns {{points: {x: number, y: number}[],
+   *   fit: {slope: number, intercept: number, xlo: number, xhi: number}|null,
    *   order: number, exact: boolean, exactFromN: number|null}}
    *   - `points`: `{x: log10 n, y: log10 error}` for every error above the
    *     floor, in row order.
    *   - `fit`: `linearRegression` over the points with n ≥ (largest n) / 2,
-   *     or `null` (exact, or fewer than two such points).
+   *     or `null` (exact, or fewer than two such points). Its x is log10 n,
+   *     and `xlo`/`xhi` are the first and last tail point's x, so the
+   *     segment they describe spans the fitted tail.
    *   - `order`: `-fit.slope`, or `NaN` without a fit.
    *   - `exact`: every finite error is at or below the floor. `false` when
    *     there are no finite errors at all.
@@ -2185,7 +2189,7 @@
     let finiteErrors = 0
     let exactFromN = null
     for (const row of rows) {
-      const error = row[errorKey]
+      const error = Math.abs(row[errorKey])
       if (!Number.isFinite(error)) continue
       finiteErrors++
       if (error <= roundoffFloor) {
