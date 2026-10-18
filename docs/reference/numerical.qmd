@@ -88,9 +88,9 @@ Least-squares polynomial fit of a given degree, solved from the normal equations
 }
 ```
 
-### VM.numerical.convergenceFit(rows, reference, errorKey) {#convergenceFit}
+### VM.numerical.orderFromErrorsVsN(rows, reference, errorKey) {#orderFromErrorsVsN}
 
-The observed order of convergence of a method run at n = 1, 2, …, max: the points of its log-log error-vs-n plot and the [`linearRegression`](#linearRegression) line through their tail. The order is the line's slope, negated. Two rules keep the number honest: errors at rounding level (at or below `1e-12 · max(1, |reference|)`) are dropped, since they would flatten the line, and only n ≥ (largest n) / 2 is fitted, since the first few n haven't settled.
+The observed order of convergence of a method run at n = 1, 2, …, max, from how its error falls as n grows: the points of its log-log error-vs-n plot and the [`linearRegression`](#linearRegression) line through their tail. The order is the line's slope, negated. Two rules keep the number honest: errors at rounding level (at or below `1e-12 · max(1, |reference|)`) are dropped, since they would flatten the line, and only n ≥ (largest n) / 2 is fitted, since the first few n haven't settled.
 
 | Parameter | Type | Description |
 |---|---|---|
@@ -111,8 +111,38 @@ The observed order of convergence of a method run at n = 1, 2, …, max: the poi
   // The trapezoidal rule on x^2 over [0, 1]: error 1/(6n^2), order 2.
   const rows = []
   for (let n = 1; n <= 40; n++) rows.push({n, error: 1 / (6 * n * n)})
-  const {order, exact, exactFromN} = VM.numerical.convergenceFit(rows, 1 / 3, "error")
+  const {order, exact, exactFromN} = VM.numerical.orderFromErrorsVsN(rows, 1 / 3, "error")
   return {order, exact, exactFromN}
+}
+```
+
+### VM.numerical.orderFromSuccessiveErrors(rows, errorKey, scaleKey?) {#orderFromSuccessiveErrors}
+
+The observed order of convergence of one run of an iterative method (Newton, secant, …), from how each error compares with the next. If e_{k+1} ≈ C·e_k^p, then log e_{k+1} against log e_k is a line of slope p. The function returns the points `(log10 e_k, log10 e_{k+1})` and the [`linearRegression`](#linearRegression) line through their tail. Two rules keep the number honest: errors at rounding level are dropped (once the iterates stop changing, pairs near (−16, −16) pull the slope toward 1), and only the trailing run of pairs where the error shrank is fitted, so a run that diverges or cycles reports no order.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `rows` | `object[]` | | One row per step, in order. |
+| `errorKey` | `string` | | The row field holding the error after that step. For a method with no known root, the step size `|x_{k+1} − x_k|`. Its absolute value is used; a non-finite error breaks the run there. |
+| `scaleKey` | `string` | scale 1 | The row field holding the size of the value the error is measured against (`x_{k+1}` for a root finder). Row k's error is at rounding level when it is at or below `1e-12 · max(1, |row[scaleKey]|)`. |
+
+**Returns** `{points, fit, order}`:
+
+- `points` -- `{x: log10 e_k, y: log10 e_{k+1}}` for each pair of consecutive rows whose errors are both above rounding level, in step order
+- `fit` -- `{slope, intercept, xlo, xhi}`, the line through the trailing points with y < x, with `xlo`/`xhi` the first and last fitted point's x; or `null` when fewer than two such points end the run (it diverged, cycled or stopped too soon)
+- `order` -- `fit.slope`, or `NaN` without a fit
+
+```{ojs}
+{
+  // Newton's method on x^2 - 2 from x = 1: quadratic convergence, order 2.
+  const rows = []
+  let x = 1
+  for (let k = 0; k < 6; k++) {
+    const xNext = x - (x * x - 2) / (2 * x)
+    rows.push({error: Math.abs(xNext - x), xNext})
+    x = xNext
+  }
+  return VM.numerical.orderFromSuccessiveErrors(rows, "error", "xNext").order
 }
 ```
 
