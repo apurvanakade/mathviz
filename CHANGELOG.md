@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-18
+
 ### Added
 
 - `VM.numerical.orderFromSuccessiveErrors(rows, errorKey, scaleKey?)`: the observed order of convergence of one run of an iterative method (Newton, secant, ...), as the slope of log e_{k+1} against log e_k. It drops errors at rounding level and fits only the trailing run where the error shrinks, so a run that diverges or cycles reports no order.
@@ -255,7 +257,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/apurvanakade/mathviz/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/apurvanakade/mathviz/compare/v0.4.3...v0.5.0
 [0.4.3]: https://github.com/apurvanakade/mathviz/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/apurvanakade/mathviz/compare/v0.4.1...v0.4.2
