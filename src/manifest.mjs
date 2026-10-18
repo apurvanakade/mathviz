@@ -28,6 +28,7 @@ export const js = [
   'plotting/plot-with-legend.js',
   'numerical/linear-regression.js',
   'numerical/l1-regression.js',
+  'numerical/convergence-fit.js',
   'numerical/polynomial-fit.js',
   'numerical/euler-solve.js',
   'numerical/rk4-solve.js',
@@ -122,6 +123,7 @@ export const mustPrecede = [
   ['plotting/plotly-fullscreen-button.js', 'plotting/svg-fullscreen-button.js'],
   ['discrete-math/sub-triangles.js', 'discrete-math/triangulation-edges.js'],
   ['numerical/linear-regression.js', 'numerical/l1-regression.js'],
+  ['numerical/linear-regression.js', 'numerical/convergence-fit.js'],
   // effectiveSampleSize sums the autocorrelation helper's output.
   ['mcmc/autocorrelation.js', 'mcmc/effective-sample-size.js'],
   // persistentPlot calls VM.plotting.config/autoResize; springLayout seeds

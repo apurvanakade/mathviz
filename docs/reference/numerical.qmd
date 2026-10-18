@@ -88,6 +88,34 @@ Least-squares polynomial fit of a given degree, solved from the normal equations
 }
 ```
 
+### VM.numerical.convergenceFit(rows, reference, errorKey) {#convergenceFit}
+
+The observed order of convergence of a method run at n = 1, 2, …, max: the points of its log-log error-vs-n plot and the [`linearRegression`](#linearRegression) line through their tail. The order is the line's slope, negated. Two rules keep the number honest: errors at rounding level (at or below `1e-12 · max(1, |reference|)`) are dropped, since they would flatten the line, and only n ≥ (largest n) / 2 is fitted, since the first few n haven't settled.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `rows` | `object[]` | One row per n, each with a numeric `n` and the error under `errorKey`. A row whose error isn't finite is skipped. |
+| `reference` | `number` | The exact value the errors are measured against. It only sets the rounding floor. |
+| `errorKey` | `string` | The row field holding the error. |
+
+**Returns** `{points, fit, order, exact, exactFromN}`:
+
+- `points` -- `{x: log10 n, y: log10 error}` for every error above the floor, in row order
+- `fit` -- the line through the tail's points, or `null` (exact, or fewer than two tail points)
+- `order` -- `-fit.slope`, or `NaN` without a fit
+- `exact` -- every finite error is at or below the floor (so the method is exact on this problem); `false` when no error is finite
+- `exactFromN` -- the n from which every later finite error is at or below the floor, or `null` if the last one isn't
+
+```{ojs}
+{
+  // The trapezoidal rule on x^2 over [0, 1]: error 1/(6n^2), order 2.
+  const rows = []
+  for (let n = 1; n <= 40; n++) rows.push({n, error: 1 / (6 * n * n)})
+  const {order, exact, exactFromN} = VM.numerical.convergenceFit(rows, 1 / 3, "error")
+  return {order, exact, exactFromN}
+}
+```
+
 ## ODE steppers
 
 Both take the same arguments and return the same shape, so a page switches methods by swapping the function.

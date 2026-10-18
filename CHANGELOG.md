@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.numerical.convergenceFit(rows, reference, errorKey)`: the observed order of convergence from an error-vs-n run. It drops errors at rounding level, fits only n ≥ max/2, and reports a method exact on the problem as exact (`exact`, `exactFromN`) instead of fitting it.
+
 ## [0.4.3] - 2026-10-17
 
 ### Fixed

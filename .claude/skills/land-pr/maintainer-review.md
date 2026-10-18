@@ -27,7 +27,7 @@ from the diff, its description and the code around it.
 1. `<checkout>/CLAUDE.md`, all of it. It is the conventions document.
 2. `<checkout>/CONTRIBUTING.md` and `<checkout>/README.md`.
 3. The maintainer's recorded preferences: every file in
-   `/Users/apurvanakade/.claude/projects/-Users-apurvanakade-Github-mathviz/memory/`
+   `/Users/apurvanakade/.claude/projects/-Users-apurvanakade-Github-viz-mathviz/memory/`
    except `MEMORY.md`.
 4. `<checkout>/src/js/plotting/padded-range.js`, the reference for a public
    function's JSDoc.
