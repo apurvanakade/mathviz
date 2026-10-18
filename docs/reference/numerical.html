@@ -426,6 +426,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#linearRegression" id="toc-linearRegression" class="nav-link" data-scroll-target="#linearRegression">VM.numerical.linearRegression(points)</a></li>
   <li><a href="#l1Regression" id="toc-l1Regression" class="nav-link" data-scroll-target="#l1Regression">VM.numerical.l1Regression(points, opts?)</a></li>
   <li><a href="#polynomialFit" id="toc-polynomialFit" class="nav-link" data-scroll-target="#polynomialFit">VM.numerical.polynomialFit(mathjs, points, degree)</a></li>
+  <li><a href="#convergenceFit" id="toc-convergenceFit" class="nav-link" data-scroll-target="#convergenceFit">VM.numerical.convergenceFit(rows, reference, errorKey)</a></li>
   </ul></li>
   <li><a href="#ode-steppers" id="toc-ode-steppers" class="nav-link" data-scroll-target="#ode-steppers">ODE steppers</a>
   <ul class="collapse">
@@ -451,7 +452,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">VM.numerical</h1>
-<p class="subtitle lead">ODE steppers, quadrature, interpolation, least-squares fits and symmetric eigenvalues</p>
+<p class="subtitle lead">ODE steppers, quadrature, interpolation, least-squares fits, convergence orders and symmetric eigenvalues</p>
 </div>
 
 
@@ -644,6 +645,63 @@ Note
 </div>
 </div>
 </section>
+<section id="convergenceFit" class="level3">
+<h3 class="anchored" data-anchor-id="convergenceFit">VM.numerical.convergenceFit(rows, reference, errorKey)</h3>
+<p>The observed order of convergence of a method run at n = 1, 2, …, max: the points of its log-log error-vs-n plot and the <a href="#linearRegression"><code>linearRegression</code></a> line through their tail. The order is the line’s slope, negated. Two rules keep the number honest: errors at rounding level (at or below <code>1e-12 · max(1, |reference|)</code>) are dropped, since they would flatten the line, and only n ≥ (largest n) / 2 is fitted, since the first few n haven’t settled.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>rows</code></td>
+<td><code>object[]</code></td>
+<td>One row per n, each with a numeric <code>n</code> and the error under <code>errorKey</code>. A row whose error isn’t finite is skipped.</td>
+</tr>
+<tr class="even">
+<td><code>reference</code></td>
+<td><code>number</code></td>
+<td>The exact value the errors are measured against. It only sets the rounding floor.</td>
+</tr>
+<tr class="odd">
+<td><code>errorKey</code></td>
+<td><code>string</code></td>
+<td>The row field holding the error. Its absolute value is used, so a signed error works too.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>{points, fit, order, exact, exactFromN}</code>:</p>
+<ul>
+<li><code>points</code> – <code>{x: log10 n, y: log10 error}</code> for every error above the floor, in row order</li>
+<li><code>fit</code> – <code>{slope, intercept, xlo, xhi}</code>, the line through the tail’s points in log10 n, with <code>xlo</code>/<code>xhi</code> the first and last tail point’s x; or <code>null</code> (exact, or fewer than two tail points)</li>
+<li><code>order</code> – <code>-fit.slope</code>, or <code>NaN</code> without a fit</li>
+<li><code>exact</code> – every finite error is at or below the floor (so the method is exact on this problem); <code>false</code> when no error is finite</li>
+<li><code>exactFromN</code> – the n from which every later finite error is at or below the floor, or <code>null</code> if the last one isn’t</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-startfrom="109" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 108;"><span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>  <span class="co">// The trapezoidal rule on x^2 over [0, 1]: error 1/(6n^2), order 2.</span></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> []</span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> n <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> n <span class="op">&lt;=</span> <span class="dv">40</span><span class="op">;</span> n<span class="op">++</span>) rows<span class="op">.</span><span class="fu">push</span>({n<span class="op">,</span> <span class="dt">error</span><span class="op">:</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">6</span> <span class="op">*</span> n <span class="op">*</span> n)})</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> {order<span class="op">,</span> exact<span class="op">,</span> exactFromN} <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">convergenceFit</span>(rows<span class="op">,</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">3</span><span class="op">,</span> <span class="st">"error"</span>)</span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {order<span class="op">,</span> exact<span class="op">,</span> exactFromN}</span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-5" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="ode-steppers" class="level2">
 <h2 class="anchored" data-anchor-id="ode-steppers">ODE steppers</h2>
@@ -688,24 +746,24 @@ Note
 <h3 class="anchored" data-anchor-id="rk4Solve">VM.numerical.rk4Solve(f, t0, y0, tEnd, n)</h3>
 <p>The classical fourth-order Runge-Kutta method. Same parameters and return shape as <code>eulerSolve</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-startfrom="112" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 111;"><span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>viewof odeSteps <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">64</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"steps n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">8</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-startfrom="140" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 139;"><span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>viewof odeSteps <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">64</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"steps n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">8</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-5" data-nodetype="declaration">
+<div id="ojs-cell-6" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-startfrom="115" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 114;"><span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>  <span class="co">// y' = y, y(0) = 1, so y(1) = e. Watch the two errors shrink as n grows.</span></span>
-<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> f <span class="op">=</span> (t<span class="op">,</span> y) <span class="kw">=&gt;</span> y</span>
-<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> euler <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">eulerSolve</span>(f<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> odeSteps)</span>
-<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rk4 <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">rk4Solve</span>(f<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> odeSteps)</span>
-<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> last <span class="op">=</span> arr <span class="kw">=&gt;</span> arr[arr<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>]</span>
-<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">html</span><span class="vs">`Euler error: &lt;b&gt;</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(<span class="fu">last</span>(euler<span class="op">.</span><span class="at">ys</span>) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">E</span>)<span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt; &amp;nbsp; RK4 error: &lt;b&gt;</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(<span class="fu">last</span>(rk4<span class="op">.</span><span class="at">ys</span>) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">E</span>)<span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt;`</span></span>
-<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-startfrom="143" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 142;"><span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>  <span class="co">// y' = y, y(0) = 1, so y(1) = e. Watch the two errors shrink as n grows.</span></span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> f <span class="op">=</span> (t<span class="op">,</span> y) <span class="kw">=&gt;</span> y</span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> euler <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">eulerSolve</span>(f<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> odeSteps)</span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rk4 <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">rk4Solve</span>(f<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> odeSteps)</span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> last <span class="op">=</span> arr <span class="kw">=&gt;</span> arr[arr<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>]</span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">html</span><span class="vs">`Euler error: &lt;b&gt;</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(<span class="fu">last</span>(euler<span class="op">.</span><span class="at">ys</span>) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">E</span>)<span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt; &amp;nbsp; RK4 error: &lt;b&gt;</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(<span class="fu">last</span>(rk4<span class="op">.</span><span class="at">ys</span>) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">E</span>)<span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt;`</span></span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-6" data-nodetype="expression">
+<div id="ojs-cell-7" data-nodetype="expression">
 
 </div>
 </div>
@@ -763,9 +821,9 @@ Warning
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-startfrom="144" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 143;"><span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">simpsonEstimate</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span><span class="op">,</span> <span class="dv">10</span>)   <span class="co">// exact value 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-startfrom="172" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 171;"><span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">simpsonEstimate</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span><span class="op">,</span> <span class="dv">10</span>)   <span class="co">// exact value 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-7" data-nodetype="expression">
+<div id="ojs-cell-8" data-nodetype="expression">
 
 </div>
 </div>
@@ -802,9 +860,9 @@ Warning
 </table>
 <p><strong>Returns</strong> <code>{xs: number[], ys: number[]}</code> with <code>sampleCount + 1</code> points.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-startfrom="159" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 158;"><span id="cb8-159"><a href="#cb8-159" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">lagrangeQuadratic</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>)   <span class="co">// the parabola y = x² sampled at 0, .5, 1, 1.5, 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-startfrom="187" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 186;"><span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">lagrangeQuadratic</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>)   <span class="co">// the parabola y = x² sampled at 0, .5, 1, 1.5, 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-8" data-nodetype="expression">
+<div id="ojs-cell-9" data-nodetype="expression">
 
 </div>
 </div>
@@ -854,9 +912,9 @@ Warning
 </table>
 <p><strong>Returns</strong> <code>number[]</code>, the <code>k</code> eigenvalues sorted descending, with multiplicity. <code>[]</code> for an empty matrix.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-startfrom="177" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 176;"><span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">symmetricEigenvalues</span>([[<span class="dv">2</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>]])   <span class="co">// 2 + √2, 2, 2 − √2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" data-startfrom="205" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 204;"><span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">symmetricEigenvalues</span>([[<span class="dv">2</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>]])   <span class="co">// 2 + √2, 2, 2 − √2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-9" data-nodetype="expression">
+<div id="ojs-cell-10" data-nodetype="expression">
 
 </div>
 </div>
@@ -868,7 +926,7 @@ Warning
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHB0cyA9IFtdXG4gIGZvciAobGV0IGkgPSAxOyBpIDw9IDY7IGkrKykgcHRzLnB1c2goe3g6IGksIHk6IDIgKiBpICsgMSArIChpICUgMiA9PT0gMCA/IDAuMSA6IC0wLjEpfSlcbiAgcmV0dXJuIFZNLm51bWVyaWNhbC5saW5lYXJSZWdyZXNzaW9uKHB0cylcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgLy8gRml2ZSBwb2ludHMgb24geSA9IHgsIHBsdXMgb25lIHdpbGQgb3V0bGllci4gTDIgaXMgZHJhZ2dlZCB0b3dhcmQgaXQ7IEwxIGlzIG5vdC5cbiAgY29uc3QgcHRzID0gW3t4OiAxLCB5OiAxfSwge3g6IDIsIHk6IDJ9LCB7eDogMywgeTogM30sIHt4OiA0LCB5OiA0fSwge3g6IDUsIHk6IDV9LCB7eDogNiwgeTogMzB9XVxuICByZXR1cm4ge2wyOiBWTS5udW1lcmljYWwubGluZWFyUmVncmVzc2lvbihwdHMpLCBsMTogVk0ubnVtZXJpY2FsLmwxUmVncmVzc2lvbihwdHMpfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBwdHMgPSBbXVxuICBmb3IgKGxldCB4ID0gLTI7IHggPD0gMjsgeCsrKSBwdHMucHVzaCh7eCwgeTogeCAqIHggLSAxfSlcbiAgY29uc3QgZml0ID0gVk0ubnVtZXJpY2FsLnBvbHlub21pYWxGaXQobWF0aCwgcHRzLCAyKVxuICByZXR1cm4ge2NvZWZmczogZml0LmNvZWZmcywgYXQzOiBmaXQuZXZhbHVhdGUoMyksIGVycm9yOiBmaXQudG90YWxTcXVhcmVkRXJyb3J9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2Ygb2RlU3RlcHMgPSBJbnB1dHMucmFuZ2UoWzIsIDY0XSwge2xhYmVsOiBcInN0ZXBzIG5cIiwgc3RlcDogMSwgdmFsdWU6IDh9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC02IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICAvLyB5JyA9IHksIHkoMCkgPSAxLCBzbyB5KDEpID0gZS4gV2F0Y2ggdGhlIHR3byBlcnJvcnMgc2hyaW5rIGFzIG4gZ3Jvd3MuXG4gIGNvbnN0IGYgPSAodCwgeSkgPT4geVxuICBjb25zdCBldWxlciA9IFZNLm51bWVyaWNhbC5ldWxlclNvbHZlKGYsIDAsIDEsIDEsIG9kZVN0ZXBzKVxuICBjb25zdCByazQgPSBWTS5udW1lcmljYWwucms0U29sdmUoZiwgMCwgMSwgMSwgb2RlU3RlcHMpXG4gIGNvbnN0IGxhc3QgPSBhcnIgPT4gYXJyW2Fyci5sZW5ndGggLSAxXVxuICByZXR1cm4gaHRtbGBFdWxlciBlcnJvcjogPGI+JHtNYXRoLmFicyhsYXN0KGV1bGVyLnlzKSAtIE1hdGguRSkudG9FeHBvbmVudGlhbCgyKX08L2I+ICZuYnNwOyBSSzQgZXJyb3I6IDxiPiR7TWF0aC5hYnMobGFzdChyazQueXMpIC0gTWF0aC5FKS50b0V4cG9uZW50aWFsKDIpfTwvYj5gXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS5udW1lcmljYWwuc2ltcHNvbkVzdGltYXRlKE1hdGguc2luLCAwLCBNYXRoLlBJLCAxMCkgICAvLyBleGFjdCB2YWx1ZSAyXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTgiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS5udW1lcmljYWwubGFncmFuZ2VRdWFkcmF0aWMoMCwgMCwgMSwgMSwgMiwgNCwgNCkgICAvLyB0aGUgcGFyYWJvbGEgeSA9IHjCsiBzYW1wbGVkIGF0IDAsIC41LCAxLCAxLjUsIDJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm51bWVyaWNhbC5zeW1tZXRyaWNFaWdlbnZhbHVlcyhbWzIsIDEsIDBdLCBbMSwgMiwgMV0sIFswLCAxLCAyXV0pICAgLy8gMiArIOKImjIsIDIsIDIg4oiSIOKImjJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnb2RlU3RlcHMnKSJ9XX0=
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHB0cyA9IFtdXG4gIGZvciAobGV0IGkgPSAxOyBpIDw9IDY7IGkrKykgcHRzLnB1c2goe3g6IGksIHk6IDIgKiBpICsgMSArIChpICUgMiA9PT0gMCA/IDAuMSA6IC0wLjEpfSlcbiAgcmV0dXJuIFZNLm51bWVyaWNhbC5saW5lYXJSZWdyZXNzaW9uKHB0cylcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgLy8gRml2ZSBwb2ludHMgb24geSA9IHgsIHBsdXMgb25lIHdpbGQgb3V0bGllci4gTDIgaXMgZHJhZ2dlZCB0b3dhcmQgaXQ7IEwxIGlzIG5vdC5cbiAgY29uc3QgcHRzID0gW3t4OiAxLCB5OiAxfSwge3g6IDIsIHk6IDJ9LCB7eDogMywgeTogM30sIHt4OiA0LCB5OiA0fSwge3g6IDUsIHk6IDV9LCB7eDogNiwgeTogMzB9XVxuICByZXR1cm4ge2wyOiBWTS5udW1lcmljYWwubGluZWFyUmVncmVzc2lvbihwdHMpLCBsMTogVk0ubnVtZXJpY2FsLmwxUmVncmVzc2lvbihwdHMpfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBwdHMgPSBbXVxuICBmb3IgKGxldCB4ID0gLTI7IHggPD0gMjsgeCsrKSBwdHMucHVzaCh7eCwgeTogeCAqIHggLSAxfSlcbiAgY29uc3QgZml0ID0gVk0ubnVtZXJpY2FsLnBvbHlub21pYWxGaXQobWF0aCwgcHRzLCAyKVxuICByZXR1cm4ge2NvZWZmczogZml0LmNvZWZmcywgYXQzOiBmaXQuZXZhbHVhdGUoMyksIGVycm9yOiBmaXQudG90YWxTcXVhcmVkRXJyb3J9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIC8vIFRoZSB0cmFwZXpvaWRhbCBydWxlIG9uIHheMiBvdmVyIFswLCAxXTogZXJyb3IgMS8oNm5eMiksIG9yZGVyIDIuXG4gIGNvbnN0IHJvd3MgPSBbXVxuICBmb3IgKGxldCBuID0gMTsgbiA8PSA0MDsgbisrKSByb3dzLnB1c2goe24sIGVycm9yOiAxIC8gKDYgKiBuICogbil9KVxuICBjb25zdCB7b3JkZXIsIGV4YWN0LCBleGFjdEZyb21OfSA9IFZNLm51bWVyaWNhbC5jb252ZXJnZW5jZUZpdChyb3dzLCAxIC8gMywgXCJlcnJvclwiKVxuICByZXR1cm4ge29yZGVyLCBleGFjdCwgZXhhY3RGcm9tTn1cbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBvZGVTdGVwcyA9IElucHV0cy5yYW5nZShbMiwgNjRdLCB7bGFiZWw6IFwic3RlcHMgblwiLCBzdGVwOiAxLCB2YWx1ZTogOH0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIC8vIHknID0geSwgeSgwKSA9IDEsIHNvIHkoMSkgPSBlLiBXYXRjaCB0aGUgdHdvIGVycm9ycyBzaHJpbmsgYXMgbiBncm93cy5cbiAgY29uc3QgZiA9ICh0LCB5KSA9PiB5XG4gIGNvbnN0IGV1bGVyID0gVk0ubnVtZXJpY2FsLmV1bGVyU29sdmUoZiwgMCwgMSwgMSwgb2RlU3RlcHMpXG4gIGNvbnN0IHJrNCA9IFZNLm51bWVyaWNhbC5yazRTb2x2ZShmLCAwLCAxLCAxLCBvZGVTdGVwcylcbiAgY29uc3QgbGFzdCA9IGFyciA9PiBhcnJbYXJyLmxlbmd0aCAtIDFdXG4gIHJldHVybiBodG1sYEV1bGVyIGVycm9yOiA8Yj4ke01hdGguYWJzKGxhc3QoZXVsZXIueXMpIC0gTWF0aC5FKS50b0V4cG9uZW50aWFsKDIpfTwvYj4gJm5ic3A7IFJLNCBlcnJvcjogPGI+JHtNYXRoLmFicyhsYXN0KHJrNC55cykgLSBNYXRoLkUpLnRvRXhwb25lbnRpYWwoMil9PC9iPmBcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm51bWVyaWNhbC5zaW1wc29uRXN0aW1hdGUoTWF0aC5zaW4sIDAsIE1hdGguUEksIDEwKSAgIC8vIGV4YWN0IHZhbHVlIDJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm51bWVyaWNhbC5sYWdyYW5nZVF1YWRyYXRpYygwLCAwLCAxLCAxLCAyLCA0LCA0KSAgIC8vIHRoZSBwYXJhYm9sYSB5ID0geMKyIHNhbXBsZWQgYXQgMCwgLjUsIDEsIDEuNSwgMlxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm51bWVyaWNhbC5zeW1tZXRyaWNFaWdlbnZhbHVlcyhbWzIsIDEsIDBdLCBbMSwgMiwgMV0sIFswLCAxLCAyXV0pICAgLy8gMiArIOKImjIsIDIsIDIg4oiSIOKImjJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnb2RlU3RlcHMnKSJ9XX0=
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
