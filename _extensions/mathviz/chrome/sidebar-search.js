@@ -76,6 +76,18 @@
     const lists = Array.from(root.querySelectorAll("ul.sidebar-section"))
     let saved = null
 
+    // Opens or closes a section the way Bootstrap's collapse leaves it:
+    // `show` on the list, and on its toggle `aria-expanded` (which Quarto's
+    // chevron is drawn from) and `collapsed`.
+    const setOpen = (list, open) => {
+      list.classList.toggle("show", open)
+      const toggle = list.parentElement.querySelector(":scope > .sidebar-item-container .sidebar-item-toggle")
+      if (toggle) {
+        toggle.setAttribute("aria-expanded", String(open))
+        toggle.classList.toggle("collapsed", !open)
+      }
+    }
+
     // Shows or hides one entry and everything under it; returns whether it
     // is shown.
     const filter = (entry, query, keepAll) => {
@@ -85,7 +97,7 @@
         if (filter(child, query, own)) shown = true
       }
       entry.li.classList.toggle(HIDDEN, !shown)
-      if (entry.list && shown) entry.list.classList.add("show")
+      if (entry.list && shown) setOpen(entry.list, true)
       return shown
     }
 
@@ -93,7 +105,7 @@
       const query = input.value
       if (!normalize(query)) {
         for (const li of root.querySelectorAll("li." + HIDDEN)) li.classList.remove(HIDDEN)
-        if (saved) lists.forEach((list, i) => list.classList.toggle("show", saved[i]))
+        if (saved) lists.forEach((list, i) => setOpen(list, saved[i]))
         saved = null
         empty.classList.add(HIDDEN)
         return
