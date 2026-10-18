@@ -426,7 +426,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#linearRegression" id="toc-linearRegression" class="nav-link" data-scroll-target="#linearRegression">VM.numerical.linearRegression(points)</a></li>
   <li><a href="#l1Regression" id="toc-l1Regression" class="nav-link" data-scroll-target="#l1Regression">VM.numerical.l1Regression(points, opts?)</a></li>
   <li><a href="#polynomialFit" id="toc-polynomialFit" class="nav-link" data-scroll-target="#polynomialFit">VM.numerical.polynomialFit(mathjs, points, degree)</a></li>
-  <li><a href="#convergenceFit" id="toc-convergenceFit" class="nav-link" data-scroll-target="#convergenceFit">VM.numerical.convergenceFit(rows, reference, errorKey)</a></li>
+  <li><a href="#orderFromErrorsVsN" id="toc-orderFromErrorsVsN" class="nav-link" data-scroll-target="#orderFromErrorsVsN">VM.numerical.orderFromErrorsVsN(rows, reference, errorKey)</a></li>
+  <li><a href="#orderFromSuccessiveErrors" id="toc-orderFromSuccessiveErrors" class="nav-link" data-scroll-target="#orderFromSuccessiveErrors">VM.numerical.orderFromSuccessiveErrors(rows, errorKey, scaleKey?)</a></li>
   </ul></li>
   <li><a href="#ode-steppers" id="toc-ode-steppers" class="nav-link" data-scroll-target="#ode-steppers">ODE steppers</a>
   <ul class="collapse">
@@ -645,9 +646,9 @@ Note
 </div>
 </div>
 </section>
-<section id="convergenceFit" class="level3">
-<h3 class="anchored" data-anchor-id="convergenceFit">VM.numerical.convergenceFit(rows, reference, errorKey)</h3>
-<p>The observed order of convergence of a method run at n = 1, 2, …, max: the points of its log-log error-vs-n plot and the <a href="#linearRegression"><code>linearRegression</code></a> line through their tail. The order is the line’s slope, negated. Two rules keep the number honest: errors at rounding level (at or below <code>1e-12 · max(1, |reference|)</code>) are dropped, since they would flatten the line, and only n ≥ (largest n) / 2 is fitted, since the first few n haven’t settled.</p>
+<section id="orderFromErrorsVsN" class="level3">
+<h3 class="anchored" data-anchor-id="orderFromErrorsVsN">VM.numerical.orderFromErrorsVsN(rows, reference, errorKey)</h3>
+<p>The observed order of convergence of a method run at n = 1, 2, …, max, from how its error falls as n grows: the points of its log-log error-vs-n plot and the <a href="#linearRegression"><code>linearRegression</code></a> line through their tail. The order is the line’s slope, negated. Two rules keep the number honest: errors at rounding level (at or below <code>1e-12 · max(1, |reference|)</code>) are dropped, since they would flatten the line, and only n ≥ (largest n) / 2 is fitted, since the first few n haven’t settled.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -692,11 +693,75 @@ Note
 <span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>  <span class="co">// The trapezoidal rule on x^2 over [0, 1]: error 1/(6n^2), order 2.</span></span>
 <span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> []</span>
 <span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> n <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> n <span class="op">&lt;=</span> <span class="dv">40</span><span class="op">;</span> n<span class="op">++</span>) rows<span class="op">.</span><span class="fu">push</span>({n<span class="op">,</span> <span class="dt">error</span><span class="op">:</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">6</span> <span class="op">*</span> n <span class="op">*</span> n)})</span>
-<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> {order<span class="op">,</span> exact<span class="op">,</span> exactFromN} <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">convergenceFit</span>(rows<span class="op">,</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">3</span><span class="op">,</span> <span class="st">"error"</span>)</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> {order<span class="op">,</span> exact<span class="op">,</span> exactFromN} <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">orderFromErrorsVsN</span>(rows<span class="op">,</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">3</span><span class="op">,</span> <span class="st">"error"</span>)</span>
 <span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {order<span class="op">,</span> exact<span class="op">,</span> exactFromN}</span>
 <span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-5" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="orderFromSuccessiveErrors" class="level3">
+<h3 class="anchored" data-anchor-id="orderFromSuccessiveErrors">VM.numerical.orderFromSuccessiveErrors(rows, errorKey, scaleKey?)</h3>
+<p>The observed order of convergence of one run of an iterative method (Newton, secant, …), from how each error compares with the next. If e_{k+1} ≈ C·e_k^p, then log e_{k+1} against log e_k is a line of slope p.&nbsp;The function returns the points <code>(log10 e_k, log10 e_{k+1})</code> and the <a href="#linearRegression"><code>linearRegression</code></a> line through their tail. Two rules keep the number honest: errors at rounding level are dropped (once the iterates stop changing, pairs near (−16, −16) pull the slope toward 1), and only the trailing run of pairs where the error shrank is fitted, so a run that diverges or cycles reports no order.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>rows</code></td>
+<td><code>object[]</code></td>
+<td></td>
+<td>One row per step, in order.</td>
+</tr>
+<tr class="even">
+<td><code>errorKey</code></td>
+<td><code>string</code></td>
+<td></td>
+<td>The row field holding the error after that step. For a method with no known root, the step size <code>|x_{k+1} − x_k|</code>. Its absolute value is used; a non-finite error breaks the run there.</td>
+</tr>
+<tr class="odd">
+<td><code>scaleKey</code></td>
+<td><code>string</code></td>
+<td>scale 1</td>
+<td>The row field holding the size of the value the error is measured against (<code>x_{k+1}</code> for a root finder). Row k’s error is at rounding level when it is at or below <code>1e-12 · max(1, |row[scaleKey]|)</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> <code>{points, fit, order}</code>:</p>
+<ul>
+<li><code>points</code> – <code>{x: log10 e_k, y: log10 e_{k+1}}</code> for each pair of consecutive rows whose errors are both above rounding level, in step order</li>
+<li><code>fit</code> – <code>{slope, intercept, xlo, xhi}</code>, the line through the trailing points with y &lt; x, with <code>xlo</code>/<code>xhi</code> the first and last fitted point’s x; or <code>null</code> when fewer than two such points end the run (it diverged, cycled or stopped too soon)</li>
+<li><code>order</code> – <code>fit.slope</code>, or <code>NaN</code> without a fit</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-startfrom="135" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 134;"><span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Newton's method on x^2 - 2 from x = 1: quadratic convergence, order 2.</span></span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> []</span>
+<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> x <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> k <span class="op">&lt;</span> <span class="dv">6</span><span class="op">;</span> k<span class="op">++</span>) {</span>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> xNext <span class="op">=</span> x <span class="op">-</span> (x <span class="op">*</span> x <span class="op">-</span> <span class="dv">2</span>) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> x)</span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>    rows<span class="op">.</span><span class="fu">push</span>({<span class="dt">error</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(xNext <span class="op">-</span> x)<span class="op">,</span> xNext})</span>
+<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> xNext</span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">orderFromSuccessiveErrors</span>(rows<span class="op">,</span> <span class="st">"error"</span><span class="op">,</span> <span class="st">"xNext"</span>)<span class="op">.</span><span class="at">order</span></span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-6" data-nodetype="expression">
 
 </div>
 </div>
@@ -746,24 +811,24 @@ Note
 <h3 class="anchored" data-anchor-id="rk4Solve">VM.numerical.rk4Solve(f, t0, y0, tEnd, n)</h3>
 <p>The classical fourth-order Runge-Kutta method. Same parameters and return shape as <code>eulerSolve</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-startfrom="140" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 139;"><span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>viewof odeSteps <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">64</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"steps n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">8</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-startfrom="170" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 169;"><span id="cb7-170"><a href="#cb7-170" aria-hidden="true" tabindex="-1"></a>viewof odeSteps <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">64</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"steps n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">8</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-6" data-nodetype="declaration">
+<div id="ojs-cell-7" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-startfrom="143" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 142;"><span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>  <span class="co">// y' = y, y(0) = 1, so y(1) = e. Watch the two errors shrink as n grows.</span></span>
-<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> f <span class="op">=</span> (t<span class="op">,</span> y) <span class="kw">=&gt;</span> y</span>
-<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> euler <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">eulerSolve</span>(f<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> odeSteps)</span>
-<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rk4 <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">rk4Solve</span>(f<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> odeSteps)</span>
-<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> last <span class="op">=</span> arr <span class="kw">=&gt;</span> arr[arr<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>]</span>
-<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">html</span><span class="vs">`Euler error: &lt;b&gt;</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(<span class="fu">last</span>(euler<span class="op">.</span><span class="at">ys</span>) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">E</span>)<span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt; &amp;nbsp; RK4 error: &lt;b&gt;</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(<span class="fu">last</span>(rk4<span class="op">.</span><span class="at">ys</span>) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">E</span>)<span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt;`</span></span>
-<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-startfrom="173" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 172;"><span id="cb8-173"><a href="#cb8-173" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb8-174"><a href="#cb8-174" aria-hidden="true" tabindex="-1"></a>  <span class="co">// y' = y, y(0) = 1, so y(1) = e. Watch the two errors shrink as n grows.</span></span>
+<span id="cb8-175"><a href="#cb8-175" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> f <span class="op">=</span> (t<span class="op">,</span> y) <span class="kw">=&gt;</span> y</span>
+<span id="cb8-176"><a href="#cb8-176" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> euler <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">eulerSolve</span>(f<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> odeSteps)</span>
+<span id="cb8-177"><a href="#cb8-177" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rk4 <span class="op">=</span> VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">rk4Solve</span>(f<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> odeSteps)</span>
+<span id="cb8-178"><a href="#cb8-178" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> last <span class="op">=</span> arr <span class="kw">=&gt;</span> arr[arr<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>]</span>
+<span id="cb8-179"><a href="#cb8-179" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">html</span><span class="vs">`Euler error: &lt;b&gt;</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(<span class="fu">last</span>(euler<span class="op">.</span><span class="at">ys</span>) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">E</span>)<span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt; &amp;nbsp; RK4 error: &lt;b&gt;</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(<span class="fu">last</span>(rk4<span class="op">.</span><span class="at">ys</span>) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">E</span>)<span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">&lt;/b&gt;`</span></span>
+<span id="cb8-180"><a href="#cb8-180" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-7" data-nodetype="expression">
+<div id="ojs-cell-8" data-nodetype="expression">
 
 </div>
 </div>
@@ -821,9 +886,9 @@ Warning
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-startfrom="172" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 171;"><span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">simpsonEstimate</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span><span class="op">,</span> <span class="dv">10</span>)   <span class="co">// exact value 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-startfrom="202" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 201;"><span id="cb9-202"><a href="#cb9-202" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">simpsonEstimate</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span><span class="op">,</span> <span class="dv">10</span>)   <span class="co">// exact value 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-8" data-nodetype="expression">
+<div id="ojs-cell-9" data-nodetype="expression">
 
 </div>
 </div>
@@ -860,9 +925,9 @@ Warning
 </table>
 <p><strong>Returns</strong> <code>{xs: number[], ys: number[]}</code> with <code>sampleCount + 1</code> points.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-startfrom="187" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 186;"><span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">lagrangeQuadratic</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>)   <span class="co">// the parabola y = x² sampled at 0, .5, 1, 1.5, 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" data-startfrom="217" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 216;"><span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">lagrangeQuadratic</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>)   <span class="co">// the parabola y = x² sampled at 0, .5, 1, 1.5, 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-9" data-nodetype="expression">
+<div id="ojs-cell-10" data-nodetype="expression">
 
 </div>
 </div>
@@ -912,9 +977,9 @@ Warning
 </table>
 <p><strong>Returns</strong> <code>number[]</code>, the <code>k</code> eigenvalues sorted descending, with multiplicity. <code>[]</code> for an empty matrix.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" data-startfrom="205" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 204;"><span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">symmetricEigenvalues</span>([[<span class="dv">2</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>]])   <span class="co">// 2 + √2, 2, 2 − √2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" data-startfrom="235" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 234;"><span id="cb11-235"><a href="#cb11-235" aria-hidden="true" tabindex="-1"></a>VM<span class="op">.</span><span class="at">numerical</span><span class="op">.</span><span class="fu">symmetricEigenvalues</span>([[<span class="dv">2</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>]])   <span class="co">// 2 + √2, 2, 2 − √2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-10" data-nodetype="expression">
+<div id="ojs-cell-11" data-nodetype="expression">
 
 </div>
 </div>
@@ -926,7 +991,7 @@ Warning
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHB0cyA9IFtdXG4gIGZvciAobGV0IGkgPSAxOyBpIDw9IDY7IGkrKykgcHRzLnB1c2goe3g6IGksIHk6IDIgKiBpICsgMSArIChpICUgMiA9PT0gMCA/IDAuMSA6IC0wLjEpfSlcbiAgcmV0dXJuIFZNLm51bWVyaWNhbC5saW5lYXJSZWdyZXNzaW9uKHB0cylcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgLy8gRml2ZSBwb2ludHMgb24geSA9IHgsIHBsdXMgb25lIHdpbGQgb3V0bGllci4gTDIgaXMgZHJhZ2dlZCB0b3dhcmQgaXQ7IEwxIGlzIG5vdC5cbiAgY29uc3QgcHRzID0gW3t4OiAxLCB5OiAxfSwge3g6IDIsIHk6IDJ9LCB7eDogMywgeTogM30sIHt4OiA0LCB5OiA0fSwge3g6IDUsIHk6IDV9LCB7eDogNiwgeTogMzB9XVxuICByZXR1cm4ge2wyOiBWTS5udW1lcmljYWwubGluZWFyUmVncmVzc2lvbihwdHMpLCBsMTogVk0ubnVtZXJpY2FsLmwxUmVncmVzc2lvbihwdHMpfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBwdHMgPSBbXVxuICBmb3IgKGxldCB4ID0gLTI7IHggPD0gMjsgeCsrKSBwdHMucHVzaCh7eCwgeTogeCAqIHggLSAxfSlcbiAgY29uc3QgZml0ID0gVk0ubnVtZXJpY2FsLnBvbHlub21pYWxGaXQobWF0aCwgcHRzLCAyKVxuICByZXR1cm4ge2NvZWZmczogZml0LmNvZWZmcywgYXQzOiBmaXQuZXZhbHVhdGUoMyksIGVycm9yOiBmaXQudG90YWxTcXVhcmVkRXJyb3J9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIC8vIFRoZSB0cmFwZXpvaWRhbCBydWxlIG9uIHheMiBvdmVyIFswLCAxXTogZXJyb3IgMS8oNm5eMiksIG9yZGVyIDIuXG4gIGNvbnN0IHJvd3MgPSBbXVxuICBmb3IgKGxldCBuID0gMTsgbiA8PSA0MDsgbisrKSByb3dzLnB1c2goe24sIGVycm9yOiAxIC8gKDYgKiBuICogbil9KVxuICBjb25zdCB7b3JkZXIsIGV4YWN0LCBleGFjdEZyb21OfSA9IFZNLm51bWVyaWNhbC5jb252ZXJnZW5jZUZpdChyb3dzLCAxIC8gMywgXCJlcnJvclwiKVxuICByZXR1cm4ge29yZGVyLCBleGFjdCwgZXhhY3RGcm9tTn1cbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBvZGVTdGVwcyA9IElucHV0cy5yYW5nZShbMiwgNjRdLCB7bGFiZWw6IFwic3RlcHMgblwiLCBzdGVwOiAxLCB2YWx1ZTogOH0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIC8vIHknID0geSwgeSgwKSA9IDEsIHNvIHkoMSkgPSBlLiBXYXRjaCB0aGUgdHdvIGVycm9ycyBzaHJpbmsgYXMgbiBncm93cy5cbiAgY29uc3QgZiA9ICh0LCB5KSA9PiB5XG4gIGNvbnN0IGV1bGVyID0gVk0ubnVtZXJpY2FsLmV1bGVyU29sdmUoZiwgMCwgMSwgMSwgb2RlU3RlcHMpXG4gIGNvbnN0IHJrNCA9IFZNLm51bWVyaWNhbC5yazRTb2x2ZShmLCAwLCAxLCAxLCBvZGVTdGVwcylcbiAgY29uc3QgbGFzdCA9IGFyciA9PiBhcnJbYXJyLmxlbmd0aCAtIDFdXG4gIHJldHVybiBodG1sYEV1bGVyIGVycm9yOiA8Yj4ke01hdGguYWJzKGxhc3QoZXVsZXIueXMpIC0gTWF0aC5FKS50b0V4cG9uZW50aWFsKDIpfTwvYj4gJm5ic3A7IFJLNCBlcnJvcjogPGI+JHtNYXRoLmFicyhsYXN0KHJrNC55cykgLSBNYXRoLkUpLnRvRXhwb25lbnRpYWwoMil9PC9iPmBcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm51bWVyaWNhbC5zaW1wc29uRXN0aW1hdGUoTWF0aC5zaW4sIDAsIE1hdGguUEksIDEwKSAgIC8vIGV4YWN0IHZhbHVlIDJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm51bWVyaWNhbC5sYWdyYW5nZVF1YWRyYXRpYygwLCAwLCAxLCAxLCAyLCA0LCA0KSAgIC8vIHRoZSBwYXJhYm9sYSB5ID0geMKyIHNhbXBsZWQgYXQgMCwgLjUsIDEsIDEuNSwgMlxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNLm51bWVyaWNhbC5zeW1tZXRyaWNFaWdlbnZhbHVlcyhbWzIsIDEsIDBdLCBbMSwgMiwgMV0sIFswLCAxLCAyXV0pICAgLy8gMiArIOKImjIsIDIsIDIg4oiSIOKImjJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnb2RlU3RlcHMnKSJ9XX0=
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIGNvbnN0IHB0cyA9IFtdXG4gIGZvciAobGV0IGkgPSAxOyBpIDw9IDY7IGkrKykgcHRzLnB1c2goe3g6IGksIHk6IDIgKiBpICsgMSArIChpICUgMiA9PT0gMCA/IDAuMSA6IC0wLjEpfSlcbiAgcmV0dXJuIFZNLm51bWVyaWNhbC5saW5lYXJSZWdyZXNzaW9uKHB0cylcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgLy8gRml2ZSBwb2ludHMgb24geSA9IHgsIHBsdXMgb25lIHdpbGQgb3V0bGllci4gTDIgaXMgZHJhZ2dlZCB0b3dhcmQgaXQ7IEwxIGlzIG5vdC5cbiAgY29uc3QgcHRzID0gW3t4OiAxLCB5OiAxfSwge3g6IDIsIHk6IDJ9LCB7eDogMywgeTogM30sIHt4OiA0LCB5OiA0fSwge3g6IDUsIHk6IDV9LCB7eDogNiwgeTogMzB9XVxuICByZXR1cm4ge2wyOiBWTS5udW1lcmljYWwubGluZWFyUmVncmVzc2lvbihwdHMpLCBsMTogVk0ubnVtZXJpY2FsLmwxUmVncmVzc2lvbihwdHMpfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICBjb25zdCBwdHMgPSBbXVxuICBmb3IgKGxldCB4ID0gLTI7IHggPD0gMjsgeCsrKSBwdHMucHVzaCh7eCwgeTogeCAqIHggLSAxfSlcbiAgY29uc3QgZml0ID0gVk0ubnVtZXJpY2FsLnBvbHlub21pYWxGaXQobWF0aCwgcHRzLCAyKVxuICByZXR1cm4ge2NvZWZmczogZml0LmNvZWZmcywgYXQzOiBmaXQuZXZhbHVhdGUoMyksIGVycm9yOiBmaXQudG90YWxTcXVhcmVkRXJyb3J9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIC8vIFRoZSB0cmFwZXpvaWRhbCBydWxlIG9uIHheMiBvdmVyIFswLCAxXTogZXJyb3IgMS8oNm5eMiksIG9yZGVyIDIuXG4gIGNvbnN0IHJvd3MgPSBbXVxuICBmb3IgKGxldCBuID0gMTsgbiA8PSA0MDsgbisrKSByb3dzLnB1c2goe24sIGVycm9yOiAxIC8gKDYgKiBuICogbil9KVxuICBjb25zdCB7b3JkZXIsIGV4YWN0LCBleGFjdEZyb21OfSA9IFZNLm51bWVyaWNhbC5vcmRlckZyb21FcnJvcnNWc04ocm93cywgMSAvIDMsIFwiZXJyb3JcIilcbiAgcmV0dXJuIHtvcmRlciwgZXhhY3QsIGV4YWN0RnJvbU59XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTYiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ7XG4gIC8vIE5ld3RvbidzIG1ldGhvZCBvbiB4XjIgLSAyIGZyb20geCA9IDE6IHF1YWRyYXRpYyBjb252ZXJnZW5jZSwgb3JkZXIgMi5cbiAgY29uc3Qgcm93cyA9IFtdXG4gIGxldCB4ID0gMVxuICBmb3IgKGxldCBrID0gMDsgayA8IDY7IGsrKykge1xuICAgIGNvbnN0IHhOZXh0ID0geCAtICh4ICogeCAtIDIpIC8gKDIgKiB4KVxuICAgIHJvd3MucHVzaCh7ZXJyb3I6IE1hdGguYWJzKHhOZXh0IC0geCksIHhOZXh0fSlcbiAgICB4ID0geE5leHRcbiAgfVxuICByZXR1cm4gVk0ubnVtZXJpY2FsLm9yZGVyRnJvbVN1Y2Nlc3NpdmVFcnJvcnMocm93cywgXCJlcnJvclwiLCBcInhOZXh0XCIpLm9yZGVyXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2Ygb2RlU3RlcHMgPSBJbnB1dHMucmFuZ2UoWzIsIDY0XSwge2xhYmVsOiBcInN0ZXBzIG5cIiwgc3RlcDogMSwgdmFsdWU6IDh9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC04IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoie1xuICAvLyB5JyA9IHksIHkoMCkgPSAxLCBzbyB5KDEpID0gZS4gV2F0Y2ggdGhlIHR3byBlcnJvcnMgc2hyaW5rIGFzIG4gZ3Jvd3MuXG4gIGNvbnN0IGYgPSAodCwgeSkgPT4geVxuICBjb25zdCBldWxlciA9IFZNLm51bWVyaWNhbC5ldWxlclNvbHZlKGYsIDAsIDEsIDEsIG9kZVN0ZXBzKVxuICBjb25zdCByazQgPSBWTS5udW1lcmljYWwucms0U29sdmUoZiwgMCwgMSwgMSwgb2RlU3RlcHMpXG4gIGNvbnN0IGxhc3QgPSBhcnIgPT4gYXJyW2Fyci5sZW5ndGggLSAxXVxuICByZXR1cm4gaHRtbGBFdWxlciBlcnJvcjogPGI+JHtNYXRoLmFicyhsYXN0KGV1bGVyLnlzKSAtIE1hdGguRSkudG9FeHBvbmVudGlhbCgyKX08L2I+ICZuYnNwOyBSSzQgZXJyb3I6IDxiPiR7TWF0aC5hYnMobGFzdChyazQueXMpIC0gTWF0aC5FKS50b0V4cG9uZW50aWFsKDIpfTwvYj5gXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTkiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJWTS5udW1lcmljYWwuc2ltcHNvbkVzdGltYXRlKE1hdGguc2luLCAwLCBNYXRoLlBJLCAxMCkgICAvLyBleGFjdCB2YWx1ZSAyXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEwIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiVk0ubnVtZXJpY2FsLmxhZ3JhbmdlUXVhZHJhdGljKDAsIDAsIDEsIDEsIDIsIDQsIDQpICAgLy8gdGhlIHBhcmFib2xhIHkgPSB4wrIgc2FtcGxlZCBhdCAwLCAuNSwgMSwgMS41LCAyXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTExIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiVk0ubnVtZXJpY2FsLnN5bW1ldHJpY0VpZ2VudmFsdWVzKFtbMiwgMSwgMF0sIFsxLCAyLCAxXSwgWzAsIDEsIDJdXSkgICAvLyAyICsg4oiaMiwgMiwgMiDiiJIg4oiaMlxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdvZGVTdGVwcycpIn1dfQ==
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
