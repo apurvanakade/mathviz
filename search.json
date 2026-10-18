@@ -385,17 +385,6 @@
     ]
   },
   {
-    "objectID": "docs/reference/internals.html#style",
-    "href": "docs/reference/internals.html#style",
-    "title": "Internals",
-    "section": "Style",
-    "text": "Style\nExplicit for/while loops and if/else over .map()/.filter()/.reduce() chains and ternaries, throughout src/js. The code is read by a mathematics audience more at home in Python than in functional JavaScript. Callbacks an API requires (Plotly config values, Plot accessors, addEventListener) are the exception.",
-    "crumbs": [
-      "Reference",
-      "Internals"
-    ]
-  },
-  {
     "objectID": "docs/reference/filters.html",
     "href": "docs/reference/filters.html",
     "title": "VM.filters",

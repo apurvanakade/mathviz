@@ -432,7 +432,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#host-markup" id="toc-host-markup" class="nav-link" data-scroll-target="#host-markup">Host markup the CSS depends on</a></li>
   <li><a href="#site-extras" id="toc-site-extras" class="nav-link" data-scroll-target="#site-extras">Site extras</a></li>
   <li><a href="#flow-phases" id="toc-flow-phases" class="nav-link" data-scroll-target="#flow-phases">Flow phases</a></li>
-  <li><a href="#style" id="toc-style" class="nav-link" data-scroll-target="#style">Style</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -634,10 +633,6 @@ kit/                   what a consumer site copies in: the update hook and the m
 <section id="flow-phases" class="level2">
 <h2 class="anchored" data-anchor-id="flow-phases">Flow phases</h2>
 <p><code>vm-flow-phase</code> is a class on each step rather than a wrapper div around a run of steps, because <code>flow.css</code> draws the down arrows and the loop’s vertical line with sibling combinators between steps (<code>.vm-flow-step + .vm-flow-step</code>, <code>.vm-flow-loop-to ~ .vm-flow-step</code>), and a wrapper would hide the steps inside it from those. Each main box draws its own piece of the phase’s dashed outline in its <code>::after</code>. The space above a step is <code>--vm-flow-gap</code> (1.6rem by default): the first step of a phase raises it to make room for the label, the step after a phase raises it so its arrow clears the outline, and the loop’s line reads it to bridge the gap above the <code>-from</code> step.</p>
-</section>
-<section id="style" class="level2">
-<h2 class="anchored" data-anchor-id="style">Style</h2>
-<p>Explicit <code>for</code>/<code>while</code> loops and <code>if</code>/<code>else</code> over <code>.map()/.filter()/.reduce()</code> chains and ternaries, throughout <code>src/js</code>. The code is read by a mathematics audience more at home in Python than in functional JavaScript. Callbacks an API requires (Plotly config values, <code>Plot</code> accessors, <code>addEventListener</code>) are the exception.</p>
 
 
 </section>
