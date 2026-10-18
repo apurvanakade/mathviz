@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a split layout, embedding, a Share button, a "Report bug" popup, a phone notice). Each is one key under `mathviz:` in `_quarto.yml`. A site pays only for the pieces it turns on.
+Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a split layout, embedding, a Share button, a "Report bug" popup, a phone notice). Each is one key under `mathviz:` in `_quarto.yml`. A site pays only for the pieces it turns on.
 
 These come with the Quarto extension only. The plain script bundle doesn't include them.
 
@@ -19,6 +19,7 @@ These come with the Quarto extension only. The plain script bundle doesn't inclu
 mathviz:
   fonts: true
   sidebar-rail: my-site-sidebar-pinned     # or true
+  sidebar-search: true
   mobile-warning: my-site-mobile-warning   # or true
   split: my-site-split-width               # or true
   embed: true
@@ -34,6 +35,7 @@ mathviz:
 |---|---|---|
 | `fonts` | `true` | Serves Inter and JetBrains Mono from your own site. |
 | `sidebar-rail` | `true`, or a storage key | Hides Quarto's sidebar behind a slim rail at the left edge. |
+| `sidebar-search` | `true` | Adds a search box at the top of the sidebar that narrows it to matching titles. |
 | `mobile-warning` | `true`, or a storage key | Shows a one-time "built for a bigger screen" notice on phones. |
 | `split` | `true`, or a storage key | Lets a page show its app as a fixed pane beside the text. |
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
@@ -156,6 +158,20 @@ mathviz:
 ```
 
 For a site with Quarto sidebar navigation. The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages). Escape or a click outside closes it. It does nothing on a page without a sidebar.
+
+## Sidebar search
+
+```yaml
+mathviz:
+  sidebar-search: true
+```
+
+For a site with Quarto sidebar navigation, with or without the rail. A search box at the top of the sidebar narrows the menu as the reader types. It searches titles only, not page text: Quarto's own full-text search allows one box per page, so keep that one in the navbar.
+
+- Each word typed must start a word of a title, in any order: "ode" finds "Methods for ODEs" but not "Model Fitting". Case, accents and punctuation are ignored, and so are apostrophes, straight or curly.
+- A section whose own title matches keeps everything under it. Any other section shows only its matching entries and disappears when it has none. Sections open while a search is active and go back to how they were when it is cleared.
+- Enter opens the first matching page. Escape clears the box, and a second Escape closes the rail.
+- Nothing is stored.
 
 ## Report bug
 
