@@ -403,6 +403,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#share" id="toc-share" class="nav-link" data-scroll-target="#share">Share</a></li>
   <li><a href="#split" id="toc-split" class="nav-link" data-scroll-target="#split">Split layout</a></li>
   <li><a href="#sidebar-rail" id="toc-sidebar-rail" class="nav-link" data-scroll-target="#sidebar-rail">Sidebar rail</a></li>
+  <li><a href="#sidebar-search" id="toc-sidebar-search" class="nav-link" data-scroll-target="#sidebar-search">Sidebar search</a></li>
   <li><a href="#report-bug" id="toc-report-bug" class="nav-link" data-scroll-target="#report-bug">Report bug</a></li>
   <li><a href="#phone-notice" id="toc-phone-notice" class="nav-link" data-scroll-target="#phone-notice">Phone notice</a></li>
   </ul>
@@ -437,22 +438,23 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>Everything on this page is optional and off by default. The extension can also dress up the site <em>around</em> your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a split layout, embedding, a Share button, a “Report bug” popup, a phone notice). Each is one key under <code>mathviz:</code> in <code>_quarto.yml</code>. A site pays only for the pieces it turns on.</p>
+<p>Everything on this page is optional and off by default. The extension can also dress up the site <em>around</em> your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a split layout, embedding, a Share button, a “Report bug” popup, a phone notice). Each is one key under <code>mathviz:</code> in <code>_quarto.yml</code>. A site pays only for the pieces it turns on.</p>
 <p>These come with the Quarto extension only. The plain script bundle doesn’t include them.</p>
 <section id="all-the-keys" class="level2">
 <h2 class="anchored" data-anchor-id="all-the-keys">All the keys</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">fonts</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> my-site-sidebar-pinned</span><span class="co">     # or true</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> my-site-mobile-warning</span><span class="co">   # or true</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">split</span><span class="kw">:</span><span class="at"> my-site-split-width</span><span class="co">               # or true</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> my-site-mobile-warning</span><span class="co">   # or true</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">split</span><span class="kw">:</span><span class="at"> my-site-split-width</span><span class="co">               # or true</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -473,26 +475,31 @@ Authors: Apurva Nakade
 <td>Hides Quarto’s sidebar behind a slim rail at the left edge.</td>
 </tr>
 <tr class="odd">
+<td><code>sidebar-search</code></td>
+<td><code>true</code></td>
+<td>Adds a search box at the top of the sidebar that narrows it to matching titles.</td>
+</tr>
+<tr class="even">
 <td><code>mobile-warning</code></td>
 <td><code>true</code>, or a storage key</td>
 <td>Shows a one-time “built for a bigger screen” notice on phones.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>split</code></td>
 <td><code>true</code>, or a storage key</td>
 <td>Lets a page show its app as a fixed pane beside the text.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>embed</code></td>
 <td><code>true</code></td>
 <td>Lets another site show one app alone in an <code>&lt;iframe&gt;</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>share</code></td>
 <td>a map (see <a href="#share">Share</a>)</td>
 <td>Adds a “Share” button to every app. Turns <code>embed</code> on too.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>report-bug</code></td>
 <td>a map with <code>repo</code> (required) and <code>branch</code></td>
 <td>Adds a “Report bug” popup when a reader selects text.</td>
@@ -582,18 +589,30 @@ Authors: Apurva Nakade
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For a site with Quarto sidebar navigation. The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages). Escape or a click outside closes it. It does nothing on a page without a sidebar.</p>
 </section>
+<section id="sidebar-search" class="level2">
+<h2 class="anchored" data-anchor-id="sidebar-search">Sidebar search</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For a site with Quarto sidebar navigation, with or without the rail. A search box at the top of the sidebar narrows the menu as the reader types. It searches titles only, not page text: Quarto’s own full-text search allows one box per page, so keep that one in the navbar.</p>
+<ul>
+<li>Each word typed must start a word of a title, in any order: “ode” finds “Methods for ODEs” but not “Model Fitting”. Case, accents and punctuation are ignored, and so are apostrophes, straight or curly.</li>
+<li>A section whose own title matches keeps everything under it. Any other section shows only its matching entries and disappears when it has none. Sections open while a search is active and go back to how they were when it is cleared.</li>
+<li>Enter opens the first matching page. Escape clears the box, and a second Escape closes the rail.</li>
+<li>Nothing is stored.</li>
+</ul>
+</section>
 <section id="report-bug" class="level2">
 <h2 class="anchored" data-anchor-id="report-bug">Report bug</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span><span class="co">      # the default</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span><span class="co">      # the default</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>When a reader selects text, a small “Report bug” button appears next to it. Clicking it opens a new GitHub issue in <code>repo</code>, labelled <code>bug</code>, with the page’s URL, a link to the page’s <code>.qmd</code> source on <code>branch</code>, and the selected text quoted. The source link assumes the Quarto project is at the repository root. Without <code>repo</code> the key is skipped with a warning.</p>
 </section>
 <section id="phone-notice" class="level2">
 <h2 class="anchored" data-anchor-id="phone-notice">Phone notice</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>On a screen narrower than 992 px, a reader’s first visit shows a short notice: the site is meant for larger screens, and a chart’s fullscreen button helps. “Got it” dismisses it for good.</p>
 
 
