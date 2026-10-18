@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `sidebar-search: true`: a search box at the top of Quarto's sidebar that narrows the menu to the entries whose title matches as the reader types. Titles only; Enter opens the first match, Escape clears. See [Sidebar search](https://apurvanakade.github.io/mathviz/docs/site.html#sidebar-search).
+
 ## [0.6.0] - 2026-10-18
 
 ### Added

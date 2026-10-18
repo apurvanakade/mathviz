@@ -18,6 +18,7 @@
 //   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app, or
 //     showing it narrower than the content column;
 //   - the Share dialog's links and <iframe> snippet.
+//   - the sidebar search box not narrowing the menu.
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
 // of its pages and was cut back because a heavy page on a busy runner made
@@ -290,6 +291,37 @@ async function shareProblems(page) {
   return []
 }
 
+// The sidebar search box narrows the menu as the reader types. Driven
+// through events rather than Playwright's fill(): the rail keeps the sidebar
+// off-canvas, and filtering works the same whether or not it is open.
+function sidebarSearchProblems() {
+  const input = document.querySelector('#quarto-sidebar .vm-sidebar-search input')
+  if (!input) return ['no sidebar search box (.vm-sidebar-search)']
+  const visible = () => Array.from(document.querySelectorAll('#quarto-sidebar li.sidebar-item'))
+    .filter((li) => getComputedStyle(li).display !== 'none')
+    .map((li) => li.querySelector('.menu-text')?.textContent.trim())
+  const type = (text) => {
+    input.value = text
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  }
+  const empty = document.querySelector('#quarto-sidebar .vm-sidebar-search-empty')
+  const shows = (el) => el && getComputedStyle(el).display !== 'none'
+  const problems = []
+  const all = visible().length
+  if (all < 3) problems.push(`expected the fixture's 3 sidebar entries, found ${all}`)
+  type('several')
+  const hits = visible()
+  if (hits.length !== 1 || hits[0] !== 'Several sliders') problems.push(`"several" left ${JSON.stringify(hits)}, expected ["Several sliders"]`)
+  if (shows(empty)) problems.push('"No matching pages" shows while there is a match')
+  type('zzzz')
+  if (visible().length !== 0) problems.push('"zzzz" left entries visible')
+  if (!shows(empty)) problems.push('"No matching pages" does not show for a query with no match')
+  input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+  if (input.value !== '') problems.push('Escape did not clear the search box')
+  if (visible().length !== all) problems.push(`clearing the search left ${visible().length} of ${all} entries visible`)
+  return problems
+}
+
 async function checkPage(context, base, relPath) {
   const errors = []
   const watch = (page, prefix) => {
@@ -307,6 +339,7 @@ async function checkPage(context, base, relPath) {
   for (const problem of await page.evaluate(slidersBelowChart)) errors.push(`desktop: ${problem}`)
   for (const problem of await popoverProblems(page)) errors.push(`desktop: ${problem}`)
   for (const problem of await shareProblems(page)) errors.push(`share: ${problem}`)
+  for (const problem of await page.evaluate(sidebarSearchProblems)) errors.push(`sidebar search: ${problem}`)
   await page.close()
 
   // A phone (390x844, an iPhone 14).

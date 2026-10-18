@@ -25,6 +25,8 @@
 --     sidebar-rail: my-site-pin    # off-canvas sidebar behind a slim rail; a
 --                                  # string names the pin's localStorage key
 --                                  # (true: "vm-sidebar-pinned")
+--     sidebar-search: true         # a search box atop Quarto's sidebar that
+--                                  # narrows the menu to matching titles
 --     mobile-warning: my-site-key  # one-time "bigger screen" notice on a
 --                                  # phone; a string names its localStorage
 --                                  # key (true: "vm-mobile-warning-dismissed")
@@ -178,6 +180,9 @@ function Meta(meta)
 
   if enabled(meta, "sidebar-rail") then
     chrome("sidebar-rail", { ["sidebar-pin-key"] = stringValue("sidebar-rail") })
+  end
+  if enabled(meta, "sidebar-search") then
+    chrome("sidebar-search")
   end
   if enabled(meta, "mobile-warning") then
     chrome("mobile-warning", { ["mobile-warning-key"] = stringValue("mobile-warning") })

@@ -18,6 +18,7 @@ mathviz:
   referrer: same-origin
   fonts: true
   sidebar-rail: true
+  sidebar-search: true
   split: true
   share:
     site-url: https://example.com
