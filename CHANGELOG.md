@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-18
+
 ### Added
 
 - `VM.numerical.convergenceFit(rows, reference, errorKey)`: the observed order of convergence from an error-vs-n run. It drops errors at rounding level, fits only n ≥ max/2, and reports a method exact on the problem as exact (`exact`, `exactFromN`) instead of fitting it.
@@ -245,7 +247,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/apurvanakade/mathviz/compare/v0.4.3...v0.5.0
 [0.4.3]: https://github.com/apurvanakade/mathviz/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/apurvanakade/mathviz/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/apurvanakade/mathviz/compare/v0.4.0...v0.4.1
