@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, a split layout, embedding, a Share button, a "Report bug" popup, a phone notice). Each is one key under `mathviz:` in `_quarto.yml`. A site pays only for the pieces it turns on.
+Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a "Report bug" popup). Each is one key under `mathviz:` in `_quarto.yml`. A site pays only for the pieces it turns on.
 
 These come with the Quarto extension only. The plain script bundle doesn't include them.
 
@@ -20,8 +20,6 @@ mathviz:
   fonts: true
   sidebar-rail: my-site-sidebar-pinned     # or true
   sidebar-search: true
-  mobile-warning: my-site-mobile-warning   # or true
-  split: my-site-split-width               # or true
   category-cloud: true
   embed: true
   share:
@@ -37,14 +35,12 @@ mathviz:
 | `fonts` | `true` | Serves Inter and JetBrains Mono from your own site. |
 | `sidebar-rail` | `true`, or a storage key | Hides Quarto's sidebar behind a slim rail at the left edge. |
 | `sidebar-search` | `true` | Adds a search box at the top of the sidebar that narrows it to matching titles. |
-| `mobile-warning` | `true`, or a storage key | Shows a one-time "built for a bigger screen" notice on phones. |
-| `split` | `true`, or a storage key | Lets a page show its app as a fixed pane beside the text. |
 | `category-cloud` | `true` | Moves a listing's category cloud above its cards and adds an "All" entry. |
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
 | `share` | a map (see [Share](#share)) | Adds a "Share" button to every app. Turns `embed` on too. |
 | `report-bug` | a map with `repo` (required) and `branch` | Adds a "Report bug" popup when a reader selects text. |
 
-Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the defaults are `vm-sidebar-pinned`, `vm-mobile-warning-dismissed` and `vm-split-width`.
+Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the default is `vm-sidebar-pinned`.
 
 ## Fonts
 
@@ -113,7 +109,7 @@ Adding `?embed=1` to a page's URL shows only the page's first app: no navbar, si
 </iframe>
 ```
 
-A page's own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, phone notice, Share button and Report bug popup all stay hidden.
+A page's own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, Share button and Report bug popup all stay hidden.
 
 ## Share {#share}
 
@@ -155,35 +151,6 @@ The cloud is unstyled: it looks the way Quarto draws it until your own CSS resty
 
 With more than one listing on the page, the cloud goes above the first grid, default or table listing (not a custom-template one), and filters all of them, as Quarto's does.
 
-## Split layout {#split}
-
-```yaml
-mathviz:
-  split: true
-```
-
-For a page that is mostly its app: the app sits in a pane on the right, from under the navbar to the bottom of the window, and stays put while the text scrolls beside it. A page opts in by wrapping its content in a `vm-split` div around its [`vm-app`](#vm-app):
-
-````markdown
-::::: {.vm-split}
-
-<div class="vm-app">
-...controls panel, chart block...
-</div>
-
-The explanation, before or after the app, reads as one column.
-
-:::::
-````
-
-- **From 992px up** the pane takes about half the window (`clamp(30rem, 56vw, 64rem)`), and the title, text, page navigation and footer share the rest. The charts in the pane take the height the controls leave, shared equally between them. An app with no Plotly chart is centered in the pane.
-- **Below 992px** the page is one column, app first.
-- **The divider** between text and pane can be dragged, or focused and moved with the arrow keys. The pane stays at least 480px wide and the text 320px. The width is remembered in `localStorage` under the storage key (`vm-split-width` with `true`); double-click or `Home` resets it and forgets it.
-- **In an embed** the app is the whole frame, as on any other page.
-- **Only one app goes in the pane**: the `vm-app` that is a direct child of `vm-split`. A second app wrapped in a plain `<div>` stays in the text column, at the text's width, and `?embed=<id>` still shows it across the whole frame.
-
-Pages without `vm-split` are unchanged, so a site can split its app-first pages and leave its articles as they are. Keep every slider above the chart it drives: in a pane fitted to the window, a control below the chart is the first thing pushed out of view.
-
 ## Sidebar rail
 
 ```yaml
@@ -217,12 +184,3 @@ mathviz:
 ```
 
 When a reader selects text, a small "Report bug" button appears next to it. Clicking it opens a new GitHub issue in `repo`, labelled `bug`, with the page's URL, a link to the page's `.qmd` source on `branch`, and the selected text quoted. The source link assumes the Quarto project is at the repository root. Without `repo` the key is skipped with a warning.
-
-## Phone notice
-
-```yaml
-mathviz:
-  mobile-warning: true
-```
-
-On a screen narrower than 992 px, a reader's first visit shows a short notice: the site is meant for larger screens, and a chart's fullscreen button helps. "Got it" dismisses it for good.

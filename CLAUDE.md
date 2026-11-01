@@ -18,20 +18,16 @@ tagged release. Nothing is mirrored into this repository, and a change to
 `src/` arrives as an ordinary pull request that carries its code, its
 `docs/reference/` entry and its `CHANGELOG.md` line together.
 
-The "try it on a real page first" loop lives in each site's
-**mathviz-local overlay**, a `_mathviz/` folder laid out path for path like
-`src/` and built into a second extension that loads after mathviz. The
-template is `kit/`. A function starts there, where the site needs it, and
-moves here when a second site wants it or it is plainly generic:
-`node scripts/port.mjs <site>/_mathviz [file ...]` copies the files into
-`src/` and adds their manifest entries. The overlay also replaces a broken
-upstream member until a release carries the fix.
+A new function starts in the site's own page code, where the site needs
+it, and moves here when a second site wants it or it is plainly generic.
+Chrome only one site uses stays in that site (Visual Math Lab keeps its
+split layout, phone notice and `vm-flow` in its own `_chrome/`).
 
 So the everyday loops are:
 
 - **Changing or adding a function, token or CSS rule** — a PR here, with its
-  reference entry and CHANGELOG line. Try it on a real page first through
-  the overlay, or with `quarto add /path/to/mathviz` (below).
+  reference entry and CHANGELOG line. Try it on a real page first with
+  `quarto add /path/to/mathviz` (below).
 - **Documenting, or editing the guide or the starter** — a PR here.
 - **Releasing** — see Releasing below; consumers pick it up on their next
   render.
@@ -54,15 +50,15 @@ dist/                  generated bundle, committed (jsDelivr target); never hand
 src/manifest.mjs       THE load order, for both the build and the tests
 src/js/<category>/     one VM.<category>.<fn> per file (a few export 2–3 that belong together), IIFE extending window.VM; tests colocated
 src/css/               tokens.css (all --vm-* defaults), then panel, chart-block, swatch, legend-controls, modebar, sliders, table
-src/chrome/            opt-in site chrome (sidebar-rail, sidebar-search, embed, share, report-bug, mobile-warning + shared site.js); each its own Lua-added dependency, not in the bundle
+src/chrome/            opt-in site chrome (sidebar-rail, sidebar-search, category-cloud, embed, share, report-bug + shared site.js); each its own Lua-added dependency, not in the bundle
 src/fonts/             opt-in self-hosted Inter/JetBrains Mono (fonts: true); fonts.test.js guards the url()s
 src/theme/theme.scss   template build.mjs fills from tokens.css into dist/theme/mathviz-{light,dark}.scss
-scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js + css-coverage.test.js, release.mjs, port.mjs, check-layout.mjs (browser layout test)
+scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js + css-coverage.test.js, release.mjs, check-layout.mjs (browser layout test)
 fixtures/layout/       the fixture Quarto site npm run test:layout renders and checks
 starter/               clone-and-go Quarto site: README, _quarto.yml, index.qmd + one page per pattern, _extensions/mathviz/ (build mirror)
 _quarto.yml            the docs site project (output-dir _site, render allowlist)
 docs/                  the site: guide pages at the top level, reference/<category>.qmd + reference/internals.qmd
-kit/                   what a consumer site copies in: update-mathviz.sh (pre-render hook) + the mathviz-local overlay (_mathviz/, _extensions/mathviz-local/)
+kit/                   what a consumer site copies in: update-mathviz.sh (pre-render hook)
 ```
 
 - **Every `src/js` file must be listed in `src/manifest.mjs`**, after anything it reads at load time; `src/manifest.test.js` enforces both the completeness and the `mustPrecede` constraints. The build inserts a `;` between JS files because each is an IIFE ending in a call — `})(window)`, or `})()` for `range-progress.js`, which exports nothing — with no trailing semicolon, and two of those in a row parse as `})(window)(function …)`, a call — valid syntax, so `node --check` can't catch it.

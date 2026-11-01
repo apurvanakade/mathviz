@@ -159,8 +159,8 @@ function embedProblems(expectedId) {
   }
   const activeBox = active.getBoundingClientRect()
   if (activeBox.height === 0) problems.push('the active .vm-app has zero height')
-  // Nothing inside the content column (a split page's 36rem text column,
-  // say) may hold the app narrower than the column itself. A Plotly chart
+  // Nothing inside the content column (a wrapper with a max-width, say)
+  // may hold the app narrower than the column itself. A Plotly chart
   // is fitted to its box, so this shows.
   const columnWidth = main.getBoundingClientRect().width
   if (activeBox.width < 0.9 * columnWidth) {
@@ -490,8 +490,8 @@ async function main() {
   // One context for every load, so its HTTP cache keeps the CDN scripts
   // (browser.newPage() would open a fresh, empty-cached context each time).
   // Storage is cleared before each navigation instead: the chrome remembers
-  // state there (mobile-warning's "shown once", the sidebar pin, the split
-  // width), and every load should see a first visit.
+  // state there (the sidebar pin, the draggable legend's offset), and every
+  // load should see a first visit.
   const context = await browser.newContext()
   await context.addInitScript(() => {
     try { localStorage.clear(); sessionStorage.clear() } catch (e) { /* storage unavailable */ }

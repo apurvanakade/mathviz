@@ -1,5 +1,5 @@
 ---
-title: "Split page with a step slider"
+title: "Method page with a step slider"
 ---
 
 <!--
@@ -8,11 +8,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-<!-- A method page as a consumer writes one: the split layout, a controls
-     panel (formula + button row, then a grid of fields), and a chart block
-     whose single step slider sits in the bar above a Plotly chart. -->
-
-::::::::: {.vm-split}
+<!-- A method page as a consumer writes one: a controls panel (formula +
+     button row, then a grid of fields), and a chart block whose single step
+     slider sits in the bar above a Plotly chart. -->
 
 ```{ojs}
 //| output: false
@@ -125,12 +123,10 @@ $$
 x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)},
 $$
 
-the root of the tangent line at $x_n$. The prose column scrolls beside the
-app on a wide screen and follows it on a phone.
+the root of the tangent line at $x_n$.
 
-<!-- A second app kept in the text column: a plain div keeps it out of the
-     pane (which takes only a direct-child .vm-app). ?embed=steps must
-     still give it the whole frame, not the column's 36rem. -->
+<!-- A second app, nested in a plain div: ?embed=steps must still give it
+     the whole frame. -->
 <div>
 
 <div class="vm-app" id="steps">
@@ -158,5 +154,3 @@ stepsPlot = {
 </div>
 
 </div>
-
-:::::::::

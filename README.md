@@ -27,10 +27,8 @@ quarto preview
 Then copy any page, rename it, and edit its cells. [`starter/README.md`](starter/README.md)
 lists what each page shows.
 
-**A site that adds functions of its own** -- copy in the [site kit](kit/): a
-pre-render hook that keeps mathviz on the latest release, and a local overlay
-laid out like `src/`, so anything worth sharing moves upstream as a pull
-request.
+**A site that tracks the latest release** -- copy in the [site kit](kit/): a
+pre-render hook that installs the newest mathviz tag before every render.
 
 **An existing Quarto site:**
 
@@ -69,7 +67,7 @@ The site is the repository's `docs/` folder rendered with Quarto; `quarto previe
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: edit `src/` (or port from your site's overlay with `scripts/port.mjs`), add JSDoc and a reference entry, `npm test`, `npm run build`, commit `dist/` too. Changes are listed in [CHANGELOG.md](CHANGELOG.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: edit `src/`, add JSDoc and a reference entry, `npm test`, `npm run build`, commit `dist/` too. Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

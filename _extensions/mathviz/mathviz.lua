@@ -27,14 +27,6 @@
 --                                  # (true: "vm-sidebar-pinned")
 --     sidebar-search: true         # a search box atop Quarto's sidebar that
 --                                  # narrows the menu to matching titles
---     mobile-warning: my-site-key  # one-time "bigger screen" notice on a
---                                  # phone; a string names its localStorage
---                                  # key (true: "vm-mobile-warning-dismissed")
---     split: my-site-split-width   # a page wrapped in .vm-split shows its
---                                  # .vm-app as a fixed pane beside the text;
---                                  # a string names the localStorage key the
---                                  # divider's width is kept under
---                                  # (true: "vm-split-width")
 --     category-cloud: true         # a listing's category cloud above its
 --                                  # cards, with an "All" entry (script
 --                                  # only: the site styles the cloud)
@@ -189,12 +181,6 @@ function Meta(meta)
   end
   if enabled(meta, "sidebar-search") then
     chrome("sidebar-search")
-  end
-  if enabled(meta, "mobile-warning") then
-    chrome("mobile-warning", { ["mobile-warning-key"] = stringValue("mobile-warning") })
-  end
-  if enabled(meta, "split") then
-    chrome("split", { ["split-width-key"] = stringValue("split") })
   end
   if enabled(meta, "category-cloud") then
     chrome("category-cloud", nil, true)

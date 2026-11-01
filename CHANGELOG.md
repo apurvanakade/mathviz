@@ -23,6 +23,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 ### Removed
 
 - Theme: `$vm-prose-width` and `--vm-prose-width`, with its centring; prose takes Quarto's body column. This also fixes short card titles centred in their card since v0.9.2 (the centring's `margin-inline: auto` applied even with the cap off).
+- `split` and `mobile-warning` chrome (`chrome/split.{js,css}`, `chrome/mobile-warning.{js,css}`, `VM.chrome.split`, the `.vm-split` rules in `embed.css`) and the `vm-flow` diagram classes (`flow.css`). Visual Math Lab, the only site using them, now carries them itself; a site still setting `split:` or `mobile-warning:` gets nothing from them.
+- The site kit's mathviz-local overlay (`kit/_mathviz/`, `kit/_extensions/mathviz-local/`) and `scripts/port.mjs`; no site used them. `kit/update-mathviz.sh` stays. A function a site writes for itself now lives in that site's own code until a second site wants it.
 
 ## [0.9.2] - 2026-11-01
 

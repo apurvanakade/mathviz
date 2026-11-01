@@ -19,18 +19,11 @@ pull request against `main`, and a change to `src/` brings its
 `docs/reference/` entry and a `CHANGELOG.md` line in the same PR. CI's
 `docs-coverage`, `css-coverage` and `changelog` checks fail without them.
 
-**Coming from a site that uses mathviz?** Such a site keeps its own
-additions in a mathviz-local overlay (the [`kit/`](kit/) template). When a
-function there is ready to share, move it here with
-
-```sh
-node scripts/port.mjs /path/to/your-site/_mathviz              # every file in the overlay
-node scripts/port.mjs /path/to/your-site/_mathviz ui/foo.js    # or just some
-```
-
-which copies the files into `src/` at the same paths and adds their manifest
-entries. Then write the reference entries `npm test` asks for and open the
-PR. Two sites adding overlapping functions get sorted out in review.
+**Coming from a site that uses mathviz?** A function that site wrote for
+itself moves here once a second site wants it: put it in `src/js/<category>/`
+as its own file, list it in `src/manifest.mjs`, write the reference entry
+`npm test` asks for and open the PR. Two sites adding overlapping functions
+get sorted out in review.
 
 ## Working on the library
 
