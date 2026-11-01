@@ -4,8 +4,8 @@
 
 # The fixture site for scripts/check-layout.mjs: a few small pages that use
 # every piece of mathviz chrome that affects layout (theme, fonts, sidebar
-# rail, split, share + embed, category cloud), configured the way Visual
-# Math Lab configures them. Not published. The script copies
+# rail, share + embed, category cloud), configured the way Visual Math Lab
+# configures them. Not published. The script copies
 # _extensions/mathviz in before rendering (that copy is gitignored), so the
 # pages always use this checkout's build.
 project:
@@ -19,7 +19,6 @@ mathviz:
   fonts: true
   sidebar-rail: true
   sidebar-search: true
-  split: true
   category-cloud: true
   share:
     site-url: https://example.com

@@ -47,7 +47,7 @@ mathviz:
 | `css` | `true` (default) or `false` | Whether to add `mathviz.css`. With `false` you supply the `--vm-*` tokens and the `ojs-*` rules yourself -- see [Theming](theming.qmd). |
 | `referrer` | a [referrer policy](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/name/referrer) string | Emits `<meta name="referrer" content="…">` **before** the CDN tags, so the third-party origins don't see a page's path or query string -- which on a math page is the reader's own input. Visual Math Lab uses `same-origin`. |
 
-Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, embedding, a Share button, a Report bug popup, a phone notice), and the extension ships an optional Quarto theme. All are off by default -- see [Site extras](site.qmd).
+Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, a sidebar search box, a category cloud, embedding, a Share button, a Report bug popup), and the extension ships an optional Quarto theme. All are off by default -- see [Site extras](site.qmd).
 
 ### Versions and updating
 
@@ -59,10 +59,6 @@ quarto add apurvanakade/mathviz@v0.9.2       # pin at install time
 Always name the tag. Without one (or with `@latest`), Quarto installs the `main` branch, which can be ahead of the last release.
 
 To stay on the latest release without thinking about it, run the [site kit](https://github.com/apurvanakade/mathviz/tree/main/kit)'s `update-mathviz.sh` as a `pre-render` hook. It updates the extension before each render and keeps the installed copy when you're offline.
-
-### Adding your own functions
-
-A site that needs functions mathviz doesn't have can keep them in a second, local extension that loads after mathviz and adds to the same `VM`. The [site kit](https://github.com/apurvanakade/mathviz/tree/main/kit) has the template: copy it in and add `mathviz-local` after `mathviz` under `filters:`. It is laid out like mathviz's own source, so a function other sites could use can go upstream as a pull request.
 
 ## Any other web page
 
