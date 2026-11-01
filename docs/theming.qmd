@@ -60,6 +60,7 @@ Live: each swatch is the value your browser computes for the token **right now**
     ["--vm-radius", "panel and popover corners -- same in both themes"],
     ["--vm-radius-sm", "inputs, buttons, the legend grip -- same in both themes"],
     ["--vm-shadow", "legend, popover, modebar pill"],
+    ["--vm-shadow-color", "nothing in mathviz: the bare shadow colour, for a page's own larger shadows (a hover lift, a floating card), since --vm-shadow is a whole box-shadow"],
     ["--vm-font-sans", "chart text and the playback popover -- same in both themes. Redeclare it if your site self-hosts a font"],
     ["Controls", null],
     ["--vm-control-h", "one height for every control a panel or controls bar holds -- text field, number readout, <code>select</code>, button -- so a row of mixed controls lines up on both edges"],

@@ -84,7 +84,8 @@ execFileSync(process.execPath, ['--check', path.join(root, 'dist/mathviz.js')], 
 // --vm-* defaults the panels read.
 const themeTokens = [
   'bg', 'surface', 'surface-hover', 'text', 'text-soft', 'border', 'accent',
-  'accent-hover', 'on-accent', 'grid', 'radius', 'radius-sm', 'shadow'
+  'accent-hover', 'on-accent', 'grid', 'radius', 'radius-sm', 'shadow',
+  'shadow-color'
 ]
 
 // Reads `--vm-<name>: <value>;` declarations out of the tokens.css block
