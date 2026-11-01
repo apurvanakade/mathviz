@@ -49,15 +49,23 @@
     // varies with breadcrumb depth/length and can wrap on a narrow phone,
     // so it's measured here rather than hardcoded, and exposed as a CSS
     // variable the top-offset media query in sidebar-rail.css reads.
+    // The navbar's own height is measured the same way: it depends on the
+    // theme's padding and font size and on the brand wrapping, and the
+    // sidebar and rail start just under it (--vm-header-height).
     var secondaryNav = document.querySelector(".quarto-secondary-nav")
-    function updateSecondaryNavHeight() {
+    var header = document.getElementById("quarto-header")
+    function updateNavHeights() {
+      var root = document.documentElement.style
+      if (header) {
+        root.setProperty("--vm-header-height", header.getBoundingClientRect().height + "px")
+      }
       var h = secondaryNav ? secondaryNav.getBoundingClientRect().height : 0
-      document.documentElement.style.setProperty("--vm-secondary-nav-height", h + "px")
+      root.setProperty("--vm-secondary-nav-height", h + "px")
     }
-    if (secondaryNav) {
-      updateSecondaryNavHeight()
-      window.addEventListener("resize", updateSecondaryNavHeight)
-    }
+    updateNavHeights()
+    window.addEventListener("resize", updateNavHeights)
+    // Web fonts arriving late can change the navbar's height.
+    if (document.fonts) document.fonts.ready.then(updateNavHeights)
 
     var rail = document.createElement("div")
     rail.id = "vm-sidebar-rail"
