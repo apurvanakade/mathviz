@@ -10,6 +10,17 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- Theme: `$vm-font-weight-heading`, `$vm-h2-font-size` and `$vm-h3-font-size`, so a site can set its section headings. Bootstrap's heading variables are derived from them; before, a site's own `$headings-font-weight` silently lost.
+- `--vm-shadow-color` (and `$vm-shadow-color` in the theme): the bare shadow colour, for a page's own larger shadows.
+- Theme: a tinted header row on content tables (smaller type and padding on a phone), quiet lowercase category chips, a token-coloured blockquote, task-list items with a hanging indent, centred captions under `fig-align="center"` figures, and a lighter link underline.
+
+### Fixed
+
+- Theme: a listing's sort and filter boxes (`.input-group-text`) were a light grey block in dark mode.
+- Theme: in dark mode, SVG, PNG and GIF figures drawn for a white page get a near-white backing instead of vanishing into the background. Listing thumbnails are left alone.
+
 ## [0.7.0] - 2026-10-18
 
 ### Added

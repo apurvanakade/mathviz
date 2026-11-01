@@ -57,7 +57,7 @@ Turning `fonts` on only makes the fonts available. The [theme](#theme) is what u
 
 ## Theme {#theme}
 
-The Quarto theme gives Bootstrap's navbar, links, cards, callouts and footer the same colors as the mathviz panels, in light and dark. List it **before** your own theme file:
+The Quarto theme gives Bootstrap's navbar, links, cards, callouts, tables, blockquotes, category chips, listing controls and footer the same colors as the mathviz panels, in light and dark. In dark mode it also puts a light backing behind SVG, PNG and GIF figures, which are usually drawn for a white page. List it **before** your own theme file:
 
 ```yaml
 format:
@@ -74,7 +74,7 @@ To change a color, set the matching `$vm-*` variable in your own file's `/*-- sc
 $vm-accent: #b5179e;
 ```
 
-The variables are `$vm-bg`, `$vm-surface`, `$vm-surface-hover`, `$vm-text`, `$vm-text-soft`, `$vm-border`, `$vm-accent`, `$vm-accent-hover`, `$vm-on-accent`, `$vm-grid`, `$vm-radius`, `$vm-radius-sm`, `$vm-shadow` and `$vm-font-weight-display`. Their defaults are the [tokens](theming.qmd#the-tokens) of the same name. The theme sets the fonts to Inter and JetBrains Mono, falling back to system fonts; add `fonts: true` to make sure readers actually get them.
+The variables are `$vm-bg`, `$vm-surface`, `$vm-surface-hover`, `$vm-text`, `$vm-text-soft`, `$vm-border`, `$vm-accent`, `$vm-accent-hover`, `$vm-on-accent`, `$vm-grid`, `$vm-radius`, `$vm-radius-sm`, `$vm-shadow` and `$vm-shadow-color`. Their defaults are the [tokens](theming.qmd#the-tokens) of the same name. Four more set the type: `$vm-font-weight-display` (page titles, default 300), `$vm-font-weight-heading` (section headings, 600), `$vm-h2-font-size` (1.5rem) and `$vm-h3-font-size` (1.2rem). The theme sets the fonts to Inter and JetBrains Mono, falling back to system fonts; add `fonts: true` to make sure readers actually get them.
 
 ## Tagging an app: `vm-app` {#vm-app}
 
