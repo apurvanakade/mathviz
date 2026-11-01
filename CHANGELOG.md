@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-01
+
 ### Added
 
 - Theme: `$vm-card-width` (default `18rem`, emitted as `--vm-card-width`) caps a grid listing's cards, so the number per row follows the page's width; a listing's `grid-columns` no longer sets it. One card per row on a phone. `$vm-card-lift-pad` (default `0.75rem`) sets how far the hover panel reaches past a card.
@@ -320,7 +322,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.9.2...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/apurvanakade/mathviz/compare/v0.9.2...v0.10.0
 [0.9.2]: https://github.com/apurvanakade/mathviz/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/apurvanakade/mathviz/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/apurvanakade/mathviz/compare/v0.8.0...v0.9.0
