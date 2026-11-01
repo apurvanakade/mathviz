@@ -13,6 +13,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 ### Fixed
 
 - Theme: the footer's text is the soft text colour, as intended; Quarto's own `.nav-footer` grey was winning over `.footer`'s.
+- Theme: `$vm-prose-width` no longer narrows a callout that holds a chart, a figure or a table; the callout keeps the column and only its prose is capped.
+- Sidebar rail: the sidebar and rail follow the navbar's height as it changes (a `ResizeObserver`), so opening and closing the collapsed navbar menu no longer leaves a stale gap.
 
 ## [0.9.0] - 2026-11-01
 

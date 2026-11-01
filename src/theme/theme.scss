@@ -189,10 +189,13 @@ body.nav-sidebar #title-block-header.quarto-title-block.default {
 /* $vm-prose-width caps a line of prose without narrowing the column, so an
  * app, a figure or a table beside the text keeps the full width. Text
  * inside an app or a cell output is the app's own, and left alone, as is a
- * figure and the <p> Quarto wraps a bare image in. giscus is appended
- * outside <main>, so it is named separately. */
-main.content :is(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .callout,
-                 #title-block-header):not(:is(.vm-app, .cell, .callout, figure, .quarto-figure) *):not(:has(> img)),
+ * figure and the <p> Quarto wraps a bare image in. A callout is capped as a
+ * whole unless it holds a chart, a figure or a table; then it keeps the
+ * column and only its prose is capped. giscus is appended outside <main>,
+ * so it is named separately. */
+// One line per compound: a line break before :not() would be a descendant
+// combinator.
+main.content :is(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .callout:not(:has(.cell, figure, table)), #title-block-header):not(:is(.vm-app, .cell, .callout:not(:has(.cell, figure, table)), figure, .quarto-figure) *):not(:has(> img)),
 #quarto-content > .giscus {
   max-width: var(--vm-prose-width);
 }
