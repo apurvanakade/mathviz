@@ -399,7 +399,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#options" id="toc-options" class="nav-link" data-scroll-target="#options">Options</a></li>
   <li><a href="#versions-and-updating" id="toc-versions-and-updating" class="nav-link" data-scroll-target="#versions-and-updating">Versions and updating</a></li>
-  <li><a href="#adding-your-own-functions" id="toc-adding-your-own-functions" class="nav-link" data-scroll-target="#adding-your-own-functions">Adding your own functions</a></li>
   </ul></li>
   <li><a href="#any-other-web-page" id="toc-any-other-web-page" class="nav-link" data-scroll-target="#any-other-web-page">Any other web page</a></li>
   </ul>
@@ -482,7 +481,7 @@ Authors: Apurva Nakade
 </tr>
 </tbody>
 </table>
-<p>Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, embedding, a Share button, a Report bug popup, a phone notice), and the extension ships an optional Quarto theme. All are off by default – see <a href="../docs/site.html">Site extras</a>.</p>
+<p>Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, a sidebar search box, a category cloud, embedding, a Share button, a Report bug popup), and the extension ships an optional Quarto theme. All are off by default – see <a href="../docs/site.html">Site extras</a>.</p>
 </section>
 <section id="versions-and-updating" class="level3">
 <h3 class="anchored" data-anchor-id="versions-and-updating">Versions and updating</h3>
@@ -490,10 +489,6 @@ Authors: Apurva Nakade
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> add apurvanakade/mathviz@v0.9.2       <span class="co"># pin at install time</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Always name the tag. Without one (or with <code>@latest</code>), Quarto installs the <code>main</code> branch, which can be ahead of the last release.</p>
 <p>To stay on the latest release without thinking about it, run the <a href="https://github.com/apurvanakade/mathviz/tree/main/kit">site kit</a>’s <code>update-mathviz.sh</code> as a <code>pre-render</code> hook. It updates the extension before each render and keeps the installed copy when you’re offline.</p>
-</section>
-<section id="adding-your-own-functions" class="level3">
-<h3 class="anchored" data-anchor-id="adding-your-own-functions">Adding your own functions</h3>
-<p>A site that needs functions mathviz doesn’t have can keep them in a second, local extension that loads after mathviz and adds to the same <code>VM</code>. The <a href="https://github.com/apurvanakade/mathviz/tree/main/kit">site kit</a> has the template: copy it in and add <code>mathviz-local</code> after <code>mathviz</code> under <code>filters:</code>. It is laid out like mathviz’s own source, so a function other sites could use can go upstream as a pull request.</p>
 </section>
 </section>
 <section id="any-other-web-page" class="level2">
