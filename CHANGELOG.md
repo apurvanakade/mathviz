@@ -10,6 +10,18 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- Theme: `$vm-font-size-root` (default 17px) and `$vm-prose-width`, which caps a line of prose (and the comment thread) while apps, figures and tables keep the full column. Off (`none`) by default.
+
+### Changed
+
+- Theme: a quieter look. Section headings are medium weight and smaller (500, h2 1.35rem, h3 1.1rem) with no rule under h2 and more space above; the root size is 17px; the title block has room under it; the navbar is taller, with no rule under it and grey links; the footer is one small grey line with no rule.
+
+### Fixed
+
+- Sidebar rail: the sidebar and rail start under the navbar's measured height (`--vm-header-height`) instead of a fixed 66px, which a taller navbar overlapped.
+
 ## [0.8.0] - 2026-11-01
 
 ### Added
