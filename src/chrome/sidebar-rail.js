@@ -66,7 +66,15 @@
       }
     }
     updateNavHeights()
-    window.addEventListener("resize", updateNavHeights)
+    // A resize of either bar, not just of the window: the collapsed navbar
+    // menu opening and closing changes the header's height on its own.
+    if (window.ResizeObserver) {
+      var observer = new ResizeObserver(updateNavHeights)
+      if (header) observer.observe(header)
+      if (secondaryNav) observer.observe(secondaryNav)
+    } else {
+      window.addEventListener("resize", updateNavHeights)
+    }
     // Web fonts arriving late can change the navbar's height.
     if (document.fonts) document.fonts.ready.then(updateNavHeights)
 
