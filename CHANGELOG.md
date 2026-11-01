@@ -10,6 +10,20 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- Theme: `$vm-card-width` (default `18rem`, emitted as `--vm-card-width`) caps a grid listing's cards, so the number per row follows the page's width; a listing's `grid-columns` no longer sets it. One card per row on a phone. `$vm-card-lift-pad` (default `0.75rem`) sets how far the hover panel reaches past a card.
+- `category-cloud: true` (opt-in chrome, script only): moves a listing's `categories: cloud` out of the margin and above the cards, and adds an "All" entry that clears the filter. Hooks for a site's own styles: `.vm-category-cloud` (the wrapper) and `.category--all`; "All" is `.active` while nothing is filtered.
+
+### Changed
+
+- Theme: grid listing cards have no border or background at rest (a rounded image with the text under it), and on hover rise 3px with a soft-shadowed panel around them and an accent title, in place of the bordered tile with a tinted hover. The `!important` on the old border is gone. Reduced motion keeps the panel and drops the rise.
+- Theme: in dark mode, a hovered card's category chips step up to `--vm-surface-hover`, so they stay visible on the panel.
+
+### Removed
+
+- Theme: `$vm-prose-width` and `--vm-prose-width`, with its centring; prose takes Quarto's body column. This also fixes short card titles centred in their card since v0.9.2 (the centring's `margin-inline: auto` applied even with the cap off).
+
 ## [0.9.2] - 2026-11-01
 
 ### Changed

@@ -19,9 +19,10 @@
 //     showing it narrower than the content column;
 //   - the Share dialog's links and <iframe> snippet.
 //   - the sidebar search box not narrowing the menu;
-//   - prose capped by $vm-prose-width (the fixture sets 40rem) off the
-//     centre line of the full-width apps beside it, or past the column's
-//     edge on a phone.
+//   - grid listing cards wider than --vm-card-width, more than one to a
+//     row on a phone, or with a title pushed off the card's left edge (the
+//     auto margins of a prose-width rule once centred every short one);
+//   - the category cloud not moved above the grid, or without "All" first.
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
 // of its pages and was cut back because a heavy page on a busy runner made
@@ -46,6 +47,7 @@ const outDir = path.join(siteDir, '_site')
 const navigationTimeoutMs = 60000
 const settleTimeoutMs = 30000
 const pages = ['index.html', 'sliders.html', 'multi.html']
+const listingPages = ['cards.html']
 
 // The fixture site is its own Quarto project, which only finds an extension
 // in its own _extensions/ -- so copy this checkout's in (gitignored), the
@@ -173,38 +175,64 @@ function embedProblems(expectedId) {
   }
   return problems
 }
-// A capped paragraph has `margin-inline: auto`, so it must sit centred in
-// its parent -- the same box a .vm-app beside it fills -- and inside it.
-// requireCapped insists at least one paragraph is actually narrower than its
-// parent, or a cap that stopped applying would pass by measuring nothing.
-function proseProblems(requireCapped) {
-  const main = document.getElementById('quarto-document-content')
-  if (!main) return ['no #quarto-document-content']
+// The grid listing on cards.html. `phone` adds the one-column check. The
+// card's own box is measured, not its hover panel (a ::before), which
+// overhangs it on purpose.
+function cardProblems(phone) {
   const problems = []
-  let capped = 0
-  for (const p of main.querySelectorAll('p')) {
-    if (p.offsetParent === null || getComputedStyle(p).maxWidth === 'none') continue
-    const parent = p.parentElement
-    const style = getComputedStyle(parent)
-    const box = parent.getBoundingClientRect()
-    const left = box.left + parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft)
-    const right = box.right - parseFloat(style.borderRightWidth) - parseFloat(style.paddingRight)
-    const r = p.getBoundingClientRect()
-    const text = p.textContent.trim().slice(0, 30)
-    if (r.left < left - 1 || r.right > right + 1) {
-      problems.push(`capped paragraph "${text}" (${Math.round(r.left)}-${Math.round(r.right)}px) overflows its ${Math.round(left)}-${Math.round(right)}px column`)
-      continue
+  const cards = Array.from(document.querySelectorAll('.quarto-grid-item')).filter((card) => card.offsetParent !== null)
+  if (cards.length < 3) return [`expected the fixture's 4 cards, found ${cards.length} visible`]
+  const cap = parseFloat(getComputedStyle(document.body).getPropertyValue('--vm-card-width')) *
+    parseFloat(getComputedStyle(document.documentElement).fontSize)
+  if (!(cap > 0)) problems.push('--vm-card-width is not set (theme not loaded?)')
+  for (const card of cards) {
+    const box = card.getBoundingClientRect()
+    const title = card.querySelector('.card-title')
+    const name = (title?.textContent || '?').trim()
+    if (!phone && cap > 0 && box.width > cap + 1) {
+      problems.push(`card "${name}" is ${Math.round(box.width)}px wide, past --vm-card-width (${Math.round(cap)}px)`)
     }
-    if (r.width >= right - left - 1) continue
-    capped++
-    const offset = (r.left + r.right) / 2 - (left + right) / 2
-    if (Math.abs(offset) > 1.5) {
-      problems.push(`capped paragraph "${text}" is ${Math.round(offset)}px off its column's centre line`)
+    if (title) {
+      const offset = title.getBoundingClientRect().left - box.left
+      if (Math.abs(offset) > 1) problems.push(`card "${name}"'s title starts ${Math.round(offset)}px from the card's left edge`)
     }
   }
-  if (requireCapped && capped === 0) problems.push('no paragraph is narrower than its column ($vm-prose-width not applied?)')
+  if (phone) {
+    const lefts = new Set(cards.map((card) => Math.round(card.getBoundingClientRect().left)))
+    if (lefts.size !== 1) problems.push(`cards sit in ${lefts.size} columns on a phone, expected 1`)
+  }
+  const cloud = document.querySelector('.vm-category-cloud')
+  const grid = document.querySelector('.quarto-listing-container-grid')
+  if (!cloud) {
+    problems.push('no .vm-category-cloud (category-cloud.js did not move the cloud)')
+  } else {
+    if (!grid || !(cloud.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING)) problems.push('the category cloud is not above the grid')
+    const first = cloud.querySelector('.category')
+    if (!first || !first.classList.contains('category--all') || first.textContent.trim() !== 'All') {
+      problems.push(`the cloud's first entry is ${JSON.stringify(first?.textContent.trim() ?? null)}, expected "All"`)
+    }
+    if (document.getElementById('quarto-margin-sidebar')) problems.push('the emptied margin sidebar is still on the page')
+  }
   return problems
 }
+
+// Clicking a category filters the grid, and "All" brings every card back.
+async function cloudFilterProblems(page) {
+  const shown = () => page.evaluate(() => Array.from(document.querySelectorAll('.quarto-grid-item'))
+    .filter((card) => card.offsetParent !== null).length)
+  const all = await shown()
+  const problems = []
+  await page.locator('.vm-category-cloud .category', { hasText: 'Probability' }).click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
+  if ((await shown()) !== 1) problems.push(`"Probability" left ${await shown()} cards, expected 1`)
+  await page.locator('.vm-category-cloud .category--all').click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
+  if ((await shown()) !== all) problems.push(`"All" left ${await shown()} of ${all} cards`)
+  const allActive = await page.evaluate(() => document.querySelector('.vm-category-cloud .category--all')?.classList.contains('active'))
+  if (!allActive) problems.push('"All" is not .active after clearing the filter')
+  return problems
+}
+
 function isSettled(isApp) {
   for (const el of document.querySelectorAll('.observablehq--running')) {
     const cell = el.closest('[data-nodetype]')
@@ -375,7 +403,6 @@ async function checkPage(context, base, relPath) {
   for (const problem of await popoverProblems(page)) errors.push(`desktop: ${problem}`)
   for (const problem of await shareProblems(page)) errors.push(`share: ${problem}`)
   for (const problem of await page.evaluate(sidebarSearchProblems)) errors.push(`sidebar search: ${problem}`)
-  for (const problem of await page.evaluate(proseProblems, relPath === 'multi.html')) errors.push(`desktop: ${problem}`)
   await page.close()
 
   // A phone (390x844, an iPhone 14).
@@ -384,7 +411,6 @@ async function checkPage(context, base, relPath) {
   watch(phone, 'phone ')
   for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
   for (const problem of await phone.evaluate(sliderTrackProblems)) errors.push(`phone: ${problem}`)
-  for (const problem of await phone.evaluate(proseProblems, false)) errors.push(`phone: ${problem}`)
   const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
   if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
   await phone.close()
@@ -416,6 +442,37 @@ async function checkPage(context, base, relPath) {
   return errors
 }
 
+// cards.html is a listing, not an app page: no sliders, no .vm-app, so only
+// the card and cloud checks and the phone's sideways scroll apply.
+async function checkCardsPage(context, base, relPath) {
+  const errors = []
+  const watch = (page, prefix) => {
+    page.on('pageerror', err => errors.push(`${prefix}pageerror: ${err.message}`))
+    page.on('console', msg => {
+      if (msg.type() === 'error') errors.push(`${prefix}console.error: ${msg.text()}`)
+    })
+  }
+  const page = await context.newPage()
+  watch(page, '')
+  for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
+  for (const problem of await page.evaluate(cardProblems, false)) errors.push(`desktop: ${problem}`)
+  for (const problem of await cloudFilterProblems(page)) errors.push(`desktop: ${problem}`)
+  await page.close()
+
+  const phone = await context.newPage()
+  await phone.setViewportSize({ width: 390, height: 844 })
+  watch(phone, 'phone ')
+  for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
+  for (const problem of await phone.evaluate(cardProblems, true)) errors.push(`phone: ${problem}`)
+  // The hover panel overhangs a card by $vm-card-lift-pad; hovered, it must
+  // still fit the window.
+  await phone.locator('.quarto-grid-item').first().hover({ timeout: 2000 }).catch(() => {})
+  const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
+  if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
+  await phone.close()
+  return errors
+}
+
 async function main() {
   if (!process.argv.includes('--no-render')) render()
   const server = await serve()
@@ -432,8 +489,9 @@ async function main() {
   })
   let failed = false
   try {
-    for (const relPath of pages) {
-      const errors = await checkPage(context, base, relPath)
+    for (const relPath of [...pages, ...listingPages]) {
+      const check = listingPages.includes(relPath) ? checkCardsPage : checkPage
+      const errors = await check(context, base, relPath)
       if (errors.length === 0) {
         console.log(`OK    ${relPath}`)
       } else {

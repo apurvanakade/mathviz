@@ -104,6 +104,8 @@ Live: each swatch is the value your browser computes for the token **right now**
 
 The palette is keyed by **role**, not hue. A page reads `chartColors.fn` and `chartColors.alt` rather than repeating a hex, so redefining `--vm-color-fn` recolors every primary trace on the site. `halo` deserves a word: pages used to write `line: {color: "white"}` for the ring around a marker, which is a white ring on a near-black chart in dark mode. Use `chartColors.halo`.
 
+The [Quarto theme](site.qmd#theme) adds one more, `--vm-card-width`: the widest a grid listing's card gets. Set it with the theme's `$vm-card-width` (see [Listing cards](site.qmd#cards)); without the theme it is unset.
+
 Only these tokens are public; a few other `--vm-*` properties the library writes at runtime are listed under [Internals](reference/internals.qmd#generated-classes) and are not for setting.
 
 ## Dark mode {#dark-mode}

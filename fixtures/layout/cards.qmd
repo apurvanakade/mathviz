@@ -1,0 +1,36 @@
+---
+title: "Cards"
+listing:
+  id: cards-listing
+  contents: "cards/*.qmd"
+  type: grid
+  sort: "title"
+  categories: cloud
+  fields: [image, title, categories, description]
+  image-height: "120px"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- A grid listing with a category cloud, the way Visual Math Lab's gallery
+     has one: the cards must be capped at --vm-card-width with their titles
+     flush left, and category-cloud.js must move the cloud above the grid
+     with "All" first. The listing sits in .column-page, wide enough for an
+     uncapped grid's cards to pass the cap. -->
+
+<!-- The cloud's look is the site's: this is the snippet docs/site.qmd
+     gives, so the fixture styles it through the documented hooks. -->
+<style>
+.vm-category-cloud .quarto-listing-category { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; margin-bottom: 1.25rem; }
+.vm-category-cloud .category { cursor: pointer; color: var(--vm-text-soft); }
+.vm-category-cloud .category.active { color: var(--vm-accent); font-weight: 500; }
+</style>
+
+Some prose above the listing.
+
+::: {#cards-listing .column-page}
+:::

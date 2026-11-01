@@ -1,0 +1,14 @@
+---
+title: "Alpha"
+description: "Card 1 of the layout fixture's grid listing."
+categories: [Algebra]
+image: item-1.svg
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+A listed page.

@@ -35,6 +35,9 @@
 --                                  # a string names the localStorage key the
 --                                  # divider's width is kept under
 --                                  # (true: "vm-split-width")
+--     category-cloud: true         # a listing's category cloud above its
+--                                  # cards, with an "All" entry (script
+--                                  # only: the site styles the cloud)
 --     embed: true                  # ?embed=1 shows a page's .vm-app alone,
 --                                  # for another site's <iframe>
 --     share:                       # "Share" button on every .vm-app; turns
@@ -157,13 +160,16 @@ function Meta(meta)
   -- no build-time templating. Their stylesheets land after Bootstrap's and
   -- Quarto's CSS and before a site's own css: files, the place these rules
   -- held when they lived in Visual Math Lab's styles.css.
-  local function chrome(name, meta_tags)
-    quarto.doc.add_html_dependency({
+  -- `scriptOnly` is for a piece the site styles itself (category-cloud),
+  -- which ships no stylesheet.
+  local function chrome(name, meta_tags, scriptOnly)
+    local chromeDep = {
       name = "mathviz-" .. name,
       version = VERSION,
-      scripts = { "chrome/" .. name .. ".js" },
-      stylesheets = { "chrome/" .. name .. ".css" }
-    })
+      scripts = { "chrome/" .. name .. ".js" }
+    }
+    if not scriptOnly then chromeDep.stylesheets = { "chrome/" .. name .. ".css" } end
+    quarto.doc.add_html_dependency(chromeDep)
     for meta_name, content in pairs(meta_tags or {}) do
       if content ~= nil and content ~= "" then
         headTag("mathviz-" .. meta_name, '<meta name="mathviz:' .. meta_name .. '" content="' .. escapeAttr(content) .. '">')
@@ -189,6 +195,9 @@ function Meta(meta)
   end
   if enabled(meta, "split") then
     chrome("split", { ["split-width-key"] = stringValue("split") })
+  end
+  if enabled(meta, "category-cloud") then
+    chrome("category-cloud", nil, true)
   end
   -- The Share dialog's snippet is an ?embed= URL, so share implies embed.
   if enabled(meta, "embed") or enabled(meta, "share") then

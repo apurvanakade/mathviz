@@ -4,11 +4,10 @@
 
 # The fixture site for scripts/check-layout.mjs: a few small pages that use
 # every piece of mathviz chrome that affects layout (theme, fonts, sidebar
-# rail, split, share + embed), configured the way Visual Math Lab configures
-# them, plus Monte Carlo Methods' $vm-prose-width (prose-width.scss). Not
-# published. The script copies _extensions/mathviz in before
-# rendering (that copy is gitignored), so the pages always use this
-# checkout's build.
+# rail, split, share + embed, category cloud), configured the way Visual
+# Math Lab configures them. Not published. The script copies
+# _extensions/mathviz in before rendering (that copy is gitignored), so the
+# pages always use this checkout's build.
 project:
   type: website
   output-dir: _site
@@ -21,6 +20,7 @@ mathviz:
   sidebar-rail: true
   sidebar-search: true
   split: true
+  category-cloud: true
   share:
     site-url: https://example.com
 
@@ -37,12 +37,13 @@ website:
         - index.qmd
         - sliders.qmd
         - multi.qmd
+        - cards.qmd
 
 format:
   html:
     theme:
-      light: [_extensions/mathviz/theme/mathviz-light.scss, prose-width.scss]
-      dark: [_extensions/mathviz/theme/mathviz-dark.scss, prose-width.scss]
+      light: [_extensions/mathviz/theme/mathviz-light.scss]
+      dark: [_extensions/mathviz/theme/mathviz-dark.scss]
     toc: false
     html-math-method: mathjax
     grid:
