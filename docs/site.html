@@ -397,10 +397,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#all-the-keys" id="toc-all-the-keys" class="nav-link active" data-scroll-target="#all-the-keys">All the keys</a></li>
   <li><a href="#fonts" id="toc-fonts" class="nav-link" data-scroll-target="#fonts">Fonts</a></li>
-  <li><a href="#theme" id="toc-theme" class="nav-link" data-scroll-target="#theme">Theme</a></li>
+  <li><a href="#theme" id="toc-theme" class="nav-link" data-scroll-target="#theme">Theme</a>
+  <ul class="collapse">
+  <li><a href="#cards" id="toc-cards" class="nav-link" data-scroll-target="#cards">Listing cards</a></li>
+  </ul></li>
   <li><a href="#vm-app" id="toc-vm-app" class="nav-link" data-scroll-target="#vm-app">Tagging an app: <code>vm-app</code></a></li>
   <li><a href="#embedding" id="toc-embedding" class="nav-link" data-scroll-target="#embedding">Embedding</a></li>
   <li><a href="#share" id="toc-share" class="nav-link" data-scroll-target="#share">Share</a></li>
+  <li><a href="#category-cloud" id="toc-category-cloud" class="nav-link" data-scroll-target="#category-cloud">Category cloud</a></li>
   <li><a href="#split" id="toc-split" class="nav-link" data-scroll-target="#split">Split layout</a></li>
   <li><a href="#sidebar-rail" id="toc-sidebar-rail" class="nav-link" data-scroll-target="#sidebar-rail">Sidebar rail</a></li>
   <li><a href="#sidebar-search" id="toc-sidebar-search" class="nav-link" data-scroll-target="#sidebar-search">Sidebar search</a></li>
@@ -438,7 +442,7 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>Everything on this page is optional and off by default. The extension can also dress up the site <em>around</em> your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a split layout, embedding, a Share button, a “Report bug” popup, a phone notice). Each is one key under <code>mathviz:</code> in <code>_quarto.yml</code>. A site pays only for the pieces it turns on.</p>
+<p>Everything on this page is optional and off by default. The extension can also dress up the site <em>around</em> your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, a split layout, embedding, a Share button, a “Report bug” popup, a phone notice). Each is one key under <code>mathviz:</code> in <code>_quarto.yml</code>. A site pays only for the pieces it turns on.</p>
 <p>These come with the Quarto extension only. The plain script bundle doesn’t include them.</p>
 <section id="all-the-keys" class="level2">
 <h2 class="anchored" data-anchor-id="all-the-keys">All the keys</h2>
@@ -448,13 +452,14 @@ Authors: Apurva Nakade
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> my-site-mobile-warning</span><span class="co">   # or true</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">split</span><span class="kw">:</span><span class="at"> my-site-split-width</span><span class="co">               # or true</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">category-cloud</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -490,16 +495,21 @@ Authors: Apurva Nakade
 <td>Lets a page show its app as a fixed pane beside the text.</td>
 </tr>
 <tr class="even">
+<td><code>category-cloud</code></td>
+<td><code>true</code></td>
+<td>Moves a listing’s category cloud above its cards and adds an “All” entry.</td>
+</tr>
+<tr class="odd">
 <td><code>embed</code></td>
 <td><code>true</code></td>
 <td>Lets another site show one app alone in an <code>&lt;iframe&gt;</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>share</code></td>
 <td>a map (see <a href="#share">Share</a>)</td>
 <td>Adds a “Share” button to every app. Turns <code>embed</code> on too.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>report-bug</code></td>
 <td>a map with <code>repo</code> (required) and <code>branch</code></td>
 <td>Adds a “Report bug” popup when a reader selects text.</td>
@@ -526,7 +536,12 @@ Authors: Apurva Nakade
 <p>To change a color, set the matching <code>$vm-*</code> variable in your own file’s <code>/*-- scss:defaults --*/</code> section. <code>$vm-accent</code>, for example, changes the link color and the panels’ <code>--vm-accent</code> together:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode scss code-with-copy"><code class="sourceCode scss"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*-- scss:defaults --*/</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">$vm-accent</span>: <span class="cn">#b5179e</span><span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The variables are <code>$vm-bg</code>, <code>$vm-surface</code>, <code>$vm-surface-hover</code>, <code>$vm-text</code>, <code>$vm-text-soft</code>, <code>$vm-border</code>, <code>$vm-accent</code>, <code>$vm-accent-hover</code>, <code>$vm-on-accent</code>, <code>$vm-grid</code>, <code>$vm-radius</code>, <code>$vm-radius-sm</code>, <code>$vm-shadow</code> and <code>$vm-shadow-color</code>. Their defaults are the <a href="../docs/theming.html#the-tokens">tokens</a> of the same name. Five more set the type: <code>$vm-font-size-root</code> (the size every rem scales from, default 17px), <code>$vm-font-weight-display</code> (page titles, 300), <code>$vm-font-weight-heading</code> (section headings, 500), <code>$vm-h2-font-size</code> (1.35rem) and <code>$vm-h3-font-size</code> (1.1rem). <code>$vm-prose-width</code> caps the length of a line of text (paragraphs, lists, headings, callouts, the title block and the comment thread) while apps, figures, tables and any callout holding one keep the full column. The capped text is centred in the column, so wider content overhangs it evenly on both sides. It is <code>none</code> by default, and about <code>40rem</code> gives 70 characters a line. The theme sets the fonts to Inter and JetBrains Mono, falling back to system fonts; add <code>fonts: true</code> to make sure readers actually get them.</p>
+<p>The variables are <code>$vm-bg</code>, <code>$vm-surface</code>, <code>$vm-surface-hover</code>, <code>$vm-text</code>, <code>$vm-text-soft</code>, <code>$vm-border</code>, <code>$vm-accent</code>, <code>$vm-accent-hover</code>, <code>$vm-on-accent</code>, <code>$vm-grid</code>, <code>$vm-radius</code>, <code>$vm-radius-sm</code>, <code>$vm-shadow</code> and <code>$vm-shadow-color</code>. Their defaults are the <a href="../docs/theming.html#the-tokens">tokens</a> of the same name. Five more set the type: <code>$vm-font-size-root</code> (the size every rem scales from, default 17px), <code>$vm-font-weight-display</code> (page titles, 300), <code>$vm-font-weight-heading</code> (section headings, 500), <code>$vm-h2-font-size</code> (1.35rem) and <code>$vm-h3-font-size</code> (1.1rem). The theme sets the fonts to Inter and JetBrains Mono, falling back to system fonts; add <code>fonts: true</code> to make sure readers actually get them.</p>
+<section id="cards" class="level3">
+<h3 class="anchored" data-anchor-id="cards">Listing cards</h3>
+<p>A grid listing’s cards have no border or background: each is its image, rounded, with the title and description under it. On hover a card rises slightly and a soft panel appears around it, and the title turns the accent color. The panel reaches <code>$vm-card-lift-pad</code> (default <code>0.75rem</code>) past the card on every side, so leave at least that much room around a grid.</p>
+<p>Cards are at most <code>$vm-card-width</code> wide (default <code>18rem</code>, about 300px), so the number of cards in a row follows the page’s width; a listing’s <code>grid-columns</code> no longer sets it. On a phone one card fills the column. Each listing’s own <code>image-height</code> still sets its images’ height.</p>
+</section>
 </section>
 <section id="vm-app" class="level2">
 <h2 class="anchored" data-anchor-id="vm-app">Tagging an app: <code>vm-app</code></h2>
@@ -560,20 +575,61 @@ Authors: Apurva Nakade
 <li><code>embed-docs</code> is optional: a page on your site, relative to its root, that the dialog links to as “Embedding an app”.</li>
 </ul>
 </section>
+<section id="category-cloud" class="level2">
+<h2 class="anchored" data-anchor-id="category-cloud">Category cloud</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">category-cloud</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For a listing with <code>categories: cloud</code>. Quarto puts the cloud in the right margin, which is narrow beside a grid and hidden on a phone. This moves it above the listing’s cards and adds an “All” entry first, which clears the filter. Clicking a category works as before, every entry can also be reached with Tab and picked with Enter or Space, and the page’s <code>#category=</code> links still open it filtered. The page then has no margin column, so the listing gets the width. Without JavaScript the cloud stays in the margin.</p>
+<p>The cloud is unstyled: it looks the way Quarto draws it until your own CSS restyles it. Style it with these classes:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Selector</th>
+<th>Is</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>.vm-category-cloud</code></td>
+<td>the wrapper around the moved cloud</td>
+</tr>
+<tr class="even">
+<td><code>.vm-category-cloud .category</code></td>
+<td>each entry, “All” included</td>
+</tr>
+<tr class="odd">
+<td><code>.vm-category-cloud .category--all</code></td>
+<td>the “All” entry</td>
+</tr>
+<tr class="even">
+<td><code>.vm-category-cloud .category.active</code></td>
+<td>the selected entry; “All” while nothing is filtered</td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.quarto-listing-category</span> { <span class="kw">display</span><span class="ch">:</span> <span class="dv">flex</span><span class="op">;</span> <span class="kw">flex-wrap</span><span class="ch">:</span> <span class="dv">wrap</span><span class="op">;</span> <span class="kw">gap</span><span class="ch">:</span> <span class="dv">0.3</span><span class="dt">rem</span> <span class="dv">0.6</span><span class="dt">rem</span><span class="op">;</span> <span class="kw">margin-bottom</span><span class="ch">:</span> <span class="dv">1.25</span><span class="dt">rem</span><span class="op">;</span> }</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.category</span> { <span class="kw">cursor</span><span class="ch">:</span> <span class="dv">pointer</span><span class="op">;</span> <span class="kw">color</span><span class="ch">:</span> <span class="fu">var(</span><span class="va">--vm-text-soft</span><span class="fu">)</span><span class="op">;</span> }</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.category.active</span> { <span class="kw">color</span><span class="ch">:</span> <span class="fu">var(</span><span class="va">--vm-accent</span><span class="fu">)</span><span class="op">;</span> <span class="kw">font-weight</span><span class="ch">:</span> <span class="dv">500</span><span class="op">;</span> }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>With more than one listing on the page, the cloud goes above the first grid, default or table listing (not a custom-template one), and filters all of them, as Quarto’s does.</p>
+</section>
 <section id="split" class="level2">
 <h2 class="anchored" data-anchor-id="split">Split layout</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">split</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">split</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For a page that is mostly its app: the app sits in a pane on the right, from under the navbar to the bottom of the window, and stays put while the text scrolls beside it. A page opts in by wrapping its content in a <code>vm-split</code> div around its <a href="#vm-app"><code>vm-app</code></a>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>::::: {.vm-split}</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> class</span><span class="op">=</span><span class="st">"vm-app"</span><span class="dt">&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>...controls panel, chart block...</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>The explanation, before or after the app, reads as one column.</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>:::::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>::::: {.vm-split}</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> class</span><span class="op">=</span><span class="st">"vm-app"</span><span class="dt">&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>...controls panel, chart block...</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>The explanation, before or after the app, reads as one column.</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>:::::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><strong>From 992px up</strong> the pane takes about half the window (<code>clamp(30rem, 56vw, 64rem)</code>), and the title, text, page navigation and footer share the rest. The charts in the pane take the height the controls leave, shared equally between them. An app with no Plotly chart is centered in the pane.</li>
 <li><strong>Below 992px</strong> the page is one column, app first.</li>
@@ -585,14 +641,14 @@ Authors: Apurva Nakade
 </section>
 <section id="sidebar-rail" class="level2">
 <h2 class="anchored" data-anchor-id="sidebar-rail">Sidebar rail</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For a site with Quarto sidebar navigation. The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages). Escape or a click outside closes it. It does nothing on a page without a sidebar.</p>
 </section>
 <section id="sidebar-search" class="level2">
 <h2 class="anchored" data-anchor-id="sidebar-search">Sidebar search</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For a site with Quarto sidebar navigation, with or without the rail. A search box at the top of the sidebar narrows the menu as the reader types. It searches titles only, not page text: Quarto’s own full-text search allows one box per page, so keep that one in the navbar.</p>
 <ul>
 <li>Each word typed must start a word of a title, in any order: “ode” finds “Methods for ODEs” but not “Model Fitting”. Case, accents and punctuation are ignored, and so are apostrophes, straight or curly.</li>
@@ -603,16 +659,16 @@ Authors: Apurva Nakade
 </section>
 <section id="report-bug" class="level2">
 <h2 class="anchored" data-anchor-id="report-bug">Report bug</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span><span class="co">      # the default</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span><span class="co">      # the default</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>When a reader selects text, a small “Report bug” button appears next to it. Clicking it opens a new GitHub issue in <code>repo</code>, labelled <code>bug</code>, with the page’s URL, a link to the page’s <code>.qmd</code> source on <code>branch</code>, and the selected text quoted. The source link assumes the Quarto project is at the repository root. Without <code>repo</code> the key is skipped with a warning.</p>
 </section>
 <section id="phone-notice" class="level2">
 <h2 class="anchored" data-anchor-id="phone-notice">Phone notice</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mobile-warning</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>On a screen narrower than 992 px, a reader’s first visit shows a short notice: the site is meant for larger screens, and a chart’s fullscreen button helps. “Got it” dismisses it for good.</p>
 
 
