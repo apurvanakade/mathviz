@@ -73,8 +73,9 @@
   }
 }
 
-/* --vm-header-height is #quarto-header's rendered height, measured by
- * sidebar-rail.js (66px, the old fixed value, until it runs) -- the sidebar's
+/* --vm-header-height is #quarto-header's rendered height less the
+ * breadcrumb bar inside it, measured by sidebar-rail.js (66px, the old
+ * fixed value, until it runs) -- the sidebar's
  * own box starts below the navbar rather than under it (padding-top alone
  * would still paint the sidebar's background/shadow over the navbar's
  * brand text, since both are position: fixed and the sidebar's z-index

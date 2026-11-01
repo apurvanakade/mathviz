@@ -56,11 +56,14 @@
     var header = document.getElementById("quarto-header")
     function updateNavHeights() {
       var root = document.documentElement.style
-      if (header) {
-        root.setProperty("--vm-header-height", header.getBoundingClientRect().height + "px")
-      }
       var h = secondaryNav ? secondaryNav.getBoundingClientRect().height : 0
       root.setProperty("--vm-secondary-nav-height", h + "px")
+      // The breadcrumb bar sits inside #quarto-header, and the CSS adds its
+      // height separately, so it is left out of the header's.
+      if (header) {
+        var inside = secondaryNav && header.contains(secondaryNav) ? h : 0
+        root.setProperty("--vm-header-height", header.getBoundingClientRect().height - inside + "px")
+      }
     }
     updateNavHeights()
     window.addEventListener("resize", updateNavHeights)
