@@ -29,8 +29,8 @@ So the everyday loops are:
   reference entry and CHANGELOG line. Try it on a real page first with
   `quarto add /path/to/mathviz` (below).
 - **Documenting, or editing the guide or the starter** — a PR here.
-- **Releasing** — see Releasing below; consumers pick it up on their next
-  render.
+- **Releasing** — automatic: `/land-pr` releases every merged change (see
+  Releasing below); consumers pick it up on their next render.
 
 ## Commands
 
@@ -71,10 +71,12 @@ kit/                   what a consumer site copies in: update-mathviz.sh (pre-re
 - **Every `VM.*` member has a `### VM.<category>.<name>(…) {#name}` heading in `docs/reference/<category>.qmd`** (`discreteMath` → `discrete-math.qmd`). `scripts/docs-coverage.test.js` loads the bundle, walks `VM`, and fails on any member without a heading or heading without a member. The entry lands in the same PR as the member.
 - **Every token in `tokens.css` has a row in `docs/theming.qmd`'s live table; every other `--vm-*` property and every `ojs-*`/`vm-*` class the CSS uses is mentioned in `markup.qmd`, `theming.qmd` or `reference/internals.qmd`.** `scripts/css-coverage.test.js` enforces it (comments stripped first). It checks names, not prose: a changed value under an unchanged name still needs a read of the diff against the guide, which is step 4 of `/land-pr`.
 - **A PR that touches `src/` must touch `CHANGELOG.md`** — CI's `changelog` job, skipped by the `no-changelog` label.
-- **Nothing merges itself**, including the release PR. Land any PR with the `/land-pr` skill (`.claude/skills/land-pr/SKILL.md`), run when asked: fix or answer the review comments (Copilot's; when Copilot is out of credits, a fresh local agent briefed as a maintainer reviews in its place, `.claude/skills/land-pr/maintainer-review.md`), check the guide and CHANGELOG against the diff, wait for green CI, then squash-merge.
+- **Nothing merges itself**, including the release PR. Land any PR with the `/land-pr` skill (`.claude/skills/land-pr/SKILL.md`), run when asked: fix or answer the review comments (Copilot's; when Copilot is out of credits, a fresh local agent briefed as a maintainer reviews in its place, `.claude/skills/land-pr/maintainer-review.md`), check the guide and CHANGELOG against the diff, wait for green CI, squash-merge, then release: it runs the `Release` workflow (minor bump if `[Unreleased]` has Added/Removed/Deprecated, else patch; skipped when `[Unreleased]` is empty) and lands the release PR in the same session.
 - Every new file starts with the license header for its type — see CONTRIBUTING.md.
 
 ## Releasing
+
+`/land-pr` does both steps right after merging any PR (its step 9); by hand:
 
 1. Run the **`Release`** workflow with the new version. `scripts/release.mjs`
    sets the three version files, moves `CHANGELOG.md`'s `[Unreleased]` under

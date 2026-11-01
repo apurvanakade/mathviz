@@ -1,6 +1,6 @@
 ---
 name: land-pr
-description: Land a mathviz pull request (by default the one for the current branch) -- address its review comments (Copilot's, or a local maintainer agent's when Copilot is out of credits), catch docs/CHANGELOG drift the tests can't see, wait for CI, then squash-merge. Use when asked to merge, land, finish or review-and-merge a PR in this repository.
+description: Land a mathviz pull request (by default the one for the current branch) -- address its review comments (Copilot's, or a local maintainer agent's when Copilot is out of credits), catch docs/CHANGELOG drift the tests can't see, wait for CI, squash-merge, then release the merged change (open the release PR and land it too). Use when asked to merge, land, finish or review-and-merge a PR in this repository.
 argument-hint: "[PR number]  (default: the current branch's PR)"
 ---
 
@@ -164,6 +164,43 @@ git push origin --delete <head-branch> 2>/dev/null   # remote, if the merge left
 git fetch --prune
 ```
 
+## 9. Release what just merged
+
+Every merged change ships at once: consumers pin tags, so an unreleased fix
+reaches nobody. Skip this step when the PR just landed was itself a release
+PR (head branch `release/v*`); confirm instead that `tag-release.yml` tagged
+the version (`gh run list -w "Tag release"`) and stop. Also skip it when
+`CHANGELOG.md`'s `[Unreleased]` section on `main` is empty (a `no-changelog`
+PR: nothing user-visible to release), and say so in the report.
+
+Pick the version from the headings under `[Unreleased]`, bumping the current
+one in `package.json` (pre-1.0, as the history does):
+
+- any `### Added`, `### Removed` or `### Deprecated` → minor (`0.9.2` → `0.10.0`);
+- only `### Changed`, `### Fixed` or `### Security` → patch (`0.9.2` → `0.9.3`).
+
+Never bump the major version on your own; if the entries describe a
+breaking change, ask the user.
+
+Run the `Release` workflow and wait for its PR:
+
+```sh
+gh workflow run release.yml -f version=<X.Y.Z>
+gh run list -w Release --limit 1 --json databaseId -q '.[0].databaseId'   # after a few seconds
+gh run watch <run-id> --exit-status
+gh pr list --head release/v<X.Y.Z> --json number -q '.[0].number'
+```
+
+If the workflow fails, read its log (`gh run view <run-id> --log-failed`)
+and stop and tell the user; don't open the release PR by hand unless they
+say so.
+
+Then land the release PR with this skill from step 1, in the same session.
+Its step 9 is the tag check above, which ends the loop.
+
+## Report
+
 Report the result: who reviewed it (Copilot or the local maintainer agent), the comments fixed or declined (with the reason), the
-drift fixed, the merge commit, and the branch deleted. For a release PR, also
-confirm `tag-release.yml` tagged the version (`gh run list -w "Tag release"`).
+drift fixed, the merge commit, and the branch deleted. Then the release: the
+version and why that bump, the release PR's own landing (same items), and
+the tag `tag-release.yml` created -- or why no release was made.
