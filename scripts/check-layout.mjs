@@ -18,7 +18,10 @@
 //   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app, or
 //     showing it narrower than the content column;
 //   - the Share dialog's links and <iframe> snippet.
-//   - the sidebar search box not narrowing the menu.
+//   - the sidebar search box not narrowing the menu;
+//   - prose capped by $vm-prose-width (the fixture sets 40rem) off the
+//     centre line of the full-width apps beside it, or past the column's
+//     edge on a phone.
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
 // of its pages and was cut back because a heavy page on a busy runner made
@@ -168,6 +171,38 @@ function embedProblems(expectedId) {
       problems.push(`non-app content visible in embed mode: ${label}`)
     }
   }
+  return problems
+}
+// A capped paragraph has `margin-inline: auto`, so it must sit centred in
+// its parent -- the same box a .vm-app beside it fills -- and inside it.
+// requireCapped insists at least one paragraph is actually narrower than its
+// parent, or a cap that stopped applying would pass by measuring nothing.
+function proseProblems(requireCapped) {
+  const main = document.getElementById('quarto-document-content')
+  if (!main) return ['no #quarto-document-content']
+  const problems = []
+  let capped = 0
+  for (const p of main.querySelectorAll('p')) {
+    if (p.offsetParent === null || getComputedStyle(p).maxWidth === 'none') continue
+    const parent = p.parentElement
+    const style = getComputedStyle(parent)
+    const box = parent.getBoundingClientRect()
+    const left = box.left + parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft)
+    const right = box.right - parseFloat(style.borderRightWidth) - parseFloat(style.paddingRight)
+    const r = p.getBoundingClientRect()
+    const text = p.textContent.trim().slice(0, 30)
+    if (r.left < left - 1 || r.right > right + 1) {
+      problems.push(`capped paragraph "${text}" (${Math.round(r.left)}-${Math.round(r.right)}px) overflows its ${Math.round(left)}-${Math.round(right)}px column`)
+      continue
+    }
+    if (r.width >= right - left - 1) continue
+    capped++
+    const offset = (r.left + r.right) / 2 - (left + right) / 2
+    if (Math.abs(offset) > 1.5) {
+      problems.push(`capped paragraph "${text}" is ${Math.round(offset)}px off its column's centre line`)
+    }
+  }
+  if (requireCapped && capped === 0) problems.push('no paragraph is narrower than its column ($vm-prose-width not applied?)')
   return problems
 }
 function isSettled(isApp) {
@@ -340,6 +375,7 @@ async function checkPage(context, base, relPath) {
   for (const problem of await popoverProblems(page)) errors.push(`desktop: ${problem}`)
   for (const problem of await shareProblems(page)) errors.push(`share: ${problem}`)
   for (const problem of await page.evaluate(sidebarSearchProblems)) errors.push(`sidebar search: ${problem}`)
+  for (const problem of await page.evaluate(proseProblems, relPath === 'multi.html')) errors.push(`desktop: ${problem}`)
   await page.close()
 
   // A phone (390x844, an iPhone 14).
@@ -348,6 +384,7 @@ async function checkPage(context, base, relPath) {
   watch(phone, 'phone ')
   for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
   for (const problem of await phone.evaluate(sliderTrackProblems)) errors.push(`phone: ${problem}`)
+  for (const problem of await phone.evaluate(proseProblems, false)) errors.push(`phone: ${problem}`)
   const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
   if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
   await phone.close()
