@@ -13,7 +13,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 ### Added
 
 - Theme: `$vm-card-width` (default `18rem`, emitted as `--vm-card-width`) caps a grid listing's cards, so the number per row follows the page's width; a listing's `grid-columns` no longer sets it. One card per row on a phone. `$vm-card-lift-pad` (default `0.75rem`) sets how far the hover panel reaches past a card.
-- `category-cloud: true` (opt-in chrome, script only): moves a listing's `categories: cloud` out of the margin and above the cards, and adds an "All" entry that clears the filter. Hooks for a site's own styles: `.vm-category-cloud` (the wrapper) and `.category--all`; "All" is `.active` while nothing is filtered.
+- `category-cloud: true` (opt-in chrome, script only): moves a listing's `categories: cloud` out of the margin and above the cards, and adds an "All" entry that clears the filter. Hooks for a site's own styles: `.vm-category-cloud` (the wrapper) and `.category--all`; "All" is `.active` while nothing is filtered. Every entry is reachable with Tab and picked with Enter or Space.
 
 ### Changed
 

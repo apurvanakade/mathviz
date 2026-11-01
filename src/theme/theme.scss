@@ -284,9 +284,11 @@ body.quarto-dark .quarto-grid-item.card::before { background: var(--vm-surface);
 }
 
 /* Capped at --vm-card-width (see $vm-card-width) rather than stretched to
- * fill the row. On a phone a single card fills the column. */
+ * fill the row. The min() keeps a cap below 15rem a cap: minmax() raises a
+ * maximum smaller than its minimum to the minimum. On a phone a single card
+ * fills the column. */
 .quarto-listing-container-grid .list.grid {
-  grid-template-columns: repeat(auto-fill, minmax(15rem, var(--vm-card-width)));
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, var(--vm-card-width)), var(--vm-card-width)));
 }
 @media (max-width: 575.98px) {
   .quarto-listing-container-grid .list.grid { grid-template-columns: 1fr; }

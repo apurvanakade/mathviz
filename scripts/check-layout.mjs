@@ -216,7 +216,8 @@ function cardProblems(phone) {
   return problems
 }
 
-// Clicking a category filters the grid, and "All" brings every card back.
+// Clicking a category filters the grid, and "All" brings every card back;
+// so do Enter and Space on a focused entry.
 async function cloudFilterProblems(page) {
   const shown = () => page.evaluate(() => Array.from(document.querySelectorAll('.quarto-grid-item'))
     .filter((card) => card.offsetParent !== null).length)
@@ -228,6 +229,14 @@ async function cloudFilterProblems(page) {
   await page.locator('.vm-category-cloud .category--all').click({ timeout: 2000 }).catch(() => {})
   await page.waitForTimeout(150)
   if ((await shown()) !== all) problems.push(`"All" left ${await shown()} of ${all} cards`)
+  await page.locator('.vm-category-cloud .category', { hasText: 'Probability' }).focus().catch(() => {})
+  await page.keyboard.press('Enter')
+  await page.waitForTimeout(150)
+  if ((await shown()) !== 1) problems.push(`Enter on a focused "Probability" left ${await shown()} cards, expected 1`)
+  await page.locator('.vm-category-cloud .category--all').focus().catch(() => {})
+  await page.keyboard.press(' ')
+  await page.waitForTimeout(150)
+  if ((await shown()) !== all) problems.push(`Space on a focused "All" left ${await shown()} of ${all} cards`)
   const allActive = await page.evaluate(() => document.querySelector('.vm-category-cloud .category--all')?.classList.contains('active'))
   if (!allActive) problems.push('"All" is not .active after clearing the filter')
   return problems

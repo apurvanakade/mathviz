@@ -31,8 +31,11 @@
 // page; a custom-template listing (one that only emits data, say) is
 // skipped. The emptied margin sidebar is removed and <main>, which Quarto
 // stopped short of it (.column-page-left), takes the full page column.
-// Without JS the cloud stays in the margin. Idempotent: the cloud is marked
-// data-vm-cloud-ready.
+// Quarto's entries are click-only divs; every entry, "All" included, also
+// gets role="button", a tab stop, and Enter/Space to activate it. Divs
+// rather than <button>s, so a site's cloud CSS meets no browser button
+// styles. Without JS the cloud stays in the margin. Idempotent: the cloud is
+// marked data-vm-cloud-ready.
 (function attachCategoryCloud(globalThis) {
   function init() {
     const cloud = document.querySelector(".quarto-listing-category:not([data-vm-cloud-ready])")
@@ -66,6 +69,17 @@
       if (typeof globalThis.quartoListingCategory === "function") globalThis.quartoListingCategory("")
     }
     cloud.insertBefore(all, cloud.firstChild)
+
+    for (const entry of cloud.querySelectorAll(".category")) {
+      entry.setAttribute("role", "button")
+      entry.tabIndex = 0
+    }
+    cloud.addEventListener("keydown", (event) => {
+      const entry = event.target.closest(".category")
+      if (!entry || (event.key !== "Enter" && event.key !== " ")) return
+      event.preventDefault()
+      entry.click()
+    })
   }
 
   if (document.readyState === "loading") {
