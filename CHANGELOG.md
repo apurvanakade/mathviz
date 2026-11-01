@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Changed
+
+- Theme: `$vm-prose-width` centres the capped prose in the column, so prose and the full-width apps, figures and tables share one centre line instead of the apps overhanging the prose's right edge only.
+
 ## [0.9.1] - 2026-11-01
 
 ### Fixed

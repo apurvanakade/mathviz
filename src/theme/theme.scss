@@ -187,7 +187,10 @@ body.nav-sidebar #title-block-header.quarto-title-block.default {
 
 // ── Prose width ─────────────────────────────────────────────────
 /* $vm-prose-width caps a line of prose without narrowing the column, so an
- * app, a figure or a table beside the text keeps the full width. Text
+ * app, a figure or a table beside the text keeps the full width. The capped
+ * prose is centred in the column, so it shares one centre line with the
+ * wider content, which overhangs it evenly on both sides; left-aligned, the
+ * apps hung off the prose's right edge only. Text
  * inside an app or a cell output is the app's own, and left alone, as is a
  * figure and the <p> Quarto wraps a bare image in. A callout is capped as a
  * whole unless it holds a chart, a figure or a table; then it keeps the
@@ -198,6 +201,7 @@ body.nav-sidebar #title-block-header.quarto-title-block.default {
 main.content :is(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .callout:not(:has(.cell, figure, table)), #title-block-header):not(:is(.vm-app, .cell, .callout:not(:has(.cell, figure, table)), figure, .quarto-figure) *):not(:has(> img)),
 #quarto-content > .giscus {
   max-width: var(--vm-prose-width);
+  margin-inline: auto;
 }
 
 // ── Wide content ────────────────────────────────────────────────
