@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-11-01
+
 ### Changed
 
 - Theme: `$vm-prose-width` centres the capped prose in the column, so prose and the full-width apps, figures and tables share one centre line instead of the apps overhanging the prose's right edge only.
@@ -302,7 +304,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.9.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.9.2...HEAD
+[0.9.2]: https://github.com/apurvanakade/mathviz/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/apurvanakade/mathviz/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/apurvanakade/mathviz/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/apurvanakade/mathviz/compare/v0.7.0...v0.8.0
