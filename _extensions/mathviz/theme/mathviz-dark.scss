@@ -187,7 +187,8 @@ a { text-underline-offset: 0.18em; text-decoration-thickness: 0.06em; }
   color: var(--vm-text-soft);
   background: var(--vm-bg);
 }
-.nav-footer { font-size: 0.8rem; padding-block: 2.5rem; }
+// Quarto colours .nav-footer itself, so .footer's colour never reached the text.
+.nav-footer { font-size: 0.8rem; padding-block: 2.5rem; color: var(--vm-text-soft); }
 
 .footer a {
   color: var(--vm-text-soft);

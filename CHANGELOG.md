@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- Theme: the footer's text is the soft text colour, as intended; Quarto's own `.nav-footer` grey was winning over `.footer`'s.
+
 ## [0.9.0] - 2026-11-01
 
 ### Added
