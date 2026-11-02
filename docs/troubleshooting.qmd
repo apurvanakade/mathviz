@@ -14,7 +14,7 @@ Each of these has happened on a real page. The cause is usually one of three thi
 ## Charts and theme
 
 **The chart has a pale blue plot area, or a white box, on the dark theme.**
-The layout isn't themed. On a page rendered through the extension the Plotly patch merges [`layout()`](reference/plotting.qmd#layout) under every chart, so this means either Plotly loaded *after* `mathviz.js` (a hand-written `<script>` order; the extension gets it right) or the page passed `mathviz: {plotly: false}` and loads Plotly itself. Fix the order, or call `VM.plotting.installPlotlyPatch()` after Plotly is available.
+The layout isn't themed. On a page rendered through the extension the Plotly patch merges [`layout()`](reference/plotting.qmd#layout) under every chart, so this means either Plotly loaded *after* `mathviz.js` (a hand-written `<script>` order; the extension gets it right) or the page set `mathviz-page: {plotly: false}` (or `_quarto.yml` set `mathviz: {plotly: false}`) and loads Plotly itself. Fix the order, or call `VM.plotting.installPlotlyPatch()` after Plotly is available.
 
 **The axes and grid follow the toggle but the traces stay light-mode colored.**
 Trace colors are values the page baked in; only re-running the cell changes them. Add the two-line pattern at the top of the page and read `chartColors.fn` in the chart cell -- [Theming: following the theme](theming.qmd#following-the-theme-in-a-chart).
@@ -91,6 +91,9 @@ Field order: a field whose bounds depend on an earlier one (a step slider capped
 `renderTable` emits Bootstrap classes (`table table-sm table-bordered`). On a non-Bootstrap page bring your own table styles or target `.ojs-table-container table`.
 
 ## Build and install
+
+**One page lost the sidebar rail, the fonts, the referrer meta or other site-wide options.**
+That page has a `mathviz:` block in its front matter, which replaces the project's whole `mathviz:` map rather than adding to it. Rename it `mathviz-page:` -- see [Options for one page](install.qmd#page-options).
 
 **`quarto add` says the extension isn't found, or a symlinked `_extensions/mathviz` isn't used.**
 Quarto checks `isDirectory()` on the raw directory entry, so a symlink is skipped. Use `quarto add /path/to/mathviz --no-prompt`, which copies.

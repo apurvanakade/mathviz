@@ -22,7 +22,9 @@
 //   - grid listing cards wider than --vm-card-width, more than one to a
 //     row on a phone, or with a title pushed off the card's left edge (the
 //     auto margins of a prose-width rule once centred every short one);
-//   - the category cloud not moved above the grid, or without "All" first.
+//   - the category cloud not moved above the grid, or without "All" first;
+//   - a page that sets an option with mathviz-page: losing the options
+//     _quarto.yml sets (the referrer meta, fonts, sidebar rail and search).
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
 // of its pages and was cut back because a heavy page on a busy runner made
@@ -213,6 +215,18 @@ function cardProblems(phone) {
     }
     if (document.getElementById('quarto-margin-sidebar')) problems.push('the emptied margin sidebar is still on the page')
   }
+  return problems
+}
+
+// cards.qmd turns the cloud on with mathviz-page:; the options _quarto.yml
+// sets must reach it too. A page-level mathviz: would have replaced them,
+// and nothing would throw -- the page would just lack them.
+function projectOptionProblems() {
+  const problems = []
+  if (document.querySelector('meta[name="referrer"]')?.content !== 'same-origin') problems.push('no <meta name="referrer" content="same-origin"> (referrer)')
+  if (!document.querySelector('link[href*="mathviz-fonts-"]')) problems.push('no mathviz-fonts stylesheet (fonts)')
+  if (!document.getElementById('vm-sidebar-rail')) problems.push('no #vm-sidebar-rail (sidebar-rail)')
+  if (!document.querySelector('.vm-sidebar-search')) problems.push('no .vm-sidebar-search (sidebar-search)')
   return problems
 }
 
@@ -452,7 +466,8 @@ async function checkPage(context, base, relPath) {
 }
 
 // cards.html is a listing, not an app page: no sliders, no .vm-app, so only
-// the card and cloud checks and the phone's sideways scroll apply.
+// the card, cloud and project-option checks and the phone's sideways scroll
+// apply.
 async function checkCardsPage(context, base, relPath) {
   const errors = []
   const watch = (page, prefix) => {
@@ -465,6 +480,7 @@ async function checkCardsPage(context, base, relPath) {
   watch(page, '')
   for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
   for (const problem of await page.evaluate(cardProblems, false)) errors.push(`desktop: ${problem}`)
+  for (const problem of await page.evaluate(projectOptionProblems)) errors.push(`desktop: ${problem}`)
   for (const problem of await cloudFilterProblems(page)) errors.push(`desktop: ${problem}`)
   await page.close()
 

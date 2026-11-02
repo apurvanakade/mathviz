@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `mathviz-page:` in a page's front matter sets options for that page alone, laid over the project's `mathviz:` one key at a time. Use it instead of a page-level `mathviz:`, which Quarto lets replace the project's whole map, so that page silently lost every option `_quarto.yml` set (its referrer meta, fonts, sidebar rail and the rest). The docs used to say a page could set `mathviz:` itself; they now say to use `mathviz-page:`, and explain why.
+
 ## [0.10.0] - 2026-11-01
 
 ### Added

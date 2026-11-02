@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a "Report bug" popup). Each is one key under `mathviz:` in `_quarto.yml`. A site pays only for the pieces it turns on.
+Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a "Report bug" popup). Each is one key under `mathviz:` in `_quarto.yml`, or under `mathviz-page:` in one page's front matter for a piece only that page uses (never `mathviz:` there -- see [Options for one page](install.qmd#page-options)). A site pays only for the pieces it turns on.
 
 These come with the Quarto extension only. The plain script bundle doesn't include them.
 
@@ -129,6 +129,13 @@ Puts a "Share" button above every `vm-app`. It opens a dialog with the page's li
 
 ```yaml
 mathviz:
+  category-cloud: true
+```
+
+Usually only one page has a cloud, so you can turn it on there alone, in that page's front matter:
+
+```yaml
+mathviz-page:
   category-cloud: true
 ```
 

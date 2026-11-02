@@ -30,7 +30,7 @@ The filter puts math.js and Plotly (from a CDN, pinned to the versions the libra
 
 ### Options
 
-All optional, under a `mathviz:` key in `_quarto.yml` or a page's front matter:
+All optional, under a `mathviz:` key in `_quarto.yml`:
 
 ```yaml
 mathviz:
@@ -46,6 +46,22 @@ mathviz:
 | `mathjs` | `true` (default), `false`, or a URL | Whether to add the math.js tag, and from where. `VM.expressions.*` take the instance as an argument, so a page that loads math.js another way passes that. |
 | `css` | `true` (default) or `false` | Whether to add `mathviz.css`. With `false` you supply the `--vm-*` tokens and the `ojs-*` rules yourself -- see [Theming](theming.qmd). |
 | `referrer` | a [referrer policy](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/name/referrer) string | Emits `<meta name="referrer" content="…">` **before** the CDN tags, so the third-party origins don't see a page's path or query string -- which on a math page is the reader's own input. Visual Math Lab uses `same-origin`. |
+
+### Options for one page {#page-options}
+
+To change an option on one page, use `mathviz-page:` in that page's front matter, **never `mathviz:`**:
+
+```yaml
+---
+title: "Gallery"
+mathviz-page:
+  category-cloud: true
+---
+```
+
+The page gets every option from `_quarto.yml`, with its own `mathviz-page:` keys on top. A key there replaces the project's value for that key; a map such as `share:` is replaced whole, not merged.
+
+A `mathviz:` block in a page's front matter doesn't add to the project's. It replaces all of it, so that page silently loses every option `_quarto.yml` sets: its referrer meta, fonts, sidebar rail and the rest. Nothing warns you and the page still renders. Quarto merges a page's front matter into the project's only for keys it knows, and `mathviz:` isn't one of them.
 
 Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, a sidebar search box, a category cloud, embedding, a Share button, a Report bug popup), and the extension ships an optional Quarto theme. All are off by default -- see [Site extras](site.qmd).
 

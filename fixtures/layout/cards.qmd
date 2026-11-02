@@ -8,6 +8,8 @@ listing:
   categories: cloud
   fields: [image, title, categories, description]
   image-height: "120px"
+mathviz-page:
+  category-cloud: true
 ---
 
 <!--
@@ -20,7 +22,9 @@ Authors: Apurva Nakade
      has one: the cards must be capped at --vm-card-width with their titles
      flush left, and category-cloud.js must move the cloud above the grid
      with "All" first. The listing sits in .column-page, wide enough for an
-     uncapped grid's cards to pass the cap. -->
+     uncapped grid's cards to pass the cap. The cloud is turned on here, by
+     mathviz-page:, and the page must still get every option _quarto.yml
+     sets (a page-level mathviz: would replace them all). -->
 
 <!-- The cloud's look is the site's: this is the snippet docs/site.qmd
      gives, so the fixture styles it through the documented hooks. -->
