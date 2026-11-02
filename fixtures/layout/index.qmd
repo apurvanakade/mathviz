@@ -125,6 +125,13 @@ $$
 
 the root of the tangent line at $x_n$.
 
+<!-- A numbered display equation wider than a phone: MathJax gives a
+     labelled equation an inline min-width, which the theme must override
+     for it to scroll in its own box rather than widen the page. -->
+$$
+x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)} = x_n - \frac{x_n^3 - 2x_n - 5}{3x_n^2 - 2} = \frac{2x_n^3 + 5}{3x_n^2 - 2}
+$$ {#eq-newton-cubic}
+
 <!-- A second app, nested in a plain div: ?embed=steps must still give it
      the whole frame. -->
 <div>
