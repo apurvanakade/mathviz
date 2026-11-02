@@ -141,8 +141,8 @@ for (const name of ['mathviz.js', 'mathviz.css']) {
 }
 // The theme, fonts and chrome sit beside dist/ in the extension rather than
 // inside it: a site names the theme files by path in its _quarto.yml, and
-// the Lua filter adds the fonts and each piece of chrome (sidebar rail,
-// sidebar search, category cloud, embed mode, share, report-bug) as
+// the Lua filter adds the fonts and each piece of chrome (sidebar
+// search, category cloud, embed mode, share, report-bug) as
 // dependencies of their own, each only when its option is set -- so none of
 // them belongs in the always-loaded bundle. Remove first so a file dropped from src/ doesn't
 // linger.

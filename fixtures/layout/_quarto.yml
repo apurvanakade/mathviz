@@ -4,7 +4,7 @@
 
 # The fixture site for scripts/check-layout.mjs: a few small pages that use
 # every piece of mathviz chrome that affects layout (theme, fonts, sidebar
-# rail, share + embed, category cloud), configured the way Visual Math Lab
+# search, share + embed, category cloud), configured the way Visual Math Lab
 # configures them -- except category-cloud, which cards.qmd turns on for
 # itself with mathviz-page:, the way a site turns on a one-page option, so
 # the check sees that page keep these project options too. Not published. The script copies
@@ -19,7 +19,6 @@ filters:
 mathviz:
   referrer: same-origin
   fonts: true
-  sidebar-rail: true
   sidebar-search: true
   share:
     site-url: https://example.com

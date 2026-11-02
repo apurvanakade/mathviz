@@ -24,7 +24,7 @@
 //     auto margins of a prose-width rule once centred every short one);
 //   - the category cloud not moved above the grid, or without "All" first;
 //   - a page that sets an option with mathviz-page: losing the options
-//     _quarto.yml sets (the referrer meta, fonts, sidebar rail and search).
+//     _quarto.yml sets (the referrer meta, fonts and sidebar search).
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
 // of its pages and was cut back because a heavy page on a busy runner made
@@ -225,7 +225,6 @@ function projectOptionProblems() {
   const problems = []
   if (document.querySelector('meta[name="referrer"]')?.content !== 'same-origin') problems.push('no <meta name="referrer" content="same-origin"> (referrer)')
   if (!document.querySelector('link[href*="mathviz-fonts-"]')) problems.push('no mathviz-fonts stylesheet (fonts)')
-  if (!document.getElementById('vm-sidebar-rail')) problems.push('no #vm-sidebar-rail (sidebar-rail)')
   if (!document.querySelector('.vm-sidebar-search')) problems.push('no .vm-sidebar-search (sidebar-search)')
   return problems
 }
@@ -378,8 +377,8 @@ async function shareProblems(page) {
 }
 
 // The sidebar search box narrows the menu as the reader types. Driven
-// through events rather than Playwright's fill(): the rail keeps the sidebar
-// off-canvas, and filtering works the same whether or not it is open.
+// through events rather than Playwright's fill(), so it works the same
+// whether or not a site keeps the sidebar off-canvas.
 function sidebarSearchProblems() {
   const input = document.querySelector('#quarto-sidebar .vm-sidebar-search input')
   if (!input) return ['no sidebar search box (.vm-sidebar-search)']
@@ -506,7 +505,7 @@ async function main() {
   // One context for every load, so its HTTP cache keeps the CDN scripts
   // (browser.newPage() would open a fresh, empty-cached context each time).
   // Storage is cleared before each navigation instead: the chrome remembers
-  // state there (the sidebar pin, the draggable legend's offset), and every
+  // state there (the draggable legend's offset, the playback speed), and every
   // load should see a first visit.
   const context = await browser.newContext()
   await context.addInitScript(() => {
