@@ -429,7 +429,7 @@ Authors: Apurva Nakade
 </section>
 <section id="build-and-install" class="level2">
 <h2 class="anchored" data-anchor-id="build-and-install">Build and install</h2>
-<p><strong>One page lost the sidebar rail, the fonts, the referrer meta or other site-wide options.</strong> That page has a <code>mathviz:</code> block in its front matter, which replaces the project’s whole <code>mathviz:</code> map rather than adding to it. Rename it <code>mathviz-page:</code> – see <a href="../docs/install.html#page-options">Options for one page</a>.</p>
+<p><strong>One page lost the sidebar search, the fonts, the referrer meta or other site-wide options.</strong> That page has a <code>mathviz:</code> block in its front matter, which replaces the project’s whole <code>mathviz:</code> map rather than adding to it. Rename it <code>mathviz-page:</code> – see <a href="../docs/install.html#page-options">Options for one page</a>.</p>
 <p><strong><code>quarto add</code> says the extension isn’t found, or a symlinked <code>_extensions/mathviz</code> isn’t used.</strong> Quarto checks <code>isDirectory()</code> on the raw directory entry, so a symlink is skipped. Use <code>quarto add /path/to/mathviz --no-prompt</code>, which copies.</p>
 <p><strong><code>Version mismatch: package.json=… _extension.yml=… mathviz.lua=…</code></strong> The build refuses to run until the three agree. Bump all three.</p>
 <p><strong>CI fails with “dist/ is out of date”.</strong> A change under <code>src/</code> without <code>npm run build</code>. Run it and commit <code>dist/</code> and <code>_extensions/mathviz/dist/</code>.</p>
