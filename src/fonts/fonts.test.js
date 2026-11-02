@@ -96,5 +96,5 @@ test('mathviz.lua ships every woff2 beside fonts.css', () => {
 
 test('fonts are opt-in', () => {
   // A site with its own typography shouldn't carry ~400kB it never loads.
-  assert.match(mathvizLua, /option\(meta, "fonts", false\) == true/)
+  assert.match(mathvizLua, /option\(opts, "fonts", false\) == true/)
 })

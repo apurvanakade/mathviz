@@ -71,6 +71,8 @@ Two tests guard the documentation itself: `manifest.test.js` (above) and `docs-c
 
 `scripts`/`stylesheets` entries must be local files (Quarto copies them into `site_libs`), hence raw `<script>` tags in `head` for the CDN URLs. A head-only dependency creates no `site_libs` folder.
 
+**Options are two keys, merged by the filter.** Quarto merges a page's front matter into the project config key by key only for keys it knows. For any other key, `mathviz:` included, the page's value replaces the project's whole map (checked on Quarto 1.10.19). So the filter reads two keys: the project's `mathviz:` and the page's `mathviz-page:`, and `mergedOptions` lays the second over the first, one top-level key at a time. Every option is read from that merged table. The fixture's `cards.qmd` turns its cloud on this way, and `npm run test:layout` checks that the page still has the referrer meta, fonts, sidebar rail and sidebar search from `_quarto.yml`.
+
 ## Token specificity {#token-specificity}
 
 The CSS reads the `--vm-*` tokens the ordinary way; the JavaScript reads them with `getComputedStyle` **at call time**, so a chart built after a theme toggle sees the new values.
