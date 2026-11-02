@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Removed
+
+- `sidebar-rail` chrome (`chrome/sidebar-rail.{js,css}`, the `#vm-sidebar-rail` line in `embed.css`, the `mathviz:sidebar-pin-key` meta). Visual Math Lab, the only site still using it, now carries it itself; a site still setting `sidebar-rail:` gets nothing from it, and its sidebar goes back to Quarto's own. `sidebar-search` works without it.
+
 ## [0.11.0] - 2026-11-02
 
 ### Added
