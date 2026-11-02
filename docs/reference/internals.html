@@ -514,6 +514,7 @@ kit/                   what a consumer site copies in: the update hook</code></p
 <li>Quarto’s <code>injectHtml</code> iterates a <em>live</em> <code>children</code> collection while moving nodes out of it, so a <code>head</code> string holding several tags loses every second one. One tag per dependency is the workaround.</li>
 </ol>
 <p><code>scripts</code>/<code>stylesheets</code> entries must be local files (Quarto copies them into <code>site_libs</code>), hence raw <code>&lt;script&gt;</code> tags in <code>head</code> for the CDN URLs. A head-only dependency creates no <code>site_libs</code> folder.</p>
+<p><strong>Options are two keys, merged by the filter.</strong> Quarto merges a page’s front matter into the project config key by key only for keys it knows. For any other key, <code>mathviz:</code> included, the page’s value replaces the project’s whole map (checked on Quarto 1.10.19). So the filter reads two keys: the project’s <code>mathviz:</code> and the page’s <code>mathviz-page:</code>, and <code>mergedOptions</code> lays the second over the first, one top-level key at a time. Every option is read from that merged table. The fixture’s <code>cards.qmd</code> turns its cloud on this way, and <code>npm run test:layout</code> checks that the page still has the referrer meta, fonts, sidebar rail and sidebar search from <code>_quarto.yml</code>.</p>
 </section>
 <section id="token-specificity" class="level2">
 <h2 class="anchored" data-anchor-id="token-specificity">Token specificity</h2>
