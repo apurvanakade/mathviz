@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- Theme: a numbered display equation (`$$ ... $$ {#eq-...}`) wider than the column now scrolls inside its own box, like an unnumbered one. MathJax gives a numbered equation an inline `min-width`, which beat the theme's `max-width: 100%`, so on a phone the whole page scrolled sideways.
+
 ## [0.12.0] - 2026-11-02
 
 ### Removed
