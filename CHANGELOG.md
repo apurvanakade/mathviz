@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-02
+
 ### Added
 
 - `mathviz-page:` in a page's front matter sets options for that page alone, laid over the project's `mathviz:` one key at a time. Use it instead of a page-level `mathviz:`, which Quarto lets replace the project's whole map, so that page silently lost every option `_quarto.yml` set (its referrer meta, fonts, sidebar rail and the rest). The docs used to say a page could set `mathviz:` itself; they now say to use `mathviz-page:`, and explain why.
@@ -326,7 +328,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/apurvanakade/mathviz/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/apurvanakade/mathviz/compare/v0.9.2...v0.10.0
 [0.9.2]: https://github.com/apurvanakade/mathviz/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/apurvanakade/mathviz/compare/v0.9.0...v0.9.1
