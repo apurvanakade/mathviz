@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-02
+
 ### Removed
 
 - `sidebar-rail` chrome (`chrome/sidebar-rail.{js,css}`, the `#vm-sidebar-rail` line in `embed.css`, the `mathviz:sidebar-pin-key` meta). Visual Math Lab, the only site still using it, now carries it itself; a site still setting `sidebar-rail:` gets nothing from it, and its sidebar goes back to Quarto's own. `sidebar-search` works without it.
@@ -332,7 +334,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/apurvanakade/mathviz/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/apurvanakade/mathviz/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/apurvanakade/mathviz/compare/v0.9.2...v0.10.0
 [0.9.2]: https://github.com/apurvanakade/mathviz/compare/v0.9.1...v0.9.2
