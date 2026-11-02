@@ -61,7 +61,7 @@ mathviz-page:
 
 The page gets every option from `_quarto.yml`, with its own `mathviz-page:` keys on top. A key there replaces the project's value for that key; a map such as `share:` is replaced whole, not merged.
 
-A `mathviz:` block in a page's front matter doesn't add to the project's. It replaces all of it, so that page silently loses every option `_quarto.yml` sets: its referrer meta, fonts, sidebar rail and the rest. Nothing warns you and the page still renders. Quarto merges a page's front matter into the project's only for keys it knows, and `mathviz:` isn't one of them.
+A `mathviz:` block in a page's front matter doesn't add to the project's; it replaces it, so that page silently loses every option `_quarto.yml` sets: its referrer meta, fonts, sidebar rail and the rest. Nothing warns you and the page still renders. [Internals](reference/internals.qmd#the-lua-filters-odd-shape) explains why.
 
 Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, a sidebar search box, a category cloud, embedding, a Share button, a Report bug popup), and the extension ships an optional Quarto theme. All are off by default -- see [Site extras](site.qmd).
 
