@@ -33,7 +33,7 @@ pre-render hook that installs the newest mathviz tag before every render.
 **An existing Quarto site:**
 
 ```sh
-quarto add apurvanakade/mathviz@v0.12.1
+quarto add apurvanakade/mathviz@v0.13.0
 ```
 
 ```yaml

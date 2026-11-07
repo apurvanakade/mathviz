@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-07
+
 ### Added
 
 - `VM.plotting.draggablePoints`: points on a Plotly chart that the reader drags, as an OJS view (`value` is `{x, y}` for one point or `[{x, y}, ...]` for several, the shape it was given, with an `input` event on every move). Mouse, touch and keyboard (arrow keys), each point a `role="slider"` with an accessible name and announced value. Points stay inside `xBounds`/`yBounds` when the pointer leaves the chart, `constrain` keeps them inside any region (a triangle, a curve), and `jump` lets a press anywhere move the nearest point. A touch beside a point still scrolls the page. Points keep their value through a theme toggle and a resize. New token `--vm-drag-point-size`. (#75)
@@ -344,7 +346,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.12.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/apurvanakade/mathviz/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/apurvanakade/mathviz/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/apurvanakade/mathviz/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/apurvanakade/mathviz/compare/v0.10.0...v0.11.0
