@@ -280,7 +280,7 @@ A `{lo, hi}` axis range covering an array of values with some breathing room.
 
 ### VM.plotting.plotOptions(overrides?) {#plotOptions}
 
-The Observable Plot equivalent of `layout()`: same font, grid color and `colorway`, so a `Plot.plot` under a Plotly chart reads as the same chart system.
+The Observable Plot equivalent of `layout()`: same font, grid color and `colorway`. It themes a simple figure drawn with Observable Plot (see [Plotly or Observable Plot](../first-chart.qmd#plotly-or-observable-plot)), so it reads as the same chart system as the page's Plotly app charts.
 
 | Parameter | Type | Description |
 |---|---|---|
