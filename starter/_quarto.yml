@@ -37,6 +37,7 @@ website:
           - distribution-explorer.qmd
           - try-an-example.qmd
           - observable-plot.qmd
+          - draggable-points.qmd
     right:
       - icon: github
         href: https://github.com/apurvanakade/mathviz

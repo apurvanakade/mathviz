@@ -146,5 +146,6 @@ Each of the starter's other pages adds one thing to this pattern:
 | [distribution-explorer.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd) | an exact density over a histogram of seeded samples |
 | [try-an-example.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/try-an-example.qmd) | presets that fill the fields and run the page |
 | [observable-plot.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd) | Observable Plot with a fullscreen button |
+| [draggable-points.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/draggable-points.qmd) | points the reader drags on a chart, as an input ([`draggablePoints`](reference/plotting.qmd#draggablePoints)) |
 
 Then make the palette yours: [Theming](theming.qmd).

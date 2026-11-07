@@ -18,7 +18,7 @@ The bundle attaches one global, `VM`, with a namespace per concern. Each source 
 | [`VM.sampling`](sampling.qmd) | seeded uniform and Gaussian generators | -- |
 | [`VM.filters`](filters.qmd) | moving average, EMA, scalar Kalman | -- |
 | [`VM.distributions`](distributions.qmd) | 16 closed-form PDFs/PMFs, `logGamma`, `sampleCurve`, `histogramBins` | -- |
-| [`VM.plotting`](plotting.qmd) | the theme (`colors`, `layout`, `plotOptions`, …), theme detection, a reusable Plotly chart, the Plotly patch, fullscreen helpers | Plotly for the patch; otherwise none |
+| [`VM.plotting`](plotting.qmd) | the theme (`colors`, `layout`, `plotOptions`, …), theme detection, a reusable Plotly chart, draggable points, the Plotly patch, fullscreen helpers | Plotly for the patch, the chart and the points; otherwise none |
 | [`VM.ui`](ui.qmd) | legend overlay, results table, stat readouts, URL state, example presets, slider playback | `renderTable` needs htl's `html` |
 | [`VM.mcmc`](mcmc.qmd) | Metropolis and Gibbs samplers, finite-chain evolution, total variation, running mean, autocorrelation, effective sample size | -- |
 | [`VM.discreteMath`](discrete-math.qmd) | triangulations, Sperner colorings, random-walk matrices and spring layouts | -- |
@@ -49,6 +49,7 @@ Nothing here imports anything. Where a function needs a library, it takes it as 
 | `VM.plotting.layout / config / hoverLabel / emptyState / themePatch` | nothing -- they build plain objects. You need Plotly to *use* them, of course |
 | `VM.plotting.autoResize` | `ResizeObserver` (returns `null` without); safe when Plotly is absent |
 | `VM.plotting.installPlotlyPatch / fullscreenButton / persistentPlot` | `window.Plotly` |
+| `VM.plotting.draggablePoints` | a chart Plotly has drawn (or a `persistentPlot` function to draw one) |
 | `VM.plotting.svgAspectRatio / figureBounds`, `VM.ui.clampOverlayOffset / overlayStorageKey / playbackDuration / playbackFrame` | nothing -- pure helpers |
 | `VM.ui.statRow` | nothing -- plain DOM |
 | `VM.ui.urlParam / syncUrlParams` | `location` and `history`, unless `opts.search` is given |

@@ -93,6 +93,17 @@ Two places hold the dark-mode selector list and must stay identical: the `:where
 
 Slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill share a pattern: a `MutationObserver` on `document.body` plus delegated document-level listeners, so they enhance elements Observable Inputs creates at runtime and recreates on every upstream change -- there is no single moment at which "all the sliders exist" to wire them up individually. Each marks what it has enhanced (`data-vm-play-ready`, `data-vm-draggable`) to stay idempotent. `plotly-fullscreen-button.js` does the same job for Plotly by wrapping `Plotly.newPlot`/`react`, since there is no DOM to watch before the chart exists.
 
+## Draggable points {#draggable-points}
+
+[`draggablePoints`](plotting.qmd#draggablePoints) lays real elements over the chart (`.vm-drag-layer`, absolutely positioned over the div, which gets `.vm-drag-host` for `position: relative`) rather than drawing Plotly markers: that is what gives each point a keyboard, an accessible name and a focus ring, and lets it move at the pointer's rate without a redraw.
+
+- **Pixels to data** go through the axis objects in `gd._fullLayout` (`_offset`, `_length`, `d2l`/`l2p`/`p2l`/`l2d`), so log, reversed and `scaleanchor` axes work. Nothing reads Plotly's drag-layer DOM. These are the same internals [`lockedAxes`](plotting.qmd#lockedAxes) reads, kept in one file.
+- **Placement** is redone on `plotly_afterplot`, `plotly_relayout` and `plotly_relayouting`, which cover a resize, a theme toggle, fullscreen and a zoom.
+- **Theme:** a point's color is a CSS value (a `var(--vm-color-*)` by default), so a toggle recolors it without re-running the `viewof` cell, which would reset it.
+- **Touch:** only the points have `touch-action: none`. A touch elsewhere on the chart scrolls the page, so a full-width chart can't trap a phone reader. The `jump` pad keeps the default `touch-action` and moves a point on a tap; a swipe arrives as `pointercancel` and moves nothing.
+- **Focus:** a press on a point isn't cancelled, so the browser's own press-focus hands it the keyboard without a focus ring. A `jump` press focuses the point with `focusVisible: false`.
+- **Re-running** the cell on the same chart detaches the earlier points first (`gd.__vmDragPoints`): their layer, DOM listeners (one `AbortController`) and Plotly listeners.
+
 ## Generated classes {#generated-classes}
 
 The library writes these itself; a page never authors them.
@@ -103,6 +114,7 @@ The library writes these itself; a page never authors them.
 | `vm-overlay-grip`, `vm-overlay-dragging`, `data-vm-draggable` | the draggable-legend module |
 | `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |
 | `vm-fullscreen-toggle`, `vm-fs-figure` | the SVG fullscreen button |
+| `vm-drag-host`, `vm-drag-layer`, `vm-drag-pad`, `vm-drag-point`, `vm-drag-active` | `VM.plotting.draggablePoints`: the chart div, the layer over it, the `jump` pad, each point, the point being dragged |
 | `ojs-table-toolbar`, `ojs-table-container` | `VM.ui.renderTable` |
 | `vm-stat-row`, `vm-stat`, `vm-stat-label`, `vm-stat-value`, `--vm-stat-count` | `VM.ui.statRow` (the count caps the row at 14rem per tile) |
 | `vm-embed`, `vm-app-active`, `vm-sidebar-search`, `vm-sidebar-search-empty`, `vm-sidebar-search-hidden`, `vm-share-*`, `vm-report-bug-popup`, `vm-category-cloud`, `category--all`, `data-vm-cloud-ready` | the opt-in [site extras](#site-extras) |

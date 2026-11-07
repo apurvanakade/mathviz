@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.plotting.draggablePoints`: points on a Plotly chart that the reader drags, as an OJS view (`value` is `{x, y}` for one point or `[{x, y}, ...]` for several, the shape it was given, with an `input` event on every move). Mouse, touch and keyboard (arrow keys), each point a `role="slider"` with an accessible name and announced value. Points stay inside `xBounds`/`yBounds` when the pointer leaves the chart, `constrain` keeps them inside any region (a triangle, a curve), and `jump` lets a press anywhere move the nearest point. A touch beside a point still scrolls the page. Points keep their value through a theme toggle and a resize. New token `--vm-drag-point-size`. (#75)
+
 ## [0.12.1] - 2026-11-02
 
 ### Fixed

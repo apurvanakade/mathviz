@@ -1,0 +1,89 @@
+---
+title: "Draggable points"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- VM.plotting.draggablePoints on real Plotly charts. The first chart is
+     the Buffon's-needle pattern (one point, box bounds, jump); its paint cell
+     also draws a small Plotly marker at the value, which the check uses to
+     see that the handle sits exactly where Plotly draws that data point,
+     through a resize and a theme toggle. The second has three points. -->
+
+```{ojs}
+//| output: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+dropPlot = VM.plotting.persistentPlot({height: "360px"})
+cornerPlot = VM.plotting.persistentPlot({height: "360px"})
+```
+
+<div class="vm-app" id="drop">
+
+<div class="ojs-chart-block">
+
+```{ojs}
+viewof drop = VM.plotting.draggablePoints(dropPlot, {
+  value: {x: 0.87, y: 0.42},
+  xBounds: [0, Math.PI], yBounds: [0, 0.5],
+  step: {x: 0.05, y: 0.01},
+  jump: true,
+  label: "Drop",
+  format: p => `θ ${p.x.toFixed(2)}, d ${p.y.toFixed(2)}`
+})
+```
+
+```{ojs}
+//| output: false
+dropPlot([
+  {x: [0, Math.PI, Math.PI, 0, 0], y: [0, 0, 0.5, 0.5, 0], mode: "lines", fill: "toself",
+    fillcolor: VM.plotting.alpha(chartColors.muted, 0.12), line: {color: chartColors.ink}, hoverinfo: "skip", showlegend: false},
+  {x: [drop.x], y: [drop.y], mode: "markers", marker: {color: chartColors.alt, size: 4},
+    hoverinfo: "skip", showlegend: false, name: "probe"}
+], {
+  xaxis: {range: [-0.1, Math.PI + 0.1], fixedrange: true},
+  yaxis: {range: [-0.02, 0.52], fixedrange: true},
+  dragmode: false, hovermode: false
+}, {...VM.plotting.config(), displayModeBar: false})
+```
+
+</div>
+
+```{ojs}
+html`<p id="drop-readout">θ = ${drop.x.toFixed(3)}, d = ${drop.y.toFixed(3)}</p>`
+```
+
+</div>
+
+<div class="vm-app" id="corners">
+
+<div class="ojs-chart-block">
+
+```{ojs}
+viewof corners = VM.plotting.draggablePoints(cornerPlot, {
+  value: [{x: 0, y: 0}, {x: 1, y: 0}, {x: 0.5, y: 0.8}],
+  label: ["A", "B", "C"],
+  color: "var(--vm-color-alt)"
+})
+```
+
+```{ojs}
+//| output: false
+cornerPlot([{
+  x: [...corners.map(p => p.x), corners[0].x], y: [...corners.map(p => p.y), corners[0].y],
+  mode: "lines", line: {color: chartColors.alt}, hoverinfo: "skip", showlegend: false
+}], {
+  xaxis: {range: [-0.5, 1.5], fixedrange: true},
+  yaxis: {range: [-0.5, 1.2], fixedrange: true},
+  dragmode: false, hovermode: false
+}, {...VM.plotting.config(), displayModeBar: false})
+```
+
+</div>
+
+</div>
