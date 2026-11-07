@@ -14,6 +14,7 @@
 export const js = [
   'expressions/compile.js',
   'expressions/make-rational.js',
+  'ui/when-added.js',
   'plotting/padded-range.js',
   'plotting/chart-theme.js',
   'plotting/keep-listening.js',
@@ -126,6 +127,11 @@ export const mustPrecede = [
   ['numerical/linear-regression.js', 'numerical/l1-regression.js'],
   ['numerical/linear-regression.js', 'numerical/order-from-errors-vs-n.js'],
   ['numerical/linear-regression.js', 'numerical/order-from-successive-errors.js'],
+  // The self-installing modules watch for new elements through whenAdded,
+  // at load time; slider-play paces its sweeps with range-progress's
+  // sliderBounds.
+  ['ui/when-added.js', /^(ui\/(range-progress|slider-play|draggable-overlay)|plotting\/svg-fullscreen-button)\.js$/],
+  ['ui/range-progress.js', 'ui/slider-play.js'],
   // persistentPlot calls VM.plotting.config/autoResize; springLayout seeds
   // its start positions with VM.sampling.seededRandom.
   ['plotting/chart-theme.js', 'plotting/persistent-plot.js'],

@@ -76,3 +76,9 @@ test('overlayStorageKey is stable and distinguishes the two panels on a page', (
     overlayStorageKey('/apps/secant-method/', 'legend', 0)
   )
 })
+
+test('overlayChartId prefers the block id, else labels and occurrence', () => {
+  assert.equal(VM.ui.overlayChartId({id: 'newton', labels: ['f', 'tangent'], occurrence: 3}), '#newton')
+  assert.equal(VM.ui.overlayChartId({id: '', labels: ['f', 'tangent'], occurrence: 1}), 'f|tangent#1')
+  assert.equal(VM.ui.overlayStorageKey('/p/', 'legend', 'f|tangent#0'), 'vml-overlay-pos:/p/:legend:f|tangent#0')
+})

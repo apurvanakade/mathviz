@@ -231,29 +231,5 @@
     update()
   }
 
-  const enhanceAll = (root) => {
-    const scope = root && root.querySelectorAll ? root : document
-    for (const block of scope.querySelectorAll(BLOCK_SELECTOR)) enhance(block)
-  }
-
-  const start = () => {
-    enhanceAll(document)
-    if (typeof MutationObserver === "undefined" || !document.body) return
-    const observer = new MutationObserver((records) => {
-      for (const record of records) {
-        for (const node of record.addedNodes) {
-          if (node.nodeType !== 1) continue
-          if (node.matches && node.matches(BLOCK_SELECTOR)) enhance(node)
-          else enhanceAll(node)
-        }
-      }
-    })
-    observer.observe(document.body, {childList: true, subtree: true})
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start)
-  } else {
-    start()
-  }
+  globalThis.VM.ui.whenAdded(BLOCK_SELECTOR, enhance)
 })(window)
