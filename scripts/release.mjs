@@ -9,7 +9,8 @@
 //   node scripts/release.mjs 0.1.12
 //
 // 1. The three version files -- package.json, _extension.yml and the Lua
-//    filter's VERSION. scripts/build.mjs refuses to build unless they agree,
+//    filter's VERSION -- plus package-lock.json's two copies of the first.
+//    scripts/build.mjs refuses to build unless the three agree,
 //    and the Lua VERSION names the site_libs/quarto-contrib/mathviz-<version>/
 //    folder, which is what busts a returning reader's cache.
 // 2. CHANGELOG.md: the [Unreleased] entries move under a dated heading for
@@ -45,7 +46,12 @@ function fail(message) {
 const versionFiles = [
   ['package.json', /^(\s*"version":\s*")([^"]+)(")/m],
   ['_extensions/mathviz/_extension.yml', /^(version:\s*)(\S+)()$/m],
-  ['_extensions/mathviz/mathviz.lua', /^(local VERSION\s*=\s*")([^"]+)(")/m]
+  ['_extensions/mathviz/mathviz.lua', /^(local VERSION\s*=\s*")([^"]+)(")/m],
+  // The lockfile names the package's own version twice: at the top, and as
+  // the root package's entry under "packages". Left alone, the next
+  // `npm install` rewrites both into an unrelated diff.
+  ['package-lock.json', /^(  "version":\s*")([^"]+)(")/m],
+  ['package-lock.json', /("":\s*\{\s*"name":\s*"mathviz",\s*"version":\s*")([^"]+)(")/]
 ]
 
 const previous = read('package.json').match(versionFiles[0][1])[2]
