@@ -146,17 +146,14 @@
     // the two can't drift apart.
     const icon = globalThis.VM.plotting.fullscreenButton.icon
     button.innerHTML = `<svg viewBox="0 0 ${icon.width} ${icon.height}" width="16" height="16" aria-hidden="true"><path d="${icon.path}" fill="currentColor"/></svg>`
-    button.addEventListener("click", () => {
-      if (document.fullscreenElement === block) {
-        document.exitFullscreen()
-      } else {
-        block.requestFullscreen()
-      }
-    })
+    button.addEventListener("click", () => globalThis.VM.plotting.fullscreenButton.toggle(block))
     return button
   }
 
   const enhance = (block) => {
+    // No button where it could only fail (iPhone Safari, a frame without
+    // allow="fullscreen") -- same rule as the Plotly modebar's.
+    if (!globalThis.VM.plotting.fullscreenButton.available()) return
     if (block.querySelector(`:scope > .${BUTTON_CLASS}`)) return
     const button = makeButton(block)
     block.appendChild(button)
@@ -167,7 +164,8 @@
     const update = () => {
       if (!block.isConnected) {
         if (figureObserver) figureObserver.disconnect()
-        document.removeEventListener("fullscreenchange", update)
+        if (mutationObserver) mutationObserver.disconnect()
+        document.removeEventListener("fullscreenchange", scheduleUpdate)
         return
       }
       const figures = findFigures(block)
@@ -197,16 +195,39 @@
       button.style.right = `${blockRect.right - bounds.right + INSET}px`
     }
 
+    // Measuring forces a layout, so at most one update per frame however
+    // many mutations and resizes arrive in it -- during a playback sweep
+    // the controls bar alone changes on every frame.
+    let scheduled = false
+    const scheduleUpdate = () => {
+      if (scheduled) return
+      scheduled = true
+      requestAnimationFrame(() => {
+        scheduled = false
+        update()
+      })
+    }
+
     if (typeof ResizeObserver !== "undefined") {
-      figureObserver = new ResizeObserver(update)
+      figureObserver = new ResizeObserver(scheduleUpdate)
       figureObserver.observe(block)
     }
     // Cell re-runs swap the SVG out; there is no resize to observe on a
-    // node that was replaced wholesale.
+    // node that was replaced wholesale. Mutations inside the controls bar
+    // or the legend never change the figure, so they don't count.
+    let mutationObserver = null
     if (typeof MutationObserver !== "undefined") {
-      new MutationObserver(update).observe(block, {childList: true, subtree: true})
+      mutationObserver = new MutationObserver((records) => {
+        for (const record of records) {
+          const target = record.target.nodeType === 1 ? record.target : record.target.parentElement
+          if (target && target.closest(".ojs-chart-controls, .ojs-legend-overlay")) continue
+          scheduleUpdate()
+          return
+        }
+      })
+      mutationObserver.observe(block, {childList: true, subtree: true})
     }
-    document.addEventListener("fullscreenchange", update)
+    document.addEventListener("fullscreenchange", scheduleUpdate)
     update()
   }
 

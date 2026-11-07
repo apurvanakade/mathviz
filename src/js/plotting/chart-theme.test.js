@@ -220,3 +220,47 @@ test('VM.plotting.alpha accepts an rgb() value, which is what a stylesheet may r
   assert.equal(VM.plotting.alpha('rgb(1, 2, 3)', 0.5), 'rgba(1, 2, 3, 0.5)')
   assert.equal(VM.plotting.alpha('currentColor', 0.5), 'currentColor', 'unparseable values pass through')
 })
+
+test('VM.plotting.subplotKeys groups a layout\'s subplot keys by kind', () => {
+  const VM = loadVM()
+  const keys = VM.plotting.subplotKeys({ xaxis: {}, yaxis2: {}, scene: {}, polar2: {}, ternary: {}, title: 'x' })
+  assert.deepEqual(keys, { cartesian: ['xaxis', 'yaxis2'], scene: ['scene'], polar: ['polar2'], ternary: ['ternary'] })
+  assert.deepEqual(VM.plotting.subplotKeys(null), { cartesian: [], scene: [], polar: [], ternary: [] })
+})
+
+test('VM.plotting.layout themes every subplot the page names, and only those', () => {
+  stubDocument(true)
+  const VM = loadVM()
+  const out = VM.plotting.layout({ yaxis2: { overlaying: 'y' }, polar: { radialaxis: { range: [0, 1] } } })
+  assert.equal(out.yaxis2.gridcolor, out.yaxis.gridcolor)
+  assert.equal(out.yaxis2.overlaying, 'y')
+  assert.equal(out.polar.bgcolor, 'rgba(0,0,0,0)')
+  assert.deepEqual(out.polar.radialaxis.range, [0, 1])
+  assert.equal(typeof out.polar.angularaxis.gridcolor, 'string')
+  assert.equal(out.scene, undefined)
+  assert.equal(out.ternary, undefined)
+})
+
+test('VM.plotting.themePatch covers every subplot in opts.layout', () => {
+  stubDocument(true)
+  const VM = loadVM()
+  const patch = VM.plotting.themePatch({ layout: { xaxis: {}, yaxis: {}, yaxis2: {}, ternary: {} } })
+  assert.equal(patch['yaxis2.gridcolor'], patch['yaxis.gridcolor'])
+  assert.ok('ternary.caxis.linecolor' in patch)
+  assert.ok(!('scene.xaxis.gridcolor' in patch))
+  assert.ok(!('polar.bgcolor' in patch))
+})
+
+test('VM.plotting.alpha parses 4- and 8-digit hex and space-separated rgb', () => {
+  const VM = loadVM()
+  assert.equal(VM.plotting.alpha('#2563ebcc', 0.2), 'rgba(37, 99, 235, 0.2)')
+  assert.equal(VM.plotting.alpha('#fffa', 0.5), 'rgba(255, 255, 255, 0.5)')
+  assert.equal(VM.plotting.alpha('rgb(37 99 235 / 50%)', 0.3), 'rgba(37, 99, 235, 0.3)')
+  assert.equal(VM.plotting.alpha('rgb(10.4, 20.6, 30)', 1), 'rgba(10, 21, 30, 1)')
+})
+
+test('VM.plotting.alpha does not treat Object.prototype names as palette roles', () => {
+  const VM = loadVM()
+  assert.equal(VM.plotting.alpha('constructor', 0.5), 'constructor')
+  assert.equal(VM.plotting.alpha('toString', 0.5), 'toString')
+})

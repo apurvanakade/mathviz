@@ -13,8 +13,11 @@
   // pages with many such figures.
 
   // The color a legend row should show for a trace: its line, then its
-  // marker, then its fill.
-  const traceColor = (trace) => {
+  // marker, then its fill -- and for a trace that sets none, the colorway
+  // color Plotly gives it. Plotly hands out colorway colors in trace order,
+  // skipping only traces the page set `visible: false` (plots.js counts
+  // `_input.visible !== false`), so that count is replayed here.
+  const ownColor = (trace) => {
     if (typeof trace.line?.color === "string") return trace.line.color
     if (typeof trace.marker?.color === "string") return trace.marker.color
     if (typeof trace.fillcolor === "string") return trace.fillcolor
@@ -27,15 +30,28 @@
    * colored like the trace. Two traces with the same name share one row.
    *
    * @param {Object[]} data - Plotly traces.
-   * @returns {{label: string, color: string|undefined}[]}
+   * @param {string[]} [colorway] - The chart's color cycle, for traces that
+   *   set no color of their own: the layout's `colorway` if it has one,
+   *   else `VM.plotting.colorway()`, which is what the patch gives Plotly.
+   * @returns {{label: string, color: string|undefined}[]} `color` is
+   *   `undefined` for a trace colored per point (a `marker.color` array)
+   *   with no line color, and for an uncolored trace when `colorway` is
+   *   empty.
    */
-  const legendItems = (data) => {
+  const legendItems = (data, colorway = globalThis.VM.plotting.colorway()) => {
     const items = []
     const seen = new Set()
+    let colorIndex = 0
     for (const trace of data) {
+      let color = ownColor(trace)
+      // A per-point color array has no one color to show; no swatch beats
+      // a colorway color the points don't have.
+      const perPoint = Array.isArray(trace.marker?.color)
+      if (color === undefined && !perPoint && colorway.length > 0) color = colorway[colorIndex % colorway.length]
+      if (trace.visible !== false) colorIndex++
       if (trace.name === undefined || trace.showlegend === false || seen.has(trace.name)) continue
       seen.add(trace.name)
-      items.push({label: trace.name, color: traceColor(trace)})
+      items.push({label: trace.name, color})
     }
     return items
   }
@@ -56,8 +72,7 @@
   const lockedAxes = (fullLayout, layout) => {
     const out = {}
     if (!fullLayout) return out
-    for (const key of Object.keys(fullLayout)) {
-      if (!/^[xy]axis\d*$/.test(key)) continue
+    for (const key of globalThis.VM.plotting.subplotKeys(fullLayout).cartesian) {
       const own = layout[key] ?? {}
       if (Array.isArray(own.range)) continue
       const range = fullLayout[key]?.range
@@ -70,8 +85,9 @@
   /**
    * Draws a chart with a `VM.ui.legendOverlay` over it instead of Plotly's
    * legend, and returns both in an `.ojs-chart-block`. Clicking a row hides
-   * or shows the traces of that name; unnamed traces and `showlegend: false`
-   * ones are always drawn. The axes keep the ranges they had with every
+   * or shows the traces of that name (as `visible: "legendonly"`, so every
+   * trace keeps its index and its colorway color); unnamed traces and
+   * `showlegend: false` ones are always drawn. The axes keep the ranges they had with every
    * trace shown -- the first click pins them (see `lockedAxes`) -- so hiding
    * a trace never rescales the chart or moves its grid. A new call (new
    * data, a theme toggle) starts unpinned again. Use it as a cell's value:
@@ -87,7 +103,7 @@
    *   holds only the chart.
    */
   const plotWithLegend = (plot, data, layout) => {
-    const items = legendItems(data)
+    const items = legendItems(data, layout?.colorway ?? globalThis.VM.plotting.colorway())
     const block = document.createElement("div")
     block.className = "ojs-chart-block"
     const quietLayout = {...layout, showlegend: false}
@@ -98,13 +114,19 @@
     const legend = globalThis.VM.ui.legendOverlay(items)
     let div = null
     let pinnedLayout = quietLayout
+    // Hidden traces stay in the array as "legendonly" rather than being
+    // removed: removing one shifted every later trace's index, so each
+    // uncolored trace after it took the next colorway color on a click.
+    // "legendonly" (unlike `false`) still advances Plotly's color count.
     const draw = () => {
       const shown = legend.value
-      const visible = []
+      const traces = []
       for (const trace of data) {
-        if (trace.name === undefined || trace.showlegend === false || shown.includes(trace.name)) visible.push(trace)
+        const always = trace.name === undefined || trace.showlegend === false
+        if (always || shown.includes(trace.name)) traces.push(trace)
+        else traces.push({...trace, visible: "legendonly"})
       }
-      return plot(visible, pinnedLayout)
+      return plot(traces, pinnedLayout)
     }
     // Pin the axes on the first click, while every trace is still drawn and
     // the chart is on the page (it was drawn detached, so Plotly's marker

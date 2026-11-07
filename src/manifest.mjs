@@ -16,6 +16,7 @@ export const js = [
   'expressions/make-rational.js',
   'plotting/padded-range.js',
   'plotting/chart-theme.js',
+  'plotting/keep-listening.js',
   'plotting/anchored-view.js',
   'plotting/plotly-fullscreen-button.js',
   'plotting/svg-fullscreen-button.js',
@@ -116,6 +117,9 @@ export const mustPrecede = [
   // the discrete-math color helpers read VM.plotting.colors/alpha.
   ['plotting/chart-theme.js', 'plotting/plotly-fullscreen-button.js'],
   ['plotting/chart-theme.js', /^discrete-math\/(vertex|triangle-fill)-color\.js$/],
+  // anchored-view and draggable-points register their Plotly listeners
+  // through keepListening, which the patch re-attaches after each redraw.
+  ['plotting/keep-listening.js', /^plotting\/(anchored-view|draggable-points|plotly-fullscreen-button)\.js$/],
   // svg-fullscreen-button reuses VM.plotting.fullscreenButton.icon.
   ['plotting/plotly-fullscreen-button.js', 'plotting/svg-fullscreen-button.js'],
   ['discrete-math/sub-triangles.js', 'discrete-math/triangulation-edges.js'],

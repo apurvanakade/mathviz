@@ -27,15 +27,17 @@
    *   that shouldn't take the main chart's box (e.g. `"320px"`). It sets the
    *   min-height too, since the class's own min-height (500px) would
    *   otherwise win over any smaller height.
-   * @returns {(data: Object[], layout: Object, config?: Object) => HTMLElement}
+   * @returns {((data: Object[], layout: Object, config?: Object) => HTMLElement) & {div: HTMLElement|null}}
    *   Draws or redraws and returns the same div every time. `config`
-   *   defaults to `VM.plotting.config()`.
+   *   defaults to `VM.plotting.config()`. Its read-only `div` property is
+   *   that div, or `null` before the first draw -- for code that needs the
+   *   chart without redrawing it (`VM.plotting.draggablePoints` does).
    */
   const persistentPlot = (opts = {}) => {
     const className = opts.className ?? "plotly-box-large"
     let div = null
 
-    return (data, layout, config) => {
+    const draw = (data, layout, config) => {
       const Plotly = globalThis.Plotly
       const plotConfig = config ?? globalThis.VM.plotting.config()
       if (div === null) {
@@ -52,6 +54,8 @@
       }
       return div
     }
+    Object.defineProperty(draw, "div", {get: () => div})
+    return draw
   }
 
   Object.assign((globalThis.VM ??= {}).plotting ??= {}, {persistentPlot})

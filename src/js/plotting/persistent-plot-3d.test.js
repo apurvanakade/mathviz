@@ -66,8 +66,10 @@ test('themePatch adds the scene axes only when asked', () => {
   const VM = loadVM()
   globalThis.getComputedStyle = () => ({ getPropertyValue: () => '' })
   globalThis.document.body = { matches: () => false }
-  assert.equal(Object.keys(VM.plotting.themePatch()).length, 24)
+  // Backgrounds 2, fonts 2, hover label 3, modebar 3, colorway 1, and 7
+  // colors on each of xaxis and yaxis.
+  assert.equal(Object.keys(VM.plotting.themePatch()).length, 25)
   const patch = VM.plotting.themePatch({ scene: true })
-  assert.equal(Object.keys(patch).length, 24 + 18)
+  assert.equal(Object.keys(patch).length, 25 + 18)
   assert.ok('scene.zaxis.gridcolor' in patch)
 })

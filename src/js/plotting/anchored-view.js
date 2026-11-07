@@ -26,21 +26,20 @@
 // same uirevision (the newPlot/react patch calls trackView). Charts without
 // a scaleanchor are left alone entirely.
 (function attachVM(globalThis) {
-  const AXIS = /^[xy]axis\d*$/
+  const axisKeys = (layout) => globalThis.VM.plotting.subplotKeys(layout).cartesian
 
   const isAnchored = (layout) => {
-    if (!layout || typeof layout !== "object") return false
-    for (const key of Object.keys(layout)) {
+    for (const key of axisKeys(layout)) {
       // An axis id ("x", "y2"); `false` is Plotly's way of switching a lock off.
-      if (AXIS.test(key) && layout[key] && typeof layout[key].scaleanchor === "string") return true
+      if (layout[key] && typeof layout[key].scaleanchor === "string") return true
     }
     return false
   }
 
   const requestedRanges = (layout) => {
     const ranges = {}
-    for (const key of Object.keys(layout)) {
-      if (!AXIS.test(key) || !layout[key]) continue
+    for (const key of axisKeys(layout)) {
+      if (!layout[key]) continue
       const range = layout[key].range
       if (Array.isArray(range) && range.length === 2) ranges[key] = [range[0], range[1]]
     }
@@ -94,36 +93,44 @@
     return update
   }
 
+  // Registered through keepListening, so the shared Plotly patch puts these
+  // back after a newPlot or full react -- Plotly drops every listener
+  // then, and a flag that said "already listening" used to outlive them,
+  // so the reader's zoom went untracked from the second newPlot on.
   const listen = (gd) => {
-    if (gd.__vmViewListening || typeof gd.on !== "function") return
+    if (gd.__vmViewListening) return
     gd.__vmViewListening = true
-    // A double-click resets the view. Plotly's own reset follows this event
-    // and restores the initial range -- the widened one -- and reports it as
-    // an ordinary range, so the relayout it fires is taken as the reset.
-    gd.on("plotly_doubleclick", () => {
-      if (gd.__vmView) gd.__vmView.resetting = true
-    })
-    gd.on("plotly_relayout", (event) => {
-      const state = gd.__vmView
-      if (!state) return
-      if (state.resetting) {
-        state.resetting = false
-        state.moved = false
-        state.view = copyRanges(state.requested)
-        setTimeout(() => {
-          if (gd.isConnected) globalThis.Plotly?.relayout(gd, viewUpdate(state.view))
-        }, 0)
-        return
-      }
-      for (const key of Object.keys(state.view)) {
-        let range = rangeFromRelayout(event, key)
-        if (range === null) continue
-        if (range === "auto") range = null
-        // fitView's own relayout reports the view it applied; that is not
-        // the reader moving it.
-        if (sameRange(range, state.view[key])) continue
-        state.view[key] = range
-        state.moved = true
+    globalThis.VM.plotting.keepListening(gd, {
+      // A double-click resets the view. Plotly's own reset follows this
+      // event and restores the initial range -- the widened one -- and
+      // reports it as an ordinary range, so the relayout it fires is taken
+      // as the reset. Not when the page turned double-click off: nothing
+      // would follow, and the reader's next zoom would be taken as a reset.
+      plotly_doubleclick: () => {
+        if (gd.__vmView && gd._context?.doubleClick !== false) gd.__vmView.resetting = true
+      },
+      plotly_relayout: (event) => {
+        const state = gd.__vmView
+        if (!state) return
+        if (state.resetting) {
+          state.resetting = false
+          state.moved = false
+          state.view = copyRanges(state.requested)
+          setTimeout(() => {
+            if (gd.isConnected) globalThis.Plotly?.relayout(gd, viewUpdate(state.view))
+          }, 0)
+          return
+        }
+        for (const key of Object.keys(state.view)) {
+          let range = rangeFromRelayout(event, key)
+          if (range === null) continue
+          if (range === "auto") range = null
+          // fitView's own relayout reports the view it applied; that is not
+          // the reader moving it.
+          if (sameRange(range, state.view[key])) continue
+          state.view[key] = range
+          state.moved = true
+        }
       }
     })
   }
@@ -150,6 +157,7 @@
     const requested = requestedRanges(layout)
     const state = gd.__vmView
     const sameRevision = state && layout.uirevision !== undefined && layout.uirevision === state.uirevision
+    listen(gd)
     if (sameRevision && state.moved) {
       state.requested = requested
       const out = {...layout}
@@ -168,9 +176,6 @@
       return out
     }
     gd.__vmView = {uirevision: layout.uirevision, requested, view: copyRanges(requested), moved: false, resetting: false}
-    // Plotly gives a div its .on() inside the newPlot this layout is about
-    // to be passed to, so the listeners go on just after that call.
-    Promise.resolve().then(() => listen(gd))
     return layout
   }
 

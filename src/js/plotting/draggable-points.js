@@ -83,8 +83,9 @@
    * the previous points.
    *
    * @param {Function|HTMLElement} plot - A chart function such as
-   *   `VM.plotting.persistentPlot()`'s return value (called once with no
-   *   traces to get its div), or a div Plotly has already drawn.
+   *   `VM.plotting.persistentPlot()`'s return value (its `div` is used as
+   *   is; only a chart not drawn yet is drawn once, empty, to get one), or
+   *   a div Plotly has already drawn.
    * @param {Object} opts
    * @param {{x: number, y: number}|{x: number, y: number}[]} opts.value -
    *   Starting position of one point, or of each of several.
@@ -129,8 +130,12 @@
     // One point in, one point out; the code below always works on a list.
     const single = !Array.isArray(opts.value)
 
+    // The chart's existing div when it has been drawn -- calling the plot
+    // function with no traces would redraw it empty (and reset the reader's
+    // zoom) until the drawing cell ran again. Only a chart not drawn yet is
+    // drawn here, empty, so the points have axes to sit on.
     let gd = plot
-    if (typeof plot === "function") gd = plot([], {})
+    if (typeof plot === "function") gd = plot.div ?? plot([], {})
     if (!gd || !gd._fullLayout || typeof gd.on !== "function") {
       throw new TypeError("draggablePoints needs a drawn Plotly chart: a persistentPlot() function or a div Plotly.newPlot has drawn into")
     }
@@ -372,18 +377,18 @@
 
     // Plotly redraws on a resize, a theme toggle and every relayout; each
     // ends in plotly_afterplot. plotly_relayouting fires during a pan.
+    // Through keepListening, so a newPlot on this div (which drops every
+    // listener) doesn't leave the handles stranded where they were.
     const onRedraw = () => place()
-    gd.on("plotly_afterplot", onRedraw)
-    gd.on("plotly_relayout", onRedraw)
-    gd.on("plotly_relayouting", onRedraw)
+    const unlisten = globalThis.VM.plotting.keepListening(gd, {
+      plotly_afterplot: onRedraw,
+      plotly_relayout: onRedraw,
+      plotly_relayouting: onRedraw
+    })
 
     const detach = () => {
       listeners.abort()
-      if (typeof gd.removeListener === "function") {
-        gd.removeListener("plotly_afterplot", onRedraw)
-        gd.removeListener("plotly_relayout", onRedraw)
-        gd.removeListener("plotly_relayouting", onRedraw)
-      }
+      unlisten()
       layer.remove()
       gd.classList.remove("vm-drag-host")
       gd.__vmDragPoints = undefined

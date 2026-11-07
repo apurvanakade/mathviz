@@ -63,12 +63,18 @@
   //   getComputedStyle(document.body)["--vm-surface"]   -> "#1e2125" (right)
   // That single wrong element is what made every chart's hover label render
   // as a white box on the dark theme.
-  const cssVar = (name, fallback) => {
-    if (typeof document === "undefined") return fallback
+  //
+  // `tokenReader` takes ONE CSSStyleDeclaration and reads every token a call
+  // needs from it: layout() alone reads ~20 tokens, and getting a fresh
+  // computed style for each was 20 objects per Plotly.react -- every frame
+  // of a playback sweep. Nothing is cached across calls, so a read right
+  // after a theme flip still sees the new values.
+  const tokenReader = () => {
+    if (typeof document === "undefined") return (name, fallback) => fallback
     const element = document.body || document.documentElement
-    if (!element) return fallback
-    const value = getComputedStyle(element).getPropertyValue(name).trim()
-    return value || fallback
+    if (!element) return (name, fallback) => fallback
+    const style = getComputedStyle(element)
+    return (name, fallback) => style.getPropertyValue(name).trim() || fallback
   }
 
   const isDark = () => {
@@ -91,7 +97,7 @@
   // The face chart text is set in, read from the --vm-font-sans token so a
   // site that loads its own font (Inter, say) gets charts typeset in the
   // same face as the page around them. The fallback is the system stack.
-  const fontFamily = () => cssVar(
+  const fontFamily = (read = tokenReader()) => read(
     "--vm-font-sans",
     'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
   )
@@ -219,9 +225,11 @@
    *   CSS colors, keyed by role. Falls back to the light-mode hexes when
    *   the stylesheet isn't loaded.
    */
-  const colors = () => {
+  const colors = () => paletteFrom(tokenReader())
+
+  const paletteFrom = (read) => {
     const out = {}
-    for (const name of Object.keys(FALLBACK)) out[name] = cssVar("--vm-color-" + name, FALLBACK[name])
+    for (const name of Object.keys(FALLBACK)) out[name] = read("--vm-color-" + name, FALLBACK[name])
     return out
   }
 
@@ -229,41 +237,85 @@
   // area/bar fills that pair with a solid stroke of the same color. Pages
   // used to hardcode these as `rgba(22, 163, 74, 0.2)` literals, which stay
   // light-mode green after a theme toggle while their own stroke lightens,
-  // so fill and stroke visibly drift apart in dark mode. Accepts a palette
-  // token name, a #rgb/#rrggbb hex, or an rgb(r, g, b) string (what a
-  // stylesheet may resolve a token to); anything else comes back unchanged.
+  // so fill and stroke visibly drift apart in dark mode.
+  //
+  // Hex and rgb() are parsed here; anything else a stylesheet may hold
+  // (hsl(), oklch(), a named color, color-mix()) is resolved by the browser
+  // itself, by painting it into a 1x1 canvas and reading the pixel back --
+  // the one route that always yields sRGB bytes, where reading back
+  // `fillStyle` or a computed `color` can return the oklch() it was given.
+  // Returning such a color unchanged, as this once did, turned a
+  // translucent fill fully opaque over the traces it was meant to sit under.
+  const HEX = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i
+  const RGB = /^rgba?\(\s*([\d.]+%?)[\s,]+([\d.]+%?)[\s,]+([\d.]+%?)\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/i
+
+  const channel = (text) => {
+    const value = parseFloat(text)
+    const byte = text.endsWith("%") ? value * 2.55 : value
+    return Math.round(Math.min(255, Math.max(0, byte)))
+  }
+
+  let probe = null
+  const paintedColor = (text) => {
+    if (typeof document === "undefined" || typeof document.createElement !== "function") return null
+    if (probe === null) {
+      const canvas = document.createElement("canvas")
+      canvas.width = 1
+      canvas.height = 1
+      probe = canvas.getContext ? canvas.getContext("2d", {willReadFrequently: true}) : null
+      if (!probe) probe = false
+    }
+    if (probe === false) return null
+    // An invalid color leaves fillStyle unchanged; two different sentinels
+    // tell "invalid" apart from "happens to equal the sentinel".
+    probe.fillStyle = "#000000"
+    probe.fillStyle = text
+    const first = probe.fillStyle
+    probe.fillStyle = "#ffffff"
+    probe.fillStyle = text
+    if (first !== probe.fillStyle) return null
+    probe.clearRect(0, 0, 1, 1)
+    probe.fillRect(0, 0, 1, 1)
+    const [r, g, b, a] = probe.getImageData(0, 0, 1, 1).data
+    if (a === 0) return null
+    return {r, g, b}
+  }
+
   const parseColor = (value) => {
     if (typeof value !== "string") return null
     const text = value.trim()
-    if (text.startsWith("#")) {
-      const clean = text.slice(1)
-      if (clean.length !== 3 && clean.length !== 6) return null
-      const full = clean.length === 3 ? clean.split("").map(c => c + c).join("") : clean
+    const hex = text.match(HEX)
+    if (hex) {
+      let digits = hex[1]
+      if (digits.length <= 4) digits = digits.split("").map(c => c + c).join("")
       return {
-        r: parseInt(full.slice(0, 2), 16),
-        g: parseInt(full.slice(2, 4), 16),
-        b: parseInt(full.slice(4, 6), 16)
+        r: parseInt(digits.slice(0, 2), 16),
+        g: parseInt(digits.slice(2, 4), 16),
+        b: parseInt(digits.slice(4, 6), 16)
       }
     }
-    const rgb = text.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
-    if (rgb) return { r: Number(rgb[1]), g: Number(rgb[2]), b: Number(rgb[3]) }
-    return null
+    const rgb = text.match(RGB)
+    if (rgb) return {r: channel(rgb[1]), g: channel(rgb[2]), b: channel(rgb[3])}
+    if (text === "") return null
+    return paintedColor(text)
   }
 
   /**
-   * The same hue as a palette token (or any color string) at a given
-   * opacity, for a translucent fill that pairs with a solid stroke.
+   * The same hue as a palette token (or any CSS color) at a given opacity,
+   * for a translucent fill that pairs with a solid stroke.
    *
    * @param {string} token - A palette role (`"fn"`, `"ok"`, ...) resolved
-   *   through {@link colors}, or a `#rgb`/`#rrggbb`/`rgb(...)`/`rgba(...)`
-   *   string.
-   * @param {number} opacity - `0`..`1`; not clamped.
-   * @returns {string} `"rgba(r, g, b, opacity)"`. An input that can't be
-   *   parsed (a CSS named color, `hsl(...)`, a non-string) is returned
-   *   unchanged.
+   *   through {@link colors}, or any CSS color: hex (3, 4, 6 or 8 digits)
+   *   and `rgb()`/`rgba()` are parsed directly; anything else (`hsl()`,
+   *   `oklch()`, a named color) is resolved by the browser.
+   * @param {number} opacity - `0`..`1`; not clamped. Replaces any alpha
+   *   the color had.
+   * @returns {string} `"rgba(r, g, b, opacity)"`. Returned unchanged only
+   *   when the input isn't a color at all (or, outside a browser, isn't hex
+   *   or `rgb()`), or is fully transparent.
    */
   const alpha = (token, opacity) => {
-    const value = token in FALLBACK ? colors()[token] : token
+    const value = typeof token === "string" && Object.hasOwn(FALLBACK, token) ? colors()[token] : token
     const parsed = parseColor(value)
     if (!parsed) return value
     return `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${opacity})`
@@ -279,8 +331,9 @@
    *
    * @returns {string[]} `[fn, alt, ok, muted, ink, warn, accent2, accent3]`.
    */
-  const colorway = () => {
-    const active = colors()
+  const colorway = () => colorwayFrom(colors())
+
+  const colorwayFrom = (active) => {
     const out = []
     for (const name of Object.keys(FALLBACK)) {
       if (name === "halo") continue
@@ -301,6 +354,142 @@
     return out
   }
 
+  // Every kind of subplot a Plotly layout can name, by its layout key:
+  // cartesian axes (xaxis, yaxis2, ...), 3-D scenes, polar and ternary
+  // plots. Each gets themed chrome below -- not just xaxis/yaxis, which was
+  // all this once covered, leaving a second y-axis or a polar plot in
+  // Plotly's fixed #444 lines, close to invisible on the dark theme.
+  const SUBPLOT_PATTERNS = {
+    cartesian: /^[xy]axis\d*$/,
+    scene: /^scene\d*$/,
+    polar: /^polar\d*$/,
+    ternary: /^ternary\d*$/
+  }
+
+  /**
+   * The subplot keys a Plotly layout names, grouped by kind -- what the
+   * theme, the zoom buttons and the axis-pinning helpers iterate over
+   * rather than each matching `xaxis`/`yaxis2`/... themselves.
+   *
+   * @param {Object} [layout] - A Plotly layout, the page's or a drawn
+   *   div's `_fullLayout`.
+   * @returns {{cartesian: string[], scene: string[], polar: string[], ternary: string[]}}
+   *   Keys in the layout's own order (`["xaxis", "yaxis", "yaxis2"]`, ...);
+   *   every list empty for a missing or non-object layout.
+   */
+  const subplotKeys = (layout) => {
+    const out = { cartesian: [], scene: [], polar: [], ternary: [] }
+    if (!layout || typeof layout !== "object") return out
+    for (const key of Object.keys(layout)) {
+      for (const kind of Object.keys(SUBPLOT_PATTERNS)) {
+        if (SUBPLOT_PATTERNS[kind].test(key)) out[kind].push(key)
+      }
+    }
+    return out
+  }
+
+  // The theme's chrome colors, read once per call.
+  const chromeFrom = (read) => ({
+    text: read("--vm-text", "#1c1f23"),
+    textSoft: read("--vm-text-soft", "#5c6570"),
+    grid: read("--vm-grid", "rgba(28, 31, 35, 0.08)"),
+    border: read("--vm-border", "rgba(28, 31, 35, 0.15)"),
+    accent: read("--vm-accent", "#10606b"),
+    surface: read("--vm-surface", "#f8f7f3"),
+    font: fontFamily(read)
+  })
+
+  const TRANSPARENT = "rgba(0,0,0,0)"
+
+  // One 2-D axis: cartesian, and (minus the cartesian-only keys) a polar
+  // or ternary plot's axes.
+  const axisDefaults = (c) => ({
+    gridcolor: c.grid,
+    zerolinecolor: c.border,
+    linecolor: c.border,
+    tickcolor: c.border,
+    ticks: "outside",
+    ticklen: 4,
+    automargin: true,
+    color: c.textSoft,
+    tickfont: { size: 12, color: c.textSoft },
+    title: { font: { size: 13, color: c.textSoft } }
+  })
+
+  // Polar and ternary axes take no zerolinecolor/automargin; Plotly warns
+  // about neither, but they would be noise in the relayout patch.
+  const plainAxisDefaults = (c) => ({
+    gridcolor: c.grid,
+    linecolor: c.border,
+    tickcolor: c.border,
+    color: c.textSoft,
+    tickfont: { size: 12, color: c.textSoft }
+  })
+
+  // The theme colors of one 3-D scene axis. The lines are --vm-text-soft
+  // made translucent rather than --vm-grid/--vm-border: at their 8-15%
+  // opacity the gridlines of a tilted 3-D box all but vanish on white.
+  const sceneAxisDefaults = (c) => ({
+    gridcolor: alpha(c.textSoft, 0.3),
+    zerolinecolor: alpha(c.textSoft, 0.3),
+    linecolor: alpha(c.textSoft, 0.5),
+    color: c.textSoft,
+    showbackground: false,
+    tickfont: { size: 11, color: c.textSoft },
+    title: { font: { size: 13, color: c.textSoft } }
+  })
+
+  const subplotDefaults = {
+    cartesian: axisDefaults,
+    scene: (c) => ({ xaxis: sceneAxisDefaults(c), yaxis: sceneAxisDefaults(c), zaxis: sceneAxisDefaults(c) }),
+    polar: (c) => ({ bgcolor: TRANSPARENT, radialaxis: plainAxisDefaults(c), angularaxis: plainAxisDefaults(c) }),
+    ternary: (c) => ({
+      bgcolor: TRANSPARENT,
+      aaxis: plainAxisDefaults(c),
+      baxis: plainAxisDefaults(c),
+      caxis: plainAxisDefaults(c)
+    })
+  }
+
+  // The themed tooltip style, from one reader.
+  const hoverLabelFrom = (c) => ({
+    bgcolor: c.surface,
+    bordercolor: c.border,
+    align: "left",
+    font: { family: c.font, size: 12, color: c.text }
+  })
+
+  // The theme part of a layout: everything layout() layers under a page's
+  // own keys, for xaxis/yaxis plus every subplot `subplots` names.
+  const themeBase = (c, palette, subplots) => {
+    const base = {
+      paper_bgcolor: TRANSPARENT,
+      plot_bgcolor: TRANSPARENT,
+      font: { family: c.font, size: 13, color: c.text },
+      xaxis: axisDefaults(c),
+      yaxis: axisDefaults(c),
+      colorway: colorwayFrom(palette),
+      hoverlabel: hoverLabelFrom(c),
+      // Trace `text` labels (the x₀/x₁ callouts next to iteration markers)
+      // inherit no color of their own, so without this they render in
+      // Plotly's default near-black and disappear on the dark theme.
+      textfont: { family: c.font, color: c.text },
+      // Plotly's own modebar chrome. The shape (pill, blur, radius) is CSS
+      // in src/css/modebar.css; these are the parts only Plotly can set.
+      modebar: {
+        bgcolor: TRANSPARENT,
+        color: c.textSoft,
+        activecolor: c.accent
+      }
+    }
+    for (const kind of Object.keys(subplots)) {
+      for (const key of subplots[kind]) {
+        if (base[key] === undefined) base[key] = subplotDefaults[kind](c)
+      }
+    }
+    return base
+  }
+
   // The shared Plotly layout. paper_bgcolor/plot_bgcolor are transparent
   // rather than a theme color so the chart shows the page's own background
   // through it -- this is what removes both Plotly's default #E5ECF6 plot
@@ -308,11 +497,13 @@
   // separate light/dark case to keep in sync.
   /**
    * The shared Plotly layout, themed from the live tokens: transparent
-   * backgrounds, `--vm-font-sans`, themed axes/gridlines/ticks,
-   * {@link colorway}, {@link hoverLabel}, modebar colors, a 300 ms tween
-   * (`0` under `prefers-reduced-motion`; shortened to the slider gap while
-   * a playback sweep runs) and small non-zero margins that `automargin`
-   * grows as needed.
+   * backgrounds, `--vm-font-sans`, themed axes/gridlines/ticks on every
+   * subplot the overrides name (`xaxis2`, `yaxis3`, `scene`, `polar`,
+   * `ternary`, ... -- see {@link subplotKeys}), {@link colorway},
+   * {@link hoverLabel}, modebar colors, a 300 ms tween (`0` under
+   * `prefers-reduced-motion`; shortened to the slider gap while a playback
+   * sweep runs) and small non-zero margins that `automargin` grows as
+   * needed.
    *
    * Not needed when the Plotly patch is installed (it merges this under
    * every `newPlot`/`react` layout), but harmless to call explicitly.
@@ -321,85 +512,25 @@
    *   `{xaxis: {title: "x", range: [0, 1]}}` extends the shared axis chrome
    *   rather than replacing it. Arrays and primitives replace wholesale.
    *   Don't pass `margin: {l: 0, r: 0, t: 0, b: 0}`: it defeats `automargin`.
+   *   A subplot key is themed only when the overrides name it, since naming
+   *   `scene` or `polar` is itself what adds that subplot.
    * @returns {Object} A Plotly layout object.
    */
   const layout = (overrides) => {
-    const text = cssVar("--vm-text", "#1c1f23")
-    const textSoft = cssVar("--vm-text-soft", "#5c6570")
-    const grid = cssVar("--vm-grid", "rgba(28, 31, 35, 0.08)")
-    const border = cssVar("--vm-border", "rgba(28, 31, 35, 0.15)")
-    const accent = cssVar("--vm-accent", "#10606b")
-    const axisDefaults = {
-      gridcolor: grid,
-      zerolinecolor: border,
-      linecolor: border,
-      tickcolor: border,
-      ticks: "outside",
-      ticklen: 4,
-      automargin: true,
-      color: textSoft,
-      tickfont: { size: 12, color: textSoft },
-      title: { font: { size: 13, color: textSoft } }
+    const read = tokenReader()
+    const base = themeBase(chromeFrom(read), paletteFrom(read), subplotKeys(overrides))
+    // Tween between steps instead of snapping, so an iteration slider
+    // reads as the method advancing rather than as a flicker. Honors the
+    // OS reduced-motion setting.
+    base.transition = {
+      duration: prefersReducedMotion() ? 0 : (playbackTweenMs() ?? 300),
+      easing: "cubic-in-out"
     }
-    const base = {
-      paper_bgcolor: "rgba(0,0,0,0)",
-      plot_bgcolor: "rgba(0,0,0,0)",
-      font: { family: fontFamily(), size: 13, color: text },
-      xaxis: { ...axisDefaults },
-      yaxis: { ...axisDefaults },
-      colorway: colorway(),
-      hoverlabel: hoverLabel(),
-      // Trace `text` labels (the x₀/x₁ callouts next to iteration markers)
-      // inherit no color of their own, so without this they render in
-      // Plotly's default near-black and disappear on the dark theme.
-      textfont: { family: fontFamily(), color: text },
-      // Plotly's own modebar chrome. The shape (pill, blur, radius) is CSS
-      // in src/css/modebar.css; these are the parts only Plotly can set.
-      modebar: {
-        bgcolor: "rgba(0,0,0,0)",
-        color: textSoft,
-        activecolor: accent
-      },
-      // Tween between steps instead of snapping, so an iteration slider
-      // reads as the method advancing rather than as a flicker. Honors the
-      // OS reduced-motion setting.
-      transition: {
-        duration: prefersReducedMotion() ? 0 : (playbackTweenMs() ?? 300),
-        easing: "cubic-in-out"
-      },
-      // Small but non-zero: automargin adds whatever the tick labels and
-      // axis titles actually need on top of this, but with a flat 0 the
-      // rotated y-title ends up flush against the container's edge.
-      margin: { l: 8, r: 12, t: 12, b: 8 }
-    }
-    // A 3-D scene's axes are their own objects (scene.xaxis, ...), which
-    // Plotly draws in its fixed light-grey chrome unless told otherwise --
-    // unreadable on the dark theme. Only added when the page has a scene,
-    // since a `scene` key alone is what turns a Plotly chart 3-D.
-    if (overrides && overrides.scene !== undefined) {
-      base.scene = {
-        xaxis: sceneAxisDefaults(),
-        yaxis: sceneAxisDefaults(),
-        zaxis: sceneAxisDefaults()
-      }
-    }
+    // Small but non-zero: automargin adds whatever the tick labels and
+    // axis titles actually need on top of this, but with a flat 0 the
+    // rotated y-title ends up flush against the container's edge.
+    base.margin = { l: 8, r: 12, t: 12, b: 8 }
     return deepMerge(base, overrides)
-  }
-
-  // The theme colors of one 3-D scene axis. The lines are --vm-text-soft
-  // made translucent rather than --vm-grid/--vm-border: at their 8-15%
-  // opacity the gridlines of a tilted 3-D box all but vanish on white.
-  const sceneAxisDefaults = () => {
-    const textSoft = cssVar("--vm-text-soft", "#5c6570")
-    return {
-      gridcolor: alpha(textSoft, 0.3),
-      zerolinecolor: alpha(textSoft, 0.3),
-      linecolor: alpha(textSoft, 0.5),
-      color: textSoft,
-      showbackground: false,
-      tickfont: { size: 11, color: textSoft },
-      title: { font: { size: 13, color: textSoft } }
-    }
   }
 
   // Keeps a chart sized to its box, and stops doing so once that box leaves
@@ -487,12 +618,7 @@
    * @returns {{bgcolor: string, bordercolor: string, align: "left",
    *   font: {family: string, size: number, color: string}}}
    */
-  const hoverLabel = () => ({
-    bgcolor: cssVar("--vm-surface", "#f8f7f3"),
-    bordercolor: cssVar("--vm-border", "rgba(28, 31, 35, 0.15)"),
-    align: "left",
-    font: { family: fontFamily(), size: 12, color: cssVar("--vm-text", "#1c1f23") }
-  })
+  const hoverLabel = () => hoverLabelFrom(chromeFrom(tokenReader()))
 
   // A centered message drawn in the empty plot area, for when a page's
   // `result` cell bailed out (an unparseable expression, a non-finite
@@ -509,7 +635,7 @@
    *   at paper coordinates `(0.5, 0.5)` in `--vm-text-soft`.
    */
   const emptyState = (message) => {
-    const textSoft = cssVar("--vm-text-soft", "#5c6570")
+    const read = tokenReader()
     return [{
       text: message,
       xref: "paper",
@@ -517,9 +643,25 @@
       x: 0.5,
       y: 0.5,
       showarrow: false,
-      font: { family: fontFamily(), size: 14, color: textSoft },
+      font: { family: fontFamily(read), size: 14, color: read("--vm-text-soft", "#5c6570") },
       align: "center"
     }]
+  }
+
+  // Every color-valued leaf of a (nested) layout fragment, as dotted paths:
+  // {xaxis: {tickfont: {color: c}}} -> {"xaxis.tickfont.color": c}. A leaf
+  // counts when its key is `color` or ends in `color` (gridcolor, bgcolor,
+  // ...), plus `colorway`. Deriving the relayout patch from the same
+  // objects layout() uses means the two can never cover different
+  // attributes.
+  const colorPaths = (node, prefix, out) => {
+    for (const key of Object.keys(node)) {
+      const value = node[key]
+      const path = prefix ? `${prefix}.${key}` : key
+      if (key === "colorway" || (typeof value === "string" && /color$/i.test(key))) out[path] = value
+      else if (value && typeof value === "object" && !Array.isArray(value)) colorPaths(value, path, out)
+    }
+    return out
   }
 
   // A FLAT, dotted-path patch of just the theme-dependent style attributes,
@@ -533,63 +675,29 @@
   // every on-page chart the instant dark mode toggles, without touching
   // anything the page itself set.
   /**
-   * The theme-dependent style attributes as a **flat**, dotted-path object
-   * for `Plotly.relayout` -- `{"xaxis.gridcolor": ..., colorway: [...]}` --
-   * so re-theming a live chart touches only those attributes and leaves
-   * the page's own titles and ranges alone. The Plotly patch applies this
-   * to every chart on each theme flip; a page shouldn't need to call it.
+   * The theme-dependent colors as a **flat**, dotted-path object for
+   * `Plotly.relayout` -- `{"xaxis.gridcolor": ..., colorway: [...]}` -- so
+   * re-theming a live chart touches only those attributes and leaves the
+   * page's own titles and ranges alone. The Plotly patch applies this to
+   * every chart on each theme flip; a page shouldn't need to call it.
    *
    * @param {Object} [opts]
-   * @param {boolean} [opts.scene=false] - Also patch a 3-D chart's
-   *   `scene.xaxis`/`yaxis`/`zaxis` colors. Leave it off for a 2-D chart:
-   *   relayout-ing a `scene.*` key would add a scene to it.
-   * @returns {Object} 24 keys: backgrounds, `font.color`, `textfont.color`,
-   *   the three `hoverlabel.*` colors, `modebar.color`/`.activecolor`,
-   *   `colorway`, and seven `xaxis.*`/`yaxis.*` colors each; with
-   *   `opts.scene`, six more for each of the three scene axes.
+   * @param {Object} [opts.layout] - The chart's layout (or `_fullLayout`):
+   *   every subplot it names (see {@link subplotKeys}) is patched too --
+   *   `yaxis2`, `scene`, `polar`, ... Without it only `xaxis`/`yaxis` are.
+   *   A subplot the chart doesn't have is never added, since relayout-ing
+   *   a `scene.*` or `polar.*` key would add one.
+   * @param {boolean} [opts.scene=false] - Also patch `scene`, for a caller
+   *   that doesn't pass `opts.layout`.
+   * @returns {Object} Every color the shared layout sets, at its dotted
+   *   path: backgrounds, fonts, hover label, modebar, `colorway`, and the
+   *   axis colors of `xaxis`, `yaxis` and each named subplot.
    */
   const themePatch = (opts = {}) => {
-    const text = cssVar("--vm-text", "#1c1f23")
-    const textSoft = cssVar("--vm-text-soft", "#5c6570")
-    const grid = cssVar("--vm-grid", "rgba(28, 31, 35, 0.08)")
-    const border = cssVar("--vm-border", "rgba(28, 31, 35, 0.15)")
-    const surface = cssVar("--vm-surface", "#f8f7f3")
-    const accent = cssVar("--vm-accent", "#10606b")
-    const patch = {
-      paper_bgcolor: "rgba(0,0,0,0)",
-      plot_bgcolor: "rgba(0,0,0,0)",
-      "font.color": text,
-      "textfont.color": text,
-      "hoverlabel.bgcolor": surface,
-      "hoverlabel.bordercolor": border,
-      "hoverlabel.font.color": text,
-      "modebar.color": textSoft,
-      "modebar.activecolor": accent,
-      // Repainted on a toggle so a trace the page left uncolored picks up
-      // the new theme's palette rather than staying on the old one.
-      colorway: colorway()
-    }
-    for (const axis of ["xaxis", "yaxis"]) {
-      patch[`${axis}.gridcolor`] = grid
-      patch[`${axis}.zerolinecolor`] = border
-      patch[`${axis}.linecolor`] = border
-      patch[`${axis}.tickcolor`] = border
-      patch[`${axis}.color`] = textSoft
-      patch[`${axis}.tickfont.color`] = textSoft
-      patch[`${axis}.title.font.color`] = textSoft
-    }
-    if (opts.scene) {
-      const sceneAxis = sceneAxisDefaults()
-      for (const axis of ["xaxis", "yaxis", "zaxis"]) {
-        patch[`scene.${axis}.gridcolor`] = sceneAxis.gridcolor
-        patch[`scene.${axis}.zerolinecolor`] = sceneAxis.zerolinecolor
-        patch[`scene.${axis}.linecolor`] = sceneAxis.linecolor
-        patch[`scene.${axis}.color`] = sceneAxis.color
-        patch[`scene.${axis}.tickfont.color`] = sceneAxis.tickfont.color
-        patch[`scene.${axis}.title.font.color`] = sceneAxis.title.font.color
-      }
-    }
-    return patch
+    const subplots = subplotKeys(opts.layout)
+    if (opts.scene && !subplots.scene.includes("scene")) subplots.scene.push("scene")
+    const read = tokenReader()
+    return colorPaths(themeBase(chromeFrom(read), paletteFrom(read), subplots), "", {})
   }
 
   // Replaces the `{responsive: true, displaylogo: false}` object every page
@@ -619,12 +727,11 @@
    * @returns {Object} Options for `Plot.plot(...)`.
    */
   const plotOptions = (overrides) => {
-    const text = cssVar("--vm-text", "#1c1f23")
-    const grid = cssVar("--vm-grid", "rgba(28, 31, 35, 0.08)")
-    const border = cssVar("--vm-border", "rgba(28, 31, 35, 0.15)")
+    const read = tokenReader()
+    const c = chromeFrom(read)
     const base = {
-      style: { fontFamily: fontFamily(), fontSize: 12, color: text },
-      color: { range: colorway() },
+      style: { fontFamily: c.font, fontSize: 12, color: c.text },
+      color: { range: colorwayFrom(paletteFrom(read)) },
       grid: true
     }
     const merged = deepMerge(base, overrides)
@@ -634,13 +741,13 @@
     // (which would clobber a caller's own `x`/`y` domain/label options via
     // deepMerge's object-replace-when-non-object semantics).
     for (const axis of ["x", "y"]) {
-      if (merged[axis] && merged[axis].stroke === undefined) merged[axis] = { ...merged[axis], stroke: border }
+      if (merged[axis] && merged[axis].stroke === undefined) merged[axis] = { ...merged[axis], stroke: c.border }
     }
     return merged
   }
 
   Object.assign((globalThis.VM ??= {}).plotting ??= {}, {
     configure, colors, colorway, alpha, themeName, onThemeChange, subscript, autoResize,
-    layout, config, plotOptions, themePatch, emptyState, hoverLabel
+    layout, config, plotOptions, themePatch, emptyState, hoverLabel, subplotKeys
   })
 })(window)

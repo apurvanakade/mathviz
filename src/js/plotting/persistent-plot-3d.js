@@ -24,17 +24,20 @@
    *
    * @param {Object} [opts] - As for {@link persistentPlot}: `className`,
    *   `height`.
-   * @returns {(data: Object[], layout: Object, config?: Object) => HTMLElement}
-   *   Draws or redraws and returns the same div every time. The layout's
+   * @returns {((data: Object[], layout: Object, config?: Object) => HTMLElement) & {div: HTMLElement|null}}
+   *   Draws or redraws and returns the same div every time; `div` as for
+   *   {@link persistentPlot}. The layout's
    *   `scene` (camera, axis titles, `dragmode`, ...) is kept; one is added
    *   when it has none.
    */
   const persistentPlot3d = (opts = {}) => {
     const plot = globalThis.VM.plotting.persistentPlot(opts)
-    return (data, layout, config) => {
+    const draw = (data, layout, config) => {
       const page = layout ?? {}
       return plot(data, {...page, scene: {...page.scene}}, config)
     }
+    Object.defineProperty(draw, "div", {get: () => plot.div})
+    return draw
   }
 
   Object.assign((globalThis.VM ??= {}).plotting ??= {}, {persistentPlot3d})
