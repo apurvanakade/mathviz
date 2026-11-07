@@ -28,7 +28,8 @@ Then copy any page, rename it, and edit its cells. [`starter/README.md`](starter
 lists what each page shows.
 
 **A site that tracks the latest release** -- copy in the [site kit](kit/): a
-pre-render hook that installs the newest mathviz tag before every render.
+pre-render hook that installs the newest mathviz tag within your major
+version before every render, and tells you when a new major is out.
 
 **An existing Quarto site:**
 
