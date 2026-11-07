@@ -956,7 +956,7 @@ Authors: Apurva Nakade
 </tr>
 </tbody>
 </table>
-<p><strong>Returns</strong> the <code>div.ojs-chart-block</code>: a div holding the legend, then the one <code>plot</code> returned. With no named traces it holds only the chart. The legend hides below a 600px-wide chart, like every overlay legend, and then every trace is drawn. For a key that only names the traces and stays visible at every width, put a <a href="../../docs/reference/ui.html#static-key">static key</a> above or below the chart instead.</p>
+<p><strong>Returns</strong> the <code>div.ojs-chart-block</code>: a div holding the legend, then the one <code>plot</code> returned. With no named traces it holds only the chart. The legend hides below a 600px-wide chart, like every overlay legend, and then every trace is drawn. A simple figure is better drawn with Observable Plot and a <a href="../../docs/reference/ui.html#static-key">static key</a>, which stays visible at every width (see <a href="../../docs/first-chart.html#plotly-or-observable-plot">Plotly or Observable Plot</a>).</p>
 </section>
 <section id="legendItems" class="level3">
 <h3 class="anchored" data-anchor-id="legendItems">VM.plotting.legendItems(data)</h3>
@@ -1023,7 +1023,7 @@ Authors: Apurva Nakade
 </section>
 <section id="plotOptions" class="level3">
 <h3 class="anchored" data-anchor-id="plotOptions">VM.plotting.plotOptions(overrides?)</h3>
-<p>The Observable Plot equivalent of <code>layout()</code>: same font, grid color and <code>colorway</code>, so a <code>Plot.plot</code> under a Plotly chart reads as the same chart system.</p>
+<p>The Observable Plot equivalent of <code>layout()</code>: same font, grid color and <code>colorway</code>. It themes a simple figure drawn with Observable Plot (see <a href="../../docs/first-chart.html#plotly-or-observable-plot">Plotly or Observable Plot</a>), so it reads as the same chart system as the page’s Plotly app charts.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">

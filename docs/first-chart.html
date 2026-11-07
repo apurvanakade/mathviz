@@ -417,6 +417,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#the-empty-state" id="toc-the-empty-state" class="nav-link" data-scroll-target="#the-empty-state">The empty state</a></li>
   <li><a href="#the-chart-block" id="toc-the-chart-block" class="nav-link" data-scroll-target="#the-chart-block">The chart block</a></li>
   </ul></li>
+  <li><a href="#plotly-or-observable-plot" id="toc-plotly-or-observable-plot" class="nav-link" data-scroll-target="#plotly-or-observable-plot">Plotly or Observable Plot</a></li>
   <li><a href="#where-to-go-from-here" id="toc-where-to-go-from-here" class="nav-link" data-scroll-target="#where-to-go-from-here">Where to go from here</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/apurvanakade/mathviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -581,8 +582,25 @@ Authors: Apurva Nakade
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>::: {.ojs-chart-block}</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>...</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The wrapper around the chart cells. It’s what the fullscreen button enlarges, and where a floating legend or a slider bar attaches. Every chart wants one, even a chart with neither today, so that adding them later is just dropping in a cell.</p>
+<p>The wrapper around the chart cells. It’s what the fullscreen button enlarges, and where a floating legend or a slider bar attaches. Every app chart wants one, even a chart with neither today, so that adding them later is just dropping in a cell. A simple figure doesn’t (see below).</p>
 </section>
+</section>
+<section id="plotly-or-observable-plot" class="level2">
+<h2 class="anchored" data-anchor-id="plotly-or-observable-plot">Plotly or Observable Plot</h2>
+<ul>
+<li><strong>An app’s chart is Plotly</strong>, like the one on this page: the chart the reader drives from the panel and sliders, and zooms and pans. It gets the modebar, fullscreen, the <a href="../docs/reference/ui.html#legendOverlay">floating legend</a> and the <a href="../docs/markup.html#ojs-chart-controls">slider bar</a>.</li>
+<li><strong>A simple figure is Observable Plot</strong>: a convergence plot, an error-decay plot, a comparison – anything the reader reads rather than explores. Theme it with <a href="../docs/reference/plotting.html#plotOptions"><code>plotOptions</code></a> and name its series with a <a href="../docs/reference/ui.html#static-key">static key</a> under it. It needs no chart block, no modebar and no fullscreen.</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> chart <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">width</span><span class="op">:</span> <span class="dv">360</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span><span class="op">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">x</span><span class="op">:</span> {<span class="dt">type</span><span class="op">:</span> <span class="st">"log"</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"step size h"</span>}<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> {<span class="dt">type</span><span class="op">:</span> <span class="st">"log"</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"error"</span>}<span class="op">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [<span class="op">...</span>]</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> figure <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  figure<span class="op">.</span><span class="fu">append</span>(chart<span class="op">,</span> Plot<span class="op">.</span><span class="fu">legend</span>({<span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="st">"Euler"</span><span class="op">,</span> <span class="st">"RK4"</span>]<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [chartColors<span class="op">.</span><span class="at">fn</span><span class="op">,</span> chartColors<span class="op">.</span><span class="at">alt</span>]}}))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> figure</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="where-to-go-from-here" class="level2">
 <h2 class="anchored" data-anchor-id="where-to-go-from-here">Where to go from here</h2>
