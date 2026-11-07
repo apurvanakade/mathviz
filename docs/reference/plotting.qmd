@@ -251,7 +251,7 @@ VM.plotting.plotWithLegend(figPlot, traces, {xaxis: {title: "n"}})
 | `data` | `Object[]` | Plotly traces. |
 | `layout` | `Object` | Plotly layout; `showlegend` is forced `false`. |
 
-**Returns** the `div.ojs-chart-block`: a div holding the legend, then the one `plot` returned. With no named traces it holds only the chart. The legend hides below a 600px-wide chart, like every overlay legend, and then every trace is drawn. For a key that only names the traces and stays visible at every width, put a [static key](ui.qmd#static-key) above or below the chart instead.
+**Returns** the `div.ojs-chart-block`: a div holding the legend, then the one `plot` returned. With no named traces it holds only the chart. The legend hides below a 600px-wide chart, like every overlay legend, and then every trace is drawn. A simple figure is better drawn with Observable Plot and a [static key](ui.qmd#static-key), which stays visible at every width (see [Plotly or Observable Plot](../first-chart.qmd#plotly-or-observable-plot)).
 
 ### VM.plotting.legendItems(data) {#legendItems}
 

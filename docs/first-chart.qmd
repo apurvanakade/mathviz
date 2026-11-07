@@ -134,6 +134,24 @@ When `f` is `null` the chart would be an empty grid, indistinguishable from a va
 
 The wrapper around the chart cells. It's what the fullscreen button enlarges, and where a floating legend or a slider bar attaches. Every chart wants one, even a chart with neither today, so that adding them later is just dropping in a cell.
 
+## Plotly or Observable Plot
+
+- **An app's chart is Plotly**, like the one on this page: the chart the reader drives from the panel and sliders, and zooms and pans. It gets the modebar, fullscreen, the [floating legend](reference/ui.qmd#legendOverlay) and the [slider bar](markup.qmd#ojs-chart-controls).
+- **A simple figure is Observable Plot**: a convergence plot, an error-decay plot, a comparison -- anything the reader reads rather than explores. Theme it with [`plotOptions`](reference/plotting.qmd#plotOptions) and name its series with a [static key](reference/ui.qmd#static-key) under it. It needs no chart block, no modebar and no fullscreen.
+
+```js
+{
+  const chart = Plot.plot(VM.plotting.plotOptions({
+    width: 360, height: 300,
+    x: {type: "log", label: "step size h"}, y: {type: "log", label: "error"},
+    marks: [...]
+  }))
+  const figure = document.createElement("div")
+  figure.append(chart, Plot.legend({color: {domain: ["Euler", "RK4"], range: [chartColors.fn, chartColors.alt]}}))
+  return figure
+}
+```
+
 ## Where to go from here
 
 Each of the starter's other pages adds one thing to this pattern:
