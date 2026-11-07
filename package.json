@@ -13,6 +13,7 @@
     "test:layout": "node scripts/check-layout.mjs"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "mathjs": "^15.2.0",
     "playwright": "^1.61.1"
   }

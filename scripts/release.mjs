@@ -75,7 +75,11 @@ const unreleased = '## [Unreleased]\n'
 const start = changelog.indexOf(unreleased)
 if (start < 0) fail('CHANGELOG.md: no "## [Unreleased]" heading')
 const bodyStart = start + unreleased.length
-const nextHeading = changelog.indexOf('\n## [', bodyStart)
+// The first release has no version heading below [Unreleased]: the body
+// then runs to the link definitions at the bottom (or the end of the file).
+let nextHeading = changelog.indexOf('\n## [', bodyStart)
+if (nextHeading < 0) nextHeading = changelog.search(/\n\[Unreleased\]:/)
+if (nextHeading < 0) nextHeading = changelog.length
 const body = changelog.slice(bodyStart, nextHeading).trim()
 if (body === '') fail('CHANGELOG.md: [Unreleased] is empty -- nothing to release.')
 

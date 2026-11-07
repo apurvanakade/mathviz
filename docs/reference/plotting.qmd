@@ -76,10 +76,10 @@ The same hue as a palette token (or any color string) at a given opacity, for a 
 
 | Parameter | Type | Description |
 |---|---|---|
-| `token` | `string` | A palette role (`"fn"`, `"ok"`, …) resolved through `colors()`, or a `#rgb` / `#rrggbb` / `rgb(...)` / `rgba(...)` string. |
-| `opacity` | `number` | `0`..`1`; not clamped. |
+| `token` | `string` | A palette role (`"fn"`, `"ok"`, …) resolved through `colors()`, or any CSS color. Hex (3, 4, 6 or 8 digits) and `rgb()`/`rgba()` are parsed directly; anything else (`hsl()`, `oklch()`, a named color) is resolved by the browser. |
+| `opacity` | `number` | `0`..`1`; not clamped. Replaces any alpha the color had. |
 
-**Returns** `"rgba(r, g, b, opacity)"`. An input that can't be parsed (a CSS named color, `hsl(...)`, a non-string) is returned **unchanged**.
+**Returns** `"rgba(r, g, b, opacity)"`. The input comes back unchanged only when it isn't a color at all (or, outside a browser, is neither hex nor `rgb()`), or is fully transparent.
 
 ```{ojs}
 [VM.plotting.alpha("ok", 0.2), VM.plotting.alpha("#ff0000", 0.5), VM.plotting.alpha("rebeccapurple", 0.5)]
@@ -149,7 +149,7 @@ A site whose toggle uses none of these calls `VM.plotting.configure({darkSelecto
 The shared Plotly layout, themed from the live tokens:
 
 - transparent `paper_bgcolor` / `plot_bgcolor`, so the page's own background shows through (no `#E5ECF6` plate, no white box in dark mode)
-- `font` in `--vm-font-sans`, `--vm-text`; axes, ticks, gridlines in `--vm-text-soft` / `--vm-border` / `--vm-grid`, `automargin: true`
+- `font` in `--vm-font-sans`, `--vm-text`; axes, ticks, gridlines in `--vm-text-soft` / `--vm-border` / `--vm-grid`, `automargin: true` -- on `xaxis`/`yaxis` and on every further subplot the overrides name (`xaxis2`, `yaxis3`, `scene`, `polar`, `ternary`, ...; see [`subplotKeys`](#subplotKeys))
 - `colorway()`, `hoverLabel()`, themed `modebar` colors, `textfont` for trace labels
 - a `transition` of 300 ms `cubic-in-out` (`0` under `prefers-reduced-motion`; while a [slider playback](ui.qmd#playbackTweenMs) sweep runs, shortened to the gap between values so the tween lands before the next one arrives)
 - small non-zero `margin` (`{l: 8, r: 12, t: 12, b: 8}`) that `automargin` grows as needed
@@ -212,7 +212,7 @@ The first call creates the div, `Plotly.newPlot`s into it and hands it to [`auto
 | `opts.className` | `string` | `"plotly-box-large"` | Class of the graph div. |
 | `opts.height` | `string` | | Inline CSS height, for a secondary chart that shouldn't take the main chart's box, e.g. `"320px"`. Sets `min-height` to the same value, so it holds below the box's own 500px minimum. |
 
-**Returns** `(data, layout, config?) => HTMLElement`, which draws or redraws and returns the same div every time. `config` defaults to [`config()`](#config). Needs `window.Plotly`.
+**Returns** `(data, layout, config?) => HTMLElement`, which draws or redraws and returns the same div every time. `config` defaults to [`config()`](#config). The function's read-only `div` property is that div (`null` before the first draw), for code that needs the chart without redrawing it. Needs `window.Plotly`.
 
 ### VM.plotting.persistentPlot3d(opts?) {#persistentPlot3d}
 
@@ -232,11 +232,11 @@ Dragging rotates the scene about its vertical axis (`turntable`, Plotly's own 3-
 | `opts.className` | `string` | `"plotly-box-large"` | As for `persistentPlot`. |
 | `opts.height` | `string` | | As for `persistentPlot`. |
 
-**Returns** `(data, layout, config?) => HTMLElement`, as for `persistentPlot`. Needs `window.Plotly`.
+**Returns** `(data, layout, config?) => HTMLElement`, with a `div` property, as for `persistentPlot`. Needs `window.Plotly`.
 
 ### VM.plotting.plotWithLegend(plot, data, layout) {#plotWithLegend}
 
-For a figure with no controls of its own: draws the chart with a [`VM.ui.legendOverlay`](ui.qmd#legendOverlay) over it instead of Plotly's legend, and returns both wrapped in an `.ojs-chart-block`, in one cell. Clicking a row hides or shows every trace of that name; unnamed traces and `showlegend: false` ones are always drawn. Hiding a trace never rescales the chart or moves its grid: the first click pins every axis at the range it had with all traces shown (see [`lockedAxes`](#lockedAxes)), and a new call -- new data, a theme toggle -- starts unpinned again. It is the three-cell `viewof` wiring the legend's reference shows, for pages with many such figures.
+For a figure with no controls of its own: draws the chart with a [`VM.ui.legendOverlay`](ui.qmd#legendOverlay) over it instead of Plotly's legend, and returns both wrapped in an `.ojs-chart-block`, in one cell. Clicking a row hides or shows every trace of that name (as `visible: "legendonly"`, so every trace keeps its index and its colorway color); unnamed traces and `showlegend: false` ones are always drawn. Hiding a trace never rescales the chart or moves its grid: the first click pins every axis at the range it had with all traces shown (see [`lockedAxes`](#lockedAxes)), and a new call -- new data, a theme toggle -- starts unpinned again. It is the three-cell `viewof` wiring the legend's reference shows, for pages with many such figures.
 
 ```js
 figPlot = VM.plotting.persistentPlot({height: "360px"})
@@ -253,9 +253,9 @@ VM.plotting.plotWithLegend(figPlot, traces, {xaxis: {title: "n"}})
 
 **Returns** the `div.ojs-chart-block`: a div holding the legend, then the one `plot` returned. With no named traces it holds only the chart. The legend hides below a 600px-wide chart, like every overlay legend, and then every trace is drawn. A simple figure is better drawn with Observable Plot and a [static key](ui.qmd#static-key), which stays visible at every width (see [Plotly or Observable Plot](../first-chart.qmd#plotly-or-observable-plot)).
 
-### VM.plotting.legendItems(data) {#legendItems}
+### VM.plotting.legendItems(data, colorway?) {#legendItems}
 
-The legend rows `plotWithLegend` builds: `{label, color}` for each trace with a `name` and without `showlegend: false`, in trace order, one row per name. The color is the trace's `line.color`, else its `marker.color` (when a single color), else its `fillcolor`.
+The legend rows `plotWithLegend` builds: `{label, color}` for each trace with a `name` and without `showlegend: false`, in trace order, one row per name. The color is the trace's `line.color`, else its `marker.color` (when a single color), else its `fillcolor`, else the colorway color Plotly gives it -- counted the way Plotly counts, skipping traces set `visible: false`. `colorway` defaults to [`colorway()`](#colorway); `plotWithLegend` passes the layout's own when it has one. A trace colored per point (a `marker.color` array) with no line color gets no swatch color.
 
 ### VM.plotting.lockedAxes(fullLayout, layout) {#lockedAxes}
 
@@ -305,9 +305,20 @@ The theme-dependent style attributes as a **flat**, dotted-path object for `Plot
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `opts.scene` | `boolean` | `false` | Also patch the colors of a 3-D chart's `scene.xaxis`/`yaxis`/`zaxis`. Leave it off for a 2-D chart: relayout-ing a `scene.*` key would add a scene to it. |
+| `opts.layout` | `object` | | The chart's layout or `_fullLayout`. Every subplot it names ([`subplotKeys`](#subplotKeys)) is patched too: `yaxis2`, `scene`, `polar`, ... A subplot the chart doesn't have is never added -- relayout-ing a `scene.*` key would add a scene. The patch passes each chart's `_fullLayout`. |
+| `opts.scene` | `boolean` | `false` | Also patch `scene`, for a caller not passing `opts.layout`. |
 
-**Returns** an object with 24 keys, or 42 with `opts.scene`.
+**Returns** every color `layout()` sets, at its dotted path -- 25 keys for a chart with only `xaxis`/`yaxis`, 18 more per scene.
+
+### VM.plotting.subplotKeys(layout) {#subplotKeys}
+
+The subplot keys a Plotly layout names, grouped by kind -- what the theme, the zoom buttons and the axis-pinning helpers iterate over.
+
+**Returns** `{cartesian, scene, polar, ternary}`, each a `string[]` of keys in the layout's order (`cartesian: ["xaxis", "yaxis", "yaxis2"]`); all empty for a missing layout.
+
+```{ojs}
+VM.plotting.subplotKeys({xaxis: {}, yaxis2: {overlaying: "y"}, polar: {}, title: {text: "t"}})
+```
 
 ## Draggable points
 
@@ -342,7 +353,7 @@ Each point is a focusable dot laid over the chart:
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `plot` | `Function \| HTMLElement` | | A chart function such as `persistentPlot()`'s return value, which it calls once with no traces to get its div; or a div Plotly has already drawn. |
+| `plot` | `Function \| HTMLElement` | | A chart function such as `persistentPlot()`'s return value -- its [`div`](#persistentPlot) is used as is, and only a chart not drawn yet is drawn once, empty, to get one -- or a div Plotly has already drawn. |
 | `opts.value` | `{x, y}` or `{x, y}[]` | required | Starting position of one point, or of each of several. The view's value keeps this shape. |
 | `opts.xBounds` | `[lo, hi]` | the x-axis's visible range | Where the points may go, in data units. |
 | `opts.yBounds` | `[lo, hi]` | the y-axis's visible range | |
@@ -409,6 +420,7 @@ On load (and again on `DOMContentLoaded`) the library wraps `Plotly.newPlot` and
 - `layout()` merged **under** the page's layout
 - `hoverLabel()` on every trace that lacks a `hoverlabel`
 - `dragmode: "pan"`, unless the page set its own
+- both call forms: `newPlot(gd, data, layout, config)` and `newPlot(gd, {data, layout, config, frames})`, with `gd` an element or its id
 - `config()` merged under the page's config, then this modebar (a 3-D chart gets its own, below):
 
   | Group | Buttons |
@@ -418,11 +430,12 @@ On load (and again on `DOMContentLoaded`) the library wraps `Plotly.newPlot` and
   | 3 | zoom in, zoom out (each step scales the visible span by **1.25×**, not Plotly's 2×, which overshoots when framing a curve), autoscale, reset |
   | 4 | fullscreen |
 
-  Box select and lasso are absent. The list is spelled out as `config.modeBarButtons`, replacing whatever a page passes there.
+  Box select and lasso are absent. The list is spelled out as `config.modeBarButtons`. A page that passes its own `modeBarButtons` keeps them untouched; `modeBarButtonsToRemove` and `modeBarButtonsToAdd` are applied to the shared list (the gentler zoom steps answer to `"zoomIn2d"`/`"zoomOut2d"`). The fullscreen button is left out where element fullscreen can't work -- iPhone Safari, an iframe without `allow="fullscreen"`.
 
 - for a 3-D chart, meaning one whose layout has a `scene` (draw it with [`persistentPlot3d`](#persistentPlot3d), which guarantees one): `scene.dragmode: "turntable"` unless the page set one, since a scene otherwise inherits `"pan"` and slides instead of rotating; themed scene axes; and the modebar download PNG | turntable rotation, orbit rotation, pan, zoom | reset camera | fullscreen
 
-- a `relayout(themePatch())` on every theme flip (`themePatch({scene: true})` for a 3-D chart)
+- a `relayout(themePatch({layout: gd._fullLayout}))` on every theme flip, which re-themes every subplot the chart has
+- after each call, the listeners registered with [`keepListening`](#keepListening) put back -- `newPlot` drops every listener on the div
 
 The patch is idempotent and a silent no-op when `Plotly` isn't on the page (`mathviz: {plotly: false}`).
 
@@ -448,6 +461,17 @@ Reads one axis's range out of a `plotly_relayout` event, which spells it either 
 
 **Returns** `[lo, hi]`; `"auto"` when the event switched the axis to autorange; `null` when the event doesn't set this axis's range, or sets only one end.
 
+### VM.plotting.keepListening(gd, handlers?) {#keepListening}
+
+Plotly event listeners that survive a redraw from scratch. `Plotly.newPlot` -- and `Plotly.react`, when it decides on a full redraw -- throws away every `gd.on(...)` listener on the div. Ones registered here are put back after each such call by the patch, which is how the locked-axes view and [`draggablePoints`](#draggablePoints) keep working when a page calls `newPlot` twice on one div.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `gd` | `HTMLElement` | The graph div. May be not yet drawn: the listeners go on once `newPlot` has given it `.on`. |
+| `handlers` | `{event: fn}` (optional) | e.g. `{plotly_relayout: onZoom}`. With none, re-attaches everything registered -- what the patch does after each call; do it yourself only for a chart drawn with the patch off. |
+
+**Returns** `() => void`, which removes the listeners this call added.
+
 ### VM.plotting.installPlotlyPatch() {#installPlotlyPatch}
 
 Runs the patch. Only needed when Plotly arrives **later** than the bundle and `DOMContentLoaded` -- a dynamic import, say.
@@ -456,7 +480,7 @@ Runs the patch. Only needed when Plotly arrives **later** than the bundle and `D
 
 ### VM.plotting.fullscreenButton {#fullscreenButton}
 
-The fullscreen modebar button, as a Plotly custom-button object: `{name: "fullscreen", title, icon: {width, height, path}, click(gd)}`. The patch adds it to every chart; a page touches this only to reuse its glyph (`VM.plotting.fullscreenButton.icon` -- Bootstrap Icons' `arrows-fullscreen`), or to add it to a chart built outside the patch via `modeBarButtonsToAdd`.
+The fullscreen modebar button, as a Plotly custom-button object: `{name: "fullscreen", title, icon: {width, height, path}, click(gd)}`, plus two helpers the SVG button shares: `available()`, whether element fullscreen works on this page (false on iPhone Safari and in an iframe without `allow="fullscreen"`), and `toggle(target)`, which enters or leaves fullscreen on `target` and reports a refused request on the console instead of as an unhandled rejection. The patch adds it to every chart; a page touches this only to reuse its glyph (`VM.plotting.fullscreenButton.icon` -- Bootstrap Icons' `arrows-fullscreen`), or to add it to a chart built outside the patch via `modeBarButtonsToAdd`.
 
 Clicking fullscreens the nearest `.ojs-chart-block` -- so the controls bar and legend come along -- or, without one, the graph div itself; a second click exits. Before entering it records the chart's aspect ratio as `--vm-plot-aspect-ratio` on the div so the CSS can letterbox it.
 

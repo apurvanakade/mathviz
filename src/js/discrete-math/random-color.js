@@ -19,5 +19,5 @@
     return 'blue'
   }
 
-  globalThis.VM = {...globalThis.VM, discreteMath: {...globalThis.VM?.discreteMath, randomColor}}
+  Object.assign((globalThis.VM ??= {}).discreteMath ??= {}, {randomColor})
 })(window)

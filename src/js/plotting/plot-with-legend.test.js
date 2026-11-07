@@ -55,3 +55,32 @@ test('lockedAxes leaves an axis the page already fixed', () => {
 test('lockedAxes returns {} before the chart has been drawn', () => {
   assert.deepEqual(lockedAxes(undefined, {}), {})
 })
+
+test('legendItems colors an uncolored trace the way Plotly will, skipping visible: false', () => {
+  const colorway = ['c0', 'c1', 'c2']
+  const items = legendItems([
+    {name: 'a'},
+    {name: 'b', visible: false},
+    {name: 'c', line: {color: 'red'}},
+    {name: 'd'}
+  ], colorway)
+  assert.deepEqual(items.map((i) => i.color), ['c0', 'c1', 'red', 'c2'])
+})
+
+test('plotWithLegend hides a trace as legendonly, keeping every index', () => {
+  const draws = []
+  const plot = (data) => { draws.push(data); return document.createElement('div') }
+  const legendStub = () => {
+    const el = new EventTarget()
+    el.value = ['b']
+    return el
+  }
+  const originalLegend = VM.ui.legendOverlay
+  const originalCreate = globalThis.document.createElement
+  VM.ui.legendOverlay = legendStub
+  globalThis.document.createElement = () => ({ append () {}, className: '' })
+  VM.plotting.plotWithLegend(plot, [{name: 'a'}, {name: 'b'}], {})
+  assert.deepEqual(draws[0].map((t) => t.visible), ['legendonly', undefined])
+  VM.ui.legendOverlay = originalLegend
+  globalThis.document.createElement = originalCreate
+})

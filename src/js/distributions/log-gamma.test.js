@@ -23,3 +23,21 @@ test('logGamma stays finite well past the point Gamma itself overflows', () => {
   assert.ok(Number.isFinite(logGamma(500)))
   assert.ok(Number.isFinite(logGamma(2000)))
 })
+
+test('logGamma is ln|Γ| where Γ is negative, and Infinity at the poles', () => {
+  const { logGamma } = VM.distributions
+  // Γ(-0.5) = -2√π
+  assert.ok(Math.abs(logGamma(-0.5) - Math.log(2 * Math.sqrt(Math.PI))) < 1e-12)
+  // Γ(-1.5) = 4√π/3 > 0
+  assert.ok(Math.abs(logGamma(-1.5) - Math.log(4 * Math.sqrt(Math.PI) / 3)) < 1e-12)
+  for (const x of [0, -1, -2, -10]) assert.equal(logGamma(x), Infinity)
+})
+
+test('logChoose matches small binomial coefficients and is -Infinity outside 0..n', () => {
+  const { logChoose } = VM.distributions
+  assert.ok(Math.abs(logChoose(10, 3) - Math.log(120)) < 1e-12)
+  assert.ok(Math.abs(logChoose(5, 0)) < 1e-12)
+  assert.ok(Number.isFinite(logChoose(2000, 1000)))
+  assert.equal(logChoose(5, 6), -Infinity)
+  assert.equal(logChoose(5, -1), -Infinity)
+})

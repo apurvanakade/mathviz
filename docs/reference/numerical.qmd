@@ -191,7 +191,7 @@ Composite Simpson's rule on `n` subintervals.
 |---|---|---|
 | `f` | `(x) => number` | The integrand. |
 | `lo`, `hi` | `number` | The limits. |
-| `n` | `number` | Number of subintervals. **Must be even.** This is not validated; an odd `n` silently applies the wrong weights. |
+| `n` | `number` | Number of subintervals: a positive **even** integer. Anything else returns `NaN`. |
 
 **Returns** `number`.
 

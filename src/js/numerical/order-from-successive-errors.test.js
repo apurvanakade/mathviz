@@ -67,3 +67,18 @@ test('orderFromSuccessiveErrors without scaleKey uses scale 1', () => {
   const rows = rowsOf([1e-3, 1e-6, 1e-9], [1e4, 1e4, 1e4])
   assert.equal(orderFromSuccessiveErrors(rows, 'error').points.length, 2)
 })
+
+test('orderFromSuccessiveErrors does not fit across a non-finite error', () => {
+  const rows = [1e-1, 1e-2, NaN, 1e-1, 1e-2, 1e-4].map((e) => ({ e }))
+  const result = VM.numerical.orderFromSuccessiveErrors(rows, 'e')
+  assert.equal(result.points.length, 3)
+  // Only the two pairs after the NaN are fitted: (-1, -2) and (-2, -4).
+  assert.equal(result.fit.xlo, -1)
+  assert.equal(result.fit.xhi, -2)
+  assert.ok(Math.abs(result.order - 2) < 1e-12, `order ${result.order}`)
+})
+
+test('orderFromSuccessiveErrors reports no order when a non-finite error is last but one', () => {
+  const rows = [1e-1, 1e-2, 1e-4, NaN, 1e-3].map((e) => ({ e }))
+  assert.ok(Number.isNaN(VM.numerical.orderFromSuccessiveErrors(rows, 'e').order))
+})

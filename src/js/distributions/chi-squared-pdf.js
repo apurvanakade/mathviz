@@ -17,5 +17,5 @@
     return globalThis.VM.distributions.gammaPdf(x, k / 2, 0.5)
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, chiSquaredPdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {chiSquaredPdf})
 })(window)

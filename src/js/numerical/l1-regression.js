@@ -40,38 +40,33 @@
     const tolerance = opts.tolerance ?? 1e-10
     const epsilon = opts.epsilon ?? 1e-6
 
-    let fit = globalThis.VM.numerical.linearRegression(points)
-    if (!fit) return null
-    let slope = fit.slope
-    let intercept = fit.intercept
+    const fitLine = globalThis.VM.numerical.linearRegression
+    const seed = fitLine(points)
+    if (!seed) return null
+    let slope = seed.slope
+    let intercept = seed.intercept
 
+    // Each pass is a weighted least-squares fit, done by linearRegression
+    // itself so it gets the same centered, cancellation-free sums.
+    const weights = new Array(points.length)
     let iterations = 0
     while (iterations < maxIterations) {
-      let sw = 0, swx = 0, swy = 0, swxy = 0, swxx = 0
-      for (const p of points) {
-        const residual = p.y - (slope * p.x + intercept)
-        const weight = 1 / Math.max(Math.abs(residual), epsilon)
-        sw += weight
-        swx += weight * p.x
-        swy += weight * p.y
-        swxy += weight * p.x * p.y
-        swxx += weight * p.x * p.x
+      for (let i = 0; i < points.length; i++) {
+        const residual = points[i].y - (slope * points[i].x + intercept)
+        weights[i] = 1 / Math.max(Math.abs(residual), epsilon)
       }
-      const denom = sw * swxx - swx * swx
-      if (denom === 0) break
-
-      const newSlope = (sw * swxy - swx * swy) / denom
-      const newIntercept = (swy - newSlope * swx) / sw
+      const fit = fitLine(points, {weights})
+      if (!fit) break
       iterations++
 
-      const change = Math.abs(newSlope - slope) + Math.abs(newIntercept - intercept)
-      slope = newSlope
-      intercept = newIntercept
+      const change = Math.abs(fit.slope - slope) + Math.abs(fit.intercept - intercept)
+      slope = fit.slope
+      intercept = fit.intercept
       if (change < tolerance) break
     }
 
     return {slope, intercept, xlo: points[0].x, xhi: points[points.length - 1].x, iterations}
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, l1Regression}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {l1Regression})
 })(window)

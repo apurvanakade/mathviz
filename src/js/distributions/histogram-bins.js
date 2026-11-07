@@ -19,7 +19,8 @@
    * so the bars' total area is ~1 and a theoretical PDF/PMF curve can be
    * overlaid directly.
    *
-   * @param {number[]} samples - The draws.
+   * @param {number[]} samples - The draws. Non-finite entries (`NaN`,
+   *   `±Infinity`) are dropped and count toward nothing.
    * @param {number} binCount - Number of bins (`>= 1`).
    * @param {{lo: number, hi: number}} [range] - Fixed bin range. Defaults to
    *   the samples' own min and max. Samples outside an explicit range are
@@ -27,11 +28,20 @@
    *   (all samples equal) is widened to `[lo - 0.5, hi + 0.5]`.
    * @returns {{edges: number[], centers: number[], densities: number[]}}
    *   `binCount + 1` edges, and `binCount` centers and densities, where
-   *   `densities[i] = count[i] / (samples.length * width)`. All three are
-   *   empty when `samples` is empty or `binCount < 1`.
+   *   `densities[i] = count[i] / (finiteCount * width)`. All three are
+   *   empty when `samples` has no finite entry or `binCount < 1`.
    */
   const histogramBins = (samples, binCount, range) => {
-    if (samples.length === 0 || binCount < 1) return {edges: [], centers: [], densities: []}
+    const empty = {edges: [], centers: [], densities: []}
+    if (binCount < 1) return empty
+    // A NaN would land in counts["NaN"] and still count toward the total,
+    // so the bars' area would come out short of 1; non-finite draws are
+    // dropped before anything else sees them.
+    const finite = []
+    for (const s of samples) {
+      if (Number.isFinite(s)) finite.push(s)
+    }
+    if (finite.length === 0) return empty
 
     let lo, hi
     if (range) {
@@ -40,7 +50,7 @@
     } else {
       lo = Infinity
       hi = -Infinity
-      for (const s of samples) {
+      for (const s of finite) {
         if (s < lo) lo = s
         if (s > hi) hi = s
       }
@@ -49,7 +59,7 @@
 
     const width = (hi - lo) / binCount
     const counts = new Array(binCount).fill(0)
-    for (const s of samples) {
+    for (const s of finite) {
       let index = Math.floor((s - lo) / width)
       if (index < 0) index = 0
       if (index >= binCount) index = binCount - 1
@@ -63,11 +73,11 @@
     const densities = []
     for (let i = 0; i < binCount; i++) {
       centers.push(lo + (i + 0.5) * width)
-      densities.push(counts[i] / (samples.length * width))
+      densities.push(counts[i] / (finite.length * width))
     }
 
     return {edges, centers, densities}
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, histogramBins}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {histogramBins})
 })(window)

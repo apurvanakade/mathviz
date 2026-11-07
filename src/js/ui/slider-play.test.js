@@ -128,3 +128,11 @@ test('playbackFrame falls back to a synthesized step when the slider has none', 
   const frame = playbackFrame({min: 0, max: 50, step: NaN, elapsed: 500, duration: 1000, mode: 'once', start: 0})
   assert.equal(frame.value, 25)
 })
+
+test('playbackFrame resumes a bounce on its return leg from a start between 1 and 2', () => {
+  const frame = VM.ui.playbackFrame({min: 0, max: 10, step: 1, elapsed: 0, duration: 1000, mode: 'bounce', start: 1.3})
+  assert.equal(frame.value, 7)
+  assert.equal(frame.direction, -1)
+  const later = VM.ui.playbackFrame({min: 0, max: 10, step: 1, elapsed: 200, duration: 1000, mode: 'bounce', start: 1.3})
+  assert.equal(later.value, 5)
+})

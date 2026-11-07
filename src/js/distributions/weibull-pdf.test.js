@@ -34,3 +34,9 @@ test('weibullPdf shape below 1 decreases, above 1 has an interior peak', () => {
   assert.ok(weibullPdf(0.1, 0.5, 1) > weibullPdf(1, 0.5, 1))
   assert.ok(weibullPdf(1, 3, 1) > weibullPdf(0.1, 3, 1))
 })
+
+test('weibullPdf at x = 0 is Infinity for shape < 1', () => {
+  assert.equal(VM.distributions.weibullPdf(0, 0.5, 1), Infinity)
+  assert.equal(VM.distributions.weibullPdf(0, 1, 2), 0.5)
+  assert.equal(VM.distributions.weibullPdf(0, 2, 1), 0)
+})

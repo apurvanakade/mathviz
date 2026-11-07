@@ -12,14 +12,12 @@
 // the ordering constraints in `mustPrecede` below.
 
 export const js = [
-  'expressions/make-function.js',
-  'expressions/make-derivative.js',
-  'expressions/make-number.js',
+  'expressions/compile.js',
   'expressions/make-rational.js',
-  'expressions/make-ode-function.js',
-  'expressions/make-function-of-t.js',
+  'ui/when-added.js',
   'plotting/padded-range.js',
   'plotting/chart-theme.js',
+  'plotting/keep-listening.js',
   'plotting/anchored-view.js',
   'plotting/plotly-fullscreen-button.js',
   'plotting/svg-fullscreen-button.js',
@@ -70,7 +68,6 @@ export const js = [
   'filters/kalman-1d-filter.js',
   'filters/systematic-resample.js',
   'mcmc/autocorrelation.js',
-  'mcmc/effective-sample-size.js',
   'mcmc/running-mean.js',
   'mcmc/random-walk-metropolis.js',
   'mcmc/gibbs-bivariate-normal.js',
@@ -121,18 +118,26 @@ export const mustPrecede = [
   // the discrete-math color helpers read VM.plotting.colors/alpha.
   ['plotting/chart-theme.js', 'plotting/plotly-fullscreen-button.js'],
   ['plotting/chart-theme.js', /^discrete-math\/(vertex|triangle-fill)-color\.js$/],
+  // anchored-view and draggable-points register their Plotly listeners
+  // through keepListening, which the patch re-attaches after each redraw.
+  ['plotting/keep-listening.js', /^plotting\/(anchored-view|draggable-points|plotly-fullscreen-button)\.js$/],
   // svg-fullscreen-button reuses VM.plotting.fullscreenButton.icon.
   ['plotting/plotly-fullscreen-button.js', 'plotting/svg-fullscreen-button.js'],
   ['discrete-math/sub-triangles.js', 'discrete-math/triangulation-edges.js'],
   ['numerical/linear-regression.js', 'numerical/l1-regression.js'],
   ['numerical/linear-regression.js', 'numerical/order-from-errors-vs-n.js'],
   ['numerical/linear-regression.js', 'numerical/order-from-successive-errors.js'],
-  // effectiveSampleSize sums the autocorrelation helper's output.
-  ['mcmc/autocorrelation.js', 'mcmc/effective-sample-size.js'],
+  // The self-installing modules watch for new elements through whenAdded,
+  // at load time; slider-play paces its sweeps with range-progress's
+  // sliderBounds.
+  ['ui/when-added.js', /^(ui\/(range-progress|slider-play|draggable-overlay)|plotting\/svg-fullscreen-button)\.js$/],
+  ['ui/range-progress.js', 'ui/slider-play.js'],
   // persistentPlot calls VM.plotting.config/autoResize; springLayout seeds
   // its start positions with VM.sampling.seededRandom.
   ['plotting/chart-theme.js', 'plotting/persistent-plot.js'],
   ['sampling/seeded-random.js', 'discrete-math/spring-layout.js'],
+  // randomWalkMetropolis draws its Gaussian steps from gaussianRandom.
+  ['sampling/gaussian-random.js', 'mcmc/random-walk-metropolis.js'],
   // The CDFs and quantiles are built on the incomplete gamma function, which
   // is built on logGamma; each quantile inverts its CDF.
   ['distributions/log-gamma.js', 'distributions/regularized-gamma.js'],

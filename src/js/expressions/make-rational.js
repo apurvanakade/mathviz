@@ -5,51 +5,39 @@
  */
 
 (function attachVM(globalThis) {
+  // Exact integer arithmetic in BigInt, so a literal like "0.1234567890123"
+  // or "123456789012345678/3" is reduced exactly rather than through a
+  // double; the result is handed back as Numbers only when both parts fit
+  // in Number.MAX_SAFE_INTEGER (otherwise it could not be exact).
   const gcd = (a, b) => {
-    a = Math.abs(a)
-    b = Math.abs(b)
-    while (b !== 0) {
-      const remainder = a % b
-      a = b
-      b = remainder
-    }
-    if (a === 0) return 1
-    return a
+    if (a < 0n) a = -a
+    if (b < 0n) b = -b
+    while (b !== 0n) [a, b] = [b, a % b]
+    return a === 0n ? 1n : a
   }
 
+  const MAX = BigInt(Number.MAX_SAFE_INTEGER)
+
   const reduce = (num, den) => {
-    if (den < 0) {
+    if (den < 0n) {
       num = -num
       den = -den
     }
     const divisor = gcd(num, den)
-    return {num: num / divisor, den: den / divisor}
+    num /= divisor
+    den /= divisor
+    if (num > MAX || -num > MAX || den > MAX) return null
+    // `+ 0` turns a -0 (from "-0" or "-0/5") into 0.
+    return {num: Number(num) + 0, den: Number(den)}
   }
 
-  const parseDecimal = body => {
-    let negative = false
-    let digits = body
-    if (digits.startsWith("-")) {
-      negative = true
-      digits = digits.slice(1)
-    }
-    const dotIndex = digits.indexOf(".")
-    let intPart = digits
-    let fracPart = ""
-    if (dotIndex !== -1) {
-      intPart = digits.slice(0, dotIndex)
-      fracPart = digits.slice(dotIndex + 1)
-    }
-    if (!/^\d*$/.test(intPart) || !/^\d*$/.test(fracPart)) return null
-    if (intPart === "" && fracPart === "") return null
-
-    let intValue = 0
-    if (intPart !== "") intValue = Number(intPart)
-    let fracValue = 0
-    if (fracPart !== "") fracValue = Number(fracPart)
-
-    const den = Math.pow(10, fracPart.length)
-    let num = intValue * den + fracValue
+  // A decimal literal already matched by /^-?\d*\.\d+$/: the digits after
+  // the point over the matching power of ten.
+  const parseDecimal = (text) => {
+    const negative = text.startsWith("-")
+    const [intPart, fracPart] = (negative ? text.slice(1) : text).split(".")
+    const den = 10n ** BigInt(fracPart.length)
+    let num = BigInt(intPart || "0") * den + BigInt(fracPart)
     if (negative) num = -num
     return reduce(num, den)
   }
@@ -67,8 +55,11 @@
    *
    * @param {string} expr - The literal to parse; surrounding whitespace is ignored.
    * @returns {{num: number, den: number}|null} Numerator and denominator in
-   *   lowest terms with `den > 0`, or `null` for an empty string, a zero
-   *   denominator, or anything that isn't one of the three literal forms.
+   *   lowest terms with `den > 0` (computed exactly, however many digits
+   *   the literal has), or `null` for an empty string, a zero denominator,
+   *   anything that isn't one of the three literal forms, or a reduced
+   *   fraction whose numerator or denominator exceeds
+   *   `Number.MAX_SAFE_INTEGER` (it could not be represented exactly).
    */
   const makeRational = expr => {
     const text = String(expr).trim()
@@ -76,18 +67,17 @@
 
     const fractionMatch = text.match(/^(-?\d+)\s*\/\s*(-?\d+)$/)
     if (fractionMatch !== null) {
-      const num = Number(fractionMatch[1])
-      const den = Number(fractionMatch[2])
-      if (den === 0) return null
-      return reduce(num, den)
+      const den = BigInt(fractionMatch[2])
+      if (den === 0n) return null
+      return reduce(BigInt(fractionMatch[1]), den)
     }
 
-    if (/^-?\d+$/.test(text)) return reduce(Number(text), 1)
+    if (/^-?\d+$/.test(text)) return reduce(BigInt(text), 1n)
 
     if (/^-?\d*\.\d+$/.test(text)) return parseDecimal(text)
 
     return null
   }
 
-  globalThis.VM = {...globalThis.VM, expressions: {...globalThis.VM?.expressions, makeRational}}
+  Object.assign((globalThis.VM ??= {}).expressions ??= {}, {makeRational})
 })(window)

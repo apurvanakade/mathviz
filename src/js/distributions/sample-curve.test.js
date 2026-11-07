@@ -35,3 +35,8 @@ test('sampleCurve discrete mode can be empty when no integer falls in range', ()
   assert.deepEqual(xs, [])
   assert.deepEqual(ys, [])
 })
+
+test('sampleCurve with n = 1 samples lo alone, n = 0 nothing', () => {
+  assert.deepEqual(VM.distributions.sampleCurve((x) => 2 * x, 3, 5, { n: 1 }), { xs: [3], ys: [6] })
+  assert.deepEqual(VM.distributions.sampleCurve((x) => x, 3, 5, { n: 0 }), { xs: [], ys: [] })
+})

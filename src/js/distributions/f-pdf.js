@@ -22,5 +22,5 @@
     return Math.exp(logPdf)
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, fPdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {fPdf})
 })(window)

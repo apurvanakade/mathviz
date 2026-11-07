@@ -325,3 +325,33 @@ test('a missing value, an undrawn div and an unknown axis are refused', () => {
   assert.throws(() => draggablePoints(new FakeElement('div'), {value: {x: 0, y: 0}}), TypeError)
   assert.throws(() => draggablePoints(chart(), {value: {x: 0, y: 0}, xaxis: 'z'}), TypeError)
 })
+
+test('draggablePoints uses a drawn chart function\'s div without redrawing it', () => {
+  const gd = chart()
+  let draws = 0
+  const plot = () => { draws++; return gd }
+  Object.defineProperty(plot, 'div', { get: () => gd })
+  const view = draggablePoints(plot, { value: { x: 5, y: 0.5 } })
+  assert.equal(view, gd)
+  assert.equal(draws, 0)
+})
+
+test('draggablePoints draws an undrawn chart function once, empty', () => {
+  const gd = chart()
+  const calls = []
+  const plot = (data, layout) => { calls.push([data, layout]); return gd }
+  Object.defineProperty(plot, 'div', { get: () => null })
+  draggablePoints(plot, { value: { x: 5, y: 0.5 } })
+  assert.deepEqual(calls, [[[], {}]])
+})
+
+test('draggablePoints handles follow the chart after its listeners are dropped', () => {
+  const gd = chart()
+  draggablePoints(gd, { value: { x: 5, y: 0.5 } })
+  // What Plotly.newPlot does: a fresh emitter, every listener gone.
+  for (const name of Object.keys(gd.handlers)) delete gd.handlers[name]
+  VM.plotting.keepListening(gd)
+  gd._fullLayout.xaxis = axis(0, 200, [0, 10], false)
+  gd.emit('plotly_afterplot')
+  assert.match(handlesOf(gd)[0].style.transform, /^translate\(100px/)
+})

@@ -43,5 +43,5 @@
     return 0.5 * (lo + hi)
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, chiSquaredQuantile}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {chiSquaredQuantile})
 })(window)

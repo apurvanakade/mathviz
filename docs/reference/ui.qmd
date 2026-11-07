@@ -115,7 +115,7 @@ The key doesn't toggle anything, and every swatch is a solid square, so a dashed
 
 ### Draggable legend {#draggable-legend}
 
-The grip on the legend above is added by a self-installing module. It clamps the panel to the chart block, re-clamps on resize and fullscreen, supports the keyboard (arrows move 10 px, Shift+arrow 1 px, Home resets) and double-click to reset, and persists the offset in `localStorage`. It deliberately does not touch `.ojs-chart-controls`, which sits in normal flow above the chart and has nothing to be dragged clear of. The two pure helpers behind it:
+The grip on the legend above is added by a self-installing module. It clamps the panel to the chart block, re-clamps on resize and fullscreen, supports the keyboard (arrows move 10 px, Shift+arrow 50 px, Home resets) and double-click to reset, and persists the offset in `localStorage`. It deliberately does not touch `.ojs-chart-controls`, which sits in normal flow above the chart and has nothing to be dragged clear of. The two pure helpers behind it:
 
 ### VM.ui.clampOverlayOffset({…}) {#clampOverlayOffset}
 
@@ -123,26 +123,34 @@ Clamps a proposed drag offset so no part of the panel leaves its container. Take
 
 **Returns** `{dx, dy}`. A panel larger than its container is pinned to the near edge rather than given a crossed range.
 
-### VM.ui.overlayStorageKey(pathname, role, index) {#overlayStorageKey}
+### VM.ui.overlayStorageKey(pathname, role, id) {#overlayStorageKey}
 
-The `localStorage` key a dragged panel's offset is kept under: `` `vml-overlay-pos:${pathname}:${role}:${index}` ``. The module uses `location.pathname`, `"legend"`, and the panel's `.ojs-chart-block` index on the page; the stored value is `JSON.stringify({dx, dy})`.
+The `localStorage` key a dragged panel's offset is kept under: `` `vml-overlay-pos:${pathname}:${role}:${id}` ``. The module uses `location.pathname`, `"legend"`, and [`overlayChartId`](#overlayChartId); the stored value is `JSON.stringify({dx, dy})`.
 
 ```{ojs}
-VM.ui.overlayStorageKey("/apps/newton-method/", "legend", 0)
+VM.ui.overlayStorageKey("/apps/newton-method/", "legend", "#newton")
+```
+
+### VM.ui.overlayChartId({id, labels, occurrence}) {#overlayChartId}
+
+Which chart a stored legend position belongs to: `"#" + id` when the `.ojs-chart-block` has an `id`, else the legend's labels joined with `|` and `#n` for the n-th block on the page with the same labels. Stable across visits however the page's cells render -- give a block an `id` to be certain.
+
+```{ojs}
+[VM.ui.overlayChartId({id: "newton", labels: ["f"], occurrence: 0}), VM.ui.overlayChartId({id: "", labels: ["f", "tangent"], occurrence: 1})]
 ```
 
 ## Table
 
-### VM.ui.renderTable({html, headers, rows, csvHeaders?, filename?}) {#renderTable}
+### VM.ui.renderTable({headers, rows, csvHeaders?, filename?}) {#renderTable}
 
 A compact, horizontally scrollable results table with a "Download csv" link above it.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `html` | function | | htl's `html` tag -- an OJS global. |
+| `html` | function | | No longer used: the table is built with DOM calls, which is much faster for a long table. Still accepted, so existing calls keep working. |
 | `headers` | `Array` | | Header cells. May be DOM nodes (a `tex` template's output) as well as strings. |
-| `rows` | `Array[]` | | Body rows. The first column is centered, the rest right-aligned, all `nowrap`. |
-| `csvHeaders` | `string[]` | `headers` | Plain-text labels for the download, for when `headers` holds KaTeX nodes that don't serialize. |
+| `rows` | `Array[]` | | Body rows of strings, numbers or DOM nodes. The first column is centered, the rest right-aligned, all `nowrap`. |
+| `csvHeaders` | `string[]` | `headers` | Plain-text labels for the download. Without them a node header's `textContent` is used, which reads oddly for typeset math. |
 | `filename` | `string` | `"iteration-table.csv"` | The download's name. |
 
 **Returns** one fragment: `<div class="ojs-table-toolbar">` (the link) then `<div class="ojs-table-container"><table class="table table-sm table-bordered small">`. The table classes are Bootstrap's, so it inherits the Quarto theme's table styling.
@@ -152,7 +160,7 @@ A compact, horizontally scrollable results table with a "Download csv" link abov
   const rows = []
   let x = 1
   for (let n = 0; n < 6; n++) { rows.push([n, x.toFixed(10), Math.abs(x - Math.SQRT2).toExponential(2)]); x = x - (x * x - 2) / (2 * x) }
-  return VM.ui.renderTable({html, headers: ["n", tex`x_n`, tex`|x_n - \sqrt2|`], rows, csvHeaders: ["n", "x_n", "error"], filename: "newton-sqrt2.csv"})
+  return VM.ui.renderTable({headers: ["n", tex`x_n`, tex`|x_n - \sqrt2|`], rows, csvHeaders: ["n", "x_n", "error"], filename: "newton-sqrt2.csv"})
 }
 ```
 
@@ -207,7 +215,7 @@ Reads one query-string parameter, typed like its fallback.
 
 ### VM.ui.syncUrlParams(entries, opts?) {#syncUrlParams}
 
-Writes inputs into the current URL's query string with `history.replaceState` -- no navigation, no history entry -- leaving every other key alone (another app's, or `embed`).
+Writes inputs into the current URL's query string with `history.replaceState` -- no navigation, no history entry -- leaving every other key alone (another app's, or `embed`) and keeping `history.state`. Call it on every input event: an unchanged query is never written, and writes are spaced at least 250 ms apart (the first at once, the last always lands), which keeps a slider drag or a playback sweep under the browsers' history-API rate limits -- Safari throws past 100 calls in 10 seconds.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -345,7 +353,7 @@ Takes one object: `{min, max, step, speed}`. Total length of one end-to-end swee
 
 ### VM.ui.playbackFrame({…}) {#playbackFrame}
 
-Takes one object: `{min, max, step, elapsed, duration, mode, start}`. Where the thumb should be after `elapsed` ms of a sweep of length `duration` that began at fraction `start` of the track. `mode` is `"once"`, `"loop"` (sawtooth) or `"bounce"` (triangle wave); anything else behaves as `"once"`.
+Takes one object: `{min, max, step, elapsed, duration, mode, start}`. Where the thumb should be after `elapsed` ms of a sweep of length `duration` that began at `start`: a fraction of the track going up, or for a bounce `1`..`2` on the way down (`2 − f` is fraction `f` heading back), which is how a speed change mid-bounce keeps the direction. `mode` is `"once"`, `"loop"` (sawtooth) or `"bounce"` (triangle wave); anything else behaves as `"once"`.
 
 **Returns** `{value, direction, done}` -- `value` snapped to the step grid (by whole-step count from `min`, then trimmed to 12 significant digits, then clamped into `[min, max]`); `direction` is `−1` only on a bounce's return leg; `done` is `true` once a `"once"` sweep reaches the end, and for any degenerate input.
 
@@ -359,4 +367,28 @@ A **number**, not a function: the chart transition length `VM.plotting.layout()`
 
 ```{ojs}
 VM.ui.playbackTweenMs
+```
+
+## Watching for new elements {#when-added}
+
+OJS creates -- and recreates -- inputs, legends and figures long after the page loads, so mathviz's self-installing pieces (the play buttons, the slider track fill, the draggable legend, the SVG fullscreen button) wait for them with one shared watcher instead of a `MutationObserver` each.
+
+### VM.ui.whenAdded(selector, enhance, opts?) {#whenAdded}
+
+Calls `enhance` on every element matching `selector` now (at `DOMContentLoaded` if the page is still loading) and again whenever the DOM changes, with at most one query per selector per animation frame -- however many nodes a Plotly redraw adds. The pass runs before the frame is painted, so an enhancement never shows up a frame late. `enhance` sees the same element on every pass, so it must be idempotent: mark what it did (a `data-*` attribute) and return early.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `selector` | `string` | A CSS selector, queried over the whole document. |
+| `enhance` | `(element) => void` | |
+| `opts.beforeScan` | `() => void` (optional) | Runs before each pass, e.g. to drop state kept for elements that have left the page. |
+
+**Returns** `() => void`, which stops watching. A no-op outside a browser.
+
+### VM.ui.sliderBounds(input) {#sliderBounds}
+
+A range input's `{min, max, step}` as numbers, read the way the browser reads them: `min`/`max` default to `0`/`100` when absent or unparsable, and `step` is `NaN` for `step="any"`, a missing step, or one that doesn't parse. The slider track fill and slider playback both use it.
+
+```{ojs}
+[VM.ui.sliderBounds({min: "2", max: "8", step: "0.5"}), VM.ui.sliderBounds({min: "", max: "", step: "any"})]
 ```

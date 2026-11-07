@@ -76,5 +76,5 @@
     return values
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, symmetricEigenvalues}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {symmetricEigenvalues})
 })(window)

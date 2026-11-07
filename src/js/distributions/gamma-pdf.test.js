@@ -33,3 +33,11 @@ test('gammaPdf is 0 for non-positive x or non-positive parameters', () => {
   assert.equal(gammaPdf(-1, 2, 1), 0)
   assert.equal(gammaPdf(1, 0, 1), 0)
 })
+
+test('gammaPdf at x = 0 is the density limit', () => {
+  const { gammaPdf, chiSquaredPdf } = VM.distributions
+  assert.equal(gammaPdf(0, 1, 3), 3)
+  assert.equal(gammaPdf(0, 0.5, 1), Infinity)
+  assert.equal(gammaPdf(0, 2, 1), 0)
+  assert.equal(chiSquaredPdf(0, 2), 0.5)
+})

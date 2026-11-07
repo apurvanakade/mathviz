@@ -94,7 +94,9 @@
    * @param {number} args.elapsed - Milliseconds since the sweep started.
    * @param {number} args.duration - From {@link playbackDuration}.
    * @param {"once"|"loop"|"bounce"} args.mode - Anything else behaves as `"once"`.
-   * @param {number} args.start - Fraction of the track the sweep began at (`0`..`1`).
+   * @param {number} args.start - Where the sweep began, as progress along
+   *   the track: `0`..`1` going up; for a bounce, `1`..`2` is the return
+   *   leg (`2 - f` is fraction `f` on the way down).
    * @returns {{value: number, direction: 1|-1, done: boolean}} `value` is
    *   snapped to the step grid and clamped into `[min, max]`; `direction`
    *   is `-1` only on a bounce's return leg; `done` is `true` once a
@@ -161,10 +163,7 @@
    *
    * @type {number}
    */
-  globalThis.VM = {
-    ...globalThis.VM,
-    ui: {...globalThis.VM?.ui, playbackDuration, playbackFrame, playbackTweenMs: 0}
-  }
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {playbackDuration, playbackFrame, playbackTweenMs: 0})
 
   // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
   // listed in src/manifest.mjs against a minimal `document` stub so the unit
@@ -306,19 +305,7 @@
     globalThis.VM.ui.playbackTweenMs = tween
   }
 
-  const numberOr = (text, fallback) => {
-    const value = Number(text)
-    if (text === "" || text === null || text === undefined) return fallback
-    if (!Number.isFinite(value)) return fallback
-    return value
-  }
-
-  const bounds = (input) => {
-    const min = numberOr(input.min, 0)
-    const max = numberOr(input.max, 100)
-    const step = numberOr(input.step, NaN)
-    return {min, max, step}
-  }
+  const bounds = (input) => globalThis.VM.ui.sliderBounds(input)
 
   const enhance = (input) => {
     if (input.dataset.vmPlayReady === "1") return
@@ -385,6 +372,9 @@
     let startFraction = 0
     let duration = 0
     let stops = 0
+    // Which way a bounce is heading, so a re-anchor mid-sweep (a speed
+    // change) keeps going that way instead of turning back up.
+    let direction = 1
 
     const setButtonState = () => {
       let paths = PLAY_PATHS
@@ -438,7 +428,12 @@
       startFraction = 0
       if (span > 0) startFraction = (Number(input.value) - min) / span
       if (!Number.isFinite(startFraction) || startFraction < 0) startFraction = 0
-      if (startFraction >= 1) startFraction = 0
+      if (settings.mode === "bounce") {
+        if (startFraction > 1) startFraction = 1
+        if (direction === -1) startFraction = 2 - startFraction
+      } else if (startFraction >= 1) {
+        startFraction = 0
+      }
       startedAt = performance.now()
       setTween(duration, stops)
     }
@@ -462,6 +457,7 @@
         mode: settings.mode,
         start: startFraction
       })
+      direction = result.direction
       setValue(result.value)
       if (result.done) {
         stop("done")
@@ -476,7 +472,8 @@
       if (playbackDuration({min, max, step, speed: settings.speed}) === 0) return
       // A finished once-mode sweep restarts from the beginning, so pressing
       // replay means what it says.
-      if (state === "done" || Number(input.value) >= max) setValue(min)
+      if (state === "done" || (settings.mode !== "bounce" && Number(input.value) >= max)) setValue(min)
+      direction = 1
       active = controller
       rebase()
       state = "playing"
@@ -627,39 +624,11 @@
     form.classList.add("vm-has-play")
   }
 
-  const enhanceAll = () => {
-    prune()
-    for (const input of document.querySelectorAll(SLIDER_SELECTOR)) enhance(input)
-  }
+  // A sweep left running in a background tab keeps re-rendering a chart
+  // nobody is looking at.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") stopActive()
+  })
 
-  const start = () => {
-    enhanceAll()
-
-    // A sweep left running in a background tab keeps re-rendering a chart
-    // nobody is looking at.
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") stopActive()
-    })
-
-    if (typeof MutationObserver === "undefined" || !document.body) return
-    // Coalesced into one sweep per frame: OJS settling a cell fires a burst of
-    // mutations, and re-querying per record would run the same (already
-    // guarded) scan dozens of times for one new slider.
-    let pending = false
-    const observer = new MutationObserver(() => {
-      if (pending) return
-      pending = true
-      requestAnimationFrame(() => {
-        pending = false
-        enhanceAll()
-      })
-    })
-    observer.observe(document.body, {childList: true, subtree: true})
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start)
-  } else {
-    start()
-  }
+  globalThis.VM.ui.whenAdded(SLIDER_SELECTOR, enhance, {beforeScan: prune})
 })(window)

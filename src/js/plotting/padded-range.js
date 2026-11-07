@@ -16,16 +16,20 @@
    * @returns {{lo: number, hi: number}}
    */
   const paddedRange = (values, {emptyRange = [-1, 1], relativePadding = 0.1, minPadding = 0.5} = {}) => {
-    const finite = []
+    // A plain loop, not Math.min(...values): spreading an array into
+    // arguments overflows the call stack somewhere past ~100 000 entries,
+    // which an MCMC chain reaches easily.
+    let lo = Infinity
+    let hi = -Infinity
     for (const value of values) {
-      if (Number.isFinite(value)) finite.push(Number(value))
+      if (!Number.isFinite(value)) continue
+      if (value < lo) lo = value
+      if (value > hi) hi = value
     }
-    if (finite.length === 0) return {lo: emptyRange[0], hi: emptyRange[1]}
-    const lo = Math.min(...finite)
-    const hi = Math.max(...finite)
+    if (lo === Infinity) return {lo: emptyRange[0], hi: emptyRange[1]}
     const pad = Math.max(relativePadding * (hi - lo), minPadding)
     return {lo: lo - pad, hi: hi + pad}
   }
 
-  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, paddedRange}}
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {paddedRange})
 })(window)

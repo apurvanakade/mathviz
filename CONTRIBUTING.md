@@ -31,7 +31,7 @@ get sorted out in review.
 git clone https://github.com/apurvanakade/mathviz && cd mathviz
 npm install            # math.js, for the expression tests
 npm test               # node --test over src/**/*.test.js
-npm run build          # src/ -> dist/mathviz.{js,css} and _extensions/mathviz/dist/
+npm run build          # src/ -> dist/mathviz.{js,css} (+ .min and map) and _extensions/mathviz/dist/
 quarto preview         # the docs site, live-reloading, rendered through the extension in place
 quarto render          # the same, once, into _site/ (what CI runs)
 quarto render starter  # the starter site, through the extension the build mirrored into starter/_extensions/

@@ -25,5 +25,5 @@
     return out
   }
 
-  globalThis.VM = {...globalThis.VM, mcmc: {...globalThis.VM?.mcmc, runningMean}}
+  Object.assign((globalThis.VM ??= {}).mcmc ??= {}, {runningMean})
 })(window)

@@ -5,9 +5,16 @@
  */
 
 (function attachVM(globalThis) {
+  // A cell's text for the CSV: a DOM node (a KaTeX header, an html``
+  // fragment) by its textContent rather than "[object HTMLElement]".
+  const cellText = (value) => {
+    if (value !== null && typeof value === "object" && typeof value.textContent === "string") return value.textContent
+    return String(value)
+  }
+
   const csvCell = value => {
-    const s = String(value)
-    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`
+    const s = cellText(value)
+    if (/[",\r\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`
     return s
   }
 
@@ -22,13 +29,29 @@
     return lines.join("\n")
   }
 
+  // The link goes into the document for its click (older Firefox ignores a
+  // click on a detached <a download>), and the object URL is revoked only
+  // after the browser has had a turn to start the download -- revoking it
+  // synchronously can cancel it.
   const downloadCsv = (csv, filename) => {
     const url = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8;"}))
     const link = document.createElement("a")
     link.href = url
     link.download = filename
+    link.hidden = true
+    document.body.append(link)
     link.click()
-    URL.revokeObjectURL(url)
+    link.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 0)
+  }
+
+  // A cell's content: a node as is, anything else as text -- what htl's
+  // `${value}` interpolation did, without a template parse per cell, which
+  // made a long table slow to build.
+  const fill = (cell, value) => {
+    if (value !== null && typeof value === "object" && typeof value.nodeType === "number") cell.append(value)
+    else if (value !== null && value !== undefined) cell.append(String(value))
+    return cell
   }
 
   // Returns a DOM table node, styled entirely with Bootstrap utility classes:
@@ -36,64 +59,73 @@
   // per-column text-center/text-end + text-nowrap for the numeric data
   // (the first column is the iteration number; the rest are numeric).
   //
-  // csvHeaders are plain-text column labels for the downloaded file — separate
-  // from headers, which may contain KaTeX DOM nodes (from `tex` templates)
-  // that render fine on screen but not as CSV text.
+  // csvHeaders are plain-text column labels for the downloaded file —
+  // separate from headers, which may contain KaTeX DOM nodes (from `tex`
+  // templates); a node's textContent is used when they aren't given, which
+  // can read oddly for typeset math.
   /**
    * Renders a compact, horizontally scrollable results table with a
    * "Download csv" link above it.
    *
    * @param {Object} args
-   * @param {Function} args.html - htl's `html` tag (an OJS global).
+   * @param {Function} [args.html] - htl's `html` tag. No longer used (the
+   *   table is built with DOM calls, which is much faster for long tables);
+   *   accepted so existing calls keep working.
    * @param {Array} args.headers - Header cells; may be DOM nodes (a `tex`
    *   template's output) as well as strings.
-   * @param {Array[]} args.rows - Body rows, one array of cells each. The
-   *   first column is centered, the rest right-aligned, all `nowrap`.
+   * @param {Array[]} args.rows - Body rows, one array of cells each, strings,
+   *   numbers or DOM nodes. The first column is centered, the rest
+   *   right-aligned, all `nowrap`.
    * @param {Array<string>} [args.csvHeaders=headers] - Plain-text header
-   *   labels for the download, for when `headers` holds KaTeX nodes that
-   *   don't serialize.
+   *   labels for the download; without them a node header's `textContent`
+   *   is used.
    * @param {string} [args.filename="iteration-table.csv"] - Download name.
-   * @returns {Node} `<div class="ojs-table-toolbar">` + `<div
+   * @returns {DocumentFragment} `<div class="ojs-table-toolbar">` + `<div
    *   class="ojs-table-container"><table class="table table-sm
-   *   table-bordered small">`, as one fragment.
+   *   table-bordered small">`.
    */
-  const renderTable = ({html, headers, rows, csvHeaders = headers, filename = "iteration-table.csv"}) => {
+  const renderTable = ({headers, rows, csvHeaders = headers, filename = "iteration-table.csv"}) => {
     const cellClass = i => {
       if (i === 0) return "text-nowrap text-center"
       return "text-nowrap text-end"
     }
+    const make = (tag, className) => {
+      const el = document.createElement(tag)
+      if (className) el.className = className
+      return el
+    }
 
-    // Built as a real DOM node (not a `${...}` attribute expression) because
-    // this project's `html` tag doesn't wire up inline event-handler attributes.
-    const downloadLink = document.createElement("a")
+    const downloadLink = make("a")
     downloadLink.href = "#"
     downloadLink.textContent = "Download csv"
     downloadLink.addEventListener("click", event => {
       event.preventDefault()
       downloadCsv(toCsv(csvHeaders, rows), filename)
     })
+    const toolbar = make("div", "ojs-table-toolbar")
+    toolbar.append(downloadLink)
 
-    const headerCells = []
-    for (let i = 0; i < headers.length; i++) {
-      headerCells.push(html`<th class="${cellClass(i)}">${headers[i]}</th>`)
-    }
+    const headRow = make("tr")
+    for (let i = 0; i < headers.length; i++) headRow.append(fill(make("th", cellClass(i)), headers[i]))
+    const thead = make("thead")
+    thead.append(headRow)
 
-    const bodyRows = []
+    const tbody = make("tbody")
     for (const row of rows) {
-      const rowCells = []
-      for (let i = 0; i < row.length; i++) {
-        rowCells.push(html`<td class="${cellClass(i)}">${row[i]}</td>`)
-      }
-      bodyRows.push(html`<tr>${rowCells}</tr>`)
+      const tr = make("tr")
+      for (let i = 0; i < row.length; i++) tr.append(fill(make("td", cellClass(i)), row[i]))
+      tbody.append(tr)
     }
 
-    return html`
-      <div class="ojs-table-toolbar">${downloadLink}</div>
-      <div class="ojs-table-container"><table class="table table-sm table-bordered small">
-        <thead><tr>${headerCells}</tr></thead>
-        <tbody>${bodyRows}</tbody>
-      </table></div>`
+    const table = make("table", "table table-sm table-bordered small")
+    table.append(thead, tbody)
+    const container = make("div", "ojs-table-container")
+    container.append(table)
+
+    const fragment = document.createDocumentFragment()
+    fragment.append(toolbar, container)
+    return fragment
   }
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, renderTable}}
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {renderTable})
 })(window)

@@ -36,5 +36,5 @@
     return triangles
   }
 
-  globalThis.VM = {...globalThis.VM, discreteMath: {...globalThis.VM?.discreteMath, subTriangleTriples}}
+  Object.assign((globalThis.VM ??= {}).discreteMath ??= {}, {subTriangleTriples})
 })(window)

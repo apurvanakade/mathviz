@@ -24,5 +24,5 @@
     return triples
   }
 
-  globalThis.VM = {...globalThis.VM, discreteMath: {...globalThis.VM?.discreteMath, barycentricTriples}}
+  Object.assign((globalThis.VM ??= {}).discreteMath ??= {}, {barycentricTriples})
 })(window)

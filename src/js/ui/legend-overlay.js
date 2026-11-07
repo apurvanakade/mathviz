@@ -27,13 +27,14 @@
    * the CSS floats it over the chart and `draggable-overlay.js` makes it
    * draggable with no further wiring.
    *
-   * @param {{label: string, color: string}[]} items - Rows, in display order.
+   * @param {{label: string, color: string}[]} items - Rows, in display
+   *   order. Rows that share a label are one choice: they toggle together.
    * @param {Object} [options]
    * @param {string[]} [options.value] - The initially checked labels; every
    *   label by default.
    * @returns {HTMLDivElement} A `div.ojs-legend-overlay` with a `value`
-   *   accessor (`string[]`, in `items` order; the setter accepts any
-   *   iterable, or `null` to clear) that dispatches a bubbling `"input"`
+   *   accessor (`string[]`, in `items` order, each label once; the setter
+   *   accepts any iterable, or `null` to clear) that dispatches a bubbling `"input"`
    *   event on each user toggle -- but not on a programmatic set, matching
    *   Observable Inputs. Uses only DOM APIs; no `htl`/`Inputs` dependency.
    */
@@ -43,12 +44,12 @@
     const root = document.createElement("div")
     root.className = "ojs-legend-overlay"
 
-    const rowByLabel = new Map()
+    // Every row is kept, not one per label: two items with the same label
+    // toggle together, and both have to show it.
+    const rows = []
 
     const render = () => {
-      for (const item of items) {
-        rowByLabel.get(item.label).setAttribute("aria-checked", String(selected.has(item.label)))
-      }
+      for (const {label, row} of rows) row.setAttribute("aria-checked", String(selected.has(label)))
     }
 
     const toggle = label => {
@@ -73,7 +74,7 @@
 
       row.append(swatch, text)
       root.append(row)
-      rowByLabel.set(item.label, row)
+      rows.push({label: item.label, row})
 
       row.addEventListener("click", () => toggle(item.label))
       row.addEventListener("keydown", event => {
@@ -88,7 +89,9 @@
     Object.defineProperty(root, "value", {
       get() {
         const checked = []
-        for (const item of items) if (selected.has(item.label)) checked.push(item.label)
+        for (const item of items) {
+          if (selected.has(item.label) && !checked.includes(item.label)) checked.push(item.label)
+        }
         return checked
       },
       set(next) {
@@ -101,5 +104,5 @@
     return root
   }
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, legendOverlay}}
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {legendOverlay})
 })(window)

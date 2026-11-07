@@ -107,6 +107,27 @@
     })
   }
 
+  // Element fullscreen isn't everywhere: iPhone Safari has no
+  // Element.requestFullscreen at all (only <video> can go fullscreen there),
+  // and an iframe without allow="fullscreen" reports fullscreenEnabled
+  // false. A button that can only throw shouldn't be offered, so both
+  // fullscreen buttons check this first.
+  const fullscreenAvailable = () =>
+    typeof document !== "undefined" && document.fullscreenEnabled === true &&
+    typeof Element !== "undefined" && typeof Element.prototype.requestFullscreen === "function"
+
+  // Enters or leaves fullscreen on `target`. The request can still be
+  // refused (no user activation, a permissions policy); that is reported on
+  // the console rather than left as an unhandled rejection.
+  const toggleFullscreen = (target) => {
+    const request = document.fullscreenElement === target
+      ? document.exitFullscreen()
+      : target.requestFullscreen()
+    if (request && typeof request.catch === "function") {
+      request.catch((error) => console.warn("mathviz: fullscreen was refused:", error))
+    }
+  }
+
   // Icon path is Bootstrap Icons' "arrows-fullscreen" (MIT), matching the
   // rest of the site's iconography.
   /**
@@ -117,11 +138,18 @@
    *
    * Clicking fullscreens the nearest `.ojs-chart-block` (so the controls
    * bar and legend come along) or, without one, the graph div itself, and
-   * exits when that element is already fullscreen.
+   * exits when that element is already fullscreen. The patch leaves the
+   * button out where `available()` is false (iPhone Safari, an iframe
+   * without `allow="fullscreen"`).
    *
    * @type {{name: "fullscreen", title: string,
    *   icon: {width: number, height: number, path: string},
-   *   click: (gd: HTMLElement) => void}}
+   *   click: (gd: HTMLElement) => void,
+   *   available: () => boolean,
+   *   toggle: (target: Element) => void}}
+   *   `available()` says whether element fullscreen works on this page;
+   *   `toggle(target)` enters or leaves it on `target`, reporting a refused
+   *   request on the console instead of as an unhandled rejection.
    */
   const fullscreenButton = {
     name: "fullscreen",
@@ -140,9 +168,7 @@
       // would hide the legend. Pages without that wrapper fall back to
       // fullscreening gd, same as before.
       const target = gd.closest(".ojs-chart-block") || gd
-      if (document.fullscreenElement === target) {
-        document.exitFullscreen()
-      } else {
+      if (document.fullscreenElement !== target) {
         // Record the chart's on-page aspect ratio before entering fullscreen
         // so chart-block.css (`:fullscreen .js-plotly-plot`) can letterbox the
         // chart at that ratio instead of stretching it to fill the screen.
@@ -150,9 +176,11 @@
         if (rect.height > 0) {
           gd.style.setProperty("--vm-plot-aspect-ratio", String(rect.width / rect.height))
         }
-        target.requestFullscreen()
       }
-    }
+      toggleFullscreen(target)
+    },
+    available: fullscreenAvailable,
+    toggle: toggleFullscreen
   }
 
   // Plotly's own zoom in/out buttons step by a factor of 2 -- one click
@@ -166,8 +194,7 @@
     const update = {}
     // _fullLayout rather than gd.layout: an axis left to autorange has no
     // range in the supplied layout at all, only a computed one here.
-    for (const key of Object.keys(gd._fullLayout)) {
-      if (!/^[xy]axis\d*$/.test(key)) continue
+    for (const key of globalThis.VM.plotting.subplotKeys(gd._fullLayout).cartesian) {
       const axis = gd._fullLayout[key]
       if (!axis.range || axis.fixedrange) continue
       // r2l/l2r so a log or date axis zooms about its own linearized
@@ -210,39 +237,60 @@
   // VM.plotting.persistentPlot3d guarantees) gets Plotly's own 3-D buttons
   // instead: the 2-D ones, and the zoom steps above, act on cartesian axes
   // it doesn't have.
-  const is3d = (layout) => Boolean(layout) && layout.scene !== undefined
+  const sceneKeys = (layout) => globalThis.VM.plotting.subplotKeys(layout).scene
+  const is3d = (layout) => sceneKeys(layout).length > 0
 
-  const addButton = (Plotly, config, threeD) => {
-    if (threeD) {
-      return {
-        ...config,
-        modeBarButtons: [
+  // The modebar, as an explicit modeBarButtons list. A page that passes its
+  // own `modeBarButtons` keeps it untouched; one that passes the
+  // ToRemove/ToAdd pair has those applied to the shared list (Plotly
+  // ignores both once modeBarButtons is set, so this used to drop them
+  // silently). The custom zoom steps answer to Plotly's own names,
+  // "zoomIn2d"/"zoomOut2d", in a ToRemove list.
+  const modebarConfig = (Plotly, config, threeD) => {
+    const page = config ?? {}
+    if (Array.isArray(page.modeBarButtons)) return page
+    const groups = threeD
+      ? [
           ["toImage"],
           ["tableRotation", "orbitRotation", "pan3d", "zoom3d"],
           ["resetCameraDefault3d"],
           [fullscreenButton]
         ]
-      }
+      : [
+          ["toImage"],
+          ["zoom2d", "pan2d"],
+          [zoomInButton(Plotly), zoomOutButton(Plotly), "autoScale2d", "resetScale2d"],
+          [fullscreenButton]
+        ]
+    const remove = new Set(Array.isArray(page.modeBarButtonsToRemove) ? page.modeBarButtonsToRemove : [])
+    if (!fullscreenAvailable()) remove.add("fullscreen")
+    const nameOf = (button) => {
+      if (typeof button === "string") return button
+      if (button.name === "zoomIn") return "zoomIn2d"
+      if (button.name === "zoomOut") return "zoomOut2d"
+      return button.name
     }
-    return {
-      ...config,
-      modeBarButtons: [
-        ["toImage"],
-        ["zoom2d", "pan2d"],
-        [zoomInButton(Plotly), zoomOutButton(Plotly), "autoScale2d", "resetScale2d"],
-        [fullscreenButton]
-      ]
+    const kept = []
+    for (const group of groups) {
+      const left = group.filter((button) => !remove.has(nameOf(button)))
+      if (left.length > 0) kept.push(left)
     }
+    if (Array.isArray(page.modeBarButtonsToAdd) && page.modeBarButtonsToAdd.length > 0) {
+      kept.push([...page.modeBarButtonsToAdd])
+    }
+    return {...page, modeBarButtons: kept}
   }
   // A scene with no dragmode of its own falls back to layout.dragmode, so
   // the "pan" default would make dragging a 3-D chart slide it instead of
-  // rotating it. Give the scene Plotly's own 3-D default, turntable
+  // rotating it. Give each scene Plotly's own 3-D default, turntable
   // (rotation about a fixed vertical z-axis), unless the page chose one.
   const withDefaultDragmode = (layout) => {
     let out = layout
     if (!out || out.dragmode === undefined) out = {...out, dragmode: "pan"}
-    if (is3d(out) && (out.scene === null || out.scene.dragmode === undefined)) {
-      out = {...out, scene: {...out.scene, dragmode: "turntable"}}
+    for (const key of sceneKeys(out)) {
+      if (out[key] === null || out[key].dragmode === undefined) {
+        out = {...out, [key]: {...out[key], dragmode: "turntable"}}
+      }
     }
     return out
   }
@@ -281,8 +329,49 @@
   // own layout, before the theme is layered under it, so it sees only the
   // ranges the page asked for.
   const withView = (gd, layout) => {
-    if (!globalThis.VM?.plotting?.trackView) return layout
+    if (!gd || typeof gd !== "object" || !globalThis.VM?.plotting?.trackView) return layout
     return globalThis.VM.plotting.trackView(gd, layout)
+  }
+
+  // Plotly accepts a graph div or its id; everything here that keeps state
+  // on the div needs the element.
+  const graphDiv = (gd) => {
+    if (typeof gd === "string" && typeof document !== "undefined" && document.getElementById) {
+      return document.getElementById(gd) ?? gd
+    }
+    return gd
+  }
+
+  // Plotly.newPlot/react take either (gd, data, layout, config) or one
+  // figure object, (gd, {data, layout, config, frames}). Plotly re-reads
+  // the figure's own layout and config when it is given one, so a patch
+  // that only themed the positional arguments was silently undone there.
+  const isFigure = (data, layout, config) =>
+    data !== null && typeof data === "object" && !Array.isArray(data) &&
+    layout === undefined && config === undefined
+
+  const themedCall = (original, Plotly) => (gd, data, layout, config) => {
+    let figure = null
+    if (isFigure(data, layout, config)) {
+      figure = data
+      data = figure.data
+      layout = figure.layout
+      config = figure.config
+    }
+    const div = graphDiv(gd)
+    const plotConfig = globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config
+    const parts = {
+      data: withTraceDefaults(data),
+      layout: withDefaultDragmode(withTheme(withView(div, layout))),
+      config: modebarConfig(Plotly, plotConfig, is3d(layout))
+    }
+    const result = figure
+      ? original(gd, {...figure, ...parts})
+      : original(gd, parts.data, parts.layout, parts.config)
+    // newPlot (and a react that redraws from scratch) has just thrown away
+    // every listener on the div; put back the ones mathviz keeps.
+    if (div && typeof div === "object") globalThis.VM?.plotting?.keepListening?.(div)
+    return result
   }
 
   // Installs the newPlot/react patch onto whatever Plotly is on the page.
@@ -294,13 +383,17 @@
   // after this one is still picked up; a page that loads Plotly later than
   // that (dynamic import) calls VM.plotting.installPlotlyPatch() itself.
   /**
-   * Patches `Plotly.newPlot` and `Plotly.react` so every chart gets the
-   * themed layout, per-trace hover labels, `dragmode: "pan"` (unless the
-   * page set one) and the shared modebar. A chart whose layout has a
-   * `scene` gets `scene.dragmode: "turntable"` (unless set) and the 3-D
-   * modebar instead. A chart with a `scaleanchor` axis keeps the reader's
-   * view (see `trackView`). Runs by itself at load and on
-   * `DOMContentLoaded`; call it only when Plotly arrives later than that.
+   * Patches `Plotly.newPlot` and `Plotly.react` -- both call forms,
+   * positional and one figure object -- so every chart gets the themed
+   * layout, per-trace hover labels, `dragmode: "pan"` (unless the page set
+   * one) and the shared modebar. A page's own `config.modeBarButtons` is
+   * kept as it is; `modeBarButtonsToRemove`/`ToAdd` are applied to the
+   * shared list. A chart whose layout has a `scene` gets
+   * `scene.dragmode: "turntable"` (unless set) and the 3-D modebar instead.
+   * A chart with a `scaleanchor` axis keeps the reader's view (see
+   * `trackView`), and listeners registered with `keepListening` are put
+   * back after each call. Runs by itself at load and on `DOMContentLoaded`;
+   * call it only when Plotly arrives later than that.
    *
    * @returns {boolean} `true` once patched (also when already patched);
    *   `false` when `Plotly` isn't on the page.
@@ -309,11 +402,7 @@
     const Plotly = globalThis.Plotly
     if (!Plotly || typeof Plotly.newPlot !== "function") return false
     if (Plotly.__vmPatched) return true
-    for (const name of ["newPlot", "react"]) {
-      const original = Plotly[name]
-      Plotly[name] = (gd, data, layout, config) =>
-        original(gd, withTraceDefaults(data), withDefaultDragmode(withTheme(withView(gd, layout))), addButton(Plotly, globalThis.VM?.plotting?.config ? globalThis.VM.plotting.config(config) : config, is3d(layout)))
-    }
+    for (const name of ["newPlot", "react"]) Plotly[name] = themedCall(Plotly[name], Plotly)
     Plotly.__vmPatched = true
     return true
   }
@@ -337,7 +426,7 @@
     const repaint = () => {
       if (!globalThis.Plotly?.relayout || !globalThis.VM?.plotting?.themePatch) return
       for (const gd of document.querySelectorAll(".js-plotly-plot")) {
-        globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch({scene: is3d(gd.layout)}))
+        globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch({layout: gd._fullLayout ?? gd.layout}))
       }
     }
     // onThemeChange calls back once immediately with the current theme;
@@ -364,5 +453,5 @@
     onReady()
   }
 
-  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, fullscreenButton, installPlotlyPatch}}
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {fullscreenButton, installPlotlyPatch})
 })(window)

@@ -16,37 +16,51 @@
 // recreated whenever a reactive upstream field changes -- see the
 // viewof-recreation note in js/ui/apply-example.js), so there is no single
 // moment at which they all exist to be wired up individually.
-/**
- * Exports nothing. Self-installing: a delegated `input`/`change` listener
- * and a body `MutationObserver` keep every `input[type="range"]`'s `--sx`
- * custom property equal to its value as a percentage of its range.
- * `--sx` is reserved; don't set it yourself.
- */
-(function attachRangeProgress() {
-  // This file is pure DOM side effects -- no VM.* export -- but it is still
-  // loaded by scripts/load-vm.mjs, which runs every script listed in
-  // src/manifest.mjs against a minimal `document` stub. Bail out unless a
-  // real DOM is present, so the unit tests (and any other non-browser
-  // consumer) can load it harmlessly.
+(function attachVM(globalThis) {
+  // A range input's numeric attributes, with the HTML defaults for the
+  // ones it leaves out. Shared with slider-play.js, which needs the same
+  // three numbers to pace a sweep.
+  const numberOr = (text, fallback) => {
+    if (text === "" || text === null || text === undefined) return fallback
+    const value = Number(text)
+    return Number.isFinite(value) ? value : fallback
+  }
+
+  /**
+   * A range input's bounds, read the way the browser reads them: `min`
+   * and `max` default to `0` and `100` when absent or unparsable.
+   *
+   * @param {{min: string, max: string, step: string}} input - An
+   *   `<input type="range">` (or anything with those three string fields).
+   * @returns {{min: number, max: number, step: number}} `step` is `NaN`
+   *   for `step="any"`, a missing step or one that doesn't parse -- "no
+   *   grid of its own" to every caller.
+   */
+  const sliderBounds = (input) => ({
+    min: numberOr(input.min, 0),
+    max: numberOr(input.max, 100),
+    step: numberOr(input.step, NaN)
+  })
+
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {sliderBounds})
+
+  // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
+  // listed in src/manifest.mjs against a minimal `document` stub so the unit
+  // tests can exercise the real function above, so bail out before touching
+  // anything that stub doesn't have.
   if (typeof document === "undefined") return
   if (typeof document.querySelectorAll !== "function") return
 
   const setProgress = (input) => {
-    const min = Number(input.min === "" ? 0 : input.min)
-    const max = Number(input.max === "" ? 100 : input.max)
+    const {min, max} = sliderBounds(input)
     const value = Number(input.value)
-    if (!Number.isFinite(min) || !Number.isFinite(max) || !Number.isFinite(value)) return
+    if (!Number.isFinite(value)) return
     const span = max - min
     let fraction = 0
     if (span > 0) fraction = (value - min) / span
     if (fraction < 0) fraction = 0
     if (fraction > 1) fraction = 1
     input.style.setProperty("--sx", `${fraction * 100}%`)
-  }
-
-  const refreshAll = (root) => {
-    const scope = root && root.querySelectorAll ? root : document
-    for (const input of scope.querySelectorAll('input[type="range"]')) setProgress(input)
   }
 
   // "input" fires while dragging; "change" covers a programmatic set that
@@ -61,24 +75,5 @@
 
   // Sliders appear (and are replaced wholesale) long after load as OJS
   // cells settle, so watch for them rather than sweeping once.
-  const observeNewSliders = () => {
-    refreshAll(document)
-    if (typeof MutationObserver === "undefined" || !document.body) return
-    const observer = new MutationObserver((records) => {
-      for (const record of records) {
-        for (const node of record.addedNodes) {
-          if (node.nodeType !== 1) continue
-          if (node.matches && node.matches('input[type="range"]')) setProgress(node)
-          else refreshAll(node)
-        }
-      }
-    })
-    observer.observe(document.body, { childList: true, subtree: true })
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", observeNewSliders)
-  } else {
-    observeNewSliders()
-  }
-})()
+  globalThis.VM.ui.whenAdded('input[type="range"]', setProgress)
+})(window)

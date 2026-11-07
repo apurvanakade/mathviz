@@ -20,5 +20,5 @@
     return Math.exp(-(diff * diff) / (2 * variance)) / Math.sqrt(2 * Math.PI * variance)
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, normalPdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {normalPdf})
 })(window)

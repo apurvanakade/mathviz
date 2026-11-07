@@ -97,3 +97,13 @@ test('buildReportBugUrl links the source on the configured repo and branch', () 
   assert.equal(parsed.origin + parsed.pathname, 'https://github.com/apurvanakade/Monte-Carlo-Methods/issues/new')
   assert.match(parsed.searchParams.get('body'), /blob\/develop\/chapters\/intro\.qmd/)
 })
+
+test('buildReportBugUrl caps a very long quoted selection', () => {
+  const url = VM.chrome.reportBug.buildReportBugUrl({
+    repo: 'o/r', branch: 'main', pageUrl: 'https://x/', pageTitle: 'T', sourcePath: 'a.qmd',
+    selectedText: 'word '.repeat(5000)
+  })
+  const body = new URL(url).searchParams.get('body')
+  assert.ok(body.length < 2000, `body ${body.length} chars`)
+  assert.ok(body.includes('…'))
+})

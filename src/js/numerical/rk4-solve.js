@@ -36,5 +36,5 @@
     return {ts, ys}
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, rk4Solve}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {rk4Solve})
 })(window)

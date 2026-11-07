@@ -45,21 +45,61 @@
     return raw
   }
 
+  // Writes are throttled. The documented sync cell is reactive on the
+  // inputs themselves, so a slider drag or a playback sweep calls this ~60
+  // times a second -- and browsers cap the history API: Safari throws a
+  // SecurityError past 100 replaceState calls in 10 seconds, Chrome
+  // silently drops them ("Throttling navigation"). So the first change
+  // after a quiet spell is written at once, later ones at most every
+  // WRITE_INTERVAL_MS, and the last one always lands. `pending` holds the
+  // query not yet written, so a second app's sync in between builds on it
+  // rather than on the stale address bar.
+  const WRITE_INTERVAL_MS = 250
+  let pending = null
+  let timer = null
+  let lastWrite = -Infinity
+
+  const now = () => (globalThis.performance?.now ? globalThis.performance.now() : Date.now())
+
+  const write = () => {
+    timer = null
+    if (pending === null) return
+    const query = pending
+    pending = null
+    lastWrite = now()
+    const current = globalThis.location.search.replace(/^\?/, "")
+    if (query === current) return
+    let url = globalThis.location.pathname
+    if (query !== "") url += "?" + query
+    url += globalThis.location.hash
+    // history.state, not null: a site's router (or Quarto's own scripts)
+    // may keep state there, and replaceState replaces it too.
+    globalThis.history.replaceState(globalThis.history.state ?? null, "", url)
+  }
+
   /**
    * Writes the given inputs into the current URL's query string with
    * `history.replaceState` (no navigation, no history entry), leaving
    * every other key -- another app's, or mathviz's `embed` -- alone.
    *
+   * Safe to call on every input event: an unchanged query is never
+   * written, and writes are spaced at least 250 ms apart (the first at
+   * once, the last always), which keeps a slider drag or playback sweep
+   * under the browsers' history-API rate limits. `history.state` is kept.
+   *
    * @param {Object<string, [*, *]>} entries - `{key: [value, default]}`. A
    *   key whose value equals its default (compared as strings) is removed
    *   rather than written.
    * @param {Object} [opts]
-   * @param {string} [opts.search=location.search]
+   * @param {string} [opts.search=location.search] - Start from this query
+   *   string instead; the URL is then not touched.
    * @returns {string} The new query string, without the leading `?` (`""`
-   *   when nothing is left).
+   *   when nothing is left). When writing, this is what the URL will hold
+   *   once the pending write lands.
    */
   const syncUrlParams = (entries, opts = {}) => {
-    const search = opts.search ?? globalThis.location.search
+    const live = opts.search === undefined
+    const search = live ? (pending ?? globalThis.location.search) : opts.search
     const params = new URLSearchParams(search)
     for (const key of Object.keys(entries)) {
       const [value, fallback] = entries[key]
@@ -70,14 +110,14 @@
       }
     }
     const query = params.toString()
-    if (opts.search === undefined) {
-      let url = globalThis.location.pathname
-      if (query !== "") url += "?" + query
-      url += globalThis.location.hash
-      globalThis.history.replaceState(null, "", url)
-    }
+    if (!live) return query
+    pending = query
+    if (timer !== null) return query
+    const wait = WRITE_INTERVAL_MS - (now() - lastWrite)
+    if (wait <= 0) write()
+    else timer = setTimeout(write, wait)
     return query
   }
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, urlParam, syncUrlParams}}
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {urlParam, syncUrlParams})
 })(window)

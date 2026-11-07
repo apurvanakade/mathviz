@@ -37,5 +37,5 @@
     return {n, mean, variance, sd: Math.sqrt(variance)}
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, sampleStats}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {sampleStats})
 })(window)

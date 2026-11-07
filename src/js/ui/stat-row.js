@@ -47,5 +47,5 @@
     return row
   }
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, statRow}}
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {statRow})
 })(window)

@@ -81,18 +81,38 @@
   // other stored values (vml-sidebar-pinned, vml-analytics-consent).
   /**
    * The `localStorage` key under which a dragged panel's offset is kept:
-   * `"vml-overlay-pos:<pathname>:<role>:<index>"`. The module uses
-   * `location.pathname`, `"legend"`, and the panel's `.ojs-chart-block`
-   * index on the page; the value is `JSON.stringify({dx, dy})`.
+   * `"vml-overlay-pos:<pathname>:<role>:<id>"`. The module uses
+   * `location.pathname`, `"legend"`, and an id for the chart (see
+   * {@link overlayChartId}); the value is `JSON.stringify({dx, dy})`.
    *
    * @param {string} pathname
    * @param {string} role
-   * @param {number} index
+   * @param {string|number} id
    * @returns {string}
    */
-  const overlayStorageKey = (pathname, role, index) => `${KEY_PREFIX}:${pathname}:${role}:${index}`
+  const overlayStorageKey = (pathname, role, id) => `${KEY_PREFIX}:${pathname}:${role}:${id}`
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, clampOverlayOffset, overlayStorageKey}}
+  // Which chart a stored position belongs to. This was the block's index on
+  // the page, but OJS renders cells asynchronously and plotWithLegend
+  // builds blocks on the fly, so the same legend could get a different
+  // index on the next visit -- and another legend's position. The block's
+  // own id is stable when it has one; otherwise the legend's labels name
+  // the chart, numbered when several charts share the same labels.
+  /**
+   * The chart id {@link overlayStorageKey} files a legend's position under:
+   * the `.ojs-chart-block`'s own `id` when it has one, else the legend's
+   * labels joined with `|`, followed by `#<n>` for the n-th block on the
+   * page whose legend has the same labels (`#0` for the first).
+   *
+   * @param {{id: string, labels: string[], occurrence: number}} chart
+   * @returns {string}
+   */
+  const overlayChartId = ({id, labels, occurrence}) => {
+    if (id) return `#${id}`
+    return `${labels.join("|")}#${occurrence}`
+  }
+
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {clampOverlayOffset, overlayStorageKey, overlayChartId})
 
   // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
   // listed in src/manifest.mjs against a minimal `document` stub so the unit
@@ -136,12 +156,19 @@
     }
   }
 
-  const containerIndex = (container) => {
-    const all = document.querySelectorAll(CONTAINER_SELECTOR)
-    for (let i = 0; i < all.length; i++) {
-      if (all[i] === container) return i
+  const legendLabels = (panel) => Array.from(panel.querySelectorAll(".ojs-legend-item"), (item) => item.textContent.trim())
+
+  const chartId = (panel, container) => {
+    const labels = legendLabels(panel)
+    let occurrence = 0
+    if (!container.id) {
+      const signature = labels.join("|")
+      for (const other of document.querySelectorAll(`${CONTAINER_SELECTOR} ${PANEL_SELECTOR}`)) {
+        if (other === panel) break
+        if (legendLabels(other).join("|") === signature) occurrence++
+      }
     }
-    return 0
+    return overlayChartId({id: container.id, labels, occurrence})
   }
 
   const enhance = (panel) => {
@@ -154,7 +181,7 @@
     // key so previously-stored legend positions keep resolving to the same
     // entry, and so a second draggable panel could be added without silently
     // colliding with this one.
-    const key = overlayStorageKey(window.location.pathname, "legend", containerIndex(container))
+    const key = overlayStorageKey(window.location.pathname, "legend", chartId(panel, container))
 
     // The offset the reader actually asked for, kept separate from the one
     // currently applied. Anything that re-clamps -- a window resize, entering
@@ -278,7 +305,9 @@
       } else return
 
       event.preventDefault()
-      const amount = event.shiftKey ? 1 : 10
+      // Shift for the bigger step, as for every other keyboard-movable
+      // control here (draggablePoints: Shift is ten steps).
+      const amount = event.shiftKey ? 50 : 10
       desired = {dx: desired.dx + stepX * amount, dy: desired.dy + stepY * amount}
       desired = apply()
       writeStored(key, desired)
@@ -309,29 +338,5 @@
     apply()
   }
 
-  const enhanceAll = (root) => {
-    const scope = root && root.querySelectorAll ? root : document
-    for (const panel of scope.querySelectorAll(PANEL_SELECTOR)) enhance(panel)
-  }
-
-  const start = () => {
-    enhanceAll(document)
-    if (typeof MutationObserver === "undefined" || !document.body) return
-    const observer = new MutationObserver((records) => {
-      for (const record of records) {
-        for (const node of record.addedNodes) {
-          if (node.nodeType !== 1) continue
-          if (node.matches && node.matches(PANEL_SELECTOR)) enhance(node)
-          else enhanceAll(node)
-        }
-      }
-    })
-    observer.observe(document.body, {childList: true, subtree: true})
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start)
-  } else {
-    start()
-  }
+  globalThis.VM.ui.whenAdded(PANEL_SELECTOR, enhance)
 })(window)

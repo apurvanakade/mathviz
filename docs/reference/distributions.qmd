@@ -94,16 +94,31 @@ viewof p2 = family.p.length > 2 ? Inputs.range([family.p[2][0], family.p[2][1]],
 
 ### VM.distributions.logGamma(x) {#logGamma}
 
-ln Γ(x) by Lanczos approximation (g = 7, n = 9; reflection formula below 0.5), accurate to ~15 significant digits for `x > 0`. The shared building block behind every normalizing constant here; useful directly for `log(n choose k) = logGamma(n+1) − logGamma(k+1) − logGamma(n−k+1)`.
+ln |Γ(x)| by Lanczos approximation (g = 7, n = 9; reflection formula below 0.5), accurate to ~15 significant digits for `x > 0`. The shared building block behind every normalizing constant here. The absolute value matters only for negative `x`, where Γ changes sign: `logGamma(-0.5)` is ln(2√π).
 
 | Parameter | Type | Description |
 |---|---|---|
-| `x` | `number` | Any real except `0` and the negative integers (poles); those return `Infinity`/`NaN` with no guard. |
+| `x` | `number` | Any real. |
 
-**Returns** `number`.
+**Returns** `number` -- `Infinity` at the poles (`0` and the negative integers).
 
 ```{ojs}
 [VM.distributions.logGamma(5), Math.log(24), VM.distributions.logGamma(0.5), Math.log(Math.sqrt(Math.PI))]
+```
+
+### VM.distributions.logChoose(n, k) {#logChoose}
+
+ln C(n, k) through `logGamma`, finite where C(n, k) itself overflows (C(2000, 1000) has 600 digits). The binomial, negative binomial and hypergeometric PMFs are built on it.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `n` | `number` | |
+| `k` | `number` | |
+
+**Returns** `number` -- `logGamma(n + 1) − logGamma(k + 1) − logGamma(n − k + 1)`; `-Infinity` when `k < 0` or `k > n` for integer arguments (C is 0 there). Real arguments are not rejected: they give the gamma-function generalization.
+
+```{ojs}
+[VM.distributions.logChoose(10, 3), Math.log(120), VM.distributions.logChoose(2000, 1000)]
 ```
 
 ### VM.distributions.sampleCurve(fn, lo, hi, opts?) {#sampleCurve}
@@ -115,7 +130,7 @@ Samples a function over `[lo, hi]` into parallel arrays ready for a Plotly trace
 | `fn` | `(x) => number` | | Typically a `*Pdf`/`*Pmf` with its parameters bound: `x => VM.distributions.normalPdf(x, 0, 1)`. |
 | `lo`, `hi` | `number` | | The range, both ends inclusive. |
 | `opts.discrete` | `boolean` | `false` | Evaluate only at the **integers** from `ceil(lo)` to `floor(hi)` -- what a PMF has support on -- instead of on a fine grid. `opts.n` is ignored; the arrays are empty if no integer lies in the range. |
-| `opts.n` | `number` | `400` | Number of evenly spaced samples in continuous mode. `n = 1` divides by zero. |
+| `opts.n` | `number` | `400` | Number of evenly spaced samples in continuous mode, both endpoints included. `n = 1` samples `lo` alone; `n < 1` gives empty arrays. |
 
 **Returns** `{xs: number[], ys: number[]}`.
 
@@ -133,7 +148,7 @@ Bins an array of draws into equal-width bins, normalized to **densities** so the
 | `binCount` | `number` | | Number of bins (`≥ 1`). |
 | `range` | `{lo, hi}` | samples' min/max | A fixed bin range. Pass `{lo: min − 0.5, hi: max + 0.5}` with `binCount = max − min + 1` for one bin centered on each integer. Samples outside an explicit range are **clamped into the first/last bin**, not dropped. A zero-width range is widened to `[lo − 0.5, hi + 0.5]`. |
 
-**Returns** `{edges: number[], centers: number[], densities: number[]}` -- `binCount + 1` edges; `binCount` centers and densities, where `densities[i] = count[i] / (samples.length · width)`. All three arrays are empty when `samples` is empty or `binCount < 1`.
+**Returns** `{edges: number[], centers: number[], densities: number[]}` -- `binCount + 1` edges; `binCount` centers and densities, where `densities[i] = count[i] / (finiteCount · width)`. Non-finite samples (`NaN`, `±Infinity`) are dropped first, so the area stays 1. All three arrays are empty when `samples` has no finite entry or `binCount < 1`.
 
 ```{ojs}
 {
@@ -201,7 +216,7 @@ Parameterized by **variance**, not standard deviation: pass `sd * sd`. `0` for `
 
 ### VM.distributions.gammaPdf(x, shape, rate) {#gammaPdf}
 
-Parameterized by **rate**, not scale: the mean is `shape / rate`. For a scale θ pass `1 / θ`. Valid for any real `shape > 0`. `0` for `x ≤ 0` or a non-positive parameter.
+Parameterized by **rate**, not scale: the mean is `shape / rate`. For a scale θ pass `1 / θ`. Valid for any real `shape > 0`. `0` for `x < 0` or a non-positive parameter; at `x = 0` the density's limit (`rate` for `shape = 1`, `Infinity` below 1, `0` above).
 
 ### VM.distributions.chiSquaredPdf(x, k) {#chiSquaredPdf}
 
@@ -209,7 +224,7 @@ Parameterized by **rate**, not scale: the mean is `shape / rate`. For a scale θ
 
 ### VM.distributions.betaPdf(x, a, b) {#betaPdf}
 
-On the **open** interval `(0, 1)`: `0` at and outside the endpoints, so `betaPdf(0, 1, 1)` is `0` even though the density is `1` on the interior. `0` for a non-positive shape.
+On `[0, 1]`, `0` outside it or for a non-positive shape. At an endpoint it is the density's limit there: at `x = 0`, `b` when `a = 1` (so `betaPdf(0, 1, 1)` is `1`), `Infinity` when `a < 1`, `0` when `a > 1`; `x = 1` likewise with `a` and `b` swapped.
 
 ### VM.distributions.studentTPdf(x, k) {#studentTPdf}
 
@@ -229,7 +244,7 @@ The Cauchy has no mean and no variance, so `location` is its **median** and `sca
 
 ### VM.distributions.weibullPdf(x, shape, scale) {#weibullPdf}
 
-Parameterized by **scale**, not rate, so `shape = 1` is the exponential with rate `1 / scale`. Shape below 1 gives a failure rate that falls with age, above 1 one that rises. `0` for `x < 0` or a non-positive parameter; at `x = 0` the density is `1/scale` when `shape = 1` and `0` otherwise.
+Parameterized by **scale**, not rate, so `shape = 1` is the exponential with rate `1 / scale`. Shape below 1 gives a failure rate that falls with age, above 1 one that rises. `0` for `x < 0` or a non-positive parameter; at `x = 0` the density's limit: `1/scale` when `shape = 1`, `Infinity` below 1, `0` above.
 
 ## CDFs and quantiles
 
@@ -247,7 +262,7 @@ P(X ≤ x) for X ~ Normal(mean, variance), defaulting to the standard normal. Pa
 
 ### VM.distributions.normalQuantile(p, mean?, variance?) {#normalQuantile}
 
-The inverse of `normalCdf`: `normalQuantile(0.975)` is the 1.96 of a 95% confidence interval. Acklam's approximation refined by one Halley step, so it is accurate to double precision. `-Infinity` at `p = 0`, `Infinity` at `p = 1`, `NaN` outside `[0, 1]` or for `variance ≤ 0`.
+The inverse of `normalCdf`: `normalQuantile(0.975)` is the 1.96 of a 95% confidence interval. Acklam's approximation refined by one Halley step, so it is accurate to double precision (for `p` below about 1e-300, where the step would overflow, the approximation alone: ~1e-9 relative). `-Infinity` at `p = 0`, `Infinity` at `p = 1`, `NaN` outside `[0, 1]` or for `variance ≤ 0`.
 
 ### VM.distributions.chiSquaredCdf(x, k) {#chiSquaredCdf}
 

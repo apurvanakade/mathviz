@@ -37,3 +37,15 @@ test('effectiveSampleSize handles tiny series', () => {
 test('effectiveSampleSize of a chain that never moves is NaN', () => {
   assert.ok(Number.isNaN(effectiveSampleSize([3, 3, 3, 3, 3])))
 })
+
+test('effectiveSampleSize agrees with summing autocorrelation by hand', () => {
+  const g = VM.sampling.gaussianRandom(VM.sampling.seededRandom(9))
+  const chain = []
+  let x = 0
+  for (let i = 0; i < 5000; i++) { x = 0.8 * x + g(); chain.push(x) }
+  const rho = VM.mcmc.autocorrelation(chain, 1000)
+  let sum = 0
+  for (let k = 1; k < rho.length && rho[k] > 0; k++) sum += rho[k]
+  const expected = chain.length / (1 + 2 * sum)
+  assert.ok(Math.abs(VM.mcmc.effectiveSampleSize(chain) - expected) < 1e-9 * expected)
+})

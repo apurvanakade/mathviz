@@ -48,3 +48,21 @@ test('polynomialFit degree 1 matches linearRegression on the same points', () =>
   assert.ok(Math.abs(fit.coeffs[1] - line.slope) < 1e-8, `slope ${fit.coeffs[1]}`)
   assert.ok(Math.abs(fit.coeffs[0] - line.intercept) < 1e-8, `intercept ${fit.coeffs[0]}`)
 })
+
+test('polynomialFit stays accurate for high degree on data far from x = 0', () => {
+  const points = []
+  for (let i = 0; i <= 10; i++) points.push({ x: 100 + i, y: Math.sin(i) })
+  const fit = polynomialFit(mathjs, points, 10)
+  assert.notEqual(fit, null)
+  // Degree 10 through 11 points interpolates them.
+  assert.ok(fit.totalSquaredError < 1e-12, `error ${fit.totalSquaredError}`)
+})
+
+test('polynomialFit returns null with fewer distinct x than coefficients', () => {
+  const points = [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }]
+  assert.equal(polynomialFit(mathjs, points, 2), null)
+})
+
+test('polynomialFit returns null for a non-finite coordinate', () => {
+  assert.equal(polynomialFit(mathjs, [{ x: 0, y: 0 }, { x: 1, y: NaN }], 1), null)
+})

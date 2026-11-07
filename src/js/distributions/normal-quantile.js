@@ -37,6 +37,9 @@
     }
     const error = globalThis.VM.distributions.normalCdf(z) - p
     const u = error * Math.sqrt(2 * Math.PI) * Math.exp(0.5 * z * z)
+    // Below p ~ 1e-300 exp(z²/2) overflows; the approximation alone is then
+    // the best available answer rather than NaN.
+    if (!Number.isFinite(u)) return z
     return z - u / (1 + 0.5 * z * u)
   }
 
@@ -58,5 +61,5 @@
     return mean + Math.sqrt(variance) * standardQuantile(p)
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, normalQuantile}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {normalQuantile})
 })(window)

@@ -7,10 +7,13 @@ Authors: Apurva Nakade
 # Site kit
 
 Drop this into an existing Quarto site that uses mathviz:
-**`update-mathviz.sh`**, a pre-render hook that installs the latest tagged
-mathviz release into `_extensions/apurvanakade/mathviz/` before every render,
-so new releases arrive with no change on your side. Offline, it keeps the
-installed copy.
+**`update-mathviz.sh`**, a pre-render hook that installs the newest tagged
+mathviz release *within the major version you have* (v1.x stays on v1.x)
+into `_extensions/apurvanakade/mathviz/` before every render, so fixes and
+new features arrive with no change on your side. A new major can change
+APIs, so the hook only tells you about one; read the CHANGELOG, then render
+once with `MATHVIZ_UPGRADE=1` to move to it. Offline, it keeps the installed
+copy.
 
 A brand-new site should start from [`starter/`](../starter/) instead.
 

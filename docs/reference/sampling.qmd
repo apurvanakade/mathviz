@@ -44,7 +44,7 @@ Box-Muller transform: turns a uniform generator into a standard-normal one (mean
 
 | Parameter | Type | Description |
 |---|---|---|
-| `rng` | `() => number` | A uniform `[0, 1)` generator -- typically `seededRandom`'s return value. Two draws are consumed per sample. |
+| `rng` | `() => number` | A uniform `[0, 1)` generator -- typically `seededRandom`'s return value. Each pair of uniforms gives two normals (both halves of the transform), so one uniform is consumed per sample on average. |
 
 **Returns** `() => number`, standard normal.
 

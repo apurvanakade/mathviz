@@ -40,5 +40,5 @@
     return indices
   }
 
-  globalThis.VM = {...globalThis.VM, filters: {...globalThis.VM?.filters, systematicResample}}
+  Object.assign((globalThis.VM ??= {}).filters ??= {}, {systematicResample})
 })(window)

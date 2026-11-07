@@ -33,5 +33,5 @@
     return edges;
   };
 
-  globalThis.VM = {...globalThis.VM, discreteMath: {...globalThis.VM?.discreteMath, triangulationEdges}}
+  Object.assign((globalThis.VM ??= {}).discreteMath ??= {}, {triangulationEdges})
 })(window)

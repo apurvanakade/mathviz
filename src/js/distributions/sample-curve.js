@@ -18,7 +18,8 @@
    *   -- instead of on a fine grid. `opts.n` is ignored in this mode, and
    *   the arrays are empty if no integer lies in the range.
    * @param {number} [opts.n=400] - Number of evenly spaced samples in
-   *   continuous mode, including both endpoints. `n = 1` divides by zero.
+   *   continuous mode, including both endpoints. `n = 1` samples `lo` alone;
+   *   `n < 1` gives empty arrays.
    * @returns {{xs: number[], ys: number[]}}
    */
   const sampleCurve = (fn, lo, hi, opts = {}) => {
@@ -36,6 +37,12 @@
     }
 
     const n = opts.n ?? 400
+    // One sample is just the start; n - 1 = 0 would divide by zero.
+    if (n === 1) {
+      xs.push(lo)
+      ys.push(fn(lo))
+      return {xs, ys}
+    }
     for (let i = 0; i < n; i++) {
       const x = lo + (hi - lo) * i / (n - 1)
       xs.push(x)
@@ -44,5 +51,5 @@
     return {xs, ys}
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, sampleCurve}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {sampleCurve})
 })(window)

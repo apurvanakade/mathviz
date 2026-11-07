@@ -31,3 +31,14 @@ test('betaPdf is 0 outside (0, 1)', () => {
   assert.equal(betaPdf(1, 2, 2), 0)
   assert.equal(betaPdf(1.5, 2, 2), 0)
 })
+
+test('betaPdf at the endpoints is the density limit', () => {
+  const { betaPdf } = VM.distributions
+  assert.equal(betaPdf(0, 1, 1), 1)
+  assert.equal(betaPdf(1, 1, 1), 1)
+  assert.equal(betaPdf(0, 1, 3), 3)
+  assert.equal(betaPdf(1, 3, 1), 3)
+  assert.equal(betaPdf(0, 0.5, 2), Infinity)
+  assert.equal(betaPdf(1, 2, 2), 0)
+  assert.equal(betaPdf(-0.1, 1, 1), 0)
+})

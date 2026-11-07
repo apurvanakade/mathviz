@@ -31,3 +31,17 @@ test('persistentPlot creates the div once, then reacts on the same div', () => {
   assert.deepEqual(calls.map((c) => c[0]), ['newPlot', 'react'])
   VM.plotting.autoResize = originalAutoResize
 })
+
+test('persistentPlot exposes its div, null until the first draw', () => {
+  globalThis.Plotly.newPlot = () => {}
+  globalThis.Plotly.react = () => {}
+  globalThis.document.createElement = () => ({className: '', style: {}})
+  const originalAutoResize = VM.plotting.autoResize
+  VM.plotting.autoResize = () => {}
+  const plot = persistentPlot()
+  assert.equal(plot.div, null)
+  const div = plot([], {})
+  assert.equal(plot.div, div)
+  assert.equal(VM.plotting.persistentPlot3d().div, null)
+  VM.plotting.autoResize = originalAutoResize
+})

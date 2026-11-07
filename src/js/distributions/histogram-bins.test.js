@@ -55,3 +55,12 @@ test('an explicit range aligns bins to integer values, one bin per integer', () 
   assert.ok(Math.abs(result.densities[1] - 3 / 6) < 1e-12)
   assert.ok(Math.abs(result.densities[2] - 1 / 6) < 1e-12)
 })
+
+test('histogramBins drops non-finite samples so the area stays 1', () => {
+  const { densities, edges } = VM.distributions.histogramBins([0, 1, NaN, 2, Infinity], 2)
+  assert.deepEqual(edges, [0, 1, 2])
+  const width = edges[1] - edges[0]
+  const area = densities.reduce((a, d) => a + d * width, 0)
+  assert.ok(Math.abs(area - 1) < 1e-12, `area ${area}`)
+  assert.deepEqual(VM.distributions.histogramBins([NaN], 3).densities, [])
+})

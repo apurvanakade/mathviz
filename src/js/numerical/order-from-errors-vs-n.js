@@ -17,7 +17,8 @@
    * through their tail, whose negated slope is the order.
    *
    * @param {Object[]} rows - One row per n, each with a numeric `n` and the
-   *   error under `errorKey`. Rows whose error isn't finite are skipped.
+   *   error under `errorKey`. Rows whose error isn't finite, or whose `n`
+   *   isn't a finite positive number (no log to take), are skipped.
    * @param {number} reference - The exact value the errors are measured
    *   against. It only sets the rounding floor, `1e-12 * max(1, |reference|)`.
    * @param {string} errorKey - The row field holding the error. Its
@@ -51,7 +52,7 @@
     let exactFromN = null
     for (const row of rows) {
       const error = Math.abs(row[errorKey])
-      if (!Number.isFinite(error)) continue
+      if (!Number.isFinite(error) || !(row.n > 0) || !Number.isFinite(row.n)) continue
       finiteErrors++
       if (error <= roundoffFloor) {
         if (exactFromN === null) exactFromN = row.n
@@ -71,5 +72,5 @@
     return {points, fit, order, exact, exactFromN}
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, orderFromErrorsVsN}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {orderFromErrorsVsN})
 })(window)

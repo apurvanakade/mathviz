@@ -26,7 +26,7 @@ filters:
   - mathviz
 ```
 
-The filter puts math.js and Plotly (from a CDN, pinned to the versions the library is tested against), then `mathviz.js` and `mathviz.css` (served from your own `site_libs/`), into every HTML page's `<head>`.
+The filter puts the minified `mathviz.min.js` and `mathviz.min.css` (served from your own `site_libs/`) into every HTML page's `<head>`, and on every page with `{ojs}` cells, math.js and Plotly ahead of them (from a CDN, pinned to the versions the library is tested against). All three scripts are deferred, so none of them holds up the page's first paint, and they still run in order, before the first OJS cell.
 
 ### Options
 
@@ -35,15 +35,15 @@ All optional, under a `mathviz:` key in `_quarto.yml`:
 ```yaml
 mathviz:
   plotly: false             # your pages draw with D3/canvas/Plot -- skip Plotly
-  mathjs: false             # ...or math.js. Either also accepts a URL string
+  mathjs: false             # ...or math.js. Either also accepts true or a URL
   css: false                # bring your own stylesheet
   referrer: same-origin     # emit <meta name="referrer"> ahead of the CDN tags
 ```
 
 | Key | Values | Effect |
 |---|---|---|
-| `plotly` | `true` (default), `false`, or a URL | Whether to add the Plotly tag, and from where. With `false` the Plotly patch is a silent no-op and the `VM.plotting` theme functions still work for Observable Plot. |
-| `mathjs` | `true` (default), `false`, or a URL | Whether to add the math.js tag, and from where. `VM.expressions.*` take the instance as an argument, so a page that loads math.js another way passes that. |
+| `plotly` | `"auto"` (default), `true`, `false`, or a URL | Whether to add the Plotly tag, and from where. `"auto"` adds it to pages with `{ojs}` cells only; `true` or a URL adds it to every page -- for a page that draws Plotly charts from its own `<script>` with no OJS (put that code in a `DOMContentLoaded` listener: the tag is deferred). With `false` the Plotly patch is a silent no-op and the `VM.plotting` theme functions still work for Observable Plot. |
+| `mathjs` | `"auto"` (default), `true`, `false`, or a URL | The same, for math.js. `VM.expressions.*` take the instance as an argument, so a page that loads math.js another way passes that. |
 | `css` | `true` (default) or `false` | Whether to add `mathviz.css`. With `false` you supply the `--vm-*` tokens and the `ojs-*` rules yourself -- see [Theming](theming.qmd). |
 | `referrer` | a [referrer policy](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/name/referrer) string | Emits `<meta name="referrer" content="…">` **before** the CDN tags, so the third-party origins don't see a page's path or query string -- which on a math page is the reader's own input. Visual Math Lab uses `same-origin`. |
 
@@ -74,17 +74,18 @@ quarto add apurvanakade/mathviz@v0.13.0       # pin at install time
 
 Always name the tag. Without one (or with `@latest`), Quarto installs the `main` branch, which can be ahead of the last release.
 
-To stay on the latest release without thinking about it, run the [site kit](https://github.com/apurvanakade/mathviz/tree/main/kit)'s `update-mathviz.sh` as a `pre-render` hook. It updates the extension before each render and keeps the installed copy when you're offline.
+To stay on the latest release without thinking about it, run the [site kit](https://github.com/apurvanakade/mathviz/tree/main/kit)'s `update-mathviz.sh` as a `pre-render` hook. It updates the extension before each render -- within the major version you have, since only a new major may change what your pages call -- and keeps the installed copy when you're offline. When a new major is out it says so; render once with `MATHVIZ_UPGRADE=1` to take it.
 
 ## Any other web page
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.13.0/dist/mathviz.css">
-<script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.13.0/dist/mathviz.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.13.0/dist/mathviz.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
+<script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.13.0/dist/mathviz.min.js"></script>
 ```
 
-- Load **Plotly before `mathviz.js`**. If Plotly arrives later (a dynamic import), call [`VM.plotting.installPlotlyPatch()`](reference/plotting.qmd#installPlotlyPatch) yourself.
+- `mathviz.min.js`/`.min.css` are the minified bundle (a quarter of the size; a source map points devtools at the readable code). `dist/mathviz.js` and `dist/mathviz.css` are the same code with every comment, to read.
+- Load **Plotly before `mathviz.min.js`**, and keep `defer` on all three or on none: deferred scripts run in document order, after the page has been parsed. If Plotly arrives later (a dynamic import), call [`VM.plotting.installPlotlyPatch()`](reference/plotting.qmd#installPlotlyPatch) yourself.
 - Pin the tag in the URL. jsDelivr also serves `@main`, but a tag is what you can reason about.
 - Without Quarto and Observable Inputs, some CSS has nothing to attach to; [Internals](reference/internals.qmd#host-markup) says what degrades and what doesn't.

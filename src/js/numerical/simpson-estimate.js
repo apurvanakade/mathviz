@@ -17,11 +17,14 @@
    * @param {(x: number) => number} f - The integrand.
    * @param {number} lo - Lower limit.
    * @param {number} hi - Upper limit.
-   * @param {number} n - Number of subintervals. **Must be even**; this is not
-   *   validated, and an odd `n` silently applies the wrong weights.
-   * @returns {number} The estimate.
+   * @param {number} n - Number of subintervals: a positive even integer.
+   * @returns {number} The estimate, or `NaN` when `n` is odd, non-integer
+   *   or not positive -- Simpson's weights only pair up over an even
+   *   number of subintervals, and an odd `n` used to return a silently
+   *   wrong number instead.
    */
   const simpsonEstimate = (f, lo, hi, n) => {
+    if (!Number.isInteger(n) || n <= 0 || n % 2 !== 0) return NaN
     const h = (hi - lo) / n
     let sum = 0
     const y0 = f(lo)
@@ -41,5 +44,5 @@
     return sum * h / 3
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, simpsonEstimate}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {simpsonEstimate})
 })(window)

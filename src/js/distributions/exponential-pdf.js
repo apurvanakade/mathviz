@@ -17,5 +17,5 @@
     return rate * Math.exp(-rate * x)
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, exponentialPdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {exponentialPdf})
 })(window)

@@ -20,3 +20,7 @@ test('simpsonEstimate integrates sin over [0, pi] close to the exact value 2', (
   const result = simpsonEstimate(Math.sin, 0, Math.PI, 20)
   assert.ok(Math.abs(result - 2) < 1e-4, `got ${result}, expected ~2`)
 })
+
+test('simpsonEstimate returns NaN for an odd, fractional or non-positive n', () => {
+  for (const n of [3, 2.5, 0, -2]) assert.ok(Number.isNaN(VM.numerical.simpsonEstimate((x) => x, 0, 1, n)), `n = ${n}`)
+})

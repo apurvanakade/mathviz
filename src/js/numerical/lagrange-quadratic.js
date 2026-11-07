@@ -25,16 +25,18 @@
   const lagrangeQuadratic = (x0, y0, x1, y1, x2, y2, sampleCount) => {
     const xs = []
     const ys = []
+    // Each basis polynomial's weight y_i / prod(x_i - x_j) is constant;
+    // only the numerators vary with x.
+    const w0 = y0 / ((x0 - x1) * (x0 - x2))
+    const w1 = y1 / ((x1 - x0) * (x1 - x2))
+    const w2 = y2 / ((x2 - x0) * (x2 - x1))
     for (let k = 0; k <= sampleCount; k++) {
       const x = x0 + (x2 - x0) * k / sampleCount
-      const l0 = ((x - x1) * (x - x2)) / ((x0 - x1) * (x0 - x2))
-      const l1 = ((x - x0) * (x - x2)) / ((x1 - x0) * (x1 - x2))
-      const l2 = ((x - x0) * (x - x1)) / ((x2 - x0) * (x2 - x1))
       xs.push(x)
-      ys.push(y0 * l0 + y1 * l1 + y2 * l2)
+      ys.push(w0 * (x - x1) * (x - x2) + w1 * (x - x0) * (x - x2) + w2 * (x - x0) * (x - x1))
     }
     return {xs, ys}
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, lagrangeQuadratic}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {lagrangeQuadratic})
 })(window)

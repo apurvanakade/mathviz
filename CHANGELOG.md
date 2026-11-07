@@ -10,6 +10,65 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.plotting.subplotKeys(layout)`: a layout's subplot keys grouped by kind (`cartesian`, `scene`, `polar`, `ternary`).
+- `VM.plotting.keepListening(gd, handlers)`: Plotly event listeners that survive `Plotly.newPlot` (which drops every listener on the div); the patch re-attaches them after each call.
+- `VM.plotting.persistentPlot()`'s returned function (and `persistentPlot3d()`'s) has a read-only `div` property, `null` until the first draw.
+- `VM.plotting.fullscreenButton.available()` and `.toggle(target)`.
+- `VM.distributions.logChoose(n, k)`: ln C(n, k) through `logGamma`; the binomial, negative binomial and hypergeometric PMFs now share it.
+- `VM.numerical.linearRegression(points, {weights})`: weighted least squares.
+- `VM.plotting.legendItems(data, colorway?)`: the colorway for traces that set no color.
+- `VM.ui.whenAdded(selector, enhance, opts?)`: the one shared watcher for elements OJS adds after load, now behind every self-installing module.
+- `VM.ui.sliderBounds(input)` and `VM.ui.overlayChartId(...)`.
+- `dist/mathviz.min.js`, `dist/mathviz.min.css` and `dist/mathviz.min.js.map`: the bundle minified (64 kB instead of 289 kB; CSS 19 kB instead of 74 kB), with a source map back to the readable `dist/mathviz.js`. esbuild is now a build dependency.
+- `?embed=<n>` shows the page's n-th `.vm-app`; the Share dialog uses it for an app without an `id`.
+
+### Changed
+
+- The extension loads `mathviz.min.js`/`.min.css` instead of the readable files, and loads every script `defer`red, so none of them blocks the first paint. A page script that uses `VM` or `Plotly` as the page is parsed must now run from a `DOMContentLoaded` listener.
+- `plotly` and `mathjs` default to `"auto"`: the extension adds Plotly and math.js only to pages with `{ojs}` cells. A page that draws from its own `<script>` sets `plotly: true` (or `mathjs: true`). Prose pages no longer download ~4 MB they never use.
+- `kit/update-mathviz.sh` updates only within the installed major version (within the minor before 1.0). It says when a newer major is out; `MATHVIZ_UPGRADE=1` takes it.
+- `VM.sampling.gaussianRandom` uses both halves of each Box–Muller pair (one uniform per sample instead of two) and no longer clamps the far tail. **Every seeded Gaussian sequence changes**, and so does every seeded Gaussian `randomWalkMetropolis` chain, which now draws its steps from it.
+- `VM.numerical.simpsonEstimate` returns `NaN` for an odd, fractional or non-positive `n`, instead of a silently wrong estimate.
+- `VM.distributions.logGamma` returns ln |Γ(x)|, finite for negative non-integers and `Infinity` at the poles.
+- `VM.distributions.gammaPdf`, `betaPdf` and `weibullPdf` return the density's limit at the boundary (e.g. `betaPdf(0, 1, 1)` is `1`, `gammaPdf(0, 1, rate)` is `rate`, `Infinity` for a pole) instead of `0`.
+- `VM.distributions.histogramBins` drops non-finite samples, so the bars' area stays 1.
+- `VM.distributions.sampleCurve` with `n = 1` samples `lo` alone instead of returning `NaN`.
+- `VM.expressions.makeRational` reduces long literals exactly (in BigInt) and returns `null` when the reduced fraction can't be represented exactly.
+- `VM.ui.renderTable` builds the table with DOM calls instead of an `html` template per cell, which is much faster for long tables; its `html` argument is no longer needed.
+- `VM.ui.syncUrlParams` writes at most every 250 ms (first change at once, last change always), skips an unchanged query and keeps `history.state`.
+- `VM.plotting.themePatch` takes `{layout}` and patches every subplot that layout names; with no layout it patches the same `xaxis`/`yaxis` colors as before, plus `modebar.bgcolor`.
+- `VM.ui.overlayStorageKey`'s last argument is a chart id from `overlayChartId` (the block's `id`, else its legend's labels) instead of the block's index on the page, so a stored legend position no longer moves to another chart. Positions stored under the old keys are not carried over.
+- The draggable legend's grip moves 50 px with Shift+arrow (it was 1 px), matching every other keyboard-movable control.
+- `VM` and its namespaces are extended in place instead of being replaced by each file.
+- The SVG fullscreen button re-measures at most once per frame and ignores mutations in the controls bar and legend; the self-installing modules share one observer that re-queries once per frame instead of per added node.
+- `VM.plotting.layout()` and `themePatch()` read every token from one computed style per call instead of one per token.
+- The five math.js-backed `VM.expressions` members share one file, `expressions/compile.js`; `autocorrelation` and `effectiveSampleSize` share `mcmc/autocorrelation.js`.
+
+### Fixed
+
+- `VM.numerical.linearRegression` (and `l1Regression`) returned `null` for data whose x-values sit far from 0 (x = 1e9 + i); the sums are now centered.
+- `VM.numerical.polynomialFit` lost most of its digits at high degree or for data far from x = 0. It now scales x to [−1, 1] and solves by QR instead of the normal equations, and returns `null` for fewer distinct x-values than coefficients or a non-finite coordinate.
+- `VM.numerical.orderFromSuccessiveErrors` fitted across a non-finite error that should have broken the run; `orderFromErrorsVsN` skips rows whose `n` isn't positive.
+- `VM.plotting.paddedRange` threw "Maximum call stack size exceeded" for arrays past ~100 000 values.
+- `VM.distributions.normalQuantile` returned `NaN` for `p` below about 1e-300.
+- `VM.mcmc.effectiveSampleSize` computed all `maxLag` autocorrelations up front (~90 ms on a 100 000-step chain); it now stops at the first non-positive one.
+- The Plotly patch ignored the one-argument figure form (`Plotly.newPlot(gd, {data, layout, config, frames})`), which then got no theme, modebar or hover labels; overwrote a page's own `config.modeBarButtons`; and dropped `modeBarButtonsToRemove`/`ToAdd`. It also resolves a graph div given by id.
+- Second and further axes (`yaxis2`, ...), polar and ternary plots and every scene now follow the theme, on first draw and on a toggle; they kept Plotly's `#444` lines, nearly invisible in dark mode.
+- After a second `Plotly.newPlot` on the same div, a locked-axes chart stopped tracking the reader's zoom and `draggablePoints` handles stopped following the chart. A double-click with `doubleClick: false` no longer makes the next zoom count as a reset.
+- `VM.plotting.draggablePoints(plotFunction)` redrew an already-drawn chart empty, resetting the reader's zoom until the draw cell ran again.
+- `VM.plotting.plotWithLegend` re-colored every later uncolored trace when a row was clicked, and showed no swatch for uncolored traces.
+- `VM.plotting.alpha` returned `hsl()`, `oklch()`, named colors and 8-digit hex unchanged and fully opaque, so a "translucent" fill hid the traces under it; it also mistook `"constructor"` and other `Object.prototype` names for palette roles.
+- The fullscreen buttons threw on iPhone Safari (no element fullscreen) and in iframes without `allow="fullscreen"`; they are now left out there, and a refused request is logged instead of an unhandled rejection.
+- Slider playback in Bounce mode turned back up when the speed was changed on the way down.
+- `VM.ui.legendOverlay` showed the checked state on only one of two rows sharing a label.
+- `VM.ui.renderTable`'s CSV download: revoking the object URL synchronously could cancel the download, node cells were written as `[object HTMLElement]`, and a cell with `\r` wasn't quoted.
+- Report bug: a very long selection made a GitHub URL too long to open (the quote is now capped at 1500 characters), and selecting text inside a form field or dialog offered the popup.
+- The extension's `referrer` and vendor URLs are HTML-escaped.
+- `scripts/release.mjs` cut the last character of the CHANGELOG when `[Unreleased]` had no version heading below it.
+- The slider thumb's grow-on-grab respects `prefers-reduced-motion`.
+
 ## [0.13.0] - 2026-11-07
 
 ### Added
