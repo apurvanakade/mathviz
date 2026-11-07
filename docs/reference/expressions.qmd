@@ -108,7 +108,7 @@ Unlike its siblings this takes **no math.js instance** and evaluates nothing. On
 | fraction of integers | `"1/2"`, `"-1 / 3"` |
 | decimal | `"0.25"`, `".5"`, `"-2.75"` |
 
-**Returns** `{num: number, den: number} | null` -- numerator and denominator in lowest terms with `den > 0`; `null` for an empty string, a zero denominator, or anything else (`"1/2 + 1"`, `"pi"`, `"1e3"`, `"1."` all return `null`).
+**Returns** `{num: number, den: number} | null` -- numerator and denominator in lowest terms with `den > 0`, reduced exactly however many digits the literal has; `null` for an empty string, a zero denominator, a reduced part beyond `Number.MAX_SAFE_INTEGER` (it couldn't be exact), or anything else (`"1/2 + 1"`, `"pi"`, `"1e3"`, `"1."` all return `null`).
 
 ```{ojs}
 ["6/-8", "0.125", "-3", "1/2 + 1", "1/0"].map(s => [s, VM.expressions.makeRational(s)])

@@ -98,7 +98,7 @@
     return bounds
   }
 
-  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, svgAspectRatio, figureBounds}}
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {svgAspectRatio, figureBounds})
 
   // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
   // listed in src/manifest.mjs against a minimal `document` stub so the unit

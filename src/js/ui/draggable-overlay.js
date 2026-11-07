@@ -92,7 +92,7 @@
    */
   const overlayStorageKey = (pathname, role, index) => `${KEY_PREFIX}:${pathname}:${role}:${index}`
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, clampOverlayOffset, overlayStorageKey}}
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {clampOverlayOffset, overlayStorageKey})
 
   // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
   // listed in src/manifest.mjs against a minimal `document` stub so the unit

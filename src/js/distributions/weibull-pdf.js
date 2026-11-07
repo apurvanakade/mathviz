@@ -12,18 +12,22 @@
    * Weibull density parameterized by shape and **scale** (not rate), so
    * `shape = 1` is the exponential with rate `1 / scale`.
    *
-   * @param {number} x - `0` for `x < 0`. At `x = 0` the density is `1/scale`
-   *   when `shape === 1` and `0` otherwise (the `shape < 1` pole is not drawn).
+   * @param {number} x - `0` for `x < 0`. At `x = 0` the density's limit:
+   *   `1/scale` when `shape === 1`, `Infinity` for `shape < 1` (a pole, which
+   *   Plotly leaves undrawn), `0` for `shape > 1`.
    * @param {number} shape - Must be `> 0`.
    * @param {number} scale - Must be `> 0`.
    * @returns {number}
    */
   const weibullPdf = (x, shape, scale) => {
     if (x < 0 || shape <= 0 || scale <= 0) return 0
-    if (x === 0) return shape === 1 ? 1 / scale : 0
+    if (x === 0) {
+      if (shape === 1) return 1 / scale
+      return shape < 1 ? Infinity : 0
+    }
     const z = x / scale
     return (shape / scale) * Math.pow(z, shape - 1) * Math.exp(-Math.pow(z, shape))
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, weibullPdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {weibullPdf})
 })(window)

@@ -413,5 +413,5 @@
     return gd
   }
 
-  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, draggablePoints}}
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {draggablePoints})
 })(window)

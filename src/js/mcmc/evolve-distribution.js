@@ -35,5 +35,5 @@
     return out
   }
 
-  globalThis.VM = {...globalThis.VM, mcmc: {...globalThis.VM?.mcmc, evolveDistribution}}
+  Object.assign((globalThis.VM ??= {}).mcmc ??= {}, {evolveDistribution})
 })(window)

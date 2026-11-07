@@ -24,5 +24,5 @@
     }
   }
 
-  globalThis.VM = {...globalThis.VM, sampling: {...globalThis.VM?.sampling, seededRandom}}
+  Object.assign((globalThis.VM ??= {}).sampling ??= {}, {seededRandom})
 })(window)

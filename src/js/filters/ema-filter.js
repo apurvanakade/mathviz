@@ -31,5 +31,5 @@
     return ys
   }
 
-  globalThis.VM = {...globalThis.VM, filters: {...globalThis.VM?.filters, emaFilter}}
+  Object.assign((globalThis.VM ??= {}).filters ??= {}, {emaFilter})
 })(window)

@@ -639,12 +639,8 @@
     return merged
   }
 
-  globalThis.VM = {
-    ...globalThis.VM,
-    plotting: {
-      ...globalThis.VM?.plotting,
-      configure, colors, colorway, alpha, themeName, onThemeChange, subscript, autoResize,
-      layout, config, plotOptions, themePatch, emptyState, hoverLabel
-    }
-  }
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {
+    configure, colors, colorway, alpha, themeName, onThemeChange, subscript, autoResize,
+    layout, config, plotOptions, themePatch, emptyState, hoverLabel
+  })
 })(window)

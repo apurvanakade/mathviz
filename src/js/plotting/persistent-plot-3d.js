@@ -37,5 +37,5 @@
     }
   }
 
-  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, persistentPlot3d}}
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {persistentPlot3d})
 })(window)

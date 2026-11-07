@@ -31,3 +31,10 @@ test('paddedRange respects custom options', () => {
   assert.equal(lo, -5)
   assert.equal(hi, 15)
 })
+
+test('paddedRange handles arrays too long to spread into Math.min', () => {
+  const values = new Array(300000).fill(1)
+  values[123456] = 5
+  const { lo, hi } = VM.plotting.paddedRange(values)
+  assert.ok(lo < 1 && hi > 5)
+})

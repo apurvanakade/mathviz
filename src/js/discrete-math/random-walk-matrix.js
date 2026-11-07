@@ -65,5 +65,5 @@
     return {P, degrees, stationary}
   }
 
-  globalThis.VM = {...globalThis.VM, discreteMath: {...globalThis.VM?.discreteMath, randomWalkMatrix}}
+  Object.assign((globalThis.VM ??= {}).discreteMath ??= {}, {randomWalkMatrix})
 })(window)

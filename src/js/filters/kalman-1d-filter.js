@@ -97,5 +97,5 @@
     return {xs, Ps, Ks}
   }
 
-  globalThis.VM = {...globalThis.VM, filters: {...globalThis.VM?.filters, kalman1DStep, kalman1DFilter}}
+  Object.assign((globalThis.VM ??= {}).filters ??= {}, {kalman1DStep, kalman1DFilter})
 })(window)

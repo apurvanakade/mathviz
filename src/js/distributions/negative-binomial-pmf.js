@@ -12,8 +12,8 @@
   //
   //   P(K = k) = C(k-1, r-1) p^r (1-p)^(k-r)
   //
-  // Computed through logGamma: the binomial coefficient overflows a double
-  // long before the probability itself becomes small enough to ignore.
+  // Computed through logChoose, in log space: the binomial coefficient
+  // overflows a double long before the probability itself becomes small enough to ignore.
   /**
    * Negative binomial mass in the **trials until the r-th success**
    * convention, so `r = 1` is exactly {@link geometricPmf}.
@@ -28,10 +28,9 @@
     if (!Number.isInteger(k) || !Number.isInteger(r) || r < 1 || k < r) return 0
     if (p <= 0 || p > 1) return 0
     if (p === 1) return k === r ? 1 : 0
-    const logGamma = globalThis.VM.distributions.logGamma
-    const logCoefficient = logGamma(k) - logGamma(r) - logGamma(k - r + 1)
+    const logCoefficient = globalThis.VM.distributions.logChoose(k - 1, r - 1)
     return Math.exp(logCoefficient + r * Math.log(p) + (k - r) * Math.log(1 - p))
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, negativeBinomialPmf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {negativeBinomialPmf})
 })(window)

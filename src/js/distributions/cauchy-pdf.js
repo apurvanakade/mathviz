@@ -24,5 +24,5 @@
     return 1 / (Math.PI * scale * (1 + z * z))
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, cauchyPdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {cauchyPdf})
 })(window)

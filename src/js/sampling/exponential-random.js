@@ -19,5 +19,5 @@
     return () => -Math.log(1 - rng()) / rate
   }
 
-  globalThis.VM = {...globalThis.VM, sampling: {...globalThis.VM?.sampling, exponentialRandom}}
+  Object.assign((globalThis.VM ??= {}).sampling ??= {}, {exponentialRandom})
 })(window)

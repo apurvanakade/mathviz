@@ -12,12 +12,8 @@
 // the ordering constraints in `mustPrecede` below.
 
 export const js = [
-  'expressions/make-function.js',
-  'expressions/make-derivative.js',
-  'expressions/make-number.js',
+  'expressions/compile.js',
   'expressions/make-rational.js',
-  'expressions/make-ode-function.js',
-  'expressions/make-function-of-t.js',
   'plotting/padded-range.js',
   'plotting/chart-theme.js',
   'plotting/anchored-view.js',
@@ -70,7 +66,6 @@ export const js = [
   'filters/kalman-1d-filter.js',
   'filters/systematic-resample.js',
   'mcmc/autocorrelation.js',
-  'mcmc/effective-sample-size.js',
   'mcmc/running-mean.js',
   'mcmc/random-walk-metropolis.js',
   'mcmc/gibbs-bivariate-normal.js',
@@ -127,12 +122,12 @@ export const mustPrecede = [
   ['numerical/linear-regression.js', 'numerical/l1-regression.js'],
   ['numerical/linear-regression.js', 'numerical/order-from-errors-vs-n.js'],
   ['numerical/linear-regression.js', 'numerical/order-from-successive-errors.js'],
-  // effectiveSampleSize sums the autocorrelation helper's output.
-  ['mcmc/autocorrelation.js', 'mcmc/effective-sample-size.js'],
   // persistentPlot calls VM.plotting.config/autoResize; springLayout seeds
   // its start positions with VM.sampling.seededRandom.
   ['plotting/chart-theme.js', 'plotting/persistent-plot.js'],
   ['sampling/seeded-random.js', 'discrete-math/spring-layout.js'],
+  // randomWalkMetropolis draws its Gaussian steps from gaussianRandom.
+  ['sampling/gaussian-random.js', 'mcmc/random-walk-metropolis.js'],
   // The CDFs and quantiles are built on the incomplete gamma function, which
   // is built on logGamma; each quantile inverts its CDF.
   ['distributions/log-gamma.js', 'distributions/regularized-gamma.js'],

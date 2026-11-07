@@ -36,5 +36,5 @@
     return null;
   };
 
-  globalThis.VM = {...globalThis.VM, discreteMath: {...globalThis.VM?.discreteMath, vertexColor}}
+  Object.assign((globalThis.VM ??= {}).discreteMath ??= {}, {vertexColor})
 })(window)

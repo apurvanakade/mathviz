@@ -17,5 +17,5 @@
     return globalThis.VM.distributions.regularizedGamma(k / 2, x / 2).lower
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, chiSquaredCdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {chiSquaredCdf})
 })(window)

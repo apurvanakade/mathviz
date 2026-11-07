@@ -65,3 +65,10 @@ test('orderFromErrorsVsN takes the absolute value of a signed error', () => {
   assert.equal(exact, false)
   assert.ok(Math.abs(order - 3) < 1e-10, `order ${order}`)
 })
+
+test('orderFromErrorsVsN skips rows whose n is not positive', () => {
+  const rows = [{ n: 0, e: 1 }, { n: -1, e: 1 }, { n: 1, e: 1 }, { n: 2, e: 0.25 }, { n: 4, e: 0.0625 }]
+  const result = VM.numerical.orderFromErrorsVsN(rows, 0, 'e')
+  assert.equal(result.points.length, 3)
+  for (const p of result.points) assert.ok(Number.isFinite(p.x))
+})

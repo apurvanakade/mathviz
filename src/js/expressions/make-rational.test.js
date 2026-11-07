@@ -34,3 +34,12 @@ test('makeRational returns null for invalid input', () => {
   assert.equal(makeRational('1/0'), null)
   assert.equal(makeRational('1.2.3'), null)
 })
+
+test('makeRational reduces long literals exactly and rejects unrepresentable ones', () => {
+  const { makeRational } = VM.expressions
+  assert.deepEqual(makeRational('0.1234567890123'), { num: 1234567890123, den: 10000000000000 })
+  assert.deepEqual(makeRational('9007199254740993/3'), { num: 3002399751580331, den: 1 })
+  assert.equal(makeRational('1/9007199254740993'), null)
+  assert.deepEqual(makeRational('-0'), { num: 0, den: 1 })
+  assert.ok(Object.is(makeRational('-0/5').num, 0))
+})

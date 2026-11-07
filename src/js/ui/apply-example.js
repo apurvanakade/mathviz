@@ -186,8 +186,5 @@
     if (selectView.value !== match) selectView.value = match
   }
 
-  globalThis.VM = {
-    ...globalThis.VM,
-    ui: {...globalThis.VM?.ui, applyExampleParams, findMatchingExample, syncExampleSelect}
-  }
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {applyExampleParams, findMatchingExample, syncExampleSelect})
 })(window)

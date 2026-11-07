@@ -34,3 +34,8 @@ test('normalQuantile endpoints and invalid input', () => {
   assert.ok(Number.isNaN(normalQuantile(1.5)))
   assert.ok(Number.isNaN(normalQuantile(0.5, 0, 0)))
 })
+
+test('normalQuantile stays finite deep in the tail', () => {
+  const z = VM.distributions.normalQuantile(1e-320)
+  assert.ok(Number.isFinite(z) && z < -37, `z ${z}`)
+})

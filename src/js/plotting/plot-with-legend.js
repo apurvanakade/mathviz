@@ -122,5 +122,5 @@
     return block
   }
 
-  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, legendItems, lockedAxes, plotWithLegend}}
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {legendItems, lockedAxes, plotWithLegend})
 })(window)

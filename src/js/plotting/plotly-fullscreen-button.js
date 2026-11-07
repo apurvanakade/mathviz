@@ -364,5 +364,5 @@
     onReady()
   }
 
-  globalThis.VM = {...globalThis.VM, plotting: {...globalThis.VM?.plotting, fullscreenButton, installPlotlyPatch}}
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {fullscreenButton, installPlotlyPatch})
 })(window)

@@ -97,5 +97,5 @@
     return out
   }
 
-  globalThis.VM = {...globalThis.VM, discreteMath: {...globalThis.VM?.discreteMath, springLayout}}
+  Object.assign((globalThis.VM ??= {}).discreteMath ??= {}, {springLayout})
 })(window)

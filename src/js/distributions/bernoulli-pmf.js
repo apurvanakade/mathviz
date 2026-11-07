@@ -18,5 +18,5 @@
     return 0
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, bernoulliPmf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {bernoulliPmf})
 })(window)

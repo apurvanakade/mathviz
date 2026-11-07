@@ -31,5 +31,5 @@
     return {ts, ys}
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, eulerSolve}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {eulerSolve})
 })(window)

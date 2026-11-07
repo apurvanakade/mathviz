@@ -21,5 +21,5 @@
     return sum / 2
   }
 
-  globalThis.VM = {...globalThis.VM, mcmc: {...globalThis.VM?.mcmc, totalVariation}}
+  Object.assign((globalThis.VM ??= {}).mcmc ??= {}, {totalVariation})
 })(window)

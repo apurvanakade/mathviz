@@ -95,5 +95,5 @@
       </table></div>`
   }
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, renderTable}}
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {renderTable})
 })(window)

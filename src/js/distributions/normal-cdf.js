@@ -26,5 +26,5 @@
     return 1 - tail
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, normalCdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {normalCdf})
 })(window)

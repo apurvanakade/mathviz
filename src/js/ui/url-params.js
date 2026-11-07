@@ -79,5 +79,5 @@
     return query
   }
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, urlParam, syncUrlParams}}
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {urlParam, syncUrlParams})
 })(window)

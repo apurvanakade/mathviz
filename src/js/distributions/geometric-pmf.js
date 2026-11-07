@@ -20,5 +20,5 @@
     return Math.pow(1 - p, k - 1) * p
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, geometricPmf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {geometricPmf})
 })(window)

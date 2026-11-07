@@ -101,5 +101,5 @@
     return root
   }
 
-  globalThis.VM = {...globalThis.VM, ui: {...globalThis.VM?.ui, legendOverlay}}
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {legendOverlay})
 })(window)

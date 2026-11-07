@@ -37,9 +37,11 @@ Every file under `src/js` is an IIFE that adds one member (occasionally two or t
   /** JSDoc … */
   const simpsonEstimate = (f, lo, hi, n) => { … }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, simpsonEstimate}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {simpsonEstimate})
 })(window)
 ```
+
+Members are added to the existing `VM` and namespace objects in place, never by replacing them, so a reference taken early (`const plotting = VM.plotting`, or the opt-in chrome scripts' `VM.chrome`) still sees every member added later.
 
 The spread-merge means files can load in any order *as far as attaching goes*; the manifest exists for the few real load-time dependencies (every `*Pmf`/`*Pdf` reads `logGamma`; the `discreteMath` color helpers read `VM.plotting`; the SVG fullscreen button reuses the Plotly button's icon). `mustPrecede` in `src/manifest.mjs` records them and `src/manifest.test.js` enforces them, along with "every file on disk is listed exactly once".
 

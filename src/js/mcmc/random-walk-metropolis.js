@@ -55,14 +55,9 @@
     const accepted = [true]
     let acceptedCount = 0
 
-    // One standard-normal draw from two uniforms (Box-Muller), inlined
-    // rather than VM.sampling.gaussianRandom so both proposals draw from
-    // the same `rng` in a documented order.
-    const standardNormal = () => {
-      const u1 = Math.max(rng(), 1e-12)
-      const u2 = rng()
-      return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
-    }
+    // Gaussian steps come from VM.sampling.gaussianRandom over the same
+    // `rng`, so every draw still comes from one documented stream.
+    const standardNormal = globalThis.VM.sampling.gaussianRandom(rng)
 
     let current = start.slice()
     let currentLog = logDensity(current)
@@ -104,5 +99,5 @@
     return {samples, proposals, accepted, acceptedCount}
   }
 
-  globalThis.VM = {...globalThis.VM, mcmc: {...globalThis.VM?.mcmc, randomWalkMetropolis}}
+  Object.assign((globalThis.VM ??= {}).mcmc ??= {}, {randomWalkMetropolis})
 })(window)

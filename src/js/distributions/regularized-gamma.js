@@ -76,5 +76,5 @@
     return {lower: 1 - upper, upper}
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, regularizedGamma}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {regularizedGamma})
 })(window)

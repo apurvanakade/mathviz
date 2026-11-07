@@ -31,5 +31,5 @@
     return 'none';
   };
 
-  globalThis.VM = {...globalThis.VM, discreteMath: {...globalThis.VM?.discreteMath, triangleFillColor}}
+  Object.assign((globalThis.VM ??= {}).discreteMath ??= {}, {triangleFillColor})
 })(window)

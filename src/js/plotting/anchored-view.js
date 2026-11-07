@@ -193,8 +193,5 @@
     return globalThis.Plotly.relayout(gd, update)
   }
 
-  globalThis.VM = {
-    ...globalThis.VM,
-    plotting: {...globalThis.VM?.plotting, trackView, fitView, rangeFromRelayout}
-  }
+  Object.assign((globalThis.VM ??= {}).plotting ??= {}, {trackView, fitView, rangeFromRelayout})
 })(window)

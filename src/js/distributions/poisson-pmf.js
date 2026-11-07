@@ -19,5 +19,5 @@
     return Math.exp(k * Math.log(lambda) - lambda - logGamma(k + 1))
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, poissonPmf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {poissonPmf})
 })(window)

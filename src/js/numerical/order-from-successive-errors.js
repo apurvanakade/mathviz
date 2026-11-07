@@ -33,8 +33,9 @@
    *   - `points`: one per pair of consecutive rows whose errors are both
    *     above rounding level, in step order.
    *   - `fit`: `linearRegression` over the trailing points with y < x (the
-   *     error shrank), or `null` when fewer than two trail the run (it
-   *     diverged, cycled or stopped too soon). `xlo`/`xhi` are the first and
+   *     error shrank) that come after the last non-finite error, or `null`
+   *     when fewer than two trail the run (it diverged, cycled, broke on a
+   *     non-finite error or stopped too soon). `xlo`/`xhi` are the first and
    *     last fitted point's x.
    *   - `order`: `fit.slope`, or `NaN` without a fit.
    */
@@ -49,20 +50,29 @@
       aboveFloor.push(Number.isFinite(error) && error > roundoffFloor)
     }
 
+    // The last non-finite error: the run is broken there, so no pair from
+    // before it may join the fitted tail.
+    let lastBreak = -1
+    for (let k = 0; k < errors.length; k++) {
+      if (!Number.isFinite(errors[k])) lastBreak = k
+    }
+
     const points = []
+    let firstAfterBreak = 0
     for (let k = 0; k < errors.length - 1; k++) {
       if (aboveFloor[k] && aboveFloor[k + 1]) {
+        if (k <= lastBreak) firstAfterBreak = points.length + 1
         points.push({x: Math.log10(errors[k]), y: Math.log10(errors[k + 1])})
       }
     }
 
     let tailStart = points.length
-    while (tailStart > 0 && points[tailStart - 1].y < points[tailStart - 1].x) tailStart--
+    while (tailStart > firstAfterBreak && points[tailStart - 1].y < points[tailStart - 1].x) tailStart--
     const fit = globalThis.VM.numerical.linearRegression(points.slice(tailStart))
     let order = NaN
     if (fit) order = fit.slope
     return {points, fit, order}
   }
 
-  globalThis.VM = {...globalThis.VM, numerical: {...globalThis.VM?.numerical, orderFromSuccessiveErrors}}
+  Object.assign((globalThis.VM ??= {}).numerical ??= {}, {orderFromSuccessiveErrors})
 })(window)

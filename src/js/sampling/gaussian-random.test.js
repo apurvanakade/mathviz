@@ -34,3 +34,17 @@ test('gaussianRandom produces samples with approximately mean 0 and variance 1',
   assert.ok(Math.abs(mean) < 0.05, `expected mean near 0, got ${mean}`)
   assert.ok(Math.abs(variance - 1) < 0.1, `expected variance near 1, got ${variance}`)
 })
+
+test('gaussianRandom uses both halves of each Box-Muller pair', () => {
+  let calls = 0
+  const base = seededRandom(5)
+  const counted = () => { calls++; return base() }
+  const gaussian = gaussianRandom(counted)
+  for (let i = 0; i < 10; i++) gaussian()
+  assert.equal(calls, 10)
+})
+
+test('gaussianRandom never returns a non-finite value, even when rng returns 0', () => {
+  const gaussian = gaussianRandom(() => 0)
+  for (let i = 0; i < 4; i++) assert.ok(Number.isFinite(gaussian()))
+})

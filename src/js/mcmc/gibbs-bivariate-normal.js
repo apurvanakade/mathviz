@@ -50,5 +50,5 @@
     return {x, y, halfX, halfY}
   }
 
-  globalThis.VM = {...globalThis.VM, mcmc: {...globalThis.VM?.mcmc, gibbsBivariateNormal}}
+  Object.assign((globalThis.VM ??= {}).mcmc ??= {}, {gibbsBivariateNormal})
 })(window)

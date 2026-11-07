@@ -10,17 +10,23 @@
    * mean is `shape / rate`. Valid for any real `shape > 0`, via
    * {@link logGamma}.
    *
-   * @param {number} x - `0` for `x <= 0`.
+   * @param {number} x - `0` for `x < 0`. At `x = 0` the density's limit:
+   *   `rate` for `shape = 1` (the exponential), `Infinity` for `shape < 1`,
+   *   `0` for `shape > 1`.
    * @param {number} shape - Must be `> 0`.
    * @param {number} rate - Must be `> 0`. For a scale `θ`, pass `1 / θ`.
    * @returns {number}
    */
   const gammaPdf = (x, shape, rate) => {
-    if (x <= 0 || shape <= 0 || rate <= 0) return 0
+    if (x < 0 || shape <= 0 || rate <= 0) return 0
+    if (x === 0) {
+      if (shape === 1) return rate
+      return shape < 1 ? Infinity : 0
+    }
     const logGamma = globalThis.VM.distributions.logGamma
     const logPdf = shape * Math.log(rate) + (shape - 1) * Math.log(x) - rate * x - logGamma(shape)
     return Math.exp(logPdf)
   }
 
-  globalThis.VM = {...globalThis.VM, distributions: {...globalThis.VM?.distributions, gammaPdf}}
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {gammaPdf})
 })(window)

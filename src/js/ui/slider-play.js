@@ -161,10 +161,7 @@
    *
    * @type {number}
    */
-  globalThis.VM = {
-    ...globalThis.VM,
-    ui: {...globalThis.VM?.ui, playbackDuration, playbackFrame, playbackTweenMs: 0}
-  }
+  Object.assign((globalThis.VM ??= {}).ui ??= {}, {playbackDuration, playbackFrame, playbackTweenMs: 0})
 
   // Everything below is DOM side effects. scripts/load-vm.mjs runs every file
   // listed in src/manifest.mjs against a minimal `document` stub so the unit
