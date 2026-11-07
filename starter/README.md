@@ -35,6 +35,7 @@ The pages, simplest first:
 | `distribution-explorer.qmd` | a closed-form density with a histogram of seeded samples under it |
 | `try-an-example.qmd` | a "Try an example" dropdown that fills the fields and runs the page |
 | `observable-plot.qmd` | Observable Plot with the theme applied and a fullscreen button |
+| `draggable-points.qmd` | points the reader drags on a chart, as an input; one kept inside a triangle |
 
 Each file starts with a comment saying what it demonstrates and where the relevant documentation is.
 

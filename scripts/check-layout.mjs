@@ -24,7 +24,11 @@
 //     auto margins of a prose-width rule once centred every short one);
 //   - the category cloud not moved above the grid, or without "All" first;
 //   - a page that sets an option with mathviz-page: losing the options
-//     _quarto.yml sets (the referrer meta, fonts and sidebar search).
+//     _quarto.yml sets (the referrer meta, fonts and sidebar search);
+//   - a draggable point drawn away from the data point it stands for
+//     (after a drag, a theme toggle or a resize), escaping its bounds,
+//     losing its value on a theme toggle, showing a focus ring after a
+//     mouse drag, or trapping a touch scroll that starts beside it.
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
 // of its pages and was cut back because a heavy page on a busy runner made
@@ -50,6 +54,7 @@ const navigationTimeoutMs = 60000
 const settleTimeoutMs = 30000
 const pages = ['index.html', 'sliders.html', 'multi.html']
 const listingPages = ['cards.html']
+const dragPages = ['drag.html']
 
 // The fixture site is its own Quarto project, which only finds an extension
 // in its own _extensions/ -- so copy this checkout's in (gitignored), the
@@ -497,6 +502,189 @@ async function checkCardsPage(context, base, relPath) {
   return errors
 }
 
+// drag.html's first chart draws a small Plotly marker (the trace named
+// "probe") at the draggable point's value, so the handle can be measured
+// against where Plotly itself puts that data point.
+function dropState() {
+  const gd = document.querySelector('#drop .vm-drag-host')
+  if (!gd) return null
+  const handle = gd.querySelector('.vm-drag-point')
+  const probe = gd.querySelector('.scatterlayer .trace:last-child .point')
+  if (!handle || !probe) return null
+  const center = (el) => {
+    const r = el.getBoundingClientRect()
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+  }
+  const active = document.activeElement
+  return {
+    value: gd.value,
+    handle: center(handle),
+    probe: center(probe),
+    color: getComputedStyle(handle).color,
+    readout: document.querySelector('#drop-readout')?.textContent ?? '',
+    focused: active === handle,
+    focusRing: active === handle && handle.matches(':focus-visible')
+  }
+}
+
+function handleMarkupProblems() {
+  const problems = []
+  const handles = document.querySelectorAll('.vm-drag-point')
+  if (handles.length !== 4) problems.push(`expected 4 draggable points (1 + 3), found ${handles.length}`)
+  for (const handle of handles) {
+    const name = handle.getAttribute('aria-label')
+    if (handle.getAttribute('role') !== 'slider') problems.push(`point ${name} has no role="slider"`)
+    if (!name) problems.push('a point has no aria-label')
+    if (!handle.getAttribute('aria-valuetext')) problems.push(`point ${name} has no aria-valuetext`)
+    if (handle.tabIndex !== 0) problems.push(`point ${name} is not in the tab order`)
+    if (getComputedStyle(handle).touchAction !== 'none') problems.push(`point ${name} lets a touch scroll instead of drag`)
+  }
+  return problems
+}
+
+async function dragProblems(page) {
+  const problems = []
+  // Plotly redraws through the paint cell after each move; give it a moment.
+  const settle = () => page.waitForTimeout(250)
+  const aligned = async (when) => {
+    const state = await page.evaluate(dropState)
+    if (!state) {
+      problems.push(`${when}: no point or probe marker on the first chart`)
+      return null
+    }
+    const off = Math.hypot(state.handle.x - state.probe.x, state.handle.y - state.probe.y)
+    if (off > 1) problems.push(`${when}: the point is drawn ${off.toFixed(1)}px from its data point`)
+    return state
+  }
+  // The chart can still be settling into its box after load (autoResize,
+  // late fonts): wait until the point stops moving before pressing on it.
+  let last = null
+  for (let i = 0; i < 40; i++) {
+    const state = await page.evaluate(dropState)
+    if (state && last && state.handle.x === last.handle.x && state.handle.y === last.handle.y) break
+    last = state
+    await page.waitForTimeout(100)
+  }
+  const start = await aligned('on load')
+  if (!start) return problems
+
+  await page.mouse.move(start.handle.x + 4, start.handle.y + 4)
+  await page.mouse.down()
+  await page.mouse.move(start.handle.x + 64, start.handle.y - 26, { steps: 5 })
+  await page.mouse.up()
+  await settle()
+  const dragged = await aligned('after a drag')
+  if (dragged) {
+    if (dragged.value.x <= start.value.x || dragged.value.y <= start.value.y) {
+      problems.push(`a drag right and up moved the point from ${JSON.stringify(start.value)} to ${JSON.stringify(dragged.value)}`)
+    }
+    if (dragged.readout === start.readout) problems.push('a drag did not reach the cell that reads the point (no input event)')
+    if (!dragged.focused) problems.push('a dragged point did not take the keyboard focus')
+    if (dragged.focusRing) problems.push('a mouse drag left a keyboard focus ring on the point')
+  }
+
+  if (!dragged) return problems
+
+  // Off the chart, past its top-left corner: the point stops at its bounds.
+  await page.mouse.move(dragged.handle.x, dragged.handle.y)
+  await page.mouse.down()
+  await page.mouse.move(2, 2, { steps: 5 })
+  await page.mouse.up()
+  await settle()
+  const clamped = await aligned('after a drag off the chart')
+  if (clamped && (clamped.value.x !== 0 || clamped.value.y !== 0.5)) {
+    problems.push(`a drag off the chart's top-left left the point at ${JSON.stringify(clamped.value)}, not its bounds' corner {x: 0, y: 0.5}`)
+  }
+
+  await page.keyboard.press('ArrowRight')
+  await settle()
+  const keyed = await aligned('after an arrow key')
+  if (keyed && Math.abs(keyed.value.x - 0.05) > 1e-9) problems.push(`ArrowRight moved x from 0 to ${keyed.value.x}, not by its step 0.05`)
+
+  // jump: a click on the plot area brings the point there.
+  const pad = await page.locator('#drop .vm-drag-pad').boundingBox()
+  if (!pad) {
+    problems.push('no jump pad on the first chart')
+  } else {
+    await page.mouse.click(pad.x + pad.width * 0.75, pad.y + pad.height * 0.75)
+    await settle()
+    const jumped = await aligned('after a click on the plot area')
+    if (jumped) {
+      const off = Math.hypot(jumped.handle.x - (pad.x + pad.width * 0.75), jumped.handle.y - (pad.y + pad.height * 0.75))
+      if (off > 1) problems.push(`a click on the plot area left the point ${off.toFixed(1)}px from the click`)
+    }
+  }
+
+  const before = await page.evaluate(dropState)
+  await page.evaluate(() => window.quartoToggleColorScheme())
+  await page.waitForTimeout(600)
+  const toggled = await aligned('after a theme toggle')
+  if (toggled && before) {
+    if (JSON.stringify(toggled.value) !== JSON.stringify(before.value)) {
+      problems.push(`a theme toggle moved the point from ${JSON.stringify(before.value)} to ${JSON.stringify(toggled.value)}`)
+    }
+    if (toggled.color === before.color) problems.push(`a theme toggle left the point's color at ${before.color}`)
+  }
+  await page.evaluate(() => window.quartoToggleColorScheme())
+
+  await page.setViewportSize({ width: 800, height: 720 })
+  await page.waitForTimeout(600)
+  await aligned('after a resize')
+  return problems
+}
+
+// A touch that starts on the chart but not on a point must still scroll the
+// page: nothing between the plot area and the page may set touch-action:
+// none.
+function touchScrollProblems() {
+  const gd = document.querySelector('#corners .vm-drag-host')
+  if (!gd) return ['no second chart']
+  const r = gd.querySelector('.nsewdrag')?.getBoundingClientRect() ?? gd.getBoundingClientRect()
+  // Low in the plot area, under the triangle's base and clear of its points.
+  let el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height * 0.85)
+  if (!gd.contains(el)) return [`the second chart's plot area is covered by ${el?.className || el?.tagName}`]
+  if (!el) return ['nothing under the second chart\'s plot area']
+  for (; el; el = el.parentElement) {
+    if (getComputedStyle(el).touchAction === 'none') {
+      return [`a touch on the plot area beside the points can't scroll the page (touch-action: none on ${el.className || el.tagName})`]
+    }
+  }
+  return []
+}
+
+async function checkDragPage(context, base, relPath) {
+  const errors = []
+  const watch = (page, prefix) => {
+    page.on('pageerror', err => errors.push(`${prefix}pageerror: ${err.message}`))
+    page.on('console', msg => {
+      if (msg.type() === 'error') errors.push(`${prefix}console.error: ${msg.text()}`)
+    })
+  }
+  const page = await context.newPage()
+  watch(page, '')
+  for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
+  for (const problem of await page.evaluate(handleMarkupProblems)) errors.push(`desktop: ${problem}`)
+  for (const problem of await dragProblems(page)) errors.push(`desktop: ${problem}`)
+  await page.close()
+
+  const phone = await context.newPage()
+  await phone.setViewportSize({ width: 390, height: 844 })
+  watch(phone, 'phone ')
+  for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
+  // Drawn detached, the chart starts at Plotly's 700px default and is
+  // resized to the column after it lands; measure the phone-width one.
+  await phone.waitForFunction(() => {
+    const area = document.querySelector('#corners .nsewdrag')
+    return area && area.getBoundingClientRect().right <= window.innerWidth
+  }, null, { timeout: settleTimeoutMs, polling: 50 }).catch(() => errors.push('phone: the second chart never fitted the window'))
+  await phone.locator('#corners').scrollIntoViewIfNeeded()
+  for (const problem of await phone.evaluate(touchScrollProblems)) errors.push(`phone: ${problem}`)
+  const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
+  if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
+  await phone.close()
+  return errors
+}
+
 async function main() {
   if (!process.argv.includes('--no-render')) render()
   const server = await serve()
@@ -513,8 +701,10 @@ async function main() {
   })
   let failed = false
   try {
-    for (const relPath of [...pages, ...listingPages]) {
-      const check = listingPages.includes(relPath) ? checkCardsPage : checkPage
+    for (const relPath of [...pages, ...listingPages, ...dragPages]) {
+      let check = checkPage
+      if (listingPages.includes(relPath)) check = checkCardsPage
+      if (dragPages.includes(relPath)) check = checkDragPage
       const errors = await check(context, base, relPath)
       if (errors.length === 0) {
         console.log(`OK    ${relPath}`)

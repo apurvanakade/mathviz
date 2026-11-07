@@ -62,6 +62,7 @@ Live: each swatch is the value your browser computes for the token **right now**
     ["--vm-shadow", "legend, popover, modebar pill"],
     ["--vm-shadow-color", "nothing in mathviz: the bare shadow colour, for a page's own larger shadows (a hover lift, a floating card), since --vm-shadow is a whole box-shadow"],
     ["--vm-font-sans", "chart text and the playback popover -- same in both themes. Redeclare it if your site self-hosts a font"],
+    ["--vm-drag-point-size", "the dot <code>VM.plotting.draggablePoints</code> draws -- same in both themes. Its hit target stays larger"],
     ["Controls", null],
     ["--vm-control-h", "one height for every control a panel or controls bar holds -- text field, number readout, <code>select</code>, button -- so a row of mixed controls lines up on both edges"],
     ["--vm-label-size", "the size a control's label is set in, so it doesn't inherit the host page's body-prose size and end up taller than the value it labels"],

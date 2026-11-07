@@ -69,6 +69,8 @@
   /* The face chart text is set in. Defaults to the system stack; a site
    * that loads its own font redeclares this so charts match the page. */
   --vm-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* The dot VM.plotting.draggablePoints draws; its hit target is larger. */
+  --vm-drag-point-size: 14px;
 
   /* Chart palette -- what VM.plotting.colors() returns. Named after what
    * each color means on a chart (the function itself, an alternate/reference

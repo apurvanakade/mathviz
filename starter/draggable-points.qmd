@@ -1,0 +1,112 @@
+---
+title: "Draggable points"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!--
+Shows: points the reader drags on a Plotly chart, as an OJS view
+(VM.plotting.draggablePoints). Three corners and a point P; `constrain`
+keeps P inside the triangle. The chart is drawn by a separate cell, so a
+theme toggle redraws it without moving the points.
+
+  draggablePoints: https://apurvanakade.github.io/mathviz/docs/reference/plotting.html#draggablePoints
+-->
+
+Barycentric coordinates. Drag a corner, or the point $P$: its weights $a, b, c$ satisfy $P = aA + bB + cC$ and $a + b + c = 1$. $P$ stays inside the triangle when you drag it; move a corner past it and one weight goes negative. With the keyboard, Tab to a point and use the arrow keys.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+```{ojs}
+//| output: false
+// Created once, in a cell that depends on nothing reactive: the view below
+// and the paint cell share its div.
+trianglePlot = VM.plotting.persistentPlot({height: "420px"})
+
+// The weights of p with respect to the corners [A, B, C]; null for a flat
+// triangle.
+weights = (p, [A, B, C]) => {
+  const det = (B.y - C.y) * (A.x - C.x) + (C.x - B.x) * (A.y - C.y)
+  if (det === 0) return null
+  const a = ((B.y - C.y) * (p.x - C.x) + (C.x - B.x) * (p.y - C.y)) / det
+  const b = ((C.y - A.y) * (p.x - C.x) + (A.x - C.x) * (p.y - C.y)) / det
+  return {a, b, c: 1 - a - b}
+}
+
+// The point of segment [u, v] nearest p.
+nearestOnSegment = (p, u, v) => {
+  const dx = v.x - u.x, dy = v.y - u.y
+  const length2 = dx * dx + dy * dy
+  if (length2 === 0) return {x: u.x, y: u.y}
+  const t = Math.min(1, Math.max(0, ((p.x - u.x) * dx + (p.y - u.y) * dy) / length2))
+  return {x: u.x + t * dx, y: u.y + t * dy}
+}
+
+// p itself when it is inside the triangle, else the nearest point of its edge.
+intoTriangle = (p, corners) => {
+  const w = weights(p, corners)
+  if (w === null || (w.a >= 0 && w.b >= 0 && w.c >= 0)) return p
+  const [A, B, C] = corners
+  let best = p, bestDistance = Infinity
+  for (const [u, v] of [[A, B], [B, C], [C, A]]) {
+    const q = nearestOnSegment(p, u, v)
+    const distance = Math.hypot(q.x - p.x, q.y - p.y)
+    if (distance < bestDistance) { best = q; bestDistance = distance }
+  }
+  return best
+}
+```
+
+::: {.ojs-chart-block}
+```{ojs}
+// The chart is the input: `points` is [A, B, C, P], and every move re-runs
+// the cells that read it. Colors are CSS tokens, so they follow the theme
+// without re-running this cell (which would reset the points).
+viewof points = VM.plotting.draggablePoints(trianglePlot, {
+  value: [{x: 0, y: 0}, {x: 4, y: 0}, {x: 1, y: 3}, {x: 1.6, y: 1}],
+  label: ["Corner A", "Corner B", "Corner C", "Point P"],
+  color: ["var(--vm-color-ink)", "var(--vm-color-ink)", "var(--vm-color-ink)", "var(--vm-color-fn)"],
+  xBounds: [-1, 5], yBounds: [-1, 4],
+  step: {x: 0.05, y: 0.05},
+  constrain: (p, i, current) => i === 3 ? intoTriangle(p, current.slice(0, 3)) : p
+})
+```
+```{ojs}
+//| output: false
+// Paints the chart the view lives on. No output: the chart is already on
+// the page, in the cell above.
+{
+  const [A, B, C, P] = points
+  const label = (p, text) => ({x: p.x, y: p.y, text, showarrow: false, yshift: 18, font: {size: 15, color: chartColors.ink}})
+  return trianglePlot([
+    {x: [A.x, B.x, C.x, A.x], y: [A.y, B.y, C.y, A.y], mode: "lines", fill: "toself",
+      fillcolor: VM.plotting.alpha(chartColors.muted, 0.15), line: {color: chartColors.ink, width: 2}, hoverinfo: "skip"},
+    {x: [A.x, P.x, B.x, P.x, C.x], y: [A.y, P.y, B.y, P.y, C.y], mode: "lines",
+      line: {color: chartColors.fn, width: 1, dash: "dot"}, hoverinfo: "skip"}
+  ], {
+    showlegend: false, dragmode: false, hovermode: false,
+    // Fixed axes, so a drag beside a point doesn't pan the chart; equal
+    // scales, so the triangle keeps its shape.
+    xaxis: {range: [-1, 5], fixedrange: true, zeroline: false},
+    yaxis: {range: [-1, 4], fixedrange: true, zeroline: false, scaleanchor: "x"},
+    annotations: [label(A, "A"), label(B, "B"), label(C, "C"), label(P, "P")]
+  }, {...VM.plotting.config(), displayModeBar: false})
+}
+```
+:::
+
+```{ojs}
+{
+  const w = weights(points[3], points.slice(0, 3))
+  if (w === null) return html`<em>The corners are on one line.</em>`
+  return html`a = <b>${w.a.toFixed(2)}</b>, b = <b>${w.b.toFixed(2)}</b>, c = <b>${w.c.toFixed(2)}</b>`
+}
+```
