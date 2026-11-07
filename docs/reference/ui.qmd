@@ -89,31 +89,55 @@ Try dragging the legend by its grip (appears on hover), then reload -- the posit
 
 When the legend only needs to name the traces, not toggle them, put Observable Plot's `Plot.legend` above or below the chart instead. It doesn't need a `Plot.plot` and works under a Plotly chart too. It sits in normal flow, so it never covers the curve, wraps when the row is full, and stays visible at every chart width; the floating legend is hidden on a chart under 600px wide. [`VM.plotting.legendItems`](plotting.qmd#legendItems) reads the names and colors off the traces:
 
-::: {.ojs-chart-block}
 ```{ojs}
-{
+//| echo: false
+keyTraces = {
   const xs = [], s = [], c = []
   for (let i = 0; i <= 200; i++) { const x = -Math.PI + 2 * Math.PI * i / 200; xs.push(x); s.push(Math.sin(x)); c.push(Math.cos(x)) }
-  const data = [
+  return [
     {name: "sin", x: xs, y: s, line: {color: chartColors.fn}},
     {name: "cos", x: xs, y: c, line: {color: chartColors.alt, dash: "dash"}}
   ]
-  const chart = document.createElement("div")
-  chart.style.height = "300px"
-  Plotly.newPlot(chart, data, {showlegend: false, xaxis: {title: "x"}})
-  VM.plotting.autoResize(chart)
+}
+```
 
-  const items = VM.plotting.legendItems(data)
-  const key = Plot.legend({color: {domain: items.map(d => d.label), range: items.map(d => d.color)}})
-
-  const figure = document.createElement("div")
-  figure.append(chart, key)   // append(key, chart) puts the key above
-  return figure
+::: {.ojs-chart-block}
+```{ojs}
+//| echo: false
+{
+  const div = document.createElement("div")
+  div.style.height = "300px"
+  Plotly.newPlot(div, keyTraces, {showlegend: false, xaxis: {title: "x"}})
+  VM.plotting.autoResize(div)
+  return div
 }
 ```
 :::
 
-Return both from one cell inside the `.ojs-chart-block`, so the key comes along when the chart goes fullscreen. Every swatch is a solid square, so a dashed or filled trace shows only its color. Give each named trace a `line.color`, `marker.color` or `fillcolor`, or its row has no color.
+```{ojs}
+//| echo: false
+{
+  const items = VM.plotting.legendItems(keyTraces)
+  return Plot.legend({color: {domain: items.map(d => d.label), range: items.map(d => d.color)}})
+}
+```
+
+````markdown
+::: {.ojs-chart-block}
+```{ojs}
+mainPlot = { ... }   // the Plotly chart, drawn from `traces`
+```
+:::
+
+```{ojs}
+{
+  const items = VM.plotting.legendItems(traces)
+  return Plot.legend({color: {domain: items.map(d => d.label), range: items.map(d => d.color)}})
+}
+```
+````
+
+Put the key in a cell of its own right after the chart's `.ojs-chart-block`, or right before it for a key above. Every swatch is a solid square, so a dashed or filled trace shows only its color. Give each named trace a `line.color`, `marker.color` or `fillcolor`, or its row has no color.
 
 ### Draggable legend {#draggable-legend}
 
