@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-07
+
 ### Added
 
 - `VM.plotting.subplotKeys(layout)`: a layout's subplot keys grouped by kind (`cartesian`, `scene`, `polar`, `ternary`).
@@ -405,7 +407,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/apurvanakade/mathviz/compare/v0.13.0...v1.0.0
 [0.13.0]: https://github.com/apurvanakade/mathviz/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/apurvanakade/mathviz/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/apurvanakade/mathviz/compare/v0.11.0...v0.12.0
