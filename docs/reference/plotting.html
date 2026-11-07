@@ -459,6 +459,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#plotOptions" id="toc-plotOptions" class="nav-link" data-scroll-target="#plotOptions">VM.plotting.plotOptions(overrides?)</a></li>
   <li><a href="#themePatch" id="toc-themePatch" class="nav-link" data-scroll-target="#themePatch">VM.plotting.themePatch(opts?)</a></li>
   </ul></li>
+  <li><a href="#draggable-points" id="toc-draggable-points" class="nav-link" data-scroll-target="#draggable-points">Draggable points</a>
+  <ul class="collapse">
+  <li><a href="#draggablePoints" id="toc-draggablePoints" class="nav-link" data-scroll-target="#draggablePoints">VM.plotting.draggablePoints(plot, opts)</a></li>
+  </ul></li>
   <li><a href="#the-plotly-patch" id="toc-the-plotly-patch" class="nav-link" data-scroll-target="#the-plotly-patch">The Plotly patch</a>
   <ul class="collapse">
   <li><a href="#anchored-view" id="toc-anchored-view" class="nav-link" data-scroll-target="#anchored-view">Locked axes keep their view</a></li>
@@ -483,7 +487,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">VM.plotting</h1>
-<p class="subtitle lead">The chart theme, the Plotly patch, and the fullscreen buttons</p>
+<p class="subtitle lead">The chart theme, draggable points, the Plotly patch, and the fullscreen buttons</p>
 </div>
 
 
@@ -1088,6 +1092,169 @@ Authors: Apurva Nakade
 <p><strong>Returns</strong> an object with 24 keys, or 42 with <code>opts.scene</code>.</p>
 </section>
 </section>
+<section id="draggable-points" class="level2">
+<h2 class="anchored" data-anchor-id="draggable-points">Draggable points</h2>
+<section id="draggablePoints" class="level3">
+<h3 class="anchored" data-anchor-id="draggablePoints">VM.plotting.draggablePoints(plot, opts)</h3>
+<p>Points on a Plotly chart that the reader drags, as an Observable view: <code>value</code> is <code>{x, y}</code> when you give it one point and <code>[{x, y}, ...]</code> when you give it an array, and an <code>"input"</code> event fires on every move, so other cells react to the points the way they react to a slider. Call it in a <code>viewof</code> cell that depends on nothing reactive, and draw the traces from a <strong>separate</strong> cell with the same chart function – a theme toggle then redraws the traces without re-running the <code>viewof</code>, which would reset the points:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>trianglePlot <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">persistentPlot</span>({<span class="dt">height</span><span class="op">:</span> <span class="st">"420px"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>viewof corners <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">draggablePoints</span>(trianglePlot<span class="op">,</span> {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> [{<span class="dt">x</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="dv">0</span>}<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="dv">0</span>}<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="dv">3</span>}]<span class="op">,</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> [<span class="st">"A"</span><span class="op">,</span> <span class="st">"B"</span><span class="op">,</span> <span class="st">"C"</span>]</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">//| output: false</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">trianglePlot</span>([{<span class="dt">x</span><span class="op">:</span> [<span class="op">...</span>corners<span class="op">.</span><span class="fu">map</span>(p <span class="kw">=&gt;</span> p<span class="op">.</span><span class="at">x</span>)<span class="op">,</span> corners[<span class="dv">0</span>]<span class="op">.</span><span class="at">x</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> [<span class="op">...</span>corners<span class="op">.</span><span class="fu">map</span>(p <span class="kw">=&gt;</span> p<span class="op">.</span><span class="at">y</span>)<span class="op">,</span> corners[<span class="dv">0</span>]<span class="op">.</span><span class="at">y</span>]}]<span class="op">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">xaxis</span><span class="op">:</span> {<span class="dt">range</span><span class="op">:</span> [<span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="dv">5</span>]<span class="op">,</span> <span class="dt">fixedrange</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span> <span class="dt">yaxis</span><span class="op">:</span> {<span class="dt">range</span><span class="op">:</span> [<span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> <span class="dt">fixedrange</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span> <span class="dt">dragmode</span><span class="op">:</span> <span class="kw">false</span>}<span class="op">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  {<span class="op">...</span>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">config</span>()<span class="op">,</span> <span class="dt">displayModeBar</span><span class="op">:</span> <span class="kw">false</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The paint cell is <code>output: false</code> because the chart is already on the page, in the <code>viewof</code> cell’s output. Fix both axes (<code>fixedrange: true</code>, <code>dragmode: false</code>) so a drag beside a point doesn’t pan the chart.</p>
+<p>Each point is a focusable dot laid over the chart:</p>
+<ul>
+<li><strong>Mouse, pen, finger:</strong> press on the dot and drag. A touch that starts anywhere else on the chart still scrolls the page.</li>
+<li><strong>Keyboard:</strong> Tab to the dot; the arrow keys move it one <code>step</code>, Shift+arrow ten. Arrows move it the way the screen does, also on a reversed axis.</li>
+<li><strong>Screen readers:</strong> it is a <code>role="slider"</code> with <code>aria-label</code> from <code>label</code> and <code>aria-valuetext</code> from <code>format</code>, announced on every move.</li>
+<li><strong>Bounds:</strong> a point never leaves <code>xBounds</code>/<code>yBounds</code> (the visible ranges by default), even when the pointer leaves the chart.</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>plot</code></td>
+<td><code>Function \| HTMLElement</code></td>
+<td></td>
+<td>A chart function such as <code>persistentPlot()</code>’s return value, which it calls once with no traces to get its div; or a div Plotly has already drawn.</td>
+</tr>
+<tr class="even">
+<td><code>opts.value</code></td>
+<td><code>{x, y}</code> or <code>{x, y}[]</code></td>
+<td>required</td>
+<td>Starting position of one point, or of each of several. The view’s value keeps this shape.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.xBounds</code></td>
+<td><code>[lo, hi]</code></td>
+<td>the x-axis’s visible range</td>
+<td>Where the points may go, in data units.</td>
+</tr>
+<tr class="even">
+<td><code>opts.yBounds</code></td>
+<td><code>[lo, hi]</code></td>
+<td>the y-axis’s visible range</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>opts.constrain</code></td>
+<td><code>(point, index, points) =&gt; {x, y}</code></td>
+<td></td>
+<td>Runs after the bounds on every move, with the points as they were before it (an array, even for one point); return where the point may go instead (inside a triangle, onto a curve, snapped to a grid). Its result isn’t clamped again.</td>
+</tr>
+<tr class="even">
+<td><code>opts.step</code></td>
+<td><code>{x?, y?}</code></td>
+<td>a hundredth of the bounds</td>
+<td>One arrow-key step, in data units.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.jump</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>A press anywhere on the plot area moves the nearest point there: a mouse press keeps dragging it, a touch moves it on a tap (a swipe still scrolls). The plot area’s pointer events then go to the points, so Plotly’s hover and zoom stop working there.</td>
+</tr>
+<tr class="even">
+<td><code>opts.label</code></td>
+<td><code>string \| string[]</code></td>
+<td><code>"Point"</code></td>
+<td>Accessible names. For an array <code>value</code>, one string is numbered (<code>"Point 1"</code>, …) and an array names each point.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.format</code></td>
+<td><code>(point, index) =&gt; string</code></td>
+<td><code>"x 0.87, y 0.42"</code></td>
+<td>What a screen reader announces as the value. The default shows three significant digits.</td>
+</tr>
+<tr class="even">
+<td><code>opts.color</code></td>
+<td><code>string \| string[]</code></td>
+<td><code>"var(--vm-color-fn)"</code></td>
+<td>CSS color of the dots, or one per point. Use a <code>var(--vm-color-*)</code> token to follow the theme; a resolved color such as <code>chartColors.fn</code> would stay as it was.</td>
+</tr>
+<tr class="odd">
+<td><code>opts.xaxis</code>, <code>opts.yaxis</code></td>
+<td><code>string</code></td>
+<td><code>"x"</code>, <code>"y"</code></td>
+<td>The axes the points live on, for a chart with subplots (<code>"x2"</code>, …).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> the chart’s div, with a <code>value</code> accessor (a copy, shaped like <code>opts.value</code>). Setting <code>value</code> moves the points without an <code>"input"</code> event, matching Observable Inputs; an array of another length rebuilds them. Calling it again on the same chart replaces the earlier points, so use one call, with several points, per chart. Throws a <code>TypeError</code> when <code>opts.value</code> is missing or <code>plot</code> gives no drawn Plotly div.</p>
+<p>The dots follow the chart through a resize, a theme toggle, fullscreen and a zoom, and are hidden while zoomed out of view. Their size is <a href="../../docs/theming.html"><code>--vm-drag-point-size</code></a>; the hit target around each is larger (2rem, 2.75rem on a touch screen). How they map pixels to data is in <a href="../../docs/reference/internals.html#draggable-points">Internals</a>.</p>
+<p>One point, as in Buffon’s needle: <code>drop</code> is <code>{x, y}</code>. Drag the dot below, or click anywhere in the rectangle (<code>jump: true</code>):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>viewof drop <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">draggablePoints</span>(dropPlot<span class="op">,</span> {</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> {<span class="dt">x</span><span class="op">:</span> <span class="fl">0.87</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="fl">0.42</span>}<span class="op">,</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">xBounds</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span>]<span class="op">,</span> <span class="dt">yBounds</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="fl">0.5</span>]<span class="op">,</span> <span class="dt">step</span><span class="op">:</span> {<span class="dt">x</span><span class="op">:</span> <span class="fl">0.05</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="fl">0.01</span>}<span class="op">,</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">jump</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Drop"</span><span class="op">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">format</span><span class="op">:</span> p <span class="kw">=&gt;</span> <span class="vs">`θ </span><span class="sc">${</span>p<span class="op">.</span><span class="at">x</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">, d </span><span class="sc">${</span>p<span class="op">.</span><span class="at">y</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="ojs-chart-block">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb22" data-startfrom="374" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 373;"><span id="cb22-374"><a href="#cb22-374" aria-hidden="true" tabindex="-1"></a>dropPlot <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">persistentPlot</span>({<span class="dt">height</span><span class="op">:</span> <span class="st">"320px"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb23" data-startfrom="378" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 377;"><span id="cb23-378"><a href="#cb23-378" aria-hidden="true" tabindex="-1"></a>viewof drop <span class="op">=</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">draggablePoints</span>(dropPlot<span class="op">,</span> {</span>
+<span id="cb23-379"><a href="#cb23-379" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> {<span class="dt">x</span><span class="op">:</span> <span class="fl">0.87</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="fl">0.42</span>}<span class="op">,</span></span>
+<span id="cb23-380"><a href="#cb23-380" aria-hidden="true" tabindex="-1"></a>  <span class="dt">xBounds</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span>]<span class="op">,</span> <span class="dt">yBounds</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="fl">0.5</span>]<span class="op">,</span> <span class="dt">step</span><span class="op">:</span> {<span class="dt">x</span><span class="op">:</span> <span class="fl">0.05</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="fl">0.01</span>}<span class="op">,</span></span>
+<span id="cb23-381"><a href="#cb23-381" aria-hidden="true" tabindex="-1"></a>  <span class="dt">jump</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Drop"</span><span class="op">,</span></span>
+<span id="cb23-382"><a href="#cb23-382" aria-hidden="true" tabindex="-1"></a>  <span class="dt">format</span><span class="op">:</span> p <span class="kw">=&gt;</span> <span class="vs">`θ </span><span class="sc">${</span>p<span class="op">.</span><span class="at">x</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">, d </span><span class="sc">${</span>p<span class="op">.</span><span class="at">y</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb23-383"><a href="#cb23-383" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-10" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb24" data-startfrom="388" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 387;"><span id="cb24-388"><a href="#cb24-388" aria-hidden="true" tabindex="-1"></a><span class="fu">dropPlot</span>([</span>
+<span id="cb24-389"><a href="#cb24-389" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">x</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="fl">0.5</span><span class="op">,</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"lines"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"toself"</span><span class="op">,</span></span>
+<span id="cb24-390"><a href="#cb24-390" aria-hidden="true" tabindex="-1"></a>    <span class="dt">fillcolor</span><span class="op">:</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">alpha</span>(chartColors<span class="op">.</span><span class="at">muted</span><span class="op">,</span> <span class="fl">0.12</span>)<span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> chartColors<span class="op">.</span><span class="at">ink</span>}<span class="op">,</span> <span class="dt">hoverinfo</span><span class="op">:</span> <span class="st">"skip"</span><span class="op">,</span> <span class="dt">showlegend</span><span class="op">:</span> <span class="kw">false</span>}</span>
+<span id="cb24-391"><a href="#cb24-391" aria-hidden="true" tabindex="-1"></a>]<span class="op">,</span> {</span>
+<span id="cb24-392"><a href="#cb24-392" aria-hidden="true" tabindex="-1"></a>  <span class="dt">xaxis</span><span class="op">:</span> {<span class="dt">title</span><span class="op">:</span> {<span class="dt">text</span><span class="op">:</span> <span class="st">"θ"</span>}<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [<span class="op">-</span><span class="fl">0.1</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">+</span> <span class="fl">0.1</span>]<span class="op">,</span> <span class="dt">fixedrange</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb24-393"><a href="#cb24-393" aria-hidden="true" tabindex="-1"></a>  <span class="dt">yaxis</span><span class="op">:</span> {<span class="dt">title</span><span class="op">:</span> {<span class="dt">text</span><span class="op">:</span> <span class="st">"d"</span>}<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [<span class="op">-</span><span class="fl">0.02</span><span class="op">,</span> <span class="fl">0.52</span>]<span class="op">,</span> <span class="dt">fixedrange</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb24-394"><a href="#cb24-394" aria-hidden="true" tabindex="-1"></a>  <span class="dt">dragmode</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">hovermode</span><span class="op">:</span> <span class="kw">false</span></span>
+<span id="cb24-395"><a href="#cb24-395" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> {<span class="op">...</span>VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">config</span>()<span class="op">,</span> <span class="dt">displayModeBar</span><span class="op">:</span> <span class="kw">false</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-11" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb25" data-startfrom="401" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 400;"><span id="cb25-401"><a href="#cb25-401" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;span&gt;θ = </span><span class="sc">${</span>drop<span class="op">.</span><span class="at">x</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">, d = </span><span class="sc">${</span>drop<span class="op">.</span><span class="at">y</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/span&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-12" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+</section>
 <section id="the-plotly-patch" class="level2">
 <h2 class="anchored" data-anchor-id="the-plotly-patch">The Plotly patch</h2>
 <p>On load (and again on <code>DOMContentLoaded</code>) the library wraps <code>Plotly.newPlot</code> and <code>Plotly.react</code>. Every chart on the page then gets, with no per-page code:</p>
@@ -1169,9 +1336,9 @@ Authors: Apurva Nakade
 <p>Takes <code>{viewBox, width, height}</code>. The width/height ratio an <code>&lt;svg&gt;</code> draws at, from its attributes: a four-part <code>viewBox</code> when it has one, else <code>width</code>/<code>height</code> when both are positive.</p>
 <p><strong>Returns</strong> <code>number | null</code> (<code>null</code> means “measure it”).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" data-startfrom="380" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 379;"><span id="cb18-380"><a href="#cb18-380" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">viewBox</span><span class="op">:</span> <span class="st">"0 0 640 400"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">width</span><span class="op">:</span> <span class="st">"300"</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="st">"150"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({})]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26" data-startfrom="473" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 472;"><span id="cb26-473"><a href="#cb26-473" aria-hidden="true" tabindex="-1"></a>[VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">viewBox</span><span class="op">:</span> <span class="st">"0 0 640 400"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({<span class="dt">width</span><span class="op">:</span> <span class="st">"300"</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="st">"150"</span>})<span class="op">,</span> VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">svgAspectRatio</span>({})]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="ojs-cell-9" data-nodetype="expression">
+<div id="ojs-cell-13" data-nodetype="expression">
 
 </div>
 </div>
@@ -1188,7 +1355,7 @@ Authors: Apurva Nakade
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiY2hhcnRDb2xvcnNcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgY29uc3Qgcm93ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICByb3cuc3R5bGUuY3NzVGV4dCA9IFwiZGlzcGxheTpmbGV4O2dhcDouNXJlbTtmbGV4LXdyYXA6d3JhcFwiXG4gIGZvciAoY29uc3QgbmFtZSBvZiBPYmplY3Qua2V5cyhjaGFydENvbG9ycykpIHtcbiAgICBjb25zdCBjaGlwID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICAgIGNoaXAuc3R5bGUuY3NzVGV4dCA9IGB3aWR0aDo1LjVyZW07cGFkZGluZzouNHJlbSAuNXJlbTtib3JkZXItcmFkaXVzOjZweDtib3JkZXI6MXB4IHNvbGlkIHZhcigtLXZtLWJvcmRlcik7YmFja2dyb3VuZDoke1ZNLnBsb3R0aW5nLmFscGhhKGNoYXJ0Q29sb3JzW25hbWVdLCAwLjI1KX07Zm9udDoxMnB4IHZhcigtLXZtLWZvbnQtc2FucylgXG4gICAgY2hpcC5pbm5lckhUTUwgPSBgPHNwYW4gc3R5bGU9XCJkaXNwbGF5OmlubGluZS1ibG9jazt3aWR0aDouOHJlbTtoZWlnaHQ6LjhyZW07Ym9yZGVyLXJhZGl1czo1MCU7YmFja2dyb3VuZDoke2NoYXJ0Q29sb3JzW25hbWVdfTt2ZXJ0aWNhbC1hbGlnbjotMXB4O21hcmdpbi1yaWdodDouM3JlbVwiPjwvc3Bhbj4ke25hbWV9YFxuICAgIHJvdy5hcHBlbmRDaGlsZChjaGlwKVxuICB9XG4gIHJldHVybiByb3dcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IltWTS5wbG90dGluZy5hbHBoYShcIm9rXCIsIDAuMiksIFZNLnBsb3R0aW5nLmFscGhhKFwiI2ZmMDAwMFwiLCAwLjUpLCBWTS5wbG90dGluZy5hbHBoYShcInJlYmVjY2FwdXJwbGVcIiwgMC41KV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IltcInhcIiArIFZNLnBsb3R0aW5nLnN1YnNjcmlwdCgwKSwgXCJ4XCIgKyBWTS5wbG90dGluZy5zdWJzY3JpcHQoMTIpLCBWTS5wbG90dGluZy5zdWJzY3JpcHQoXCJuPTNcIildXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTYiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2bVRoZW1lICAgLy8gdGhpcyBjZWxsIHJlLXJ1bnMgb24gZXZlcnkgdG9nZ2xlIC0tIHRyeSBpdFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC03IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiW1ZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFsxLCAyLCAzLCBOYU4sIDEwXSksIFZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFs1LCA1LCA1XSksIFZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFtdKV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgY29uc3QgcHRzID0gW11cbiAgZm9yIChsZXQgaSA9IDA7IGkgPD0gNDA7IGkrKykgcHRzLnB1c2goe3g6IGkgLyA0LCB5OiBNYXRoLmV4cCgtaSAvIDE2KSAqIE1hdGguY29zKGkgLyAzKX0pXG4gIHJldHVybiBQbG90LnBsb3QoVk0ucGxvdHRpbmcucGxvdE9wdGlvbnMoe1xuICAgIGhlaWdodDogMjIwLCB4OiB7bGFiZWw6IFwidFwifSwgeToge2xhYmVsOiBcImRhbXBlZFwifSxcbiAgICBtYXJrczogW1Bsb3QubGluZShwdHMsIHt4OiBcInhcIiwgeTogXCJ5XCIsIHN0cm9rZTogY2hhcnRDb2xvcnMuZm4sIHN0cm9rZVdpZHRoOiAyfSksIFBsb3QucnVsZVkoWzBdKV1cbiAgfSkpXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTkiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJbVk0ucGxvdHRpbmcuc3ZnQXNwZWN0UmF0aW8oe3ZpZXdCb3g6IFwiMCAwIDY0MCA0MDBcIn0pLCBWTS5wbG90dGluZy5zdmdBc3BlY3RSYXRpbyh7d2lkdGg6IFwiMzAwXCIsIGhlaWdodDogXCIxNTBcIn0pLCBWTS5wbG90dGluZy5zdmdBc3BlY3RSYXRpbyh7fSldXG4ifV19
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlZNID0gd2luZG93LlZNXG52bVRoZW1lID0gR2VuZXJhdG9ycy5vYnNlcnZlKG5vdGlmeSA9PiBWTS5wbG90dGluZy5vblRoZW1lQ2hhbmdlKG5vdGlmeSkpXG5jaGFydENvbG9ycyA9IFZNLnBsb3R0aW5nLmNvbG9ycyh2bVRoZW1lKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiY2hhcnRDb2xvcnNcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgY29uc3Qgcm93ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICByb3cuc3R5bGUuY3NzVGV4dCA9IFwiZGlzcGxheTpmbGV4O2dhcDouNXJlbTtmbGV4LXdyYXA6d3JhcFwiXG4gIGZvciAoY29uc3QgbmFtZSBvZiBPYmplY3Qua2V5cyhjaGFydENvbG9ycykpIHtcbiAgICBjb25zdCBjaGlwID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICAgIGNoaXAuc3R5bGUuY3NzVGV4dCA9IGB3aWR0aDo1LjVyZW07cGFkZGluZzouNHJlbSAuNXJlbTtib3JkZXItcmFkaXVzOjZweDtib3JkZXI6MXB4IHNvbGlkIHZhcigtLXZtLWJvcmRlcik7YmFja2dyb3VuZDoke1ZNLnBsb3R0aW5nLmFscGhhKGNoYXJ0Q29sb3JzW25hbWVdLCAwLjI1KX07Zm9udDoxMnB4IHZhcigtLXZtLWZvbnQtc2FucylgXG4gICAgY2hpcC5pbm5lckhUTUwgPSBgPHNwYW4gc3R5bGU9XCJkaXNwbGF5OmlubGluZS1ibG9jazt3aWR0aDouOHJlbTtoZWlnaHQ6LjhyZW07Ym9yZGVyLXJhZGl1czo1MCU7YmFja2dyb3VuZDoke2NoYXJ0Q29sb3JzW25hbWVdfTt2ZXJ0aWNhbC1hbGlnbjotMXB4O21hcmdpbi1yaWdodDouM3JlbVwiPjwvc3Bhbj4ke25hbWV9YFxuICAgIHJvdy5hcHBlbmRDaGlsZChjaGlwKVxuICB9XG4gIHJldHVybiByb3dcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IltWTS5wbG90dGluZy5hbHBoYShcIm9rXCIsIDAuMiksIFZNLnBsb3R0aW5nLmFscGhhKFwiI2ZmMDAwMFwiLCAwLjUpLCBWTS5wbG90dGluZy5hbHBoYShcInJlYmVjY2FwdXJwbGVcIiwgMC41KV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IltcInhcIiArIFZNLnBsb3R0aW5nLnN1YnNjcmlwdCgwKSwgXCJ4XCIgKyBWTS5wbG90dGluZy5zdWJzY3JpcHQoMTIpLCBWTS5wbG90dGluZy5zdWJzY3JpcHQoXCJuPTNcIildXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTYiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2bVRoZW1lICAgLy8gdGhpcyBjZWxsIHJlLXJ1bnMgb24gZXZlcnkgdG9nZ2xlIC0tIHRyeSBpdFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC03IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiW1ZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFsxLCAyLCAzLCBOYU4sIDEwXSksIFZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFs1LCA1LCA1XSksIFZNLnBsb3R0aW5nLnBhZGRlZFJhbmdlKFtdKV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IntcbiAgY29uc3QgcHRzID0gW11cbiAgZm9yIChsZXQgaSA9IDA7IGkgPD0gNDA7IGkrKykgcHRzLnB1c2goe3g6IGkgLyA0LCB5OiBNYXRoLmV4cCgtaSAvIDE2KSAqIE1hdGguY29zKGkgLyAzKX0pXG4gIHJldHVybiBQbG90LnBsb3QoVk0ucGxvdHRpbmcucGxvdE9wdGlvbnMoe1xuICAgIGhlaWdodDogMjIwLCB4OiB7bGFiZWw6IFwidFwifSwgeToge2xhYmVsOiBcImRhbXBlZFwifSxcbiAgICBtYXJrczogW1Bsb3QubGluZShwdHMsIHt4OiBcInhcIiwgeTogXCJ5XCIsIHN0cm9rZTogY2hhcnRDb2xvcnMuZm4sIHN0cm9rZVdpZHRoOiAyfSksIFBsb3QucnVsZVkoWzBdKV1cbiAgfSkpXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTkiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJkcm9wUGxvdCA9IFZNLnBsb3R0aW5nLnBlcnNpc3RlbnRQbG90KHtoZWlnaHQ6IFwiMzIwcHhcIn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEwIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIGRyb3AgPSBWTS5wbG90dGluZy5kcmFnZ2FibGVQb2ludHMoZHJvcFBsb3QsIHtcbiAgdmFsdWU6IHt4OiAwLjg3LCB5OiAwLjQyfSxcbiAgeEJvdW5kczogWzAsIE1hdGguUEldLCB5Qm91bmRzOiBbMCwgMC41XSwgc3RlcDoge3g6IDAuMDUsIHk6IDAuMDF9LFxuICBqdW1wOiB0cnVlLCBsYWJlbDogXCJEcm9wXCIsXG4gIGZvcm1hdDogcCA9PiBgzrggJHtwLngudG9GaXhlZCgyKX0sIGQgJHtwLnkudG9GaXhlZCgyKX1gXG59KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6ImRyb3BQbG90KFtcbiAge3g6IFswLCBNYXRoLlBJLCBNYXRoLlBJLCAwLCAwXSwgeTogWzAsIDAsIDAuNSwgMC41LCAwXSwgbW9kZTogXCJsaW5lc1wiLCBmaWxsOiBcInRvc2VsZlwiLFxuICAgIGZpbGxjb2xvcjogVk0ucGxvdHRpbmcuYWxwaGEoY2hhcnRDb2xvcnMubXV0ZWQsIDAuMTIpLCBsaW5lOiB7Y29sb3I6IGNoYXJ0Q29sb3JzLmlua30sIGhvdmVyaW5mbzogXCJza2lwXCIsIHNob3dsZWdlbmQ6IGZhbHNlfVxuXSwge1xuICB4YXhpczoge3RpdGxlOiB7dGV4dDogXCLOuFwifSwgcmFuZ2U6IFstMC4xLCBNYXRoLlBJICsgMC4xXSwgZml4ZWRyYW5nZTogdHJ1ZX0sXG4gIHlheGlzOiB7dGl0bGU6IHt0ZXh0OiBcImRcIn0sIHJhbmdlOiBbLTAuMDIsIDAuNTJdLCBmaXhlZHJhbmdlOiB0cnVlfSxcbiAgZHJhZ21vZGU6IGZhbHNlLCBob3Zlcm1vZGU6IGZhbHNlXG59LCB7Li4uVk0ucGxvdHRpbmcuY29uZmlnKCksIGRpc3BsYXlNb2RlQmFyOiBmYWxzZX0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEyIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiaHRtbGA8c3Bhbj7OuCA9ICR7ZHJvcC54LnRvRml4ZWQoMyl9LCBkID0gJHtkcm9wLnkudG9GaXhlZCgzKX08L3NwYW4+YFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IltWTS5wbG90dGluZy5zdmdBc3BlY3RSYXRpbyh7dmlld0JveDogXCIwIDAgNjQwIDQwMFwifSksIFZNLnBsb3R0aW5nLnN2Z0FzcGVjdFJhdGlvKHt3aWR0aDogXCIzMDBcIiwgaGVpZ2h0OiBcIjE1MFwifSksIFZNLnBsb3R0aW5nLnN2Z0FzcGVjdFJhdGlvKHt9KV1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnZHJvcCcpIn1dfQ==
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
