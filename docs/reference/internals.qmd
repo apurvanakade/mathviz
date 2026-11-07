@@ -97,7 +97,7 @@ Slider playback, the draggable legend, the SVG fullscreen button and the slider-
 
 [`draggablePoints`](plotting.qmd#draggablePoints) lays real elements over the chart (`.vm-drag-layer`, absolutely positioned over the div, which gets `.vm-drag-host` for `position: relative`) rather than drawing Plotly markers: that is what gives each point a keyboard, an accessible name and a focus ring, and lets it move at the pointer's rate without a redraw.
 
-- **Pixels to data** go through the axis objects in `gd._fullLayout` (`_offset`, `_length`, `d2l`/`l2p`/`p2l`/`l2d`), so log and reversed axes work. The recipe this replaced measured Plotly's `.nsewdrag` rect, a drag-layer detail; these converters are the same internals [`lockedAxes`](plotting.qmd#lockedAxes) reads, kept in one file.
+- **Pixels to data** go through the axis objects in `gd._fullLayout` (`_offset`, `_length`, `d2l`/`l2p`/`p2l`/`l2d`), so log, reversed and `scaleanchor` axes work. Nothing reads Plotly's drag-layer DOM. These are the same internals [`lockedAxes`](plotting.qmd#lockedAxes) reads, kept in one file.
 - **Placement** is redone on `plotly_afterplot`, `plotly_relayout` and `plotly_relayouting`, which cover a resize, a theme toggle, fullscreen and a zoom.
 - **Theme:** a point's color is a CSS value (a `var(--vm-color-*)` by default), so a toggle recolors it without re-running the `viewof` cell, which would reset it.
 - **Touch:** only the points have `touch-action: none`. A touch elsewhere on the chart scrolls the page, so a full-width chart can't trap a phone reader. The `jump` pad keeps the default `touch-action` and moves a point on a tap; a swipe arrives as `pointercancel` and moves nothing.

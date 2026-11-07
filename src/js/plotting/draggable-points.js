@@ -19,9 +19,9 @@
   // Pixels and data are converted through the axis objects in
   // `_fullLayout` (`_offset`, `_length`, `d2l`/`l2p`/`p2l`/`l2d`), the same
   // internals lockedAxes and anchored-view.js already read, and kept in this
-  // one file. The previous recipe measured Plotly's `.nsewdrag` rect, which
-  // is a drag-layer implementation detail; the axis converters also handle
-  // log and reversed axes for free.
+  // one file. Not by measuring Plotly's `.nsewdrag` rect, which happens to
+  // cover the plot area but is a drag-layer implementation detail; the axis
+  // converters also handle log and reversed axes for free.
   //
   // Touch: only the points themselves have `touch-action: none`. A touch
   // that starts anywhere else on the chart still scrolls the page, so a
