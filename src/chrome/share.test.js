@@ -108,3 +108,8 @@ test('embedSrc and pageUrl work under a project-site subpath', () => {
   assert.match(embedSrc({ siteUrl: base, pathname: '/apps/', search: '', blockId: '', keepInputs: false }),
     /^https:\/\/apurvanakade\.github\.io\/Monte-Carlo-Methods\/apps\/\?embed=1$/)
 })
+
+test('embedSrc points an id-less block at its position among the apps', () => {
+  const src = embedSrc({ siteUrl, pathname: '/apps/x/', search: '', blockId: '', blockIndex: 2, keepInputs: false })
+  assert.equal(src, `${siteUrl}/apps/x/?embed=3`)
+})

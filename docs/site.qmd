@@ -95,7 +95,7 @@ mathviz:
   embed: true
 ```
 
-Adding `?embed=1` to a page's URL shows only the page's first app: no navbar, sidebar, title, footer or comments. `?embed=<id>` shows the app with that id instead. Another site then frames it:
+Adding `?embed=1` to a page's URL shows only the page's first app: no navbar, sidebar, title, footer or comments. `?embed=<id>` shows the app with that id instead, and `?embed=<n>` the n-th app on the page (what the Share dialog uses for an app without an id). Another site then frames it:
 
 ```html
 <iframe

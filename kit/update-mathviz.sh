@@ -3,14 +3,23 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Apurva Nakade
 
-# Installs the latest tagged release of the mathviz Quarto extension
-# (https://github.com/apurvanakade/mathviz) into _extensions/.
+# Installs the newest compatible tagged release of the mathviz Quarto
+# extension (https://github.com/apurvanakade/mathviz) into _extensions/.
 #
 # Runs as a pre-render hook (see _quarto.yml), so every `quarto render` and
-# `quarto preview` builds against the newest mathviz release. Offline, it
-# keeps the copy already in _extensions/ and lets the build continue.
+# `quarto preview` builds against the newest release *within the major
+# version already installed* -- v1.x stays on v1.x. A minor or patch release
+# only adds or fixes things, so taking it unattended is safe; a new major
+# may remove or change APIs, and installing that on a render nobody asked
+# for could break the site (or ship broken pages) with no change on the
+# site's side. When a newer major exists the hook says so and stays put;
+# run once with MATHVIZ_UPGRADE=1 (or `quarto update extension
+# apurvanakade/mathviz@vX.Y.Z`) to move to it after reading the CHANGELOG.
+# Before 1.0, when every minor could break things, it stays within the
+# installed minor (v0.13.x). Offline, it keeps the copy already in
+# _extensions/ and lets the build continue.
 #
-# The newest v* tag is looked up explicitly and passed as EXT@tag: a bare
+# The tag is looked up explicitly and passed as EXT@tag: a bare
 # `quarto add owner/repo` installs whatever the default branch holds, which
 # can be ahead of the last release.
 set -u
@@ -34,8 +43,24 @@ fi
 
 before="$(version)"
 
-tag="$(git ls-remote --tags --refs --sort=-v:refname "https://github.com/$EXT" 'v*' 2>/dev/null \
-  | sed -n '1s|.*refs/tags/||p')"
+# The newest tag matching a glob, or nothing (offline, or no such tag).
+newest() {
+  git ls-remote --tags --refs --sort=-v:refname "https://github.com/$EXT" "$1" 2>/dev/null \
+    | sed -n '1s|.*refs/tags/||p'
+}
+
+latest="$(newest 'v*')"
+tag="$latest"
+if [ -n "$before" ] && [ -z "${MATHVIZ_UPGRADE:-}" ]; then
+  major="${before%%.*}"
+  rest="${before#*.}"
+  minor="${rest%%.*}"
+  if [ "$major" = "0" ]; then line="v0.$minor"; else line="v$major"; fi
+  tag="$(newest "$line.*")"
+  if [ -n "$latest" ] && [ -n "$tag" ] && [ "$latest" != "$tag" ]; then
+    echo "mathviz: $latest is available; staying on $line.x, since it may change APIs. Read the CHANGELOG, then render once with MATHVIZ_UPGRADE=1 to move to it." >&2
+  fi
+fi
 if [ -z "$tag" ]; then
   if [ -d "$DIR" ]; then
     echo "mathviz: could not look up the latest release (offline?); building with v${before}." >&2

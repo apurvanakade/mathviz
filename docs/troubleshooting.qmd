@@ -16,6 +16,9 @@ Each of these has happened on a real page. The cause is usually one of three thi
 **The chart has a pale blue plot area, or a white box, on the dark theme.**
 The layout isn't themed. On a page rendered through the extension the Plotly patch merges [`layout()`](reference/plotting.qmd#layout) under every chart, so this means either Plotly loaded *after* `mathviz.js` (a hand-written `<script>` order; the extension gets it right) or the page set `mathviz-page: {plotly: false}` (or `_quarto.yml` set `mathviz: {plotly: false}`) and loads Plotly itself. Fix the order, or call `VM.plotting.installPlotlyPatch()` after Plotly is available.
 
+**`Plotly is not defined` on a page without `{ojs}` cells.**
+The extension adds Plotly and math.js only to pages with OJS cells. A page that draws from its own `<script>` sets `mathviz-page: {plotly: true}` (or `mathjs: true`) -- and runs that code from a `DOMContentLoaded` listener, since the tags are deferred.
+
 **The axes and grid follow the toggle but the traces stay light-mode colored.**
 Trace colors are values the page baked in; only re-running the cell changes them. Add the two-line pattern at the top of the page and read `chartColors.fn` in the chart cell -- [Theming: following the theme](theming.qmd#following-the-theme-in-a-chart).
 

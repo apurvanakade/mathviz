@@ -53,6 +53,21 @@
   transform: scale(1.15);
 }
 
+/* The thumb's grow-on-grab is the one movement in the library's CSS (the
+ * rest are color and opacity fades); the OS reduced-motion setting turns it
+ * off, as it already turns off the chart tween in VM.plotting.layout(). */
+@media (prefers-reduced-motion: reduce) {
+  .ojs-panel input[type="range"]::-webkit-slider-thumb,
+  .ojs-chart-controls input[type="range"]::-webkit-slider-thumb {
+    transition: none;
+  }
+
+  .ojs-panel input[type="range"]:active::-webkit-slider-thumb,
+  .ojs-chart-controls input[type="range"]:active::-webkit-slider-thumb {
+    transform: none;
+  }
+}
+
 /* Firefox paints the filled portion itself via ::-moz-range-progress, so it
  * needs no --sx and gets a plain track underneath. */
 .ojs-panel input[type="range"]::-moz-range-track,

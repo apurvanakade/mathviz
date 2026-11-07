@@ -6,10 +6,12 @@
 
 // Concatenates src/js/** and src/css/** -- in the order src/manifest.mjs
 // lists them, which is the order the browser must run them in -- into
-// dist/mathviz.js and dist/mathviz.css, then copies both into the Quarto
-// extension folder. No minifier, no bundler, no dependencies: the output is
-// the readable source with file separators, so a stack trace in a consumer's
-// browser still points at a recognizable file.
+// dist/mathviz.js and dist/mathviz.css, the readable bundle with file
+// separators and every comment, then minifies both with esbuild (the one
+// build dependency) into dist/mathviz.min.{js,css}, with a source map back
+// to the readable file. The Quarto extension ships the minified files and
+// the map; jsDelivr serves both forms. Over 70% of the readable bundle is
+// comments, which every page used to download.
 //
 // dist/ is committed on purpose. `quarto add apurvanakade/mathviz` pulls a
 // plain archive of this repository and runs nothing, and jsDelivr serves
@@ -21,6 +23,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { transformSync } from 'esbuild'
 import { js, css } from '../src/manifest.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -76,6 +79,29 @@ fs.writeFileSync(path.join(root, 'dist/mathviz.css'), cssOut)
 // A concatenation can be syntactically valid file-by-file and still break as
 // one script (a file missing its trailing semicolon before an IIFE, say).
 execFileSync(process.execPath, ['--check', path.join(root, 'dist/mathviz.js')], { stdio: 'inherit' })
+
+// The minified pair. No syntax lowering (esbuild's default target is
+// esnext): the bundle runs as written, only smaller. The license header is
+// re-added by hand because minification drops every comment. The map
+// embeds the readable source, so devtools show it without dist/mathviz.js
+// being shipped alongside.
+const minLicense = `/*! mathviz v${pkgVersion} | (c) 2026 Apurva Nakade | Apache-2.0 | readable source: dist/mathviz.js */\n`
+const minJs = transformSync(jsOut, {
+  minify: true,
+  legalComments: 'none',
+  sourcemap: 'external',
+  sourcefile: 'mathviz.js',
+  sourcesContent: true
+})
+fs.writeFileSync(path.join(root, 'dist/mathviz.min.js'), minLicense + minJs.code + '//# sourceMappingURL=mathviz.min.js.map\n')
+// The license line sits above the minified code, so every mapped line moves
+// down one: a leading ";" in the mappings is one empty generated line.
+const map = JSON.parse(minJs.map)
+map.mappings = ';' + map.mappings
+fs.writeFileSync(path.join(root, 'dist/mathviz.min.js.map'), JSON.stringify(map) + '\n')
+execFileSync(process.execPath, ['--check', path.join(root, 'dist/mathviz.min.js')], { stdio: 'inherit' })
+const minCss = transformSync(cssOut, { loader: 'css', minify: true, legalComments: 'none' })
+fs.writeFileSync(path.join(root, 'dist/mathviz.min.css'), minLicense + minCss.code)
 
 // The optional Quarto theme: src/theme/theme.scss filled in once per color
 // scheme with the chrome tokens' values from tokens.css (see the template's
@@ -136,7 +162,10 @@ fs.writeFileSync(path.join(root, 'dist/theme/mathviz-dark.scss'), theme('dark', 
 const ext = path.join(root, '_extensions/mathviz')
 const extDist = path.join(ext, 'dist')
 fs.mkdirSync(extDist, { recursive: true })
-for (const name of ['mathviz.js', 'mathviz.css']) {
+// The extension ships only what the filter loads: the minified pair and
+// the map. Files from an earlier layout are removed so they can't go stale.
+for (const name of fs.readdirSync(extDist)) fs.rmSync(path.join(extDist, name))
+for (const name of ['mathviz.min.js', 'mathviz.min.js.map', 'mathviz.min.css']) {
   fs.copyFileSync(path.join(root, 'dist', name), path.join(extDist, name))
 }
 // The theme, fonts and chrome sit beside dist/ in the extension rather than
@@ -174,6 +203,6 @@ if (fs.existsSync(path.join(root, 'starter'))) {
 }
 
 const kb = (rel) => (fs.statSync(path.join(root, rel)).size / 1024).toFixed(0)
-console.log(`dist/mathviz.js  ${kb('dist/mathviz.js')} kB (${js.length} files)`)
-console.log(`dist/mathviz.css ${kb('dist/mathviz.css')} kB (${css.length} files)`)
+console.log(`dist/mathviz.js  ${kb('dist/mathviz.js')} kB (${js.length} files), minified ${kb('dist/mathviz.min.js')} kB`)
+console.log(`dist/mathviz.css ${kb('dist/mathviz.css')} kB (${css.length} files), minified ${kb('dist/mathviz.min.css')} kB`)
 console.log(`dist/theme/mathviz-{light,dark}.scss (${themeTokens.length} tokens each)`)
