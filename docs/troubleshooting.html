@@ -52,10 +52,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/bootstrap/bootstrap-dark-dafc20e7d5c911a8f53d723065a50860.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <link href="../site_libs/bootstrap/bootstrap-bd089309c48056d115b64257fc48cc9a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
-<script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../site_libs/quarto-contrib/mathviz-0.13.0/mathviz.js"></script>
-<link href="../site_libs/quarto-contrib/mathviz-0.13.0/mathviz.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/mathviz-0.13.0/mathviz.min.js" defer=""></script>
+<link href="../site_libs/quarto-contrib/mathviz-0.13.0/mathviz.min.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -408,6 +406,7 @@ Authors: Apurva Nakade
 <section id="charts-and-theme" class="level2">
 <h2 class="anchored" data-anchor-id="charts-and-theme">Charts and theme</h2>
 <p><strong>The chart has a pale blue plot area, or a white box, on the dark theme.</strong> The layout isn’t themed. On a page rendered through the extension the Plotly patch merges <a href="../docs/reference/plotting.html#layout"><code>layout()</code></a> under every chart, so this means either Plotly loaded <em>after</em> <code>mathviz.js</code> (a hand-written <code>&lt;script&gt;</code> order; the extension gets it right) or the page set <code>mathviz-page: {plotly: false}</code> (or <code>_quarto.yml</code> set <code>mathviz: {plotly: false}</code>) and loads Plotly itself. Fix the order, or call <code>VM.plotting.installPlotlyPatch()</code> after Plotly is available.</p>
+<p><strong><code>Plotly is not defined</code> on a page without <code>{ojs}</code> cells.</strong> The extension adds Plotly and math.js only to pages with OJS cells. A page that draws from its own <code>&lt;script&gt;</code> sets <code>mathviz-page: {plotly: true}</code> (or <code>mathjs: true</code>) – and runs that code from a <code>DOMContentLoaded</code> listener, since the tags are deferred.</p>
 <p><strong>The axes and grid follow the toggle but the traces stay light-mode colored.</strong> Trace colors are values the page baked in; only re-running the cell changes them. Add the two-line pattern at the top of the page and read <code>chartColors.fn</code> in the chart cell – <a href="../docs/theming.html#following-the-theme-in-a-chart">Theming: following the theme</a>.</p>
 <p><strong>A translucent fill stays light-mode colored while its stroke lightens.</strong> An <code>rgba(...)</code> literal. Use <code>VM.plotting.alpha("ok", 0.2)</code> and make the cell depend on <code>chartColors</code>.</p>
 <p><strong>The hover tooltip is a white box with unreadable text on the dark theme.</strong> Two possible causes. If it’s your own token-reading code: you read from <code>document.documentElement</code>; the dark tokens are declared on selectors matching <code>&lt;body&gt;</code>, so <code>&lt;html&gt;</code> reports light values – read from <code>document.body</code> (<a href="../docs/theming.html#why-js-reads-from-body">why</a>). If it’s a chart built outside the patch: Plotly derives a trace’s tooltip background from the trace’s own color unless the trace sets <code>hoverlabel</code>; set <a href="../docs/reference/plotting.html#hoverLabel"><code>hoverLabel()</code></a> on each trace, not only on the layout.</p>

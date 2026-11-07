@@ -87,10 +87,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/bootstrap/bootstrap-dark-dafc20e7d5c911a8f53d723065a50860.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <link href="../site_libs/bootstrap/bootstrap-bd089309c48056d115b64257fc48cc9a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
-<script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../site_libs/quarto-contrib/mathviz-0.13.0/mathviz.js"></script>
-<link href="../site_libs/quarto-contrib/mathviz-0.13.0/mathviz.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/mathviz-0.13.0/mathviz.min.js" defer=""></script>
+<link href="../site_libs/quarto-contrib/mathviz-0.13.0/mathviz.min.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -451,13 +449,13 @@ Authors: Apurva Nakade
 <p>This copies the extension into <code>_extensions/apurvanakade/mathviz/</code> in your project. Enable it project-wide in <code>_quarto.yml</code>, or per page in front matter:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">filters</span><span class="kw">:</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> mathviz</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The filter puts math.js and Plotly (from a CDN, pinned to the versions the library is tested against), then <code>mathviz.js</code> and <code>mathviz.css</code> (served from your own <code>site_libs/</code>), into every HTML page’s <code>&lt;head&gt;</code>.</p>
+<p>The filter puts the minified <code>mathviz.min.js</code> and <code>mathviz.min.css</code> (served from your own <code>site_libs/</code>) into every HTML page’s <code>&lt;head&gt;</code>, and on every page with <code>{ojs}</code> cells, math.js and Plotly ahead of them (from a CDN, pinned to the versions the library is tested against). All three scripts are deferred, so none of them holds up the page’s first paint, and they still run in order, before the first OJS cell.</p>
 <section id="options" class="level3">
 <h3 class="anchored" data-anchor-id="options">Options</h3>
 <p>All optional, under a <code>mathviz:</code> key in <code>_quarto.yml</code>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">plotly</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">             # your pages draw with D3/canvas/Plot -- skip Plotly</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mathjs</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">             # ...or math.js. Either also accepts a URL string</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mathjs</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">             # ...or math.js. Either also accepts true or a URL</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">css</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">                # bring your own stylesheet</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">referrer</span><span class="kw">:</span><span class="at"> same-origin</span><span class="co">     # emit &lt;meta name="referrer"&gt; ahead of the CDN tags</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
@@ -471,13 +469,13 @@ Authors: Apurva Nakade
 <tbody>
 <tr class="odd">
 <td><code>plotly</code></td>
-<td><code>true</code> (default), <code>false</code>, or a URL</td>
-<td>Whether to add the Plotly tag, and from where. With <code>false</code> the Plotly patch is a silent no-op and the <code>VM.plotting</code> theme functions still work for Observable Plot.</td>
+<td><code>"auto"</code> (default), <code>true</code>, <code>false</code>, or a URL</td>
+<td>Whether to add the Plotly tag, and from where. <code>"auto"</code> adds it to pages with <code>{ojs}</code> cells only; <code>true</code> or a URL adds it to every page – for a page that draws Plotly charts from its own <code>&lt;script&gt;</code> with no OJS (put that code in a <code>DOMContentLoaded</code> listener: the tag is deferred). With <code>false</code> the Plotly patch is a silent no-op and the <code>VM.plotting</code> theme functions still work for Observable Plot.</td>
 </tr>
 <tr class="even">
 <td><code>mathjs</code></td>
-<td><code>true</code> (default), <code>false</code>, or a URL</td>
-<td>Whether to add the math.js tag, and from where. <code>VM.expressions.*</code> take the instance as an argument, so a page that loads math.js another way passes that.</td>
+<td><code>"auto"</code> (default), <code>true</code>, <code>false</code>, or a URL</td>
+<td>The same, for math.js. <code>VM.expressions.*</code> take the instance as an argument, so a page that loads math.js another way passes that.</td>
 </tr>
 <tr class="odd">
 <td><code>css</code></td>
@@ -509,17 +507,18 @@ Authors: Apurva Nakade
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> update apurvanakade/mathviz@v0.13.0    <span class="co"># move to a release</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> add apurvanakade/mathviz@v0.13.0       <span class="co"># pin at install time</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Always name the tag. Without one (or with <code>@latest</code>), Quarto installs the <code>main</code> branch, which can be ahead of the last release.</p>
-<p>To stay on the latest release without thinking about it, run the <a href="https://github.com/apurvanakade/mathviz/tree/main/kit">site kit</a>’s <code>update-mathviz.sh</code> as a <code>pre-render</code> hook. It updates the extension before each render and keeps the installed copy when you’re offline.</p>
+<p>To stay on the latest release without thinking about it, run the <a href="https://github.com/apurvanakade/mathviz/tree/main/kit">site kit</a>’s <code>update-mathviz.sh</code> as a <code>pre-render</code> hook. It updates the extension before each render – within the major version you have, since only a new major may change what your pages call – and keeps the installed copy when you’re offline. When a new major is out it says so; render once with <code>MATHVIZ_UPGRADE=1</code> to take it.</p>
 </section>
 </section>
 <section id="any-other-web-page" class="level2">
 <h2 class="anchored" data-anchor-id="any-other-web-page">Any other web page</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">link</span><span class="ot"> rel</span><span class="op">=</span><span class="st">"stylesheet"</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.13.0/dist/mathviz.css"</span><span class="dt">&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.plot.ly/plotly-2.35.2.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.13.0/dist/mathviz.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">link</span><span class="ot"> rel</span><span class="op">=</span><span class="st">"stylesheet"</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.13.0/dist/mathviz.min.css"</span><span class="dt">&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> defer src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> defer src</span><span class="op">=</span><span class="st">"https://cdn.plot.ly/plotly-2.35.2.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> defer src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/apurvanakade/mathviz@v0.13.0/dist/mathviz.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Load <strong>Plotly before <code>mathviz.js</code></strong>. If Plotly arrives later (a dynamic import), call <a href="../docs/reference/plotting.html#installPlotlyPatch"><code>VM.plotting.installPlotlyPatch()</code></a> yourself.</li>
+<li><code>mathviz.min.js</code>/<code>.min.css</code> are the minified bundle (a quarter of the size; a source map points devtools at the readable code). <code>dist/mathviz.js</code> and <code>dist/mathviz.css</code> are the same code with every comment, to read.</li>
+<li>Load <strong>Plotly before <code>mathviz.min.js</code></strong>, and keep <code>defer</code> on all three or on none: deferred scripts run in document order, after the page has been parsed. If Plotly arrives later (a dynamic import), call <a href="../docs/reference/plotting.html#installPlotlyPatch"><code>VM.plotting.installPlotlyPatch()</code></a> yourself.</li>
 <li>Pin the tag in the URL. jsDelivr also serves <code>@main</code>, but a tag is what you can reason about.</li>
 <li>Without Quarto and Observable Inputs, some CSS has nothing to attach to; <a href="../docs/reference/internals.html#host-markup">Internals</a> says what degrades and what doesn’t.</li>
 </ul>
