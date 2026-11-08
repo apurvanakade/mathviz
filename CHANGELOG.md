@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.ui.staticKey(items, options?)`: a key for an Observable Plot figure whose swatches show each series' line style (dash, width, a shaded band, a dot), not just its color. The guide's Observable Plot examples use it in place of `Plot.legend`.
+
 ## [1.0.0] - 2026-11-07
 
 ### Added

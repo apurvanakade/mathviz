@@ -110,11 +110,12 @@
 
   // The figure SVGs: every <svg> in the block's drawing cells that is wide
   // enough to be a picture. The controls bar is skipped outright (its play
-  // buttons are SVG icons), as is anything inside a button or the legend.
+  // buttons are SVG icons), as is anything inside a button, the legend or a
+  // static key (its swatches are small SVGs).
   const findFigures = (block) => {
     const figures = []
     for (const svg of block.querySelectorAll("svg")) {
-      if (svg.closest(".ojs-chart-controls, .ojs-legend-overlay, button")) continue
+      if (svg.closest(".ojs-chart-controls, .ojs-legend-overlay, .vm-static-key, button")) continue
       if (svg.getBoundingClientRect().width < MIN_FIGURE_WIDTH) continue
       figures.push(svg)
     }

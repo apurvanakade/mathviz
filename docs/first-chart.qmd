@@ -137,7 +137,7 @@ The wrapper around the chart cells. It's what the fullscreen button enlarges, an
 ## Plotly or Observable Plot
 
 - **An app's chart is Plotly**, like the one on this page: the chart the reader drives from the panel and sliders, and zooms and pans. It gets the modebar, fullscreen, the [floating legend](reference/ui.qmd#legendOverlay) and the [slider bar](markup.qmd#ojs-chart-controls).
-- **A simple figure is Observable Plot**: a convergence plot, an error-decay plot, a comparison -- anything the reader reads rather than explores. Theme it with [`plotOptions`](reference/plotting.qmd#plotOptions) and name its series with a [static key](reference/ui.qmd#static-key) under it. It needs no chart block, no modebar and no fullscreen.
+- **A simple figure is Observable Plot**: a convergence plot, an error-decay plot, a comparison -- anything the reader reads rather than explores. Theme it with [`plotOptions`](reference/plotting.qmd#plotOptions) and name its series with a [static key](reference/ui.qmd#staticKey) under it. It needs no chart block, no modebar and no fullscreen.
 
 ```js
 {
@@ -147,7 +147,10 @@ The wrapper around the chart cells. It's what the fullscreen button enlarges, an
     marks: [...]
   }))
   const figure = document.createElement("div")
-  figure.append(chart, Plot.legend({color: {domain: ["Euler", "RK4"], range: [chartColors.fn, chartColors.alt]}}))
+  figure.append(chart, VM.ui.staticKey([
+    {label: "Euler", stroke: chartColors.fn},
+    {label: "RK4", stroke: chartColors.alt, strokeDasharray: "6,4"}
+  ]))
   return figure
 }
 ```
