@@ -570,34 +570,38 @@ kit/                   what a consumer site copies in: the update hook</code></p
 <td><code>VM.ui.legendOverlay</code></td>
 </tr>
 <tr class="even">
+<td><code>vm-static-key</code>, <code>vm-static-key-item</code></td>
+<td><code>VM.ui.staticKey</code> (its swatch SVGs are excluded from the SVG fullscreen button’s figure and from centering)</td>
+</tr>
+<tr class="odd">
 <td><code>vm-overlay-grip</code>, <code>vm-overlay-dragging</code>, <code>data-vm-draggable</code></td>
 <td>the draggable-legend module</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>vm-play</code>, <code>vm-play-button</code>, <code>vm-play-more</code>, <code>vm-play-panel</code>, <code>vm-play-group</code>, <code>vm-play-pills</code>, <code>vm-play-pill</code>, <code>vm-play-pill-on</code>, <code>vm-playing</code>, <code>vm-has-play</code>, <code>data-vm-play-ready</code></td>
 <td>slider playback</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>vm-fullscreen-toggle</code>, <code>vm-fs-figure</code></td>
 <td>the SVG fullscreen button</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>vm-drag-host</code>, <code>vm-drag-layer</code>, <code>vm-drag-pad</code>, <code>vm-drag-point</code>, <code>vm-drag-active</code></td>
 <td><code>VM.plotting.draggablePoints</code>: the chart div, the layer over it, the <code>jump</code> pad, each point, the point being dragged</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>ojs-table-toolbar</code>, <code>ojs-table-container</code></td>
 <td><code>VM.ui.renderTable</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>vm-stat-row</code>, <code>vm-stat</code>, <code>vm-stat-label</code>, <code>vm-stat-value</code>, <code>--vm-stat-count</code></td>
 <td><code>VM.ui.statRow</code> (the count caps the row at 14rem per tile)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>vm-embed</code>, <code>vm-app-active</code>, <code>vm-sidebar-search</code>, <code>vm-sidebar-search-empty</code>, <code>vm-sidebar-search-hidden</code>, <code>vm-share-*</code>, <code>vm-report-bug-popup</code>, <code>vm-category-cloud</code>, <code>category--all</code>, <code>data-vm-cloud-ready</code></td>
 <td>the opt-in <a href="#site-extras">site extras</a></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>--sx</code>, <code>--vm-plot-aspect-ratio</code>, <code>--vm-fs-plot-width</code>, <code>--vm-svg-aspect</code>, <code>--vm-swatch</code></td>
 <td>runtime layout state: a slider’s fill fraction, fullscreen letterboxing, a swatch’s tint</td>
 </tr>
@@ -634,7 +638,7 @@ kit/                   what a consumer site copies in: the update hook</code></p
 </tr>
 <tr class="even">
 <td><code>svg[class^="plot-"] { background: none }</code></td>
-<td>Observable Plot styles its SVG <code>background: white</code>, which stays white on the dark theme. Quarto clears it inline, but only on an SVG that is a cell’s direct output, so a Plot wrapped in a <code>&lt;div&gt;</code> (a chart with a <code>Plot.legend</code> under it) kept the white box. The attribute selector outranks Plot’s single generated <code>.plot-&lt;hash&gt;</code> class. A Plot given its own <code>className</code> isn’t matched.</td>
+<td>Observable Plot styles its SVG <code>background: white</code>, which stays white on the dark theme. Quarto clears it inline, but only on an SVG that is a cell’s direct output, so a Plot wrapped in a <code>&lt;div&gt;</code> (a chart with a key under it) kept the white box. The attribute selector outranks Plot’s single generated <code>.plot-&lt;hash&gt;</code> class. A Plot given its own <code>className</code> isn’t matched.</td>
 </tr>
 <tr class="odd">
 <td><code>.js-plotly-plot .modebar*</code></td>
