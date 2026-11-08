@@ -34,7 +34,7 @@ version before every render, and tells you when a new major is out.
 **An existing Quarto site:**
 
 ```sh
-quarto add apurvanakade/mathviz@v1.0.0
+quarto add apurvanakade/mathviz@v1.1.0
 ```
 
 ```yaml
