@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-08
+
 ### Added
 
 - `VM.ui.staticKey(items, options?)`: a key for an Observable Plot figure whose swatches show each series' line style (dash, width, a shaded band, a dot), not just its color. The guide's Observable Plot examples use it in place of `Plot.legend`.
@@ -415,7 +417,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/apurvanakade/mathviz/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/apurvanakade/mathviz/compare/v0.13.0...v1.0.0
 [0.13.0]: https://github.com/apurvanakade/mathviz/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/apurvanakade/mathviz/compare/v0.12.0...v0.12.1
