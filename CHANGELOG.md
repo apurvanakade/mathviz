@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-08
+
 ### Changed
 
 - A `VM.ui.statRow` placed inside an `.ojs-chart-block`, after a Plotly chart, now sits under the chart with a gap above it, and in fullscreen keeps its height and lines up with the letterboxed chart instead of the screen's left edge, with or without a slider bar in the block (the fullscreen button now measures the chart's width for either).
@@ -421,7 +423,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/apurvanakade/mathviz/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/apurvanakade/mathviz/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/apurvanakade/mathviz/compare/v0.13.0...v1.0.0
 [0.13.0]: https://github.com/apurvanakade/mathviz/compare/v0.12.1...v0.13.0
