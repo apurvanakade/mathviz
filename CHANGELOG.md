@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Changed
+
+- A `VM.ui.statRow` placed inside an `.ojs-chart-block`, after a Plotly chart, now sits under the chart with a gap above it, and in fullscreen keeps its height and lines up with the letterboxed chart instead of the screen's left edge, with or without a slider bar in the block (the fullscreen button now measures the chart's width for either).
+
 ## [1.1.0] - 2026-11-08
 
 ### Added

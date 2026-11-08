@@ -47,3 +47,25 @@
   color: var(--vm-text);
   white-space: nowrap;
 }
+
+/* A row inside an .ojs-chart-block, so it stays on screen when the chart is
+ * fullscreened -- the numbers are what a reader stepping through a run in
+ * fullscreen is reading. Below a Plotly chart (the block's column puts it
+ * after the chart, which comes after the slider bar and the legend's cell)
+ * it needs a gap above the chart's x-axis title rather than below itself;
+ * above an SVG figure it keeps the default margin. */
+.ojs-chart-block > div:has(.js-plotly-plot) ~ div .vm-stat-row {
+  margin: 0.5rem 0 0;
+}
+
+/* In fullscreen the block is a column whose chart takes the height left
+ * over, so the row's cell must not shrink, and it takes the slider bar's
+ * width and centering (chart-block.css) so its left edge lines up with the
+ * letterboxed chart's rather than the screen's. The bottom padding keeps
+ * the tiles off the screen's edge. */
+.ojs-chart-block:fullscreen > div:has(.vm-stat-row) {
+  flex: 0 0 auto;
+  width: var(--vm-fs-plot-width, 100%);
+  margin-inline: auto;
+  padding-bottom: 0.75rem;
+}
