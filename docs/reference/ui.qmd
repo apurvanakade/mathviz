@@ -36,7 +36,7 @@ A floating legend of clickable swatch+label rows that toggles which traces a cha
 viewof shown = VM.ui.legendOverlay([{label: "f(x)", color: chartColors.fn}, {label: "f'(x)", color: chartColors.alt}])
 ```
 
-and `shown` is the array of checked labels. Put the cell inside the chart's `.ojs-chart-block`: the CSS floats it over the chart's top-left corner, and the draggable-legend module picks it up. For a Plotly figure with no controls, [`VM.plotting.plotWithLegend`](plotting.qmd#plotWithLegend) does this wiring in one cell; a simple figure is better drawn with Observable Plot and a [static key](#static-key).
+and `shown` is the array of checked labels. Put the cell inside the chart's `.ojs-chart-block`: the CSS floats it over the chart's top-left corner, and the draggable-legend module picks it up. For a Plotly figure with no controls, [`VM.plotting.plotWithLegend`](plotting.qmd#plotWithLegend) does this wiring in one cell; a simple figure is better drawn with Observable Plot and a [static key](#staticKey).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -85,33 +85,59 @@ legendShown
 
 Try dragging the legend by its grip (appears on hover), then reload -- the position is remembered.
 
-### A static key {#static-key}
+### VM.ui.staticKey(items, options?) {#staticKey}
 
-A simple figure -- a convergence or error plot, which the reader reads rather than explores -- is drawn with Observable Plot, not Plotly (see [Plotly or Observable Plot](../first-chart.qmd#plotly-or-observable-plot)), and its series are named by Observable Plot's own `Plot.legend` under it rather than by a floating legend. The key sits in normal flow, so it never covers the curve, wraps when the row is full, and stays visible at every width. Return the chart and the key from one cell, in one `div`:
+A simple figure -- a convergence or error plot, which the reader reads rather than explores -- is drawn with Observable Plot, not Plotly (see [Plotly or Observable Plot](../first-chart.qmd#plotly-or-observable-plot)), and its series are named by a key under it rather than by a floating legend. The key sits in normal flow, so it never covers the curve, wraps when the row is full, and stays visible at every width. Each swatch is drawn like its mark -- a dashed line dashed, a band shaded, a dot a dot -- so series that share a color stay apart. Return the chart and the key from one cell, in one `div`:
 
 ```{ojs}
 {
   const rows = []
   for (let i = 0; i <= 200; i++) {
     const x = -Math.PI + 2 * Math.PI * i / 200
-    rows.push({x, sin: Math.sin(x), cos: Math.cos(x)})
+    rows.push({x, sin: Math.sin(x), cos: Math.cos(x), lo: Math.sin(x) - 0.3, hi: Math.sin(x) + 0.3})
   }
+  const dots = rows.filter((_, i) => i % 20 === 0)
   const chart = Plot.plot(VM.plotting.plotOptions({
     width: 640, height: 300,
     x: {label: "x"}, y: {label: null},
     marks: [
+      Plot.areaY(rows, {x: "x", y1: "lo", y2: "hi", fill: chartColors.fn, fillOpacity: 0.2}),
       Plot.line(rows, {x: "x", y: "sin", stroke: chartColors.fn, strokeWidth: 2}),
-      Plot.line(rows, {x: "x", y: "cos", stroke: chartColors.alt, strokeWidth: 2, strokeDasharray: "6,4"})
+      Plot.line(rows, {x: "x", y: "cos", stroke: chartColors.alt, strokeWidth: 2, strokeDasharray: "6,4"}),
+      Plot.dot(dots, {x: "x", y: "cos", fill: chartColors.alt, r: 3})
     ]
   }))
-  const key = Plot.legend({color: {domain: ["sin", "cos"], range: [chartColors.fn, chartColors.alt]}})
+  const key = VM.ui.staticKey([
+    {label: "sin ± 0.3", marks: [
+      {mark: "area", fill: chartColors.fn, fillOpacity: 0.2},
+      {mark: "line", stroke: chartColors.fn, strokeWidth: 2}
+    ]},
+    {label: "cos", stroke: chartColors.alt, strokeWidth: 2, strokeDasharray: "6,4"},
+    {label: "samples", mark: "dot", fill: chartColors.alt, r: 3}
+  ])
   const figure = document.createElement("div")
   figure.append(chart, key)   // append(key, chart) puts the key above
   return figure
 }
 ```
 
-The key doesn't toggle anything, and every swatch is a solid square, so a dashed line or a filled band shows only its color.
+An item's options are the mark's own, under Plot's names and with Plot's defaults, so they can be copied from the `Plot.line(...)` call.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | `object[]` | | Rows, in order: `{label, mark, ...options}`, or `{label, marks: [{mark, ...options}, ...]}` for a swatch of several marks drawn in order (a band with its mean line, a line with dots). |
+| `items[].label` | `string` | | The series name. |
+| `items[].mark` | `"line"`, `"area"`, `"dot"` | `"line"` | A horizontal line, a filled rectangle, or a dot in the middle. |
+| `items[].stroke` | `string` | `"currentColor"` for a line or an unfilled dot; none for an area or a filled dot | Line color; a dot's or area's outline. |
+| `items[].strokeWidth` | `number` | `1.5` | |
+| `items[].strokeDasharray` | `string` | | e.g. `"6,4"`. |
+| `items[].strokeOpacity` | `number` | | |
+| `items[].fill` | `string` | `"currentColor"` for an area; none (hollow) for a dot | |
+| `items[].fillOpacity` | `number` | | |
+| `items[].r` | `number` | `3` | A dot's radius; a bigger dot makes its swatch taller. |
+| `options.swatchWidth` | `number` | `28` | Swatch width in px -- two periods of a `"6,4"` dash. |
+
+**Returns** a `div.vm-static-key` with one `span.vm-static-key-item` per item: an `aria-hidden` SVG swatch, then the label. Colors are used as given, so take them from `chartColors` and the cell redraws the key with the chart on a theme toggle. A `mark` other than the three throws a `TypeError`. The key doesn't toggle anything.
 
 ### Draggable legend {#draggable-legend}
 

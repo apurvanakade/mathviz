@@ -20,7 +20,7 @@
 /* Observable Plot styles its own SVG `background: white`, which stays white
  * on the dark theme while the axis text follows the page to a light color.
  * Quarto clears that inline, but only on an SVG that is a cell's direct
- * output: a Plot wrapped in a <div> (a convergence plot with a Plot.legend
+ * output: a Plot wrapped in a <div> (a convergence plot with a key
  * appended under it) kept the white box. This clears it wherever the SVG
  * sits; the attribute selector outranks Plot's single generated class. */
 svg[class^="plot-"] {
@@ -231,12 +231,12 @@ svg[class^="plot-"] {
  * viewport but otherwise sits flush left in the wider content column,
  * looking off-center against the centered controls bar above it. The
  * selector mirrors findFigures in js/plotting/svg-fullscreen-button.js
- * (any SVG not in the controls bar, the legend or a button) rather than
+ * (any SVG not in the controls bar, a legend or key, or a button) rather than
  * keying on the .vm-fs-figure class that script adds, so the figure is
  * centered from its first paint, not from the frame the script gets to it.
  * A full-width SVG (the PPV page's grid) has no side margin to distribute,
  * so this is a no-op there. */
-.ojs-svg-block svg:not(.ojs-chart-controls svg, .ojs-legend-overlay svg, button svg) {
+.ojs-svg-block svg:not(.ojs-chart-controls svg, .ojs-legend-overlay svg, .vm-static-key svg, button svg) {
   display: block;
   margin-inline: auto;
 }
