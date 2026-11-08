@@ -105,6 +105,7 @@ Slider playback, the draggable legend, the SVG fullscreen button and the slider-
 - **Placement** is redone on `plotly_afterplot`, `plotly_relayout` and `plotly_relayouting`, which cover a resize, a theme toggle, fullscreen and a zoom.
 - **Theme:** a point's color is a CSS value (a `var(--vm-color-*)` by default), so a toggle recolors it without re-running the `viewof` cell, which would reset it.
 - **Touch:** only the points have `touch-action: none`. A touch elsewhere on the chart scrolls the page, so a full-width chart can't trap a phone reader. The `jump` pad keeps the default `touch-action` and moves a point on a tap; a swipe arrives as `pointercancel` and moves nothing.
+- **Ending a drag:** the pointer is captured on the point (or the `jump` pad), and the drag ends on `pointerup`, `pointercancel`, `lostpointercapture`, or a `pointermove` with `buttons === 0`. The last two catch a release that never arrived, which would otherwise leave the point following a mouse with no button held.
 - **Focus:** a press on a point isn't cancelled, so the browser's own press-focus hands it the keyboard without a focus ring. A `jump` press focuses the point with `focusVisible: false`.
 - **Re-running** the cell on the same chart detaches the earlier points first (`gd.__vmDragPoints`): their layer, DOM listeners (one `AbortController`) and Plotly listeners.
 
