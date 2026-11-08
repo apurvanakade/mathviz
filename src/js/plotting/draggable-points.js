@@ -244,24 +244,43 @@
     // Drags point `index` with the pointer captured on `target`; `grab` is
     // where on the handle the pointer took hold, so the point doesn't jump
     // its center onto the pointer.
+    //
+    // The drag ends on the release, and also whenever the browser says it is
+    // over some other way: the capture is lost (the target left the DOM, or
+    // the browser dropped it), or a move arrives with no button held because
+    // the release went somewhere this never heard. Ending only on `pointerup`
+    // left the move listener armed after a missed release, and since every
+    // move puts the point back under the pointer, the point then kept
+    // following a mouse with no button down, anywhere over its target -- the
+    // whole plot area, with `jump`.
     const startDrag = (target, event, index, grab) => {
       if (target.setPointerCapture) target.setPointerCapture(event.pointerId)
       const handle = handles[index]
       handle.classList.add("vm-drag-active")
+      const drag = new AbortController()
+      const finish = () => {
+        handle.classList.remove("vm-drag-active")
+        drag.abort()
+      }
       const move = (moveEvent) => {
         if (moveEvent.pointerId !== event.pointerId) return
+        // `buttons` is 0 once the primary button is up; a touch or pen
+        // reports 1 while in contact. Undefined (no support) means held.
+        if (moveEvent.buttons === 0) {
+          finish()
+          return
+        }
         const proposed = pointerToData(moveEvent.clientX - grab.x, moveEvent.clientY - grab.y)
         if (proposed) moveTo(index, proposed)
       }
-      const drag = new AbortController()
       const end = (endEvent) => {
         if (endEvent.pointerId !== event.pointerId) return
-        handle.classList.remove("vm-drag-active")
-        drag.abort()
+        finish()
       }
       target.addEventListener("pointermove", move, {signal: drag.signal})
       target.addEventListener("pointerup", end, {signal: drag.signal})
       target.addEventListener("pointercancel", end, {signal: drag.signal})
+      target.addEventListener("lostpointercapture", end, {signal: drag.signal})
     }
 
     // Hands the keyboard to a point the reader just moved with the pointer,

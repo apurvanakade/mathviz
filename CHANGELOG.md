@@ -14,6 +14,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 - `VM.ui.staticKey(items, options?)`: a key for an Observable Plot figure whose swatches show each series' line style (dash, width, a shaded band, a dot), not just its color. The guide's Observable Plot examples use it in place of `Plot.legend`.
 
+### Fixed
+
+- A `draggablePoints` point could stay stuck to the mouse after the button was released, following it over the plot area (all of it, with `jump`). A drag now also ends when the browser drops the pointer capture or a move arrives with no pointer button held.
+
 ## [1.0.0] - 2026-11-07
 
 ### Added

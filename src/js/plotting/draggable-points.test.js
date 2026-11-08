@@ -150,6 +150,31 @@ test('dragging a point follows the pointer, fires input, and stays in bounds off
   assert.deepEqual(gd.value, {x: 8, y: 1})
 })
 
+test('a drag ends when the capture is lost or a move comes with no button held', () => {
+  for (const [type, props] of [['lostpointercapture', {}], ['pointermove', {clientX: 120, clientY: 95, buttons: 0}]]) {
+    const gd = draggablePoints(chart(), {value: {x: 5, y: 0.25}})
+    const [handle] = handlesOf(gd)
+    fire(handle, 'pointerdown', {clientX: 150, clientY: 95})
+    fire(handle, 'pointermove', {clientX: 130, clientY: 95, buttons: 1})
+    assert.deepEqual(gd.value, {x: 4, y: 0.25})
+    fire(handle, type, props)
+    assert.ok(!handle.classes.has('vm-drag-active'), type)
+    fire(handle, 'pointermove', {clientX: 50, clientY: 120, buttons: 0})
+    fire(handle, 'pointermove', {clientX: 50, clientY: 120})
+    assert.deepEqual(gd.value, {x: 4, y: 0.25}, type)
+  }
+})
+
+test('with jump, a drag from the plot area ends when a move comes with no button held', () => {
+  const gd = draggablePoints(chart(), {value: {x: 5, y: 0.5}, jump: true})
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {clientX: 110, clientY: 70})
+  assert.deepEqual(gd.value, {x: 3, y: 0.5})
+  fire(pad, 'pointermove', {clientX: 130, clientY: 70, buttons: 0})
+  fire(pad, 'pointermove', {clientX: 150, clientY: 70})
+  assert.deepEqual(gd.value, {x: 3, y: 0.5})
+})
+
 test('a drag keeps the offset at which the point was grabbed', () => {
   const gd = draggablePoints(chart(), {value: {x: 5, y: 0.5}})
   const [handle] = handlesOf(gd)
