@@ -27,6 +27,19 @@
   let barWidthObserver = null
   let settlePasses = 0
 
+  // What follows the chart's width in fullscreen: the slider bar, and the
+  // cell holding a VM.ui.statRow (src/css/stat-row.css). The row's cell, not
+  // the row, because the row is a new node on every re-render while its cell
+  // stays put. A row that wraps onto another line as it narrows feeds back
+  // into the chart's height the same way a rewrapping bar does.
+  const fullscreenStrips = (target) => {
+    const strips = []
+    const bar = target.querySelector(".ojs-chart-controls")
+    if (bar) strips.push(bar)
+    for (const cell of target.querySelectorAll(":scope > div:has(.vm-stat-row)")) strips.push(cell)
+    return strips
+  }
+
   const clearBarWidth = () => {
     for (const el of document.querySelectorAll(".ojs-chart-block")) {
       el.style.removeProperty(BAR_WIDTH_PROP)
@@ -37,8 +50,7 @@
     const target = document.fullscreenElement
     if (!target || typeof target.querySelector !== "function") return
     const gd = target.querySelector(".js-plotly-plot")
-    const bar = target.querySelector(".ojs-chart-controls")
-    if (!gd || !bar) return
+    if (!gd || fullscreenStrips(target).length === 0) return
     const width = Math.round(gd.getBoundingClientRect().width)
     if (width <= 0) return
     // Sub-pixel churn is the observer chasing its own rounding, not a real
@@ -82,13 +94,13 @@
     syncBarWidth()
 
     if (typeof ResizeObserver === "undefined") return
-    const bar = target.querySelector(".ojs-chart-controls")
-    if (!gd || !bar) return
-    // The chart for a width to copy, the bar because its own height is the
-    // other half of the loop.
+    const strips = fullscreenStrips(target)
+    if (!gd || strips.length === 0) return
+    // The chart for a width to copy, the bar and stat row because their own
+    // heights are the other half of the loop.
     barWidthObserver = new ResizeObserver(syncBarWidth)
     barWidthObserver.observe(gd)
-    barWidthObserver.observe(bar)
+    for (const strip of strips) barWidthObserver.observe(strip)
   })
 
   // A genuine viewport change (rotating a tablet, resizing the window while
