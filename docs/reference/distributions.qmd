@@ -272,10 +272,57 @@ The inverse of `normalCdf`: `normalQuantile(0.975)` is the 1.96 of a 95% confide
 
 The x with `chiSquaredCdf(x, k) = p`, i.e. the critical value of a chi-squared test at significance `1 − p`. Found by bisection, so it is exact to about 1e-12 relative but costs a hundred or so CDF evaluations: compute a critical value once, not inside a loop over thousands of points. `0` at `p = 0`, `Infinity` at `p = 1`, `NaN` outside `[0, 1]` or for `k ≤ 0`.
 
+### VM.distributions.regularizedBeta(a, b, x) {#regularizedBeta}
+
+The regularized incomplete beta function: `lower` is I_x(a, b), the CDF at `x` of a Beta(`a`, `b`) variable, and `upper` is 1 − I_x(a, b). The Student's t and F CDFs are built on it, as the normal and chi-squared ones are on `regularizedGamma`, and for the same reason both halves are returned: each is computed directly on its own side of the branch point, so a tiny tail keeps its relative precision. `x` outside `[0, 1]` is clamped.
+
+**Returns** `{lower, upper}`. `{lower: 0, upper: 1}` for `x ≤ 0`, `{lower: 1, upper: 0}` for `x ≥ 1`; both `NaN` for `a ≤ 0`, `b ≤ 0` or a `NaN` input.
+
+### VM.distributions.studentTCdf(t, k) {#studentTCdf}
+
+P(T ≤ t) for Student's t with `k` degrees of freedom (`k` need not be an integer, as Welch's test needs). Relatively accurate far into either tail, so take an upper tail as `studentTCdf(-t, k)`, which is the same number by symmetry, rather than `1 − studentTCdf(t, k)`. `NaN` for `k ≤ 0`.
+
+### VM.distributions.studentTQuantile(p, k) {#studentTQuantile}
+
+The inverse of `studentTCdf`: `studentTQuantile(0.975, 15)` is the 2.131 of a two-sided t-test at 5%. Bisection, like `chiSquaredQuantile`, to about 1e-12 relative. `-Infinity` at `p = 0`, `0` at `p = 0.5`, `Infinity` at `p = 1`, `NaN` outside `[0, 1]` or for `k ≤ 0`.
+
+### VM.distributions.fCdf(x, d1, d2) {#fCdf}
+
+P(X ≤ x) for X ~ F(`d1`, `d2`), numerator degrees of freedom first: the null distribution of a variance ratio and of ANOVA's F statistic. `1 − fCdf(x, d1, d2)` is an upper tail to about 1e-16 absolute; for a smaller one with its relative precision, take `regularizedBeta(d1 / 2, d2 / 2, d1 * x / (d1 * x + d2)).upper`. `0` for `x ≤ 0`; `NaN` for `d1 ≤ 0` or `d2 ≤ 0`.
+
+### VM.distributions.fQuantile(p, d1, d2) {#fQuantile}
+
+The inverse of `fCdf`: `fQuantile(0.95, 12, 15)` is 2.475. Bisection, to about 1e-12 relative. A table's lower critical value, which it gives as 1 / F(α; d2, d1), is just `fQuantile(alpha, d1, d2)` here. `0` at `p = 0`, `Infinity` at `p = 1`, `NaN` outside `[0, 1]` or for non-positive degrees of freedom.
+
 ```{ojs}
 ({
   z95: VM.distributions.normalQuantile(0.975),
   chi2_95_3df: VM.distributions.chiSquaredQuantile(0.95, 3),
+  t975_15df: VM.distributions.studentTQuantile(0.975, 15),
+  f95_12_15: VM.distributions.fQuantile(0.95, 12, 15),
   upperTailBeyond2: 1 - VM.distributions.normalCdf(2)
 })
+```
+
+## Hypothesis tests
+
+### VM.distributions.hypothesisTest(dist, observed, opts?) {#hypothesisTest}
+
+The decision of a test whose statistic has a known continuous null distribution: critical values, rejection region, p-value, and the tail intervals the p-value is the area of, which is what a chart shades. `dist` is `{cdf, quantile}`, plus optionally `sf`, an upper tail computed directly, which keeps a p-value below about 1e-16 from rounding to 0. Any of the CDF/quantile pairs above fits, symmetric or skewed.
+
+| Option | Default | |
+|---|---|---|
+| `alternative` | `"two-sided"` | `"less"` rejects small statistics, `"greater"` large ones |
+| `alpha` | `0.05` | the significance level |
+
+A two-sided test puts α/2 in each tail. Its p-value is twice the smaller tail, and `pValueRegion` is the tail the statistic fell in plus the tail of equal area on the other side: |T| ≥ |t| for z and t; for a skewed statistic (a chi-squared variance test, an F variance ratio) the two boundaries aren't mirror images.
+
+**Returns** `{pValue, reject, critical, rejectionRegion, pValueRegion}`. `critical` holds one value (one-sided) or the lower and upper (two-sided); the two regions are arrays of `[a, b]` intervals with `±Infinity` for an open end; `reject` is `pValue <= alpha`. A two-sided `pValueRegion`'s mirrored interval is empty (`[Infinity, Infinity]`) once the statistic's tail is below double precision. Inputs aren't validated: an unknown `alternative` is treated as two-sided, and a `NaN` statistic gives a `NaN` p-value.
+
+```{ojs}
+{
+  const df = 15
+  const t = {cdf: x => VM.distributions.studentTCdf(x, df), quantile: p => VM.distributions.studentTQuantile(p, df)}
+  return VM.distributions.hypothesisTest(t, -2, {alternative: "less", alpha: 0.05})
+}
 ```
