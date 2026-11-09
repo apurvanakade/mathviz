@@ -21,6 +21,30 @@ merge the moment CI goes green, before the review is done. Check out the head
 branch and `git pull` it. If the working tree has unrelated changes, stop and
 ask.
 
+If the head branch is `release/v*`, go to step 1b instead of step 2.
+
+## 1b. Release PR: a file check instead of a review
+
+A release PR carries no new code. Its whole content is
+`scripts/release.mjs`'s output plus a rebuild. Everything in it was reviewed
+in the PRs that fed `[Unreleased]`, and CI checks the build, the version
+agreement and the built files. So it gets no review, no triage and no drift
+pass (steps 2–5). Don't wait for Copilot or spawn the maintainer agent. If
+Copilot comments anyway, leave the comments unanswered.
+
+Instead, check that the diff touches only files the release writes:
+
+```sh
+git diff --name-only origin/main...HEAD | grep -Ev \
+  '^(CHANGELOG\.md|package(-lock)?\.json|README\.md|docs/.*\.qmd|starter/README\.md|dist/.*|_extensions/mathviz/.*|starter/_extensions/mathviz/.*)$'
+```
+
+No output means only expected files changed. Also read `git diff
+origin/main...HEAD -- CHANGELOG.md` to check that `[Unreleased]` moved under
+`## [X.Y.Z]` for the PR's version and is now empty. If either check fails,
+stop and tell the user, because the script or workflow is broken. Otherwise
+go to step 6.
+
 ## 2. Wait for the review
 
 Copilot reviews a few minutes after a PR opens, once only: pushes to the PR
@@ -143,8 +167,8 @@ PR's scope, stop and tell the user.
 
 ## 7. Merge
 
-Only when every check is green, every thread is replied to, and nothing is
-waiting on the user:
+Only when every check is green, every thread is replied to (except on a
+release PR, see step 1b), and nothing is waiting on the user:
 
 ```sh
 gh pr merge <N> --squash --delete-branch
@@ -196,11 +220,13 @@ and stop and tell the user; don't open the release PR by hand unless they
 say so.
 
 Then land the release PR with this skill from step 1, in the same session.
-Its step 9 is the tag check above, which ends the loop.
+Step 1 routes it through step 1b's file check instead of a review. Its step
+9 is the tag check above, which ends the loop.
 
 ## Report
 
 Report the result: who reviewed it (Copilot or the local maintainer agent), the comments fixed or declined (with the reason), the
 drift fixed, the merge commit, and the branch deleted. Then the release: the
-version and why that bump, the release PR's own landing (same items), and
-the tag `tag-release.yml` created -- or why no release was made.
+version and why that bump, the release PR's landing (file check passed,
+merge commit, branch deleted), and the tag `tag-release.yml` created -- or
+why no release was made.
