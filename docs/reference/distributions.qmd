@@ -1,6 +1,6 @@
 ---
 title: "VM.distributions"
-subtitle: "Closed-form densities and masses, plus two helpers to plot them"
+subtitle: "Closed-form densities and masses, CDFs and quantiles, hypothesis tests, and helpers to plot them"
 ---
 
 <!--
@@ -288,7 +288,7 @@ The inverse of `studentTCdf`: `studentTQuantile(0.975, 15)` is the 2.131 of a tw
 
 ### VM.distributions.fCdf(x, d1, d2) {#fCdf}
 
-P(X ≤ x) for X ~ F(`d1`, `d2`), numerator degrees of freedom first: the null distribution of a variance ratio and of ANOVA's F statistic. `1 − fCdf(x, d1, d2)` is an upper tail to about 1e-16 absolute; for a smaller one with its relative precision, take `regularizedBeta(d1 / 2, d2 / 2, d1 * x / (d1 * x + d2)).upper`. `0` for `x ≤ 0`; `NaN` for `d1 ≤ 0` or `d2 ≤ 0`.
+P(X ≤ x) for X ~ F(`d1`, `d2`), numerator degrees of freedom first: the null distribution of a variance ratio and of ANOVA's F statistic. `1 − fCdf(x, d1, d2)` is an upper tail to about 1e-16 absolute; for a smaller one with its relative precision, take `regularizedBeta(d2 / 2, d1 / 2, d2 / (d1 * x + d2)).lower` (not `regularizedBeta(d1 / 2, d2 / 2, d1 * x / (d1 * x + d2)).upper`, whose argument rounds so close to 1 that the tail is lost) -- and pass it as `hypothesisTest`'s `sf`. `0` for `x ≤ 0`; `NaN` for `d1 ≤ 0` or `d2 ≤ 0`.
 
 ### VM.distributions.fQuantile(p, d1, d2) {#fQuantile}
 

@@ -17,7 +17,7 @@ The bundle attaches one global, `VM`, with a namespace per concern. Each source 
 | [`VM.numerical`](numerical.qmd) | Euler and RK4 steppers, Simpson's rule, a Lagrange parabola, L1/L2/polynomial fits, observed convergence order, symmetric eigenvalues | -- (`polynomialFit` takes math.js) |
 | [`VM.sampling`](sampling.qmd) | seeded uniform and Gaussian generators | -- |
 | [`VM.filters`](filters.qmd) | moving average, EMA, scalar Kalman | -- |
-| [`VM.distributions`](distributions.qmd) | 16 closed-form PDFs/PMFs, `logGamma`, `sampleCurve`, `histogramBins` | -- |
+| [`VM.distributions`](distributions.qmd) | 16 closed-form PDFs/PMFs; normal, chi-squared, t and F CDFs and quantiles; `hypothesisTest`; `logGamma`, `sampleCurve`, `histogramBins` | -- |
 | [`VM.plotting`](plotting.qmd) | the theme (`colors`, `layout`, `plotOptions`, …), theme detection, a reusable Plotly chart, draggable points, the Plotly patch, fullscreen helpers | Plotly for the patch, the chart and the points; otherwise none |
 | [`VM.ui`](ui.qmd) | legend overlay, results table, stat readouts, URL state, example presets, slider playback | `renderTable` needs htl's `html` |
 | [`VM.mcmc`](mcmc.qmd) | Metropolis and Gibbs samplers, finite-chain evolution, total variation, running mean, autocorrelation, effective sample size | -- |

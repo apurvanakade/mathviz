@@ -4282,7 +4282,10 @@
    * I_{d1·x/(d1·x+d2)}(d1/2, d2/2). `1 - fCdf(x, d1, d2)` is an upper-tail
    * probability (the p-value of a variance-ratio test or an ANOVA) to
    * about 1e-16 absolute; for a smaller one with its relative precision,
-   * take `regularizedBeta(d1 / 2, d2 / 2, d1 * x / (d1 * x + d2)).upper`.
+   * take `regularizedBeta(d2 / 2, d1 / 2, d2 / (d1 * x + d2)).lower`, the
+   * same number by I_y(a, b) = 1 - I_{1-y}(b, a). Not
+   * `regularizedBeta(d1 / 2, d2 / 2, d1 * x / (d1 * x + d2)).upper`: its
+   * argument rounds to within 1e-16 of 1, so the tail is lost in `1 - y`.
    *
    * @param {number} x - Values `<= 0` give `0`; `Infinity` gives `1`.
    * @param {number} d1 - Numerator degrees of freedom; must be `> 0`.

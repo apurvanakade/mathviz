@@ -51,3 +51,14 @@ test('fCdf endpoints and invalid input', () => {
   assert.ok(Number.isNaN(fCdf(1, 3, -1)))
   assert.ok(Number.isNaN(fCdf(NaN, 3, 4)))
 })
+
+test('the documented F upper-tail recipe keeps relative precision far out', () => {
+  // F(2, d2): P(X > x) = (1 + 2x/d2)^(-d2/2). The argument d2/(d1·x+d2) is
+  // small, so the tail is computed directly rather than as 1 - (≈1).
+  const { regularizedBeta } = VM.distributions
+  const d1 = 2, d2 = 5
+  for (const x of [1e6, 1e12, 1e20]) {
+    const want = (1 + 2 * x / d2) ** (-d2 / 2)
+    assert.ok(rel(regularizedBeta(d2 / 2, d1 / 2, d2 / (d1 * x + d2)).lower, want) < 1e-12, `x=${x}`)
+  }
+})
