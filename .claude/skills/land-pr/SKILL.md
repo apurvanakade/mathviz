@@ -35,11 +35,14 @@ Copilot comments anyway, leave the comments unanswered.
 Instead, check that the diff touches only files the release writes:
 
 ```sh
+git fetch origin main
 git diff --name-only origin/main...HEAD | grep -Ev \
-  '^(CHANGELOG\.md|package(-lock)?\.json|README\.md|docs/.*\.qmd|starter/README\.md|dist/.*|_extensions/mathviz/.*|starter/_extensions/mathviz/.*)$'
+  '^(CHANGELOG\.md|package(-lock)?\.json|README\.md|(docs|starter)/.*\.(qmd|md)|dist/.*|_extensions/mathviz/.*|starter/_extensions/mathviz/.*)$'
 ```
 
-No output means only expected files changed. Also read `git diff
+No output means only expected files changed. The `.qmd`/`.md` pattern matches
+`release.mjs`'s `markdownFiles`, which bumps install snippets anywhere under
+`docs/` and `starter/`. Also read `git diff
 origin/main...HEAD -- CHANGELOG.md` to check that `[Unreleased]` moved under
 `## [X.Y.Z]` for the PR's version and is now empty. If either check fails,
 stop and tell the user, because the script or workflow is broken. Otherwise
