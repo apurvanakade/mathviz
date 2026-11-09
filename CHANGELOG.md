@@ -10,6 +10,13 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.distributions.regularizedBeta(a, b, x)`: the regularized incomplete beta function, as `{lower, upper}` like `regularizedGamma`.
+- `VM.distributions.studentTCdf(t, k)` and `studentTQuantile(p, k)`: Student's t CDF and critical values.
+- `VM.distributions.fCdf(x, d1, d2)` and `fQuantile(p, d1, d2)`: the F CDF and critical values.
+- `VM.distributions.hypothesisTest(dist, observed, {alternative, alpha})`: a test's critical values, rejection region, p-value and the tail intervals the p-value covers, for any continuous null distribution given its CDF and quantile.
+
 ## [1.1.1] - 2026-11-08
 
 ### Changed

@@ -4093,6 +4093,344 @@
   Object.assign((globalThis.VM ??= {}).distributions ??= {}, {chiSquaredQuantile})
 })(window)
 
+// ---- src/js/distributions/regularized-beta.js ----
+;
+/**
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+(function attachVM(globalThis) {
+  // The special function behind the Student's t and F CDFs, as
+  // regularizedGamma is behind the normal and chi-squared ones. Both halves
+  // are returned for the same reason: the continued fraction converges fast
+  // only for x below the mean-ish point (a + 1) / (a + b + 2), so above it
+  // the function is evaluated through I_x(a, b) = 1 - I_{1-x}(b, a), and
+  // whichever side was computed directly keeps its relative precision. A
+  // p-value of 1e-20 from a t-test is the upper half, not 1 - (1 - 1e-20).
+  // Numerical Recipes' betacf, with the modified Lentz method.
+  const EPS = 1e-15
+  const TINY = 1e-300
+  const MAX_ITER = 500
+
+  const continuedFraction = (a, b, x) => {
+    const qab = a + b
+    const qap = a + 1
+    const qam = a - 1
+    let c = 1
+    let d = 1 - qab * x / qap
+    if (Math.abs(d) < TINY) d = TINY
+    d = 1 / d
+    let h = d
+    for (let m = 1; m <= MAX_ITER; m++) {
+      const m2 = 2 * m
+      let aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+      d = 1 + aa * d
+      if (Math.abs(d) < TINY) d = TINY
+      c = 1 + aa / c
+      if (Math.abs(c) < TINY) c = TINY
+      d = 1 / d
+      h *= d * c
+      aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+      d = 1 + aa * d
+      if (Math.abs(d) < TINY) d = TINY
+      c = 1 + aa / c
+      if (Math.abs(c) < TINY) c = TINY
+      d = 1 / d
+      const delta = d * c
+      h *= delta
+      if (Math.abs(delta - 1) < EPS) break
+    }
+    return h
+  }
+
+  /**
+   * The regularized incomplete beta function I_x(a, b) (the lower one) and
+   * 1 - I_x(a, b) (the upper one). I_x(a, b) is the CDF at x of a
+   * Beta(a, b) variable; the Student's t and F CDFs are built on it.
+   *
+   * @param {number} a - Must be `> 0`.
+   * @param {number} b - Must be `> 0`.
+   * @param {number} x - In `[0, 1]`; values outside are clamped.
+   * @returns {{lower: number, upper: number}} `lower` = I_x(a, b) and
+   *   `upper` = 1 - I_x(a, b), each accurate on its own in the tail where
+   *   the other is close to 1. `{lower: 0, upper: 1}` for `x <= 0`,
+   *   `{lower: 1, upper: 0}` for `x >= 1`; `{lower: NaN, upper: NaN}` for
+   *   `a <= 0`, `b <= 0` or a `NaN` input.
+   */
+  const regularizedBeta = (a, b, x) => {
+    if (!(a > 0 && b > 0) || Number.isNaN(x)) return {lower: NaN, upper: NaN}
+    if (x <= 0) return {lower: 0, upper: 1}
+    if (x >= 1) return {lower: 1, upper: 0}
+    const logGamma = globalThis.VM.distributions.logGamma
+    const logPrefactor = logGamma(a + b) - logGamma(a) - logGamma(b) +
+      a * Math.log(x) + b * Math.log1p(-x)
+    if (x < (a + 1) / (a + b + 2)) {
+      const lower = Math.exp(logPrefactor) * continuedFraction(a, b, x) / a
+      return {lower, upper: 1 - lower}
+    }
+    const upper = Math.exp(logPrefactor) * continuedFraction(b, a, 1 - x) / b
+    return {lower: 1 - upper, upper}
+  }
+
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {regularizedBeta})
+})(window)
+
+// ---- src/js/distributions/student-t-cdf.js ----
+;
+/**
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+(function attachVM(globalThis) {
+  /**
+   * Student's t CDF: P(T <= t) for T with `k` degrees of freedom, through
+   * the regularized incomplete beta function,
+   * P(|T| >= |t|) = I_{k/(k+t²)}(k/2, 1/2). Relatively accurate far into
+   * either tail: `studentTCdf(-40, 5)` is a small number, not 0, so
+   * `1 - studentTCdf(t, k)` is the wrong way to get an upper tail -- use
+   * `studentTCdf(-t, k)`, the same number by symmetry, computed directly.
+   *
+   * @param {number} t - Any real; `±Infinity` give `1`/`0`.
+   * @param {number} k - Degrees of freedom; must be `> 0` (need not be an
+   *   integer, as Welch's test needs).
+   * @returns {number} In `[0, 1]`; `NaN` for `k <= 0` or a `NaN` input.
+   */
+  const studentTCdf = (t, k) => {
+    if (!(k > 0) || Number.isNaN(t)) return NaN
+    if (t === Infinity) return 1
+    if (t === -Infinity) return 0
+    // I_{k/(k+t²)}(k/2, 1/2) is the two-tailed probability P(|T| >= |t|),
+    // and small exactly when |t| is large, so the tail is computed directly.
+    const tail = 0.5 * globalThis.VM.distributions.regularizedBeta(k / 2, 0.5, k / (k + t * t)).lower
+    return t > 0 ? 1 - tail : tail
+  }
+
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {studentTCdf})
+})(window)
+
+// ---- src/js/distributions/student-t-quantile.js ----
+;
+/**
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+(function attachVM(globalThis) {
+  /**
+   * Student's t quantile: the t with `studentTCdf(t, k) = p`, the critical
+   * value of a t-test (`studentTQuantile(0.975, 15)` is 2.131). Found by
+   * bisection on the upper half and reflected (the distribution is
+   * symmetric about 0), so it is exact to about 1e-12 relative and costs a
+   * hundred or so CDF evaluations -- fine for a critical value, not for a
+   * loop over thousands of points.
+   *
+   * @param {number} p - A probability.
+   * @param {number} k - Degrees of freedom; must be `> 0`.
+   * @returns {number} `-Infinity` at `p = 0`, `0` at `p = 0.5`, `Infinity`
+   *   at `p = 1`, `NaN` for `p` outside `[0, 1]` or `k <= 0`.
+   */
+  const studentTQuantile = (p, k) => {
+    if (!(k > 0) || !(p >= 0 && p <= 1)) return NaN
+    if (p === 0) return -Infinity
+    if (p === 1) return Infinity
+    if (p === 0.5) return 0
+    const cdf = globalThis.VM.distributions.studentTCdf
+    // Search for the upper-tail point with tail area q = min(p, 1 - p),
+    // comparing tails (cdf(-t)) rather than cdf(t) against 1 - q, so a
+    // tiny q keeps its precision.
+    const q = Math.min(p, 1 - p)
+    let lo = 0
+    let hi = 1
+    while (cdf(-hi, k) > q) {
+      lo = hi
+      hi *= 2
+    }
+    for (let i = 0; i < 200; i++) {
+      const mid = 0.5 * (lo + hi)
+      if (cdf(-mid, k) > q) {
+        lo = mid
+      } else {
+        hi = mid
+      }
+      if (hi - lo <= 1e-12 * hi) break
+    }
+    const t = 0.5 * (lo + hi)
+    return p < 0.5 ? -t : t
+  }
+
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {studentTQuantile})
+})(window)
+
+// ---- src/js/distributions/f-cdf.js ----
+;
+/**
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+(function attachVM(globalThis) {
+  /**
+   * F CDF: P(X <= x) for X ~ F(d1, d2), the distribution of a ratio of two
+   * independent chi-squared variables each divided by its degrees of
+   * freedom (numerator `d1` first). It is
+   * I_{d1·x/(d1·x+d2)}(d1/2, d2/2). `1 - fCdf(x, d1, d2)` is an upper-tail
+   * probability (the p-value of a variance-ratio test or an ANOVA) to
+   * about 1e-16 absolute; for a smaller one with its relative precision,
+   * take `regularizedBeta(d2 / 2, d1 / 2, d2 / (d1 * x + d2)).lower`, the
+   * same number by I_y(a, b) = 1 - I_{1-y}(b, a). Not
+   * `regularizedBeta(d1 / 2, d2 / 2, d1 * x / (d1 * x + d2)).upper`: its
+   * argument rounds to within 1e-16 of 1, so the tail is lost in `1 - y`.
+   *
+   * @param {number} x - Values `<= 0` give `0`; `Infinity` gives `1`.
+   * @param {number} d1 - Numerator degrees of freedom; must be `> 0`.
+   * @param {number} d2 - Denominator degrees of freedom; must be `> 0`.
+   * @returns {number} In `[0, 1]`; `NaN` for `d1 <= 0`, `d2 <= 0` or a
+   *   `NaN` input.
+   */
+  const fCdf = (x, d1, d2) => {
+    if (!(d1 > 0 && d2 > 0) || Number.isNaN(x)) return NaN
+    if (x <= 0) return 0
+    if (x === Infinity) return 1
+    return globalThis.VM.distributions.regularizedBeta(d1 / 2, d2 / 2, d1 * x / (d1 * x + d2)).lower
+  }
+
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {fCdf})
+})(window)
+
+// ---- src/js/distributions/f-quantile.js ----
+;
+/**
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+(function attachVM(globalThis) {
+  /**
+   * F quantile: the x with `fCdf(x, d1, d2) = p`, the critical value of an
+   * F-test (`fQuantile(0.95, 12, 15)` is 2.475). Found by bisection on
+   * `fCdf`, so it is exact to about 1e-12 relative and costs a hundred or
+   * so CDF evaluations -- fine for a critical value, not for a loop over
+   * thousands of points.
+   *
+   * @param {number} p - A probability.
+   * @param {number} d1 - Numerator degrees of freedom; must be `> 0`.
+   * @param {number} d2 - Denominator degrees of freedom; must be `> 0`.
+   * @returns {number} `0` at `p = 0`, `Infinity` at `p = 1`, `NaN` for `p`
+   *   outside `[0, 1]`, `d1 <= 0` or `d2 <= 0`.
+   */
+  const fQuantile = (p, d1, d2) => {
+    if (!(d1 > 0 && d2 > 0) || !(p >= 0 && p <= 1)) return NaN
+    if (p === 0) return 0
+    if (p === 1) return Infinity
+    const cdf = globalThis.VM.distributions.fCdf
+    // The median is near 1 for any degrees of freedom, so [0, 1] brackets
+    // it; double the top until it brackets p.
+    let lo = 0
+    let hi = 1
+    while (cdf(hi, d1, d2) < p) {
+      lo = hi
+      hi *= 2
+    }
+    for (let i = 0; i < 200; i++) {
+      const mid = 0.5 * (lo + hi)
+      if (cdf(mid, d1, d2) < p) {
+        lo = mid
+      } else {
+        hi = mid
+      }
+      if (hi - lo <= 1e-12 * hi) break
+    }
+    return 0.5 * (lo + hi)
+  }
+
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {fQuantile})
+})(window)
+
+// ---- src/js/distributions/hypothesis-testing.js ----
+;
+/**
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+(function attachVM(globalThis) {
+  /**
+   * The decision of a hypothesis test whose statistic has a known null
+   * distribution: its critical values, rejection region and p-value, and
+   * the tail intervals the p-value is the area of -- what a chart shades.
+   * Works for any continuous null distribution given its CDF and quantile
+   * (z, t, chi-squared, F, ...), symmetric or not.
+   *
+   * A two-sided test puts alpha / 2 in each tail. Its p-value is twice the
+   * smaller tail, and the region it covers is the tail the statistic fell
+   * in plus the tail of equal area on the other side. For a distribution
+   * symmetric about 0 (z, t) that is the familiar |T| >= |t|; for a skewed
+   * one (a chi-squared variance test, an F variance ratio) the two
+   * boundaries aren't mirror images.
+   *
+   * @param {{cdf: function(number): number, quantile: function(number): number, sf?: function(number): number}} dist -
+   *   The null distribution's CDF and quantile. `sf` (the upper tail,
+   *   `1 - cdf`) is optional; pass one computed directly to keep a p-value
+   *   below about 1e-16 from rounding to 0.
+   * @param {number} observed - The test statistic.
+   * @param {object} [opts]
+   * @param {"two-sided"|"less"|"greater"} [opts.alternative="two-sided"] -
+   *   The direction of H1: "less" rejects for small statistics, "greater"
+   *   for large ones.
+   * @param {number} [opts.alpha=0.05] - The significance level, in (0, 1).
+   * @returns {{pValue: number, reject: boolean, critical: number[], rejectionRegion: Array<[number, number]>, pValueRegion: Array<[number, number]>}}
+   *   `critical` holds one value (one-sided) or the lower and upper
+   *   (two-sided); `rejectionRegion` and `pValueRegion` are intervals with
+   *   `±Infinity` for an open end; `reject` is `pValue <= alpha`. A
+   *   two-sided `pValueRegion`'s mirrored interval is empty (`[Infinity,
+   *   Infinity]`) when the statistic's tail is below double precision.
+   *   Inputs aren't validated: an unknown `alternative` is treated as
+   *   two-sided, and a `NaN` statistic gives a `NaN` p-value.
+   */
+  const hypothesisTest = (dist, observed, opts = {}) => {
+    const {alternative = 'two-sided', alpha = 0.05} = opts
+    const {cdf, quantile} = dist
+    const sf = dist.sf ?? (x => 1 - cdf(x))
+    const left = cdf(observed)
+    const right = sf(observed)
+
+    if (alternative === 'less') {
+      const c = quantile(alpha)
+      return {
+        pValue: left, reject: left <= alpha, critical: [c],
+        rejectionRegion: [[-Infinity, c]], pValueRegion: [[-Infinity, observed]]
+      }
+    }
+    if (alternative === 'greater') {
+      const c = quantile(1 - alpha)
+      return {
+        pValue: right, reject: right <= alpha, critical: [c],
+        rejectionRegion: [[c, Infinity]], pValueRegion: [[observed, Infinity]]
+      }
+    }
+    const lo = quantile(alpha / 2)
+    const hi = quantile(1 - alpha / 2)
+    const pValue = Math.min(1, 2 * Math.min(left, right))
+    const pValueRegion = left <= right
+      ? [[-Infinity, observed], [quantile(1 - left), Infinity]]
+      : [[-Infinity, quantile(right)], [observed, Infinity]]
+    return {
+      pValue, reject: pValue <= alpha, critical: [lo, hi],
+      rejectionRegion: [[-Infinity, lo], [hi, Infinity]], pValueRegion
+    }
+  }
+
+  Object.assign((globalThis.VM ??= {}).distributions ??= {}, {hypothesisTest})
+})(window)
+
 // ---- src/js/distributions/bernoulli-pmf.js ----
 ;
 /**
