@@ -115,6 +115,6 @@ mainPlot = {
     const x = iterates.xs[n]
     rows.push([n, x.toPrecision(10), Math.abs(iterates.f(x)).toExponential(3)])
   }
-  return VM.ui.renderTable({html, headers: ["n", tex`x_n`, tex`|f(x_n)|`], rows, csvHeaders: ["n", "x_n", "|f(x_n)|"], filename: "newton-iterates.csv"})
+  return VM.ui.renderTable({headers: ["n", tex`x_n`, tex`|f(x_n)|`], rows, csvHeaders: ["n", "x_n", "|f(x_n)|"], filename: "newton-iterates.csv"})
 }
 ```
