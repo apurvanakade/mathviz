@@ -1319,16 +1319,16 @@ svg[class^="plot-"] {
 }
 
 /* Covers the chart without taking its pointer events: only the points and
- * the jump pad below opt back in. */
+ * the pad below (`jump` or `add`) opt back in. */
 .vm-drag-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-/* The plot area, with `jump`. Pointer events only: a touch on it still
- * scrolls the page (the default touch-action), and the script moves a point
- * on a tap. */
+/* The plot area, with `jump` or `add`. Pointer events only: a touch on it
+ * still scrolls the page (the default touch-action), and the script moves
+ * or adds a point on a tap. */
 .vm-drag-pad {
   position: absolute;
   pointer-events: auto;

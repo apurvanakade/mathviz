@@ -10,6 +10,11 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.plotting.draggablePoints` options `add` and `remove` (with `minPoints`/`maxPoints`): a press on the plot area adds a point, a double-click or Delete removes one.
+- `VM.plotting.draggablePoints` fires a `"change"` event once each edit is finished (a drag released, an arrow-key move, a point added or removed), like a native range.
+
 ### Fixed
 
 - `VM.ui.renderTable` returns one `<div>` again instead of a `DocumentFragment`, which Observable's inspector doesn't display as a node: since v1.0 a table returned from a named OJS cell was hidden by Quarto and never shown.
