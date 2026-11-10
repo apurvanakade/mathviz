@@ -491,6 +491,20 @@ test('with remove, a double-click removes a point and Delete removes the focused
   assert.deepEqual([inputs.count, changes.count], [2, 2])
 })
 
+test('array labels and colors stay with their points across a remove, and an added point takes the fallbacks', () => {
+  const gd = draggablePoints(chart(), {
+    value: [{x: 1, y: 0.1}, {x: 2, y: 0.2}, {x: 3, y: 0.3}], add: true, remove: true,
+    label: ['A', 'B', 'C'], color: ['red', 'green', 'blue']
+  })
+  fire(handlesOf(gd)[0], 'dblclick')
+  assert.deepEqual(handlesOf(gd).map((h) => h.getAttribute('aria-label')), ['B', 'C'])
+  assert.deepEqual(handlesOf(gd).map((h) => h.style.color), ['green', 'blue'])
+  fire(padOf(gd), 'pointerdown', {clientX: 210, clientY: 45})
+  fire(padOf(gd), 'pointerup')
+  assert.deepEqual(handlesOf(gd).map((h) => h.getAttribute('aria-label')), ['B', 'C', 'Point 3'])
+  assert.deepEqual(handlesOf(gd).map((h) => h.style.color), ['green', 'blue', 'var(--vm-color-fn)'])
+})
+
 test('without remove, Delete and a double-click do nothing', () => {
   const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.1}, {x: 2, y: 0.2}]})
   fire(handlesOf(gd)[0], 'dblclick')

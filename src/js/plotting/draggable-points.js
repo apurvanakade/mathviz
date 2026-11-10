@@ -63,10 +63,6 @@
 
   const defaultFormat = (point) => `x ${significant(point.x)}, y ${significant(point.y)}`
 
-  const perPoint = (option, index, fallback) => {
-    if (Array.isArray(option)) return option[index] ?? fallback
-    return option ?? fallback
-  }
 
   const copyPoint = (point) => ({x: Number(point.x), y: Number(point.y)})
 
@@ -123,12 +119,15 @@
    * @param {number} [opts.maxPoints=Infinity] - `add` stops at this many.
    * @param {string|string[]} [opts.label="Point"] - Accessible name. With
    *   an array `value`, a single string is numbered ("Point 1", ...) and an
-   *   array names each point.
+   *   array names each point; a name stays with its point when `remove`
+   *   takes an earlier one, and a point `add` puts past the array is
+   *   numbered "Point <n>".
    * @param {(point: {x, y}, index: number) => string} [opts.format] - What
    *   a screen reader announces as the value; `"x 0.87, y 0.42"` (three
    *   significant digits) by default.
    * @param {string|string[]} [opts.color="var(--vm-color-fn)"] - CSS color
-   *   of the points, or one per point. Use a `var(--vm-color-*)` token to
+   *   of the points, or one per point (kept with its point across a
+   *   `remove`; an added point past the array takes the default). Use a `var(--vm-color-*)` token to
    *   follow the theme; a resolved color (`chartColors.fn`) would not.
    * @param {string} [opts.xaxis="x"] - Axis id the points live on, for a
    *   chart with several subplots.
@@ -181,6 +180,11 @@
     let points = []
     if (single) points = [copyPoint(opts.value)]
     else points = opts.value.map(copyPoint)
+    // Array labels and colors belong to their points: a remove splices them
+    // out with it, so the survivors keep theirs, and an added point gets the
+    // fallbacks. A single string is numbered by position instead.
+    const names = Array.isArray(opts.label) ? [...opts.label] : null
+    const colors = Array.isArray(opts.color) ? [...opts.color] : null
 
     const layer = document.createElement("div")
     layer.className = "vm-drag-layer"
@@ -359,6 +363,8 @@
     const removeAt = (index, keyboard) => {
       if (points.length <= minPoints) return
       points.splice(index, 1)
+      names?.splice(index, 1)
+      colors?.splice(index, 1)
       build()
       if (keyboard && handles.length > 0) handles[Math.min(index, handles.length - 1)].focus()
       notify("input")
@@ -387,10 +393,13 @@
         handle.className = "vm-drag-point"
         handle.tabIndex = 0
         handle.setAttribute("role", "slider")
-        let name = perPoint(opts.label, i, "Point")
-        if (!single && !Array.isArray(opts.label)) name = `${name} ${i + 1}`
+        let name = names?.[i]
+        if (name === undefined) {
+          name = names ? "Point" : opts.label ?? "Point"
+          if (!single) name = `${name} ${i + 1}`
+        }
         handle.setAttribute("aria-label", name)
-        handle.style.color = perPoint(opts.color, i, "var(--vm-color-fn)")
+        handle.style.color = (colors ? colors[i] : opts.color) ?? "var(--vm-color-fn)"
         handle.addEventListener("pointerdown", (event) => {
           if (event.button !== undefined && event.button !== 0) return
           // Not cancelled: the browser's own press-focus is what gives the

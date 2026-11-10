@@ -377,9 +377,9 @@ committed = Generators.observe(notify => {
 | `opts.remove` | `boolean` | `false` | A double-click on a point, or Delete/Backspace while it has focus, removes it; from the keyboard the focus moves to the next point. Needs an array `value`. |
 | `opts.minPoints` | `number` | `0` | `remove` stops at this many points. |
 | `opts.maxPoints` | `number` | `Infinity` | `add` stops at this many points. |
-| `opts.label` | `string \| string[]` | `"Point"` | Accessible names. For an array `value`, one string is numbered (`"Point 1"`, ...) and an array names each point. |
+| `opts.label` | `string \| string[]` | `"Point"` | Accessible names. For an array `value`, one string is numbered (`"Point 1"`, ...) and an array names each point. A name stays with its point when `remove` takes an earlier one; a point `add` puts past the array is numbered (`"Point 4"`). |
 | `opts.format` | `(point, index) => string` | `"x 0.87, y 0.42"` | What a screen reader announces as the value. The default shows three significant digits. |
-| `opts.color` | `string \| string[]` | `"var(--vm-color-fn)"` | CSS color of the dots, or one per point. Use a `var(--vm-color-*)` token to follow the theme; a resolved color such as `chartColors.fn` would stay as it was. |
+| `opts.color` | `string \| string[]` | `"var(--vm-color-fn)"` | CSS color of the dots, or one per point; a color stays with its point across a `remove`, and an added point past the array takes the default. Use a `var(--vm-color-*)` token to follow the theme; a resolved color such as `chartColors.fn` would stay as it was. |
 | `opts.xaxis`, `opts.yaxis` | `string` | `"x"`, `"y"` | The axes the points live on, for a chart with subplots (`"x2"`, ...). |
 
 **Returns** the chart's div, with a `value` accessor (a copy, shaped like `opts.value`). Setting `value` moves the points without an `"input"` event, matching Observable Inputs; an array of another length rebuilds them. Calling it again on the same chart replaces the earlier points, so use one call, with several points, per chart. It fires `"change"` after each finished edit, as above. Throws a `TypeError` when `opts.value` is missing, `plot` gives no drawn Plotly div, `add` is combined with `jump`, or `add`/`remove` is given a single point.
