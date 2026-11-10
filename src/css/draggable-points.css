@@ -21,6 +21,16 @@
   pointer-events: none;
 }
 
+/* The layer is the chart div's last child, so without this it would paint
+ * over the modebar, and a click on a modebar button over the plot area
+ * (a chart with a small top margin) would land on the pad and add a point.
+ * Plotly's .svg-container makes no stacking context, so this z-index lifts
+ * the modebar over the layer; a point under a showing modebar is grabbed
+ * once the pointer leaves the chart's top-right corner. */
+.vm-drag-host .modebar-container {
+  z-index: 1;
+}
+
 /* The plot area, with `jump` or `add`. Pointer events only: a touch on it
  * still scrolls the page (the default touch-action), and the script moves
  * or adds a point on a tap. */

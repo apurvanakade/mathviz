@@ -104,7 +104,7 @@ svg[class^="plot-"] {
  * .js-plotly-plot so this rule doesn't match it. The legend overlay and
  * the controls bar are unaffected since they're siblings of this chain,
  * not ancestors of the graph div. */
-.ojs-chart-block:fullscreen div:has(.js-plotly-plot) {
+.ojs-chart-block:fullscreen div:has(.js-plotly-plot):not(.vm-fs-plot-group, .vm-fs-plot-group *) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,6 +165,27 @@ svg[class^="plot-"] {
    * other axis, which is exactly contain-style letterboxing. */
   width: min(100%, calc(100cqh * var(--vm-plot-aspect-ratio, 1.6)));
   height: min(100%, calc(100cqw / var(--vm-plot-aspect-ratio, 1.6)));
+  min-height: 0;
+}
+
+/* Several charts in one block (two side by side, say) are letterboxed as one
+ * figure: plotly-fullscreen-button.js tags their innermost common wrapper
+ * .vm-fs-plot-group, records its aspect ratio and sets its width and height
+ * in px (the chain above can't size it when it is the block's own flex
+ * item, since nothing above it is a size container). The chain stops at the
+ * group, so the page's own layout of the charts (a grid, a flex row) is
+ * kept, and each chart fills the cell that layout gives it. */
+.ojs-chart-block:fullscreen div.vm-fs-plot-group:has(.js-plotly-plot) {
+  flex: 0 0 auto;
+  margin-inline: auto;
+  min-height: 0;
+}
+
+.ojs-chart-block:fullscreen .vm-fs-plot-group div:has(.js-plotly-plot),
+.ojs-chart-block:fullscreen .vm-fs-plot-group .js-plotly-plot {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
   min-height: 0;
 }
 

@@ -121,6 +121,7 @@ The library writes these itself; a page never authors them.
 | `vm-overlay-grip`, `vm-overlay-dragging`, `data-vm-draggable` | the draggable-legend module |
 | `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |
 | `vm-fullscreen-toggle`, `vm-fs-figure` | the SVG fullscreen button |
+| `vm-fs-plot-group` | the Plotly fullscreen button: the common wrapper of a block's charts, letterboxed as one figure when the block holds two or more |
 | `vm-drag-host`, `vm-drag-layer`, `vm-drag-pad`, `vm-drag-point`, `vm-drag-active` | `VM.plotting.draggablePoints`: the chart div, the layer over it, the `jump`/`add` pad, each point, the point being dragged |
 | `ojs-table-toolbar`, `ojs-table-container` | `VM.ui.renderTable` |
 | `vm-stat-row`, `vm-stat`, `vm-stat-label`, `vm-stat-value`, `--vm-stat-count` | `VM.ui.statRow` (the count caps the row at 14rem per tile) |

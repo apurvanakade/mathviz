@@ -121,7 +121,7 @@ viewof expr = {
 
 ### `ojs-chart-block` {#ojs-chart-block}
 
-The wrapper around a chart and its companions. A floating [`legendOverlay`](reference/ui.qmd#legendOverlay) is positioned against it, and it is what the **fullscreen button** enlarges -- so a controls bar and legend inside it come along, and the chart keeps its aspect ratio.
+The wrapper around a chart and its companions. A floating [`legendOverlay`](reference/ui.qmd#legendOverlay) is positioned against it, and it is what the **fullscreen button** enlarges -- so a controls bar and legend inside it come along, and the chart keeps its aspect ratio. Two or more charts in one block (side by side, say, in a wrapper div of your own) enlarge together as one figure, keeping your layout of them.
 
 Every app chart wants one, even a chart that has neither a legend nor controls today. A simple figure drawn with Observable Plot doesn't (see [Plotly or Observable Plot](first-chart.qmd#plotly-or-observable-plot)). It also lets a chart in a `layout-ncol` column shrink with the column instead of forcing it wide.
 
