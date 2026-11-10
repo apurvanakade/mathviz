@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-11-10
+
 ### Fixed
 
 - Fullscreen on a block with two or more Plotly charts (side by side, say) letterboxes them as one figure, keeping the page's layout of them, and sizes the slider bar, stat row and legend to that figure. It used to size everything from the first chart alone, so a bar of three sliders wrapped, the legend sat mid-chart and the charts came out different sizes.
@@ -450,7 +452,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/apurvanakade/mathviz/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/apurvanakade/mathviz/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/apurvanakade/mathviz/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/apurvanakade/mathviz/compare/v1.1.0...v1.1.1
