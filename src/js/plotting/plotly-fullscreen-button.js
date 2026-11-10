@@ -244,8 +244,8 @@
       if (document.fullscreenElement !== target) {
         // Record the on-page aspect ratio before entering fullscreen so
         // chart-block.css can letterbox at that ratio instead of stretching
-        // to fill the screen: the first chart's (whichever chart's button
-        // was pressed), or the group's when the block holds several.
+        // to fill the screen: the block's first chart's, or the group's
+        // when the block holds several.
         const group = target === gd ? null : chartGroup(target)
         const box = group ?? target.querySelector(".js-plotly-plot") ?? gd
         const rect = box.getBoundingClientRect()
