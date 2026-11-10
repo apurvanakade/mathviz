@@ -380,3 +380,127 @@ test('draggablePoints handles follow the chart after its listeners are dropped',
   gd.emit('plotly_afterplot')
   assert.match(handlesOf(gd)[0].style.transform, /^translate\(100px/)
 })
+
+const countEvents = (gd, type) => {
+  const seen = {count: 0}
+  gd.addEventListener(type, () => { seen.count += 1 })
+  return seen
+}
+
+test('a drag fires change once on release, and not when it moved nothing', () => {
+  const gd = draggablePoints(chart(), {value: {x: 5, y: 0.25}})
+  const changes = countEvents(gd, 'change')
+  const [handle] = handlesOf(gd)
+  fire(handle, 'pointerdown', {clientX: 150, clientY: 95})
+  fire(handle, 'pointermove', {clientX: 110, clientY: 70})
+  fire(handle, 'pointermove', {clientX: 100, clientY: 70})
+  assert.equal(changes.count, 0)
+  fire(handle, 'pointerup')
+  assert.equal(changes.count, 1)
+  fire(handle, 'pointerdown', {clientX: 100, clientY: 70})
+  fire(handle, 'pointerup')
+  assert.equal(changes.count, 1)
+})
+
+test('an arrow-key move fires input and change; a blocked one fires neither', () => {
+  const gd = draggablePoints(chart(), {value: {x: 10, y: 0.5}, step: {x: 1, y: 0.1}})
+  const inputs = countInputs(gd)
+  const changes = countEvents(gd, 'change')
+  const [handle] = handlesOf(gd)
+  fire(handle, 'keydown', {key: 'ArrowRight'})
+  assert.deepEqual([inputs.count, changes.count], [0, 0])
+  fire(handle, 'keydown', {key: 'ArrowLeft'})
+  assert.deepEqual([inputs.count, changes.count], [1, 1])
+})
+
+test('with jump, a press that moves a point ends in one change', () => {
+  const gd = draggablePoints(chart(), {value: {x: 5, y: 0.5}, jump: true})
+  const changes = countEvents(gd, 'change')
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {clientX: 110, clientY: 70})
+  fire(pad, 'pointerup')
+  assert.equal(changes.count, 1)
+  // A press on the point's own position changes nothing.
+  fire(pad, 'pointerdown', {clientX: 110, clientY: 70})
+  fire(pad, 'pointerup')
+  assert.equal(changes.count, 1)
+})
+
+test('with add, a mouse press on the plot area adds a point there and drags it', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.5}], add: true})
+  const inputs = countInputs(gd)
+  const changes = countEvents(gd, 'change')
+  const pad = padOf(gd)
+  assert.ok(pad)
+  fire(pad, 'pointerdown', {clientX: 210, clientY: 45})
+  assert.deepEqual(gd.value, [{x: 1, y: 0.5}, {x: 8, y: 0.75}])
+  assert.equal(handlesOf(gd).length, 2)
+  assert.equal(handlesOf(gd)[1].getAttribute('aria-label'), 'Point 2')
+  assert.ok(handlesOf(gd)[1].focused)
+  assert.equal(inputs.count, 1)
+  fire(pad, 'pointermove', {clientX: 230, clientY: 45})
+  assert.deepEqual(gd.value[1], {x: 9, y: 0.75})
+  assert.equal(changes.count, 0)
+  fire(pad, 'pointerup')
+  assert.equal(changes.count, 1)
+})
+
+test('with add, a touch adds on a tap, not on a scroll, and the new point is bounded and constrained', () => {
+  const seen = []
+  const gd = draggablePoints(chart(), {
+    value: [], add: true, xBounds: [0, 5],
+    constrain: (p, index, points) => { seen.push([index, points.length]); return {x: p.x, y: 0.5} }
+  })
+  const changes = countEvents(gd, 'change')
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {pointerType: 'touch', clientX: 210, clientY: 45})
+  fire(pad, 'pointercancel', {pointerType: 'touch'})
+  assert.deepEqual(gd.value, [])
+  fire(pad, 'pointerdown', {pointerType: 'touch', clientX: 210, clientY: 45})
+  fire(pad, 'pointerup', {pointerType: 'touch', clientX: 210, clientY: 45})
+  assert.deepEqual(gd.value, [{x: 5, y: 0.5}])
+  assert.deepEqual(seen, [[0, 0]])
+  assert.equal(changes.count, 1)
+})
+
+test('add stops at maxPoints', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.5}], add: true, maxPoints: 1})
+  const inputs = countInputs(gd)
+  fire(padOf(gd), 'pointerdown', {clientX: 210, clientY: 45})
+  fire(padOf(gd), 'pointerup')
+  assert.equal(gd.value.length, 1)
+  assert.equal(inputs.count, 0)
+})
+
+test('with remove, a double-click removes a point and Delete removes the focused one, down to minPoints', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.1}, {x: 2, y: 0.2}, {x: 3, y: 0.3}], remove: true, minPoints: 1})
+  const inputs = countInputs(gd)
+  const changes = countEvents(gd, 'change')
+  fire(handlesOf(gd)[0], 'dblclick')
+  assert.deepEqual(gd.value, [{x: 2, y: 0.2}, {x: 3, y: 0.3}])
+  assert.equal(handlesOf(gd).length, 2)
+  assert.equal(handlesOf(gd)[0].getAttribute('aria-label'), 'Point 1')
+  assert.deepEqual([inputs.count, changes.count], [1, 1])
+  // Delete on the last point hands the focus to the new last one.
+  const del = fire(handlesOf(gd)[1], 'keydown', {key: 'Delete'})
+  assert.ok(del.defaultPrevented)
+  assert.deepEqual(gd.value, [{x: 2, y: 0.2}])
+  assert.ok(handlesOf(gd)[0].focused)
+  fire(handlesOf(gd)[0], 'keydown', {key: 'Backspace'})
+  assert.deepEqual(gd.value, [{x: 2, y: 0.2}])
+  assert.deepEqual([inputs.count, changes.count], [2, 2])
+})
+
+test('without remove, Delete and a double-click do nothing', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.1}, {x: 2, y: 0.2}]})
+  fire(handlesOf(gd)[0], 'dblclick')
+  const del = fire(handlesOf(gd)[0], 'keydown', {key: 'Delete'})
+  assert.ok(!del.defaultPrevented)
+  assert.equal(gd.value.length, 2)
+})
+
+test('add with jump, and add or remove on a single point, are refused', () => {
+  assert.throws(() => draggablePoints(chart(), {value: [], add: true, jump: true}), TypeError)
+  assert.throws(() => draggablePoints(chart(), {value: {x: 0, y: 0}, add: true}), TypeError)
+  assert.throws(() => draggablePoints(chart(), {value: {x: 0, y: 0}, remove: true}), TypeError)
+})

@@ -29,6 +29,14 @@
   // elsewhere on the plot area moves the nearest point there -- a mouse
   // press also keeps dragging it, a touch moves it on a tap (a swipe stays a
   // scroll, which the browser reports as `pointercancel`).
+  //
+  // With `add`, the same press on the plot area adds a point there instead,
+  // and with `remove` a double-click (or Delete on a focused point) takes one
+  // away: points the reader places, as in a regression demo. A `"change"`
+  // event follows each finished edit -- a drag released, a key press, a point
+  // added or removed -- the way a native range fires `input` while it moves
+  // and `change` when it lets go, so a page can redo slow work (a fitted
+  // window, a refit axis) once per gesture rather than on every frame.
 
   const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value))
 
@@ -103,6 +111,16 @@
    *   area move the nearest point there (a tap, on a touch screen). This
    *   takes the plot area's pointer events from Plotly, so its hover and
    *   drag-to-zoom stop working there.
+   * @param {boolean} [opts.add=false] - Let a press on the plot area away
+   *   from the points add one there (a tap, on a touch screen; a mouse
+   *   press keeps dragging the new point). Takes the plot area's pointer
+   *   events like `jump`, and can't be combined with it. Needs an array
+   *   `value`.
+   * @param {boolean} [opts.remove=false] - Let a double-click on a point,
+   *   or Delete/Backspace while it has focus, remove it. Needs an array
+   *   `value`.
+   * @param {number} [opts.minPoints=0] - `remove` stops at this many.
+   * @param {number} [opts.maxPoints=Infinity] - `add` stops at this many.
    * @param {string|string[]} [opts.label="Point"] - Accessible name. With
    *   an array `value`, a single string is numbered ("Point 1", ...) and an
    *   array names each point.
@@ -119,9 +137,12 @@
    *   `{x, y}` or `{x, y}[]` like `opts.value`; setting an array of another
    *   length rebuilds the points) that dispatches a bubbling `"input"` event
    *   on every move by the reader -- not on a programmatic set, matching
-   *   Observable Inputs.
-   * @throws {TypeError} When `plot` gives no drawn Plotly div, or
-   *   `opts.value` is missing.
+   *   Observable Inputs -- and a bubbling `"change"` event once each edit
+   *   is finished: a drag released (if it moved anything), an arrow-key
+   *   move, a point added or removed.
+   * @throws {TypeError} When `plot` gives no drawn Plotly div,
+   *   `opts.value` is missing, `add` is combined with `jump`, or `add` or
+   *   `remove` is given a single point.
    */
   const draggablePoints = (plot, opts = {}) => {
     if (opts.value === null || typeof opts.value !== "object") {
@@ -129,6 +150,14 @@
     }
     // One point in, one point out; the code below always works on a list.
     const single = !Array.isArray(opts.value)
+    if (opts.add && opts.jump) {
+      throw new TypeError("draggablePoints: `add` and `jump` both claim a press on the plot area; use one")
+    }
+    if (single && (opts.add || opts.remove)) {
+      throw new TypeError("draggablePoints: `add` and `remove` need an array `value`")
+    }
+    const minPoints = opts.minPoints ?? 0
+    const maxPoints = opts.maxPoints ?? Infinity
 
     // The chart's existing div when it has been drawn -- calling the plot
     // function with no traces would redraw it empty (and reset the reader's
@@ -212,13 +241,18 @@
       }
     }
 
+    const notify = (type) => gd.dispatchEvent(new Event(type, {bubbles: true}))
+
+    // Returns whether the point moved, so a gesture knows to end in a
+    // "change".
     const moveTo = (index, proposed) => {
       const next = settle(index, proposed)
-      if (next.x === points[index].x && next.y === points[index].y) return
+      if (next.x === points[index].x && next.y === points[index].y) return false
       points[index] = next
       describe(index)
       place()
-      gd.dispatchEvent(new Event("input", {bubbles: true}))
+      notify("input")
+      return true
     }
 
     // The data point under a client-space pointer position.
@@ -253,14 +287,20 @@
     // move puts the point back under the pointer, the point then kept
     // following a mouse with no button down, anywhere over its target -- the
     // whole plot area, with `jump`.
-    const startDrag = (target, event, index, grab) => {
+    //
+    // `changed` says the press itself already edited the points (a jump, an
+    // add); either way the drag's release fires one "change" if anything
+    // changed, and none for a press that moved nothing.
+    const startDrag = (target, event, index, grab, changed = false) => {
       if (target.setPointerCapture) target.setPointerCapture(event.pointerId)
       const handle = handles[index]
       handle.classList.add("vm-drag-active")
       const drag = new AbortController()
+      let edited = changed
       const finish = () => {
         handle.classList.remove("vm-drag-active")
         drag.abort()
+        if (edited) notify("change")
       }
       const move = (moveEvent) => {
         if (moveEvent.pointerId !== event.pointerId) return
@@ -271,7 +311,7 @@
           return
         }
         const proposed = pointerToData(moveEvent.clientX - grab.x, moveEvent.clientY - grab.y)
-        if (proposed) moveTo(index, proposed)
+        if (proposed && moveTo(index, proposed)) edited = true
       }
       const end = (endEvent) => {
         if (endEvent.pointerId !== event.pointerId) return
@@ -313,6 +353,32 @@
       return {x: sx * (opts.step?.x ?? (x1 - x0) / 100), y: sy * (opts.step?.y ?? (y1 - y0) / 100)}
     }
 
+    // Removes point `index`. From the keyboard the focus moves on to the
+    // point that took its place (or the new last one), so Delete pressed
+    // again keeps removing; from a double-click it is left alone.
+    const removeAt = (index, keyboard) => {
+      if (points.length <= minPoints) return
+      points.splice(index, 1)
+      build()
+      if (keyboard && handles.length > 0) handles[Math.min(index, handles.length - 1)].focus()
+      notify("input")
+      notify("change")
+    }
+
+    // Adds a point where the pointer is and returns its index, or -1 at
+    // `maxPoints` (or before the chart has axes).
+    const addAt = (event) => {
+      if (points.length >= maxPoints) return -1
+      const proposed = pointerToData(event.clientX, event.clientY)
+      if (!proposed) return -1
+      const index = points.length
+      const next = settle(index, proposed)
+      points.push(next)
+      build()
+      notify("input")
+      return index
+    }
+
     const build = () => {
       for (const handle of handles) handle.remove()
       handles = []
@@ -344,10 +410,20 @@
           else if (event.key === "ArrowRight") dx = 1
           else if (event.key === "ArrowUp") dy = 1
           else if (event.key === "ArrowDown") dy = -1
-          else return
+          else if (opts.remove && (event.key === "Delete" || event.key === "Backspace")) {
+            event.preventDefault()
+            removeAt(i, true)
+            return
+          } else return
           event.preventDefault()
-          moveTo(i, {x: points[i].x + dx * step.x * times, y: points[i].y + dy * step.y * times})
+          if (moveTo(i, {x: points[i].x + dx * step.x * times, y: points[i].y + dy * step.y * times})) notify("change")
         }, {signal})
+        if (opts.remove) {
+          handle.addEventListener("dblclick", (event) => {
+            event.preventDefault()
+            removeAt(i, false)
+          }, {signal})
+        }
         layer.append(handle)
         handles.push(handle)
         describe(i)
@@ -355,15 +431,27 @@
       place()
     }
 
-    if (opts.jump) {
+    if (opts.jump || opts.add) {
       pad = document.createElement("div")
       pad.className = "vm-drag-pad"
       layer.append(pad)
+      // What a press on the pad does: move the nearest point there (jump),
+      // or put a new one there (add). Either returns the point's index, or
+      // -1 when nothing happened.
+      // `pressChanged` says whether it changed anything: a jump onto the
+      // point's own position doesn't, and then ends in no "change".
+      let pressChanged = false
       const jump = (event) => {
+        pressChanged = false
+        if (opts.add) {
+          const added = addAt(event)
+          pressChanged = added >= 0
+          return added
+        }
         const index = nearest(event.clientX, event.clientY)
         const proposed = pointerToData(event.clientX, event.clientY)
         if (index < 0 || !proposed) return -1
-        moveTo(index, proposed)
+        pressChanged = moveTo(index, proposed)
         return index
       }
       pad.addEventListener("pointerdown", (event) => {
@@ -376,7 +464,9 @@
             if (up.pointerId !== event.pointerId) return
             tap.abort()
             const index = jump(up)
-            if (index >= 0) focusQuietly(handles[index])
+            if (index < 0) return
+            focusQuietly(handles[index])
+            if (pressChanged) notify("change")
           }, {signal: tap.signal})
           pad.addEventListener("pointercancel", (cancel) => {
             if (cancel.pointerId === event.pointerId) tap.abort()
@@ -388,7 +478,7 @@
         const index = jump(event)
         if (index < 0) return
         focusQuietly(handles[index])
-        startDrag(pad, event, index, {x: 0, y: 0})
+        startDrag(pad, event, index, {x: 0, y: 0}, pressChanged)
       }, {signal})
     }
 
