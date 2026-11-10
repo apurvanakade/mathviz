@@ -38,13 +38,15 @@
 // marked data-vm-cloud-ready.
 //
 // Back and Forward follow the filter both ways. Quarto pushes a history
-// entry per pick and re-applies the category on hashchange, but only a
-// non-empty one: going back to a page with no #category=, or to the
+// entry per pick, and the listing page's inline script re-runs
+// quarto-listing-loaded on hashchange, which re-applies the category -- but
+// only a non-empty one: going back to a page with no hash, or to the
 // "#category=" All leaves, kept the last filter and its highlight. Here an
 // empty category clears the filter -- through Quarto's window["quarto-listings"]
 // (the List.js instances its listing script registers), not
 // quartoListingCategory(""), which would push a new entry and drop the
-// Forward history.
+// Forward history. Any other hash (#fn1, a heading's anchor) is an in-page
+// link, not a listing state, and leaves the filter alone.
 //
 // A pick that leaves the cloud above the viewport scrolls it back into view.
 // A tag on a card far down the grid filters in place too, and the shorter
@@ -96,7 +98,9 @@
     })
 
     globalThis.addEventListener("hashchange", () => {
-      if (hashCategory(globalThis.location.hash) !== "") return
+      const hash = globalThis.location.hash
+      if (hash.length > 1 && !/(?:^#|&)category=/.test(hash)) return
+      if (hashCategory(hash) !== "") return
       for (const entry of cloud.querySelectorAll(".category.active")) entry.classList.remove("active")
       all.classList.add("active")
       for (const list of Object.values(globalThis["quarto-listings"] ?? {})) list?.filter()

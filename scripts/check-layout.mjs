@@ -260,7 +260,17 @@ async function cloudFilterProblems(page) {
   const allActive = await page.evaluate(() => document.querySelector('.vm-category-cloud .category--all')?.classList.contains('active'))
   if (!allActive) problems.push('"All" is not .active after clearing the filter')
   // Back to the "#category=" All left: Quarto re-applies only a non-empty
-  // category, so the cloud has to clear the filter itself.
+  // category, so the cloud has to clear the filter itself. An in-page
+  // anchor (a footnote, a heading) changes the hash too, and must not.
+  await page.locator('.vm-category-cloud .category', { hasText: 'Probability' }).click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
+  await page.evaluate(() => { location.hash = '#fn1' })
+  await page.waitForTimeout(150)
+  if ((await shown()) !== 1) problems.push(`an in-page anchor (#fn1) under "Probability" left ${await shown()} cards, expected 1`)
+  await page.goBack()
+  await page.waitForTimeout(150)
+  await page.locator('.vm-category-cloud .category--all').click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
   await page.locator('.vm-category-cloud .category', { hasText: 'Probability' }).click({ timeout: 2000 }).catch(() => {})
   await page.waitForTimeout(150)
   await page.goBack()
