@@ -54,7 +54,7 @@ Nothing here imports anything. Where a function needs a library, it takes it as 
 | `VM.ui.statRow` | nothing -- plain DOM |
 | `VM.ui.urlParam / syncUrlParams` | `location` and `history`, unless `opts.search` is given |
 | `VM.ui.legendOverlay` | nothing -- plain DOM. It *implements* Observable's view contract; it doesn't require Observable |
-| `VM.ui.renderTable` | htl's `html` tag, passed in. Emits Bootstrap table classes |
+| `VM.ui.renderTable` | nothing -- plain DOM. Emits Bootstrap table classes |
 | `VM.ui.applyExampleParams` | views that follow Observable Inputs' `value` + `"input"` protocol |
 | slider playback, draggable legend, SVG fullscreen button, slider fill | nothing -- self-installing on the [markup](../markup.qmd) they look for |
 

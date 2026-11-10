@@ -23,8 +23,7 @@ class Node {
 
   append (...items) {
     for (const item of items) {
-      if (item && item.tagName === '#fragment') this.children.push(...item.children)
-      else this.children.push(typeof item === 'string' ? Object.assign(new Node('#text'), {textValue: item}) : item)
+      this.children.push(typeof item === 'string' ? Object.assign(new Node('#text'), {textValue: item}) : item)
     }
   }
 
@@ -39,11 +38,14 @@ const find = (node, tag) => node.tagName === tag ? [node] : node.children.flatMa
 
 test('renderTable builds the toolbar and table from strings, numbers and nodes', () => {
   globalThis.document.createElement = (tag) => new Node(tag)
-  globalThis.document.createDocumentFragment = () => new Node('#fragment')
   const math = new Node('span')
   math.append('x_n')
-  const fragment = VM.ui.renderTable({headers: ['n', math], rows: [[0, '1.5'], [1, 2]]})
-  const [table] = find(fragment, 'table')
+  const wrapper = VM.ui.renderTable({headers: ['n', math], rows: [[0, '1.5'], [1, 2]]})
+  // An Element, so Observable's inspector renders it: a DocumentFragment is
+  // shown as an inspected object, and Quarto hides a named cell that does that.
+  assert.equal(wrapper.tagName, 'div')
+  assert.deepEqual(wrapper.children.map((c) => c.className), ['ojs-table-toolbar', 'ojs-table-container'])
+  const [table] = find(wrapper, 'table')
   assert.equal(table.className, 'table table-sm table-bordered small')
   const cells = find(table, 'td')
   assert.deepEqual(cells.map((c) => c.textContent), ['0', '1.5', '1', '2'])
@@ -54,7 +56,6 @@ test('renderTable builds the toolbar and table from strings, numbers and nodes',
 
 test('the CSV download quotes \\r and reads node headers by their text', () => {
   globalThis.document.createElement = (tag) => new Node(tag)
-  globalThis.document.createDocumentFragment = () => new Node('#fragment')
   globalThis.document.body = new Node('body')
   let blobText = null
   globalThis.Blob = class { constructor (parts) { blobText = parts.join('') } }
@@ -62,8 +63,8 @@ test('the CSV download quotes \\r and reads node headers by their text', () => {
   globalThis.URL.revokeObjectURL = () => {}
   const header = new Node('span')
   header.append('err')
-  const fragment = VM.ui.renderTable({headers: ['n', header], rows: [[0, 'a\rb']]})
-  const [link] = find(fragment, 'a')
+  const wrapper = VM.ui.renderTable({headers: ['n', header], rows: [[0, 'a\rb']]})
+  const [link] = find(wrapper, 'a')
   link.click()
   assert.equal(blobText, 'n,err\n0,"a\rb"')
 })

@@ -5609,9 +5609,9 @@
    *   labels for the download; without them a node header's `textContent`
    *   is used.
    * @param {string} [args.filename="iteration-table.csv"] - Download name.
-   * @returns {DocumentFragment} `<div class="ojs-table-toolbar">` + `<div
-   *   class="ojs-table-container"><table class="table table-sm
-   *   table-bordered small">`.
+   * @returns {HTMLDivElement} A `<div>` holding `<div
+   *   class="ojs-table-toolbar">` then `<div class="ojs-table-container"><table
+   *   class="table table-sm table-bordered small">`.
    */
   const renderTable = ({headers, rows, csvHeaders = headers, filename = "iteration-table.csv"}) => {
     const cellClass = i => {
@@ -5651,9 +5651,14 @@
     const container = make("div", "ojs-table-container")
     container.append(table)
 
-    const fragment = document.createDocumentFragment()
-    fragment.append(toolbar, container)
-    return fragment
+    // One element, not a DocumentFragment: Observable's inspector displays a
+    // cell's value as a node only when it is an Element or Text, and shows
+    // anything else (a fragment included) as an inspected object -- which
+    // Quarto then hides as a named cell's inspector output. The old htl
+    // template did the same wrapping implicitly for its two root nodes.
+    const wrapper = make("div")
+    wrapper.append(toolbar, container)
+    return wrapper
   }
 
   Object.assign((globalThis.VM ??= {}).ui ??= {}, {renderTable})
