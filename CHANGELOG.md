@@ -10,6 +10,11 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- Fullscreen on a block with two or more Plotly charts (side by side, say) letterboxes them as one figure, keeping the page's layout of them, and sizes the slider bar, stat row and legend to that figure. It used to size everything from the first chart alone, so a bar of three sliders wrapped, the legend sat mid-chart and the charts came out different sizes.
+- Clicking a modebar button over a `VM.plotting.draggablePoints` chart with `add` (or `jump`) uses the button instead of adding (or moving) a point: the modebar now sits above the points' layer.
+
 ## [1.3.0] - 2026-11-10
 
 ### Added

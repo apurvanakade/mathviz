@@ -499,7 +499,7 @@ Runs the patch. Only needed when Plotly arrives **later** than the bundle and `D
 
 The fullscreen modebar button, as a Plotly custom-button object: `{name: "fullscreen", title, icon: {width, height, path}, click(gd)}`, plus two helpers the SVG button shares: `available()`, whether element fullscreen works on this page (false on iPhone Safari and in an iframe without `allow="fullscreen"`), and `toggle(target)`, which enters or leaves fullscreen on `target` and reports a refused request on the console instead of as an unhandled rejection. The patch adds it to every chart; a page touches this only to reuse its glyph (`VM.plotting.fullscreenButton.icon` -- Bootstrap Icons' `arrows-fullscreen`), or to add it to a chart built outside the patch via `modeBarButtonsToAdd`.
 
-Clicking fullscreens the nearest `.ojs-chart-block` -- so the controls bar and legend come along -- or, without one, the graph div itself; a second click exits. Before entering it records the chart's aspect ratio as `--vm-plot-aspect-ratio` on the div so the CSS can letterbox it.
+Clicking fullscreens the nearest `.ojs-chart-block` -- so the controls bar and legend come along -- or, without one, the graph div itself; a second click exits. Before entering it records the chart's aspect ratio as `--vm-plot-aspect-ratio` on the div so the CSS can letterbox it. A block with two or more charts (side by side, say) is letterboxed as one figure: their innermost common wrapper, at its on-page ratio, with the page's own layout of the charts kept inside it; the slider bar, stat row and legend follow that figure's width.
 
 ## SVG fullscreen helpers
 

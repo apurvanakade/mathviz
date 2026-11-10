@@ -1396,6 +1396,7 @@
   // so the failure mode is a few pixels of mismatch rather than an overflow
   // or a spin.
   const BAR_WIDTH_PROP = "--vm-fs-plot-width"
+  const GROUP_CLASS = "vm-fs-plot-group"
   const MAX_SETTLE_PASSES = 6
   let barWidthObserver = null
   let settlePasses = 0
@@ -1417,14 +1418,69 @@
     for (const el of document.querySelectorAll(".ojs-chart-block")) {
       el.style.removeProperty(BAR_WIDTH_PROP)
     }
+    for (const group of document.querySelectorAll("." + GROUP_CLASS)) {
+      group.classList.remove(GROUP_CLASS)
+      for (const prop of ["width", "height", "--vm-plot-aspect-ratio"]) group.style.removeProperty(prop)
+    }
+  }
+
+  // A block with two or more charts (side by side, say) is letterboxed as
+  // one figure: the innermost element holding all of them, at its on-page
+  // aspect ratio, with the page's own layout of the charts kept inside it.
+  // Null when the charts have no common wrapper short of the block itself,
+  // which then falls back to the first chart, as a one-chart block does.
+  const chartGroup = (target) => {
+    const charts = target.querySelectorAll(".js-plotly-plot")
+    if (charts.length < 2) return null
+    let group = charts[0].parentElement
+    while (group && group !== target && ![...charts].every((gd) => group.contains(gd))) group = group.parentElement
+    if (!group || group === target) return null
+    return group
+  }
+
+  // The group's size can't be written in CSS when it is itself the block's
+  // flex item (no size container above it to measure), so it is computed
+  // here: the block's box less the strips and anything else beside the
+  // group's branch, then contain-fit at the recorded ratio. Returns
+  // whether the size changed.
+  const sizeGroup = (target, group) => {
+    const ratio = parseFloat(group.style.getPropertyValue("--vm-plot-aspect-ratio"))
+    if (!(ratio > 0)) return false
+    let branch = group
+    while (branch.parentElement !== target) branch = branch.parentElement
+    const style = getComputedStyle(target)
+    let height = target.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)
+    const width = target.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
+    for (const child of target.children) {
+      if (child === branch) continue
+      const childStyle = getComputedStyle(child)
+      if (childStyle.position === "absolute" || childStyle.position === "fixed") continue
+      height -= child.getBoundingClientRect().height + parseFloat(childStyle.marginTop) + parseFloat(childStyle.marginBottom)
+    }
+    let w = Math.min(width, height * ratio)
+    w = Math.max(0, Math.floor(w))
+    const h = Math.floor(w / ratio)
+    const current = group.getBoundingClientRect()
+    if (Math.abs(current.width - w) < 1 && Math.abs(current.height - h) < 1) return false
+    group.style.setProperty("width", w + "px")
+    group.style.setProperty("height", h + "px")
+    return true
+  }
+
+  const resizeCharts = (target) => {
+    if (!globalThis.Plotly) return
+    for (const gd of target.querySelectorAll(".js-plotly-plot")) globalThis.Plotly.Plots.resize(gd)
   }
 
   const syncBarWidth = () => {
     const target = document.fullscreenElement
     if (!target || typeof target.querySelector !== "function") return
     const gd = target.querySelector(".js-plotly-plot")
-    if (!gd || fullscreenStrips(target).length === 0) return
-    const width = Math.round(gd.getBoundingClientRect().width)
+    if (!gd) return
+    const group = target.querySelector("." + GROUP_CLASS)
+    if (group && settlePasses < MAX_SETTLE_PASSES && sizeGroup(target, group)) resizeCharts(target)
+    if (fullscreenStrips(target).length === 0) return
+    const width = Math.round((group ?? gd).getBoundingClientRect().width)
     if (width <= 0) return
     // Sub-pixel churn is the observer chasing its own rounding, not a real
     // change; NaN on the first pass compares false and falls through to set.
@@ -1461,18 +1517,23 @@
     let gd = target
     if (!gd.classList.contains("js-plotly-plot")) gd = target.querySelector(".js-plotly-plot")
     if (globalThis.Plotly && gd) {
-      globalThis.Plotly.Plots.resize(gd)
+      if (target.classList.contains("js-plotly-plot")) globalThis.Plotly.Plots.resize(gd)
+      else resizeCharts(target)
     }
 
     syncBarWidth()
 
     if (typeof ResizeObserver === "undefined") return
     const strips = fullscreenStrips(target)
-    if (!gd || strips.length === 0) return
+    const group = target.querySelector("." + GROUP_CLASS)
+    if (!gd || (strips.length === 0 && !group)) return
     // The chart for a width to copy, the bar and stat row because their own
     // heights are the other half of the loop.
+    // A group is sized from the block's own box, so the block is watched too
+    // (a window resize while fullscreen).
     barWidthObserver = new ResizeObserver(syncBarWidth)
-    barWidthObserver.observe(gd)
+    barWidthObserver.observe(group ?? gd)
+    if (group) barWidthObserver.observe(target)
     for (const strip of strips) barWidthObserver.observe(strip)
   })
 
@@ -1554,12 +1615,16 @@
       // fullscreening gd, same as before.
       const target = gd.closest(".ojs-chart-block") || gd
       if (document.fullscreenElement !== target) {
-        // Record the chart's on-page aspect ratio before entering fullscreen
-        // so chart-block.css (`:fullscreen .js-plotly-plot`) can letterbox the
-        // chart at that ratio instead of stretching it to fill the screen.
-        const rect = gd.getBoundingClientRect()
+        // Record the on-page aspect ratio before entering fullscreen so
+        // chart-block.css can letterbox at that ratio instead of stretching
+        // to fill the screen: the block's first chart's, or the group's
+        // when the block holds several.
+        const group = target === gd ? null : chartGroup(target)
+        const box = group ?? target.querySelector(".js-plotly-plot") ?? gd
+        const rect = box.getBoundingClientRect()
         if (rect.height > 0) {
-          gd.style.setProperty("--vm-plot-aspect-ratio", String(rect.width / rect.height))
+          box.style.setProperty("--vm-plot-aspect-ratio", String(rect.width / rect.height))
+          if (group) group.classList.add(GROUP_CLASS)
         }
       }
       toggleFullscreen(target)
