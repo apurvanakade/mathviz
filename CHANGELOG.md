@@ -13,6 +13,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 ### Fixed
 
 - `VM.ui.renderTable` returns one `<div>` again instead of a `DocumentFragment`, which Observable's inspector doesn't display as a node: since v1.0 a table returned from a named OJS cell was hidden by Quarto and never shown.
+- The category cloud follows Back and Forward to "All": Quarto re-applies only a non-empty `#category=`, so going back to an unfiltered page kept the last filter and its highlight.
+- A tag clicked on a card far down a listing with a category cloud no longer leaves the reader at the bottom of the shortened page: when a pick leaves the cloud above the window, it scrolls back into view.
 
 ## [1.2.0] - 2026-11-09
 

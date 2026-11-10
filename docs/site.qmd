@@ -135,7 +135,7 @@ mathviz-page:
   category-cloud: true
 ```
 
-For a listing with `categories: cloud`. Quarto puts the cloud in the right margin, which is narrow beside a grid and hidden on a phone. This moves it above the listing's cards and adds an "All" entry first, which clears the filter. Clicking a category works as before, every entry can also be reached with Tab and picked with Enter or Space, and the page's `#category=` links still open it filtered. The page then has no margin column, so the listing gets the width. Without JavaScript the cloud stays in the margin.
+For a listing with `categories: cloud`. Quarto puts the cloud in the right margin, which is narrow beside a grid and hidden on a phone. This moves it above the listing's cards and adds an "All" entry first, which clears the filter. Clicking a category works as before, every entry can also be reached with Tab and picked with Enter or Space, and the page's `#category=` links still open it filtered. Back and Forward step through the categories picked, "All" included. When a pick leaves the cloud above the window (a tag clicked on a card far down shortens the page), the page scrolls back to it; give `.vm-category-cloud` a `scroll-margin-top` if a fixed navbar would cover it. The page then has no margin column, so the listing gets the width. Without JavaScript the cloud stays in the margin.
 
 The cloud is unstyled: it looks the way Quarto draws it until your own CSS restyles it. Style it with these classes:
 
