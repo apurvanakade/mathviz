@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- `VM.ui.renderTable` returns one `<div>` again instead of a `DocumentFragment`, which Observable's inspector doesn't display as a node: since v1.0 a table returned from a named OJS cell was hidden by Quarto and never shown.
+
 ## [1.2.0] - 2026-11-09
 
 ### Added

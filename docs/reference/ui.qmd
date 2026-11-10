@@ -179,7 +179,7 @@ A compact, horizontally scrollable results table with a "Download csv" link abov
 | `csvHeaders` | `string[]` | `headers` | Plain-text labels for the download. Without them a node header's `textContent` is used, which reads oddly for typeset math. |
 | `filename` | `string` | `"iteration-table.csv"` | The download's name. |
 
-**Returns** one fragment: `<div class="ojs-table-toolbar">` (the link) then `<div class="ojs-table-container"><table class="table table-sm table-bordered small">`. The table classes are Bootstrap's, so it inherits the Quarto theme's table styling.
+**Returns** one `<div>` holding `<div class="ojs-table-toolbar">` (the link) then `<div class="ojs-table-container"><table class="table table-sm table-bordered small">`. The table classes are Bootstrap's, so it inherits the Quarto theme's table styling.
 
 ```{ojs}
 {
