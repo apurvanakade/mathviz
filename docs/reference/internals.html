@@ -549,9 +549,10 @@ kit/                   what a consumer site copies in: the update hook</code></p
 <li><strong>Pixels to data</strong> go through the axis objects in <code>gd._fullLayout</code> (<code>_offset</code>, <code>_length</code>, <code>d2l</code>/<code>l2p</code>/<code>p2l</code>/<code>l2d</code>), so log, reversed and <code>scaleanchor</code> axes work. Nothing reads Plotly’s drag-layer DOM. These are the same internals <a href="../../docs/reference/plotting.html#lockedAxes"><code>lockedAxes</code></a> reads, kept in one file.</li>
 <li><strong>Placement</strong> is redone on <code>plotly_afterplot</code>, <code>plotly_relayout</code> and <code>plotly_relayouting</code>, which cover a resize, a theme toggle, fullscreen and a zoom.</li>
 <li><strong>Theme:</strong> a point’s color is a CSS value (a <code>var(--vm-color-*)</code> by default), so a toggle recolors it without re-running the <code>viewof</code> cell, which would reset it.</li>
-<li><strong>Touch:</strong> only the points have <code>touch-action: none</code>. A touch elsewhere on the chart scrolls the page, so a full-width chart can’t trap a phone reader. The <code>jump</code> pad keeps the default <code>touch-action</code> and moves a point on a tap; a swipe arrives as <code>pointercancel</code> and moves nothing.</li>
-<li><strong>Ending a drag:</strong> the pointer is captured on the point (or the <code>jump</code> pad), and the drag ends on <code>pointerup</code>, <code>pointercancel</code>, <code>lostpointercapture</code>, or a <code>pointermove</code> with <code>buttons === 0</code>. The last two catch a release that never arrived, which would otherwise leave the point following a mouse with no button held.</li>
-<li><strong>Focus:</strong> a press on a point isn’t cancelled, so the browser’s own press-focus hands it the keyboard without a focus ring. A <code>jump</code> press focuses the point with <code>focusVisible: false</code>.</li>
+<li><strong>Touch:</strong> only the points have <code>touch-action: none</code>. A touch elsewhere on the chart scrolls the page, so a full-width chart can’t trap a phone reader. The pad (<code>jump</code> or <code>add</code>) keeps the default <code>touch-action</code> and moves or adds a point on a tap; a swipe arrives as <code>pointercancel</code> and does nothing.</li>
+<li><strong>Ending a drag:</strong> the pointer is captured on the point (or the pad), and the drag ends on <code>pointerup</code>, <code>pointercancel</code>, <code>lostpointercapture</code>, or a <code>pointermove</code> with <code>buttons === 0</code>. The last two catch a release that never arrived, which would otherwise leave the point following a mouse with no button held.</li>
+<li><strong>Focus:</strong> a press on a point isn’t cancelled, so the browser’s own press-focus hands it the keyboard without a focus ring. A press on the pad focuses the moved or added point with <code>focusVisible: false</code>.</li>
+<li><strong>Adding and removing:</strong> <code>add</code> and <code>remove</code> rebuild every point (the pad sits under them, so a press on a point drags it rather than adding one), which renumbers the default labels; array <code>label</code>/<code>color</code> entries are spliced out with a removed point, so the others keep theirs. A mouse press that adds keeps dragging the new point, and its release fires the one <code>"change"</code>.</li>
 <li><strong>Re-running</strong> the cell on the same chart detaches the earlier points first (<code>gd.__vmDragPoints</code>): their layer, DOM listeners (one <code>AbortController</code>) and Plotly listeners.</li>
 </ul>
 </section>
@@ -588,7 +589,7 @@ kit/                   what a consumer site copies in: the update hook</code></p
 </tr>
 <tr class="even">
 <td><code>vm-drag-host</code>, <code>vm-drag-layer</code>, <code>vm-drag-pad</code>, <code>vm-drag-point</code>, <code>vm-drag-active</code></td>
-<td><code>VM.plotting.draggablePoints</code>: the chart div, the layer over it, the <code>jump</code> pad, each point, the point being dragged</td>
+<td><code>VM.plotting.draggablePoints</code>: the chart div, the layer over it, the <code>jump</code>/<code>add</code> pad, each point, the point being dragged</td>
 </tr>
 <tr class="odd">
 <td><code>ojs-table-toolbar</code>, <code>ojs-table-container</code></td>
