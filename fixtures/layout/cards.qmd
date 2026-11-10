@@ -38,3 +38,11 @@ Some prose above the listing.
 
 ::: {#cards-listing .column-page}
 :::
+
+<!-- What follows the grid on Visual Math Lab's homepage (its topic tiles,
+     the footer), a window and a half of it: when a card's tag filters the
+     grid, the page shrinks but still scrolls past the remaining cards, so
+     a reader who clicked far down would be left below them. -->
+<div style="height: 150vh"></div>
+
+Some prose below the listing.

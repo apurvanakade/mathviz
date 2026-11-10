@@ -22,7 +22,9 @@
 //   - grid listing cards wider than --vm-card-width, more than one to a
 //     row on a phone, or with a title pushed off the card's left edge (the
 //     auto margins of a prose-width rule once centred every short one);
-//   - the category cloud not moved above the grid, or without "All" first;
+//   - the category cloud not moved above the grid, or without "All" first,
+//     not cleared by Back to "All", or left above the window after a
+//     card's tag filters the grid;
 //   - a page that sets an option with mathviz-page: losing the options
 //     _quarto.yml sets (the referrer meta, fonts and sidebar search);
 //   - a draggable point drawn away from the data point it stands for
@@ -257,7 +259,39 @@ async function cloudFilterProblems(page) {
   if ((await shown()) !== all) problems.push(`Space on a focused "All" left ${await shown()} of ${all} cards`)
   const allActive = await page.evaluate(() => document.querySelector('.vm-category-cloud .category--all')?.classList.contains('active'))
   if (!allActive) problems.push('"All" is not .active after clearing the filter')
+  // Back to the "#category=" All left: Quarto re-applies only a non-empty
+  // category, so the cloud has to clear the filter itself. An in-page
+  // anchor (a footnote, a heading) changes the hash too, and must not.
+  await page.locator('.vm-category-cloud .category', { hasText: 'Probability' }).click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
+  await page.evaluate(() => { location.hash = '#fn1' })
+  await page.waitForTimeout(150)
+  if ((await shown()) !== 1) problems.push(`an in-page anchor (#fn1) under "Probability" left ${await shown()} cards, expected 1`)
+  await page.goBack()
+  await page.waitForTimeout(150)
+  await page.locator('.vm-category-cloud .category--all').click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
+  await page.locator('.vm-category-cloud .category', { hasText: 'Probability' }).click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
+  await page.goBack()
+  await page.waitForTimeout(150)
+  if ((await shown()) !== all) problems.push(`Back from "Probability" to "All" left ${await shown()} of ${all} cards`)
+  const activeAfterBack = await page.evaluate(() => Array.from(document.querySelectorAll('.vm-category-cloud .category.active'), (e) => e.textContent.trim()))
+  if (activeAfterBack.join() !== 'All') problems.push(`after Back to "All" the active entries are ${JSON.stringify(activeAfterBack)}`)
   return problems
+}
+
+// A tag on the last card, scrolled to, filters the grid in place; the
+// shorter page must not leave the reader past the cards, below the cloud.
+async function cardTagScrollProblems(page) {
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+  await page.waitForTimeout(150)
+  const tag = page.locator('.quarto-grid-item .listing-category', { hasText: 'Probability' })
+  await tag.click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(300)
+  const top = await page.evaluate(() => document.querySelector('.vm-category-cloud')?.getBoundingClientRect().top ?? null)
+  if (top === null || top < -1) return [`after a card's "Probability" tag the cloud is ${top === null ? 'missing' : `${Math.round(-top)}px above the window`}`]
+  return []
 }
 
 function isSettled(isApp) {
@@ -493,6 +527,8 @@ async function checkCardsPage(context, base, relPath) {
   watch(phone, 'phone ')
   for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
   for (const problem of await phone.evaluate(cardProblems, true)) errors.push(`phone: ${problem}`)
+  for (const problem of await cardTagScrollProblems(phone)) errors.push(`phone: ${problem}`)
+  await phone.evaluate(() => window.scrollTo(0, 0))
   // The hover panel overhangs a card by $vm-card-lift-pad; hovered, it must
   // still fit the window.
   await phone.locator('.quarto-grid-item').first().hover({ timeout: 2000 }).catch(() => {})
