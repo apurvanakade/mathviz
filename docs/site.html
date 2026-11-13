@@ -412,6 +412,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#embedding" id="toc-embedding" class="nav-link" data-scroll-target="#embedding">Embedding</a></li>
   <li><a href="#share" id="toc-share" class="nav-link" data-scroll-target="#share">Share</a></li>
   <li><a href="#category-cloud" id="toc-category-cloud" class="nav-link" data-scroll-target="#category-cloud">Category cloud</a></li>
+  <li><a href="#sidebar-rail" id="toc-sidebar-rail" class="nav-link" data-scroll-target="#sidebar-rail">Sidebar rail</a></li>
   <li><a href="#sidebar-search" id="toc-sidebar-search" class="nav-link" data-scroll-target="#sidebar-search">Sidebar search</a></li>
   <li><a href="#report-bug" id="toc-report-bug" class="nav-link" data-scroll-target="#report-bug">Report bug</a></li>
   </ul>
@@ -452,15 +453,16 @@ Authors: Apurva Nakade
 <h2 class="anchored" data-anchor-id="all-the-keys">All the keys</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">fonts</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">category-cloud</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> my-site-sidebar-pinned</span><span class="co">     # or true</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">category-cloud</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -476,32 +478,38 @@ Authors: Apurva Nakade
 <td>Serves Inter and JetBrains Mono from your own site.</td>
 </tr>
 <tr class="even">
+<td><code>sidebar-rail</code></td>
+<td><code>true</code>, or a storage key</td>
+<td>Hides Quarto’s sidebar behind a slim rail at the left edge.</td>
+</tr>
+<tr class="odd">
 <td><code>sidebar-search</code></td>
 <td><code>true</code></td>
 <td>Adds a search box at the top of the sidebar that narrows it to matching titles.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>category-cloud</code></td>
 <td><code>true</code></td>
 <td>Moves a listing’s category cloud above its cards and adds an “All” entry.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>embed</code></td>
 <td><code>true</code></td>
 <td>Lets another site show one app alone in an <code>&lt;iframe&gt;</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>share</code></td>
 <td>a map (see <a href="#share">Share</a>)</td>
 <td>Adds a “Share” button to every app. Turns <code>embed</code> on too.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>report-bug</code></td>
 <td>a map with <code>repo</code> (required) and <code>branch</code></td>
 <td>Adds a “Report bug” popup when a reader selects text.</td>
 </tr>
 </tbody>
 </table>
+<p>Where a key takes a <strong>storage key</strong>, the string names the <code>localStorage</code> entry that remembers the reader’s choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With <code>true</code> the default is <code>vm-sidebar-pinned</code>.</p>
 </section>
 <section id="fonts" class="level2">
 <h2 class="anchored" data-anchor-id="fonts">Fonts</h2>
@@ -546,7 +554,7 @@ Authors: Apurva Nakade
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  width</span><span class="op">=</span><span class="st">"100%"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"900"</span><span class="ot"> loading</span><span class="op">=</span><span class="st">"lazy"</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ot">  title</span><span class="op">=</span><span class="st">"Newton's method"</span><span class="dt">&gt;</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">iframe</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A page’s own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the Share button and Report bug popup stay hidden.</p>
+<p>A page’s own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, Share button and Report bug popup stay hidden.</p>
 </section>
 <section id="share" class="level2">
 <h2 class="anchored" data-anchor-id="share">Share</h2>
@@ -604,24 +612,31 @@ Authors: Apurva Nakade
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.category.active</span> { <span class="kw">color</span><span class="ch">:</span> <span class="fu">var(</span><span class="va">--vm-accent</span><span class="fu">)</span><span class="op">;</span> <span class="kw">font-weight</span><span class="ch">:</span> <span class="dv">500</span><span class="op">;</span> }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>With more than one listing on the page, the cloud goes above the first grid, default or table listing, and filters all of them, as Quarto’s does. A custom-template listing gets the cloud only when the page has no listing of those three types; its template must emit <code>metadataAttrs(item)</code> on each item for the filter to find the item’s categories.</p>
 </section>
+<section id="sidebar-rail" class="level2">
+<h2 class="anchored" data-anchor-id="sidebar-rail">Sidebar rail</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For a site with Quarto sidebar navigation (<code>style: floating</code> or <code>docked</code>). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages). Escape or a click outside closes it. The body column takes the sidebar’s space and is as wide as your <code>grid: body-width</code> (Quarto’s 800px if unset); a page with a table of contents keeps its right margin.</p>
+<p>It changes nothing on a site or page that doesn’t turn it on, or on a page without a sidebar: to switch it off for one page, set <code>mathviz-page: {sidebar-rail: false}</code>.</p>
+</section>
 <section id="sidebar-search" class="level2">
 <h2 class="anchored" data-anchor-id="sidebar-search">Sidebar search</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For a site with Quarto sidebar navigation. A search box at the top of the sidebar narrows the menu as the reader types. It searches titles only, not page text: Quarto’s own full-text search allows one box per page, so keep that one in the navbar.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For a site with Quarto sidebar navigation, with or without the rail. A search box at the top of the sidebar narrows the menu as the reader types. It searches titles only, not page text: Quarto’s own full-text search allows one box per page, so keep that one in the navbar.</p>
 <ul>
 <li>Each word typed must start a word of a title, in any order: “ode” finds “Methods for ODEs” but not “Model Fitting”. Case, accents and punctuation are ignored, and so are apostrophes, straight or curly.</li>
 <li>A section whose own title matches keeps everything under it. Any other section shows only its matching entries and disappears when it has none. Sections open while a search is active and go back to how they were when it is cleared.</li>
-<li>Enter opens the first matching page. Escape clears the box and goes no further, so a second Escape reaches any handler of the site’s own (closing an off-canvas sidebar, say).</li>
+<li>Enter opens the first matching page. Escape clears the box and goes no further, so a second Escape closes the rail (or reaches a handler of the site’s own).</li>
 <li>Nothing is stored.</li>
 </ul>
 </section>
 <section id="report-bug" class="level2">
 <h2 class="anchored" data-anchor-id="report-bug">Report bug</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span><span class="co">      # the default</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">report-bug</span><span class="kw">:</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> owner/name</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span><span class="at"> main</span><span class="co">      # the default</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>When a reader selects text, a small “Report bug” button appears next to it. Clicking it opens a new GitHub issue in <code>repo</code>, labelled <code>bug</code>, with the page’s URL, a link to the page’s <code>.qmd</code> source on <code>branch</code>, and the selected text quoted. The source link assumes the Quarto project is at the repository root. Without <code>repo</code> the key is skipped with a warning.</p>
 
 
