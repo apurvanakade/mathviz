@@ -1,0 +1,26 @@
+---
+title: "Table of contents beside the rail"
+toc: true
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- A prose page with a table of contents, under the sidebar rail: the
+     rail collapses the sidebar's grid tracks but must give the right-hand
+     margin, where the TOC sits, Quarto's own width back. -->
+
+## First section
+
+Some text, long enough to be a paragraph and wrap across the column. Some text, long enough to be a paragraph and wrap across the column.
+
+## Second section
+
+More text.
+
+## Third section
+
+More text.

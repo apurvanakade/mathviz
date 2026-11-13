@@ -1,0 +1,25 @@
+---
+title: "A page with the rail switched off"
+toc: true
+mathviz-page:
+  sidebar-rail: false
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- The project turns the sidebar rail on; this page turns it off, the way
+     a site that doesn't use the rail has it. Nothing of the rail may reach
+     it: no script, no stylesheet, no grid variables, and Quarto's own
+     sidebar and page grid, untouched. -->
+
+## First section
+
+Some text, long enough to be a paragraph and wrap across the column. Some text, long enough to be a paragraph and wrap across the column.
+
+## Second section
+
+More text.

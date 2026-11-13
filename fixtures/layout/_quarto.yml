@@ -4,10 +4,12 @@
 
 # The fixture site for scripts/check-layout.mjs: a few small pages that use
 # every piece of mathviz chrome that affects layout (theme, fonts, sidebar
-# search, share + embed, category cloud), configured the way Visual Math Lab
-# configures them -- except category-cloud, which cards.qmd turns on for
-# itself with mathviz-page:, the way a site turns on a one-page option, so
-# the check sees that page keep these project options too. Not published. The script copies
+# rail and search, share + embed, category cloud), configured the way Visual
+# Math Lab configures them -- except category-cloud, which cards.qmd turns on
+# for itself with mathviz-page:, the way a site turns on a one-page option,
+# so the check sees that page keep these project options too, and
+# no-rail.qmd, which turns the rail off the same way, so the check sees a
+# page untouched by it. Not published. The script copies
 # _extensions/mathviz in before rendering (that copy is gitignored), so the
 # pages always use this checkout's build.
 project:
@@ -19,6 +21,7 @@ filters:
 mathviz:
   referrer: same-origin
   fonts: true
+  sidebar-rail: true
   sidebar-search: true
   share:
     site-url: https://example.com
@@ -37,6 +40,8 @@ website:
         - sliders.qmd
         - multi.qmd
         - cards.qmd
+        - rail-toc.qmd
+        - no-rail.qmd
 
 format:
   html:

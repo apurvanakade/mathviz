@@ -95,7 +95,7 @@ Field order: a field whose bounds depend on an earlier one (a step slider capped
 
 ## Build and install
 
-**One page lost the sidebar search, the fonts, the referrer meta or other site-wide options.**
+**One page lost the sidebar rail, the fonts, the referrer meta or other site-wide options.**
 That page has a `mathviz:` block in its front matter, which replaces the project's whole `mathviz:` map rather than adding to it. Rename it `mathviz-page:` -- see [Options for one page](install.qmd#page-options).
 
 **`quarto add` says the extension isn't found, or a symlinked `_extensions/mathviz` isn't used.**
