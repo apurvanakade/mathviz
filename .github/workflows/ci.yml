@@ -38,8 +38,8 @@ jobs:
       # the way a consumer has it: renders it as a consumer would.
       - run: quarto render starter
       # Layout in a real browser: slider tracks, the playback popover, a
-      # phone's width, embed mode and the Share dialog, on the fixture site
-      # in fixtures/layout/. None of it throws when it breaks, so npm test's
+      # phone's width, embed mode and the Share dialog, on the fixture sites
+      # in fixtures/layout/ and fixtures/page-options/. None of it throws when it breaks, so npm test's
       # stubbed DOM can't see it.
       - run: npx playwright install --with-deps chromium
       - run: npm run test:layout

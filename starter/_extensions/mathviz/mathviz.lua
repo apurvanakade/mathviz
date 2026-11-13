@@ -70,10 +70,14 @@ local MATHJS_URL = "https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.
 
 -- The options in force on this page: the project's `mathviz:` map with the
 -- page's `mathviz-page:` keys laid over it (see the header for why a page
--- can't use `mathviz:` itself). Either may be absent.
+-- can't use `mathviz:` itself). Either may be absent -- which is why the
+-- loop walks the two key names, not a table of their values: ipairs stops at
+-- the first nil, so { meta.mathviz, meta["mathviz-page"] } dropped every
+-- page option on a site with no project `mathviz:`.
 local function mergedOptions(meta)
   local opts = {}
-  for _, source in ipairs({ meta.mathviz, meta["mathviz-page"] }) do
+  for _, name in ipairs({ "mathviz", "mathviz-page" }) do
+    local source = meta[name]
     if type(source) == "table" then
       for key, value in pairs(source) do opts[key] = value end
     end
