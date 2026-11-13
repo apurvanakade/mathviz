@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-13
+
 ### Added
 
 - `sidebar-rail` chrome is back (`mathviz: {sidebar-rail: true}`, or a string naming the pin's `localStorage` key): Quarto's sidebar off-canvas at every width, behind a slim rail at the left edge with open and pin buttons. Visual Math Lab and Monte Carlo Methods both carried their own copy. Unlike the copy dropped in 0.12, it fits any site: the body column takes the site's own `grid:` widths (it used to assume a 1000px body), it works with a docked sidebar as well as a floating one, and every rule is scoped under `html.vm-sidebar-rail`, a class its script sets only on a page it drives, so nothing of it reaches a site or page without it (`mathviz-page: {sidebar-rail: false}` turns it off for one page). `embed.css` hides the rail in a frame.
@@ -466,7 +468,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/apurvanakade/mathviz/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/apurvanakade/mathviz/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/apurvanakade/mathviz/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/apurvanakade/mathviz/compare/v1.2.0...v1.3.0
