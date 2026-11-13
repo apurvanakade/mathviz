@@ -30,7 +30,11 @@
 //   - on a site with no project mathviz:, a page's mathviz-page: options
 //     ignored (fixtures/page-options/);
 //   - a page that sets an option with mathviz-page: losing the options
-//     _quarto.yml sets (the referrer meta, fonts and sidebar search);
+//     _quarto.yml sets (the referrer meta, fonts, sidebar rail and search);
+//   - the sidebar rail not hiding the sidebar, not opening, pinning and
+//     closing, not centring the body column at the grid: width (in a frame
+//     too), squeezing a TOC, or drawing a rail in a frame -- or anything of
+//     it reaching a page that turns it off (no-rail.qmd);
 //   - a draggable point drawn away from the data point it stands for
 //     (after a drag, a theme toggle or a resize), escaping its bounds,
 //     losing its value on a theme toggle, showing a focus ring after a
@@ -65,6 +69,9 @@ const pages = ['index.html', 'sliders.html', 'multi.html']
 const listingPages = ['cards.html']
 const pageOptionsPages = ['posts.html']
 const dragPages = ['drag.html']
+// Prose pages for the sidebar rail: one with a TOC under it, one that turns
+// it off with mathviz-page:.
+const railPages = ['rail-toc.html', 'no-rail.html']
 
 // The fixture site is its own Quarto project, which only finds an extension
 // in its own _extensions/ -- so copy this checkout's in (gitignored), the
@@ -241,6 +248,111 @@ function projectOptionProblems() {
   if (document.querySelector('meta[name="referrer"]')?.content !== 'same-origin') problems.push('no <meta name="referrer" content="same-origin"> (referrer)')
   if (!document.querySelector('link[href*="mathviz-fonts-"]')) problems.push('no mathviz-fonts stylesheet (fonts)')
   if (!document.querySelector('.vm-sidebar-search')) problems.push('no .vm-sidebar-search (sidebar-search)')
+  if (!document.getElementById('vm-sidebar-rail')) problems.push('no #vm-sidebar-rail (sidebar-rail)')
+  return problems
+}
+
+// The sidebar rail at rest, on a page it drives: the class on <html>, the
+// rail, the sidebar off-canvas, and the body column centred in the window
+// at the width the fixture's grid: asks for (body-width 1000px less two
+// 1.5em gutters), which reaches the stylesheet only through the custom
+// properties the filter writes.
+function railAtRestProblems(bodyWidth) {
+  const problems = []
+  const root = document.documentElement
+  if (!root.classList.contains('vm-sidebar-rail')) problems.push('html.vm-sidebar-rail not set')
+  const rail = document.getElementById('vm-sidebar-rail')
+  if (!rail) return [...problems, 'no #vm-sidebar-rail']
+  const sidebar = document.getElementById('quarto-sidebar')
+  if (!sidebar) return [...problems, 'no #quarto-sidebar']
+  const sb = sidebar.getBoundingClientRect()
+  if (sb.right > 1) problems.push(`the closed sidebar is on screen (right edge at ${Math.round(sb.right)}px)`)
+  const toggle = rail.querySelector('button[data-vm-toggle]').getBoundingClientRect()
+  if (toggle.width < 20 || toggle.left < 0 || toggle.left > 20) problems.push(`the rail's toggle is not at the left edge (${Math.round(toggle.left)}px, ${Math.round(toggle.width)}px wide)`)
+  const header = document.getElementById('quarto-header')
+  if (header && toggle.top < header.getBoundingClientRect().bottom - 1) problems.push('the rail sits under the navbar')
+  if (bodyWidth) {
+    const em = parseFloat(getComputedStyle(document.querySelector('.page-columns')).fontSize)
+    const expectWidth = Math.round(bodyWidth - 3 * em)
+    const col = document.querySelector('#quarto-document-content').getBoundingClientRect()
+    const width = Math.round(col.width)
+    if (Math.abs(width - expectWidth) > 2) problems.push(`body column ${width}px wide, expected ${expectWidth}px from grid: body-width`)
+    // Within half a gutter: the grid has one more 1.5em track right of the
+    // column (the collapsed margin) than left of it.
+    const offCentre = Math.round(col.left + col.width / 2 - root.clientWidth / 2)
+    if (Math.abs(offCentre) > 14) problems.push(`body column ${offCentre}px off the window's centre`)
+  }
+  return problems
+}
+
+// Opening, pinning and closing: the hamburger opens the panel with the rail
+// riding its right edge, Escape closes it, the pin keeps it open through a
+// click outside, and the hamburger closes and unpins it.
+async function railInteractionProblems(page) {
+  const problems = []
+  const sidebarLeft = () => page.evaluate(() => Math.round(document.getElementById('quarto-sidebar').getBoundingClientRect().left))
+  const isOpen = () => page.evaluate(() => document.body.classList.contains('vm-sidebar-open'))
+  const settle = () => page.waitForTimeout(350)
+  const toggle = page.locator('#vm-sidebar-rail button[data-vm-toggle]')
+  const pin = page.locator('#vm-sidebar-rail button[data-vm-pin]')
+  await toggle.click()
+  await settle()
+  if (!(await isOpen())) problems.push('the hamburger did not open the sidebar')
+  if (Math.abs(await sidebarLeft()) > 1) problems.push(`the open sidebar's left edge is at ${await sidebarLeft()}px, not 0`)
+  const railLeft = await page.evaluate(() => Math.round(document.getElementById('vm-sidebar-rail').getBoundingClientRect().left))
+  const sidebarRight = await page.evaluate(() => Math.round(document.getElementById('quarto-sidebar').getBoundingClientRect().right))
+  if (Math.abs(railLeft - sidebarRight) > 1) problems.push(`the rail (${railLeft}px) does not ride the open sidebar's edge (${sidebarRight}px)`)
+  if ((await toggle.getAttribute('aria-expanded')) !== 'true') problems.push('aria-expanded not true on the open sidebar')
+  await page.keyboard.press('Escape')
+  await settle()
+  if (await isOpen()) problems.push('Escape did not close the sidebar')
+  await pin.click()
+  await settle()
+  if (!(await isOpen())) problems.push('the pin did not open the sidebar')
+  if ((await pin.getAttribute('aria-pressed')) !== 'true') problems.push('aria-pressed not true on the pin')
+  await page.mouse.click(900, 400)
+  await settle()
+  if (!(await isOpen())) problems.push('a click outside closed a pinned sidebar')
+  await toggle.click()
+  await settle()
+  if (await isOpen()) problems.push('the hamburger did not close a pinned sidebar')
+  if ((await pin.getAttribute('aria-pressed')) !== 'false') problems.push('closing with the hamburger did not unpin')
+  await toggle.click()
+  await settle()
+  await page.mouse.click(900, 400)
+  await settle()
+  if (await isOpen()) problems.push('a click outside did not close the sidebar')
+  return problems
+}
+
+// With the rail on, a page with a TOC gets Quarto's own right-hand margin
+// back (the rail's grid collapses it otherwise, to a 26px-wide TOC).
+function railTocProblems() {
+  const toc = document.querySelector('#quarto-margin-sidebar')
+  if (!toc) return ['no TOC (#quarto-margin-sidebar)']
+  const width = Math.round(toc.getBoundingClientRect().width)
+  return width < 100 ? [`the TOC is ${width}px wide`] : []
+}
+
+// A page with the rail switched off gets nothing of it: no script, no
+// stylesheet, no grid variables, no class, no rail -- and Quarto's own
+// sidebar, in its grid track and on screen.
+function noRailProblems() {
+  const problems = []
+  if (document.querySelector('script[src*="sidebar-rail"], link[href*="sidebar-rail"]')) problems.push('a sidebar-rail script or stylesheet is on the page')
+  if (Array.from(document.querySelectorAll('style')).some(s => s.textContent.includes('--vm-rail-'))) problems.push('the rail\'s grid variables are on the page')
+  if (document.querySelector('meta[name="mathviz:sidebar-pin-key"]')) problems.push('the rail\'s pin-key meta is on the page')
+  if (document.documentElement.classList.contains('vm-sidebar-rail')) problems.push('html.vm-sidebar-rail is set')
+  if (document.getElementById('vm-sidebar-rail')) problems.push('#vm-sidebar-rail is on the page')
+  const sidebar = document.getElementById('quarto-sidebar')
+  if (!sidebar) return [...problems, 'no #quarto-sidebar']
+  const style = getComputedStyle(sidebar)
+  if (style.position === 'fixed') problems.push('the sidebar is position: fixed')
+  if (style.transform !== 'none') problems.push(`the sidebar has a transform (${style.transform})`)
+  const sb = sidebar.getBoundingClientRect()
+  if (sb.left < 0 || sb.width < 150) problems.push(`Quarto's sidebar is not in its own track (left ${Math.round(sb.left)}px, ${Math.round(sb.width)}px wide)`)
+  const col = document.querySelector('#quarto-document-content').getBoundingClientRect()
+  if (col.left < sb.right - 1) problems.push('the body column overlaps the sidebar')
   return problems
 }
 
@@ -472,6 +584,11 @@ async function checkPage(context, base, relPath) {
   for (const problem of await popoverProblems(page)) errors.push(`desktop: ${problem}`)
   for (const problem of await shareProblems(page)) errors.push(`share: ${problem}`)
   for (const problem of await page.evaluate(sidebarSearchProblems)) errors.push(`sidebar search: ${problem}`)
+  for (const problem of await page.evaluate(railAtRestProblems, 1000)) errors.push(`sidebar rail: ${problem}`)
+  if (relPath === 'index.html') {
+    await page.reload({ waitUntil: 'load' })
+    for (const problem of await railInteractionProblems(page)) errors.push(`sidebar rail: ${problem}`)
+  }
   await page.close()
 
   // A phone (390x844, an iPhone 14).
@@ -482,6 +599,7 @@ async function checkPage(context, base, relPath) {
   for (const problem of await phone.evaluate(sliderTrackProblems)) errors.push(`phone: ${problem}`)
   const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
   if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
+  for (const problem of await phone.evaluate(railAtRestProblems, null)) errors.push(`phone sidebar rail: ${problem}`)
   await phone.close()
 
   // Embed mode: ?embed=1, then ?embed=<id> for every id-tagged block.
@@ -491,6 +609,18 @@ async function checkPage(context, base, relPath) {
   if (!(await embed.evaluate(() => document.documentElement.classList.contains('vm-embed')))) {
     errors.push('embed: html.vm-embed not set')
   }
+  if (await embed.evaluate(() => !!document.getElementById('vm-sidebar-rail'))) {
+    errors.push('embed: the sidebar rail is on an embedded page')
+  }
+  // The frame hides the sidebar; its grid track must go with it, or the app
+  // sits right of centre (the rail's grid applies in a frame for this).
+  const offCentre = await embed.evaluate(() => {
+    const app = document.querySelector('.vm-app-active')
+    if (!app) return 0
+    const r = app.getBoundingClientRect()
+    return Math.round(r.left + r.width / 2 - document.documentElement.clientWidth / 2)
+  })
+  if (Math.abs(offCentre) > 14) errors.push(`embed: the app is ${offCentre}px off the frame's centre`)
   // embed=1 shows the page's first .vm-app; when that has an id, insist on it.
   const firstId = await embed.evaluate(() => {
     const first = document.querySelector('.vm-app')
@@ -540,6 +670,39 @@ async function checkCardsPage(context, base, relPath) {
   // The hover panel overhangs a card by $vm-card-lift-pad; hovered, it must
   // still fit the window.
   await phone.locator('.quarto-grid-item').first().hover({ timeout: 2000 }).catch(() => {})
+  const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
+  if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
+  await phone.close()
+  return errors
+}
+
+// The rail's prose pages: rail-toc.html (rail on, with a TOC) and
+// no-rail.html (rail off), each at desktop width and on a phone.
+async function checkRailPage(context, base, relPath) {
+  const errors = []
+  const watch = (page, prefix) => {
+    page.on('pageerror', err => errors.push(`${prefix}pageerror: ${err.message}`))
+    page.on('console', msg => {
+      if (msg.type() === 'error') errors.push(`${prefix}console.error: ${msg.text()}`)
+    })
+  }
+  const off = relPath === 'no-rail.html'
+  const page = await context.newPage()
+  watch(page, '')
+  for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
+  if (off) {
+    for (const problem of await page.evaluate(noRailProblems)) errors.push(`desktop: ${problem}`)
+  } else {
+    for (const problem of await page.evaluate(railAtRestProblems, null)) errors.push(`desktop: ${problem}`)
+    for (const problem of await page.evaluate(railTocProblems)) errors.push(`desktop: ${problem}`)
+  }
+  await page.close()
+
+  const phone = await context.newPage()
+  await phone.setViewportSize({ width: 390, height: 844 })
+  watch(phone, 'phone ')
+  for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
+  if (!off) for (const problem of await phone.evaluate(railAtRestProblems, null)) errors.push(`phone: ${problem}`)
   const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
   if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
   await phone.close()
@@ -779,7 +942,7 @@ async function main() {
   // One context for every load, so its HTTP cache keeps the CDN scripts
   // (browser.newPage() would open a fresh, empty-cached context each time).
   // Storage is cleared before each navigation instead: the chrome remembers
-  // state there (the draggable legend's offset, the playback speed), and every
+  // state there (the sidebar pin, the draggable legend's offset, the playback speed), and every
   // load should see a first visit.
   const context = await browser.newContext()
   await context.addInitScript(() => {
@@ -788,11 +951,12 @@ async function main() {
   let failed = false
   try {
     const runs = [
-      ...[...pages, ...listingPages, ...dragPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
+      ...[...pages, ...listingPages, ...dragPages, ...railPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
       ...pageOptionsPages.map((relPath) => [pageOptionsBase, relPath, 'fixtures/page-options/'])
     ]
     for (const [siteBase, relPath, label] of runs) {
       let check = checkPage
+      if (railPages.includes(relPath)) check = checkRailPage
       if (listingPages.includes(relPath)) check = checkCardsPage
       if (dragPages.includes(relPath)) check = checkDragPage
       if (siteBase === pageOptionsBase) check = checkPostsPage

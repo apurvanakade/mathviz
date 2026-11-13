@@ -18,6 +18,7 @@ These come with the Quarto extension only. The plain script bundle doesn't inclu
 ```yaml
 mathviz:
   fonts: true
+  sidebar-rail: my-site-sidebar-pinned     # or true
   sidebar-search: true
   category-cloud: true
   embed: true
@@ -32,11 +33,14 @@ mathviz:
 | Key | Values | Effect |
 |---|---|---|
 | `fonts` | `true` | Serves Inter and JetBrains Mono from your own site. |
+| `sidebar-rail` | `true`, or a storage key | Hides Quarto's sidebar behind a slim rail at the left edge. |
 | `sidebar-search` | `true` | Adds a search box at the top of the sidebar that narrows it to matching titles. |
 | `category-cloud` | `true` | Moves a listing's category cloud above its cards and adds an "All" entry. |
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
 | `share` | a map (see [Share](#share)) | Adds a "Share" button to every app. Turns `embed` on too. |
 | `report-bug` | a map with `repo` (required) and `branch` | Adds a "Report bug" popup when a reader selects text. |
+
+Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the default is `vm-sidebar-pinned`.
 
 ## Fonts
 
@@ -105,7 +109,7 @@ Adding `?embed=1` to a page's URL shows only the page's first app: no navbar, si
 </iframe>
 ```
 
-A page's own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the Share button and Report bug popup stay hidden.
+A page's own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, Share button and Report bug popup stay hidden.
 
 ## Share {#share}
 
@@ -154,6 +158,17 @@ The cloud is unstyled: it looks the way Quarto draws it until your own CSS resty
 
 With more than one listing on the page, the cloud goes above the first grid, default or table listing, and filters all of them, as Quarto's does. A custom-template listing gets the cloud only when the page has no listing of those three types; its template must emit `metadataAttrs(item)` on each item for the filter to find the item's categories.
 
+## Sidebar rail {#sidebar-rail}
+
+```yaml
+mathviz:
+  sidebar-rail: true
+```
+
+For a site with Quarto sidebar navigation (`style: floating` or `docked`). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages). Escape or a click outside closes it. The body column takes the sidebar's space and is as wide as your `grid: body-width` (Quarto's 800px if unset); a page with a table of contents keeps its right margin.
+
+It changes nothing on a site or page that doesn't turn it on, or on a page without a sidebar: to switch it off for one page, set `mathviz-page: {sidebar-rail: false}`.
+
 ## Sidebar search
 
 ```yaml
@@ -161,11 +176,11 @@ mathviz:
   sidebar-search: true
 ```
 
-For a site with Quarto sidebar navigation. A search box at the top of the sidebar narrows the menu as the reader types. It searches titles only, not page text: Quarto's own full-text search allows one box per page, so keep that one in the navbar.
+For a site with Quarto sidebar navigation, with or without the rail. A search box at the top of the sidebar narrows the menu as the reader types. It searches titles only, not page text: Quarto's own full-text search allows one box per page, so keep that one in the navbar.
 
 - Each word typed must start a word of a title, in any order: "ode" finds "Methods for ODEs" but not "Model Fitting". Case, accents and punctuation are ignored, and so are apostrophes, straight or curly.
 - A section whose own title matches keeps everything under it. Any other section shows only its matching entries and disappears when it has none. Sections open while a search is active and go back to how they were when it is cleared.
-- Enter opens the first matching page. Escape clears the box and goes no further, so a second Escape reaches any handler of the site's own (closing an off-canvas sidebar, say).
+- Enter opens the first matching page. Escape clears the box and goes no further, so a second Escape closes the rail (or reaches a handler of the site's own).
 - Nothing is stored.
 
 ## Report bug

@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `sidebar-rail` chrome is back (`mathviz: {sidebar-rail: true}`, or a string naming the pin's `localStorage` key): Quarto's sidebar off-canvas at every width, behind a slim rail at the left edge with open and pin buttons. Visual Math Lab and Monte Carlo Methods both carried their own copy. Unlike the copy dropped in 0.12, it fits any site: the body column takes the site's own `grid:` widths (it used to assume a 1000px body), it works with a docked sidebar as well as a floating one, and every rule is scoped under `html.vm-sidebar-rail`, a class its script sets only on a page it drives, so nothing of it reaches a site or page without it (`mathviz-page: {sidebar-rail: false}` turns it off for one page). `embed.css` hides the rail in a frame.
+
 ## [1.3.2] - 2026-11-13
 
 ### Changed
