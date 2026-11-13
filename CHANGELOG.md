@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-11-13
+
 ### Changed
 
 - The category cloud also moves above a custom-template listing when that is the page's only kind of listing (a blog index of plain rows, say). It used to skip custom templates and leave the cloud in the margin.
@@ -460,7 +462,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.3.2...HEAD
+[1.3.2]: https://github.com/apurvanakade/mathviz/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/apurvanakade/mathviz/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/apurvanakade/mathviz/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/apurvanakade/mathviz/compare/v1.1.1...v1.2.0
