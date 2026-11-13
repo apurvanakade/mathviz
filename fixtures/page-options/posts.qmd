@@ -1,0 +1,32 @@
+---
+title: "Posts"
+listing:
+  id: posts-listing
+  contents: "posts/*.qmd"
+  template: posts.ejs
+  sort: "title"
+  categories: cloud
+mathviz-page:
+  category-cloud: true
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- A custom-template listing, the page's only one, the way a blog index
+     lists its posts as plain rows: category-cloud.js must move the cloud
+     above it, with "All" first, since there is no grid, default or table
+     listing for it to prefer. The cloud is turned on by mathviz-page:
+     alone -- this site sets no project mathviz: -- so the page also checks
+     that a page option works without project ones. -->
+
+<style>
+.vm-category-cloud .quarto-listing-category { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; margin-bottom: 1.25rem; }
+.vm-category-cloud .category { cursor: pointer; color: var(--vm-text-soft); }
+.vm-category-cloud .category.active { color: var(--vm-accent); font-weight: 500; }
+</style>
+
+Some prose above the listing.

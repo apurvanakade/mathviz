@@ -25,6 +25,10 @@
 //   - the category cloud not moved above the grid, or without "All" first,
 //     not cleared by Back to "All", or left above the window after a
 //     card's tag filters the grid;
+//   - on a page whose only listing has a custom template, the cloud not
+//     moved above that listing, or not filtering its rows;
+//   - on a site with no project mathviz:, a page's mathviz-page: options
+//     ignored (fixtures/page-options/);
 //   - a page that sets an option with mathviz-page: losing the options
 //     _quarto.yml sets (the referrer meta, fonts, sidebar rail and search);
 //   - the sidebar rail not hiding the sidebar, not opening, pinning and
@@ -41,7 +45,7 @@
 // them flaky. Here they run on small fixture pages, one at a time.
 //
 // Usage: npm run test:layout              (render, then check)
-//        node scripts/check-layout.mjs --no-render   (reuse fixtures/layout/_site)
+//        node scripts/check-layout.mjs --no-render   (reuse each fixture's _site)
 
 import fs from 'node:fs'
 import http from 'node:http'
@@ -51,8 +55,11 @@ import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+// Two fixture sites: layout/ sets project mathviz: options, as Visual Math
+// Lab does; page-options/ sets none, so its page's mathviz-page: options
+// are the only ones.
 const siteDir = path.join(repoRoot, 'fixtures', 'layout')
-const outDir = path.join(siteDir, '_site')
+const pageOptionsDir = path.join(repoRoot, 'fixtures', 'page-options')
 // Ceilings, not delays: a settled page costs one poll. Generous because the
 // first load on a cold CI runner fetches Plotly, math.js and MathJax from
 // their CDNs; every later load is served from the shared context's cache.
@@ -60,6 +67,7 @@ const navigationTimeoutMs = 60000
 const settleTimeoutMs = 30000
 const pages = ['index.html', 'sliders.html', 'multi.html']
 const listingPages = ['cards.html']
+const pageOptionsPages = ['posts.html']
 const dragPages = ['drag.html']
 // Prose pages for the sidebar rail: one with a TOC under it, one that turns
 // it off with mathviz-page:.
@@ -68,12 +76,12 @@ const railPages = ['rail-toc.html', 'no-rail.html']
 // The fixture site is its own Quarto project, which only finds an extension
 // in its own _extensions/ -- so copy this checkout's in (gitignored), the
 // way `npm run build` mirrors it into starter/.
-function render() {
-  const target = path.join(siteDir, '_extensions', 'mathviz')
+function render(dir) {
+  const target = path.join(dir, '_extensions', 'mathviz')
   fs.rmSync(target, { recursive: true, force: true })
   fs.cpSync(path.join(repoRoot, '_extensions', 'mathviz'), target, { recursive: true })
-  const result = spawnSync('quarto', ['render', siteDir], { stdio: 'inherit' })
-  if (result.status !== 0) throw new Error('quarto render fixtures/layout failed')
+  const result = spawnSync('quarto', ['render', dir], { stdio: 'inherit' })
+  if (result.status !== 0) throw new Error(`quarto render ${path.relative(repoRoot, dir)} failed`)
 }
 
 // Module scripts don't load from file://, so serve _site/ over HTTP.
@@ -82,7 +90,7 @@ const contentTypes = {
   '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png'
 }
 
-function serve() {
+function serve(outDir) {
   const server = http.createServer((req, res) => {
     const urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname)
     let file = path.join(outDir, urlPath)
@@ -701,6 +709,43 @@ async function checkRailPage(context, base, relPath) {
   return errors
 }
 
+// fixtures/page-options/posts.html's only listing has a custom template
+// (plain rows, as a blog index has): with no grid, default or table listing
+// to prefer, the cloud goes above it, "All" first, and filters its rows. Its
+// site sets no project mathviz:, so the cloud is there only if the page's
+// mathviz-page: was read.
+async function checkPostsPage(context, base, relPath) {
+  const errors = []
+  const page = await context.newPage()
+  page.on('pageerror', err => errors.push(`pageerror: ${err.message}`))
+  page.on('console', msg => {
+    if (msg.type() === 'error') errors.push(`console.error: ${msg.text()}`)
+  })
+  errors.push(...await load(page, base + relPath))
+  errors.push(...await page.evaluate(() => {
+    const problems = []
+    const cloud = document.querySelector('.vm-category-cloud')
+    const listing = document.querySelector('.quarto-listing-container-custom')
+    if (!cloud) return ['no .vm-category-cloud (category-cloud.js did not move the cloud)']
+    if (!listing || !(cloud.compareDocumentPosition(listing) & Node.DOCUMENT_POSITION_FOLLOWING)) problems.push('the category cloud is not above the custom listing')
+    const first = cloud.querySelector('.category')
+    if (!first || !first.classList.contains('category--all')) problems.push(`the cloud's first entry is ${JSON.stringify(first?.textContent.trim() ?? null)}, expected "All"`)
+    if (document.getElementById('quarto-margin-sidebar')) problems.push('the emptied margin sidebar is still on the page')
+    return problems
+  }))
+  const shown = () => page.evaluate(() => Array.from(document.querySelectorAll('.post-row'))
+    .filter((row) => row.offsetParent !== null).length)
+  const all = await shown()
+  await page.locator('.vm-category-cloud .category', { hasText: 'Probability' }).click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
+  if ((await shown()) !== 1) errors.push(`"Probability" left ${await shown()} rows, expected 1`)
+  await page.locator('.vm-category-cloud .category--all').click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(150)
+  if ((await shown()) !== all) errors.push(`"All" left ${await shown()} of ${all} rows`)
+  await page.close()
+  return errors
+}
+
 // drag.html's first chart draws a small Plotly marker (the trace named
 // "probe") at the draggable point's value, so the handle can be measured
 // against where Plotly itself puts that data point.
@@ -885,9 +930,14 @@ async function checkDragPage(context, base, relPath) {
 }
 
 async function main() {
-  if (!process.argv.includes('--no-render')) render()
-  const server = await serve()
+  if (!process.argv.includes('--no-render')) {
+    render(siteDir)
+    render(pageOptionsDir)
+  }
+  const server = await serve(path.join(siteDir, '_site'))
+  const pageOptionsServer = await serve(path.join(pageOptionsDir, '_site'))
   const base = `http://127.0.0.1:${server.address().port}/`
+  const pageOptionsBase = `http://127.0.0.1:${pageOptionsServer.address().port}/`
   const browser = await chromium.launch()
   // One context for every load, so its HTTP cache keeps the CDN scripts
   // (browser.newPage() would open a fresh, empty-cached context each time).
@@ -900,23 +950,29 @@ async function main() {
   })
   let failed = false
   try {
-    for (const relPath of [...pages, ...listingPages, ...dragPages, ...railPages]) {
+    const runs = [
+      ...[...pages, ...listingPages, ...dragPages, ...railPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
+      ...pageOptionsPages.map((relPath) => [pageOptionsBase, relPath, 'fixtures/page-options/'])
+    ]
+    for (const [siteBase, relPath, label] of runs) {
       let check = checkPage
       if (railPages.includes(relPath)) check = checkRailPage
       if (listingPages.includes(relPath)) check = checkCardsPage
       if (dragPages.includes(relPath)) check = checkDragPage
-      const errors = await check(context, base, relPath)
+      if (siteBase === pageOptionsBase) check = checkPostsPage
+      const errors = await check(context, siteBase, relPath)
       if (errors.length === 0) {
-        console.log(`OK    ${relPath}`)
+        console.log(`OK    ${label}${relPath}`)
       } else {
         failed = true
-        console.log(`FAIL  ${relPath}`)
+        console.log(`FAIL  ${label}${relPath}`)
         for (const e of errors) console.log(`      ${e}`)
       }
     }
   } finally {
     await browser.close()
     server.close()
+    pageOptionsServer.close()
   }
   console.log(failed ? '\nLayout test failed.' : '\nAll layout checks passed.')
   process.exit(failed ? 1 : 0)
