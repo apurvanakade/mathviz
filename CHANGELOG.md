@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Changed
+
+- The category cloud also moves above a custom-template listing when that is the page's only kind of listing (a blog index of plain rows, say). It used to skip custom templates and leave the cloud in the margin.
+
+### Fixed
+
+- A page's `mathviz-page:` options take effect on a site that sets no project `mathviz:`. They were all ignored there, since the filter stopped reading at the missing project map.
+
 ## [1.3.1] - 2026-11-10
 
 ### Fixed

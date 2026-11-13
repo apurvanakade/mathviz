@@ -152,7 +152,7 @@ The cloud is unstyled: it looks the way Quarto draws it until your own CSS resty
 .vm-category-cloud .category.active { color: var(--vm-accent); font-weight: 500; }
 ```
 
-With more than one listing on the page, the cloud goes above the first grid, default or table listing (not a custom-template one), and filters all of them, as Quarto's does.
+With more than one listing on the page, the cloud goes above the first grid, default or table listing, and filters all of them, as Quarto's does. A custom-template listing gets the cloud only when the page has no listing of those three types; its template must emit `metadataAttrs(item)` on each item for the filter to find the item's categories.
 
 ## Sidebar search
 
