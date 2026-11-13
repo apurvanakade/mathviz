@@ -169,6 +169,7 @@ For a site with Quarto sidebar navigation (`style: floating` or `docked`). The s
 
 It changes nothing on a site or page that doesn't turn it on, or on a page without a sidebar: to switch it off for one page, set `mathviz-page: {sidebar-rail: false}`.
 
+## Sidebar search
 
 ```yaml
 mathviz:
