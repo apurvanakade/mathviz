@@ -30,7 +30,8 @@
 // The cloud goes above the first grid, default or table listing on the
 // page. A custom-template listing is used only when the page has none of
 // those: one beside a built-in listing may only emit data, say, but a page
-// whose one listing is custom (a plain list of posts) wants its cloud there. The emptied margin sidebar is removed and <main>, which Quarto
+// whose one listing is custom (a plain list of posts) wants its cloud
+// there. The emptied margin sidebar is removed and <main>, which Quarto
 // stopped short of it (.column-page-left), takes the full page column.
 // Quarto's entries are click-only divs; every entry, "All" included, also
 // gets role="button", a tab stop, and Enter/Space to activate it. Divs
