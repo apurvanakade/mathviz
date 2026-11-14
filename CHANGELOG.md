@@ -16,7 +16,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Changed
 
-- Theme: one spacing rhythm for pages that mix prose, math, callouts, exercises and apps. Every callout, theorem, definition, exercise, proof, figure, table and app directly in the article gets `$vm-block-gap` above and below, and none after a heading; a proof follows its theorem at 1rem. Theorems and apps used to run into the next paragraph at 1rem, and tables had 0.5rem.
+- Theme: one spacing rhythm for pages that mix prose, math, callouts, exercises and apps. Every callout, theorem, definition, exercise, proof, figure, table and app directly in the article gets `$vm-block-gap` above and below, and none after a heading; a proof follows its theorem at 1rem. Theorems and apps used to run into the next paragraph at 1rem, and tables had 0.5rem. An app shown alone in an embed frame keeps no margin, so the frame doesn't scroll.
 - Theme: section headings are semibold (`$vm-font-weight-heading` 500 → 600) and larger (`$vm-h2-font-size` 1.35 → 1.6rem, `$vm-h3-font-size` 1.1 → 1.3rem, h4 1 → 1.1rem). At 1.1rem and medium weight an h3 read as body text on a page dense with math and callouts.
 - Theme: inline math (MathJax CHTML) no longer pushes its line away from the next: lines with a formula in them were 28–35px apart where plain prose keeps 28px.
 - Theme: MathJax math is set at 110% of the text instead of the 122.4% MathJax picks to match Inter's tall x-height, at which its capitals and symbols looked larger than the words around them.

@@ -672,7 +672,7 @@ function proseRhythmProblems() {
   // paragraph's distance under its theorem.
   const gap = (a, b) => Math.round(b.getBoundingClientRect().top - a.getBoundingClientRect().bottom)
   const paragraphGap = Math.round(parseFloat(getComputedStyle(main.querySelector('section > p')).marginBottom))
-  const blockSel = '.callout, .theorem, .proof, table.table'
+  const blockSel = '.callout, .theorem, .proof, .quarto-float, table.table'
   const gaps = new Set()
   for (const block of main.querySelectorAll(`section > :is(${blockSel})`)) {
     const name = block.className.split(' ').slice(0, 2).join('.') || block.tagName
@@ -782,6 +782,10 @@ async function checkPage(context, base, relPath) {
     return null
   })
   for (const problem of await embed.evaluate(embedProblems, firstId)) errors.push(`embed=1: ${problem}`)
+  // The frame is sized to the app (height: calc(100vh - 1rem)); anything
+  // that adds to it, such as a margin from the theme, makes the frame scroll.
+  const frameOverflow = await embed.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)
+  if (frameOverflow > 1) errors.push(`embed=1: the frame scrolls (${frameOverflow}px taller than the window)`)
   const ids = await embed.evaluate(() => {
     const found = []
     for (const app of document.querySelectorAll('#quarto-document-content .vm-app[id]')) found.push(app.id)

@@ -9,7 +9,7 @@ Authors: Apurva Nakade
 -->
 
 <!-- A lecture-notes page: prose dense with inline math, theorems, an
-     exercise, a callout, a table and a list. check-layout.mjs asserts its
+     exercise, a callout, a figure, a table and a list. check-layout.mjs asserts its
      rhythm: lines with a formula in them as far apart as plain lines, one
      gap around every block set apart from the prose, none between a heading
      and its block, a proof a paragraph's distance under its theorem. -->
@@ -38,6 +38,14 @@ The standard error of an average of $N$ i.i.d. samples falls like $N^{-1/2}$, wh
 
 - A first item that runs long enough to wrap onto a second line, with $\int_{-\infty}^{\infty} f_X(x)\,dx = 1$ in it.
 - A second item with $\mathbb{E}[\mathbf{1}_A] = P(A)$.
+
+::: {#fig-demo}
+A figure's content, standing in for a chart.
+
+A figure caption.
+:::
+
+A paragraph after the figure.
 
 ### Confidence intervals
 
