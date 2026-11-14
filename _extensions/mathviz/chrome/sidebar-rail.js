@@ -128,7 +128,7 @@
     var pinBtn = rail.querySelector("[data-vm-pin]")
 
     // Only a reader's click stores a choice; the default is never written,
-    // so it keeps following the width until they make one.
+    // so a page load with no stored choice decides from the width again.
     function setPinned(pinned) {
       try { localStorage.setItem(PIN_KEY, pinned ? "1" : "0") } catch (e) { /* storage unavailable */ }
       showPinned(pinned)
@@ -137,6 +137,12 @@
     function showPinned(pinned) {
       root.classList.toggle("vm-sidebar-pinned", pinned)
       pinBtn.setAttribute("aria-pressed", String(pinned))
+    }
+
+    // The state on screen, not isPinned(): that re-reads the width, so after a
+    // resize across 992px it would disagree with what the reader sees.
+    function isCurrentlyPinned() {
+      return root.classList.contains("vm-sidebar-pinned")
     }
 
     function isOpen() {
@@ -149,7 +155,7 @@
     }
 
     function closeSidebar() {
-      if (isPinned()) return
+      if (isCurrentlyPinned()) return
       root.classList.remove("vm-sidebar-open")
       toggleBtn.setAttribute("aria-expanded", "false")
     }
@@ -164,7 +170,7 @@
     })
 
     pinBtn.addEventListener("click", function () {
-      var next = !isPinned()
+      var next = !isCurrentlyPinned()
       setPinned(next)
       if (next) openSidebar()
     })
@@ -178,7 +184,7 @@
 
     document.addEventListener("click", function (event) {
       if (!isOpen()) return
-      if (isPinned()) return
+      if (isCurrentlyPinned()) return
       if (sidebar.contains(event.target) || rail.contains(event.target)) return
       closeSidebar()
     })
