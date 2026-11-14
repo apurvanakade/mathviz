@@ -1,0 +1,59 @@
+---
+title: "Prose with math"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- A lecture-notes page: prose dense with inline math, theorems, an
+     exercise, a callout, a table and a list. check-layout.mjs asserts its
+     rhythm: lines with a formula in them as far apart as plain lines, one
+     gap around every block set apart from the prose, none between a heading
+     and its block, a proof a paragraph's distance under its theorem. -->
+
+An opening paragraph, so the first section's heading follows prose.
+
+## Estimators
+
+Let $X_1, X_2, \ldots, X_N$ be i.i.d. with $\mathbb{E}[X_i] = \mu$ and $\operatorname{Var}(X_i) = \sigma^2 < \infty$. The sample mean $\hat\mu_N = \frac{1}{N}\sum_{i=1}^N X_i$ has $\mathbb{E}[\hat\mu_N] = \mu$ and standard error $\sigma/\sqrt{N}$, so $\hat\mu_N \to \mu$ as $N \to \infty$. For a function $g$ with $g'(\mu) \neq 0$, the delta method gives $\operatorname{Var}(g(\hat\mu_N)) \approx g'(\mu)^2 \sigma^2 / N$, and the bias of $g(\hat\mu_N)$ is of order $1/N$ when $g''$ is bounded on $[\mu - \varepsilon, \mu + \varepsilon]$.
+
+::: {#thm-clt}
+## Central limit theorem
+With $\sigma^2 = \operatorname{Var}(X_1) < \infty$, $\sqrt{N}\,(\hat\mu_N - \mu) / \sigma$ converges in distribution to $\mathcal{N}(0, 1)$.
+:::
+
+::: {.proof}
+Expand the characteristic function $\varphi(t) = \mathbb{E}[e^{itX}]$ to second order about $t = 0$.
+:::
+
+A paragraph between blocks, with $p_i = P(X = x_i)$ and $\sum_i p_i = 1$ inline.
+
+::: {.callout-important}
+## The $N^{-1/2}$ rate
+The standard error of an average of $N$ i.i.d. samples falls like $N^{-1/2}$, whatever the problem.
+:::
+
+- A first item that runs long enough to wrap onto a second line, with $\int_{-\infty}^{\infty} f_X(x)\,dx = 1$ in it.
+- A second item with $\mathbb{E}[\mathbf{1}_A] = P(A)$.
+
+### Confidence intervals
+
+::: {#def-ci}
+## Confidence interval
+A $1 - \alpha$ confidence interval for $\theta$ is $\hat\theta_N \pm z_{\alpha/2}\,\widehat{\operatorname{SE}}$.
+:::
+
+| Level | $z_{\alpha/2}$ | Width in standard errors of the estimate |
+|-------|----------------|------------------------------------------|
+| 68%   | 1.00           | about two, one on each side of the estimate |
+| 95%   | 1.96           | about four, which most reports quote |
+
+::: {#exr-ci}
+## Coverage
+Draw $N = 100$ samples many times and count how often the interval covers $\mu$.
+:::
+
+A closing paragraph.
