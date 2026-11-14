@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-14
+
 ### Added
 
 - Theme: `$vm-block-gap` (default 1.75rem), the space above and below a block set apart from the prose (callout, theorem, proof, figure, table, app).
@@ -490,7 +492,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/apurvanakade/mathviz/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/apurvanakade/mathviz/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/apurvanakade/mathviz/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/apurvanakade/mathviz/compare/v1.3.1...v1.3.2
