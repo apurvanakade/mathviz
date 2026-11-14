@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `quiet-apps: true` (work in progress): an opt-in stylesheet that draws every `.vm-app` without panel boxes, readout tiles or a legend frame, with the Share button shown on hover.
+
 ## [1.4.0] - 2026-11-13
 
 ### Added

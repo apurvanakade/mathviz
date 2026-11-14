@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
+ * Released under Apache 2.0 license as described in the file LICENSE.
+ * Authors: Apurva Nakade
+ */
+
+/* WORK IN PROGRESS. `quiet-apps: true`: a quieter look for every .vm-app,
+ * for a site whose pages are mostly prose (a blog, lecture notes), where
+ * the default boxed panels read as heavy. Off by default; a site that
+ * doesn't turn it on never loads this file.
+ *
+ * - The controls panel and the slider bar lose their fill and border; the
+ *   inputs, slider and button keep their own chrome.
+ * - VM.ui.statRow's readouts are plain label/value pairs in a wrapping row,
+ *   not tiles, with a hairline under the row.
+ * - The floating legend loses its border, shadow and blur, keeping a faint
+ *   ground so it stays legible over the data.
+ * - The Share button is a plain text link, shown while the pointer is over
+ *   the app (always on a touch screen, which has no hover).
+ *
+ * Open: the readouts, as plain pairs, read as numbers floating under labels;
+ * they need a better treatment before this ships. */
+
+.vm-app .ojs-panel,
+.vm-app .ojs-chart-controls {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding-inline: 0;
+}
+
+.vm-app .vm-stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.75rem;
+  max-width: none;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--vm-border);
+}
+.vm-app .vm-stat {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+
+.vm-app .ojs-legend-overlay {
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: color-mix(in srgb, var(--vm-bg) 80%, transparent);
+}
+
+.vm-app .vm-share-button {
+  border: 0;
+  background: none;
+  padding: 0;
+}
+.vm-app .vm-share-button:hover {
+  background: none;
+  color: var(--vm-accent);
+}
+@media (hover: hover) {
+  .vm-app .vm-share-bar {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .vm-app:hover .vm-share-bar,
+  .vm-app .vm-share-bar:focus-within {
+    opacity: 1;
+  }
+}

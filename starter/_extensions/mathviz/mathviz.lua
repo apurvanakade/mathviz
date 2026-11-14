@@ -45,6 +45,9 @@
 --     report-bug:                  # "Report bug" popup on text selection,
 --       repo: owner/name           #   filing a GitHub issue that links the
 --       branch: main               #   page's .qmd source (branch: main)
+--     quiet-apps: true             # (work in progress) every .vm-app
+--                                  # without panel boxes, readout tiles or
+--                                  # a legend frame; Share on hover
 --
 -- One page changes options with `mathviz-page:` in its front matter, never
 -- with `mathviz:` there. Quarto merges a page's front matter over the
@@ -253,6 +256,14 @@ function Pandoc(doc)
   end
   if enabled(opts, "sidebar-search") then
     chrome("sidebar-search")
+  end
+  -- Stylesheet only: no script, no settings.
+  if enabled(opts, "quiet-apps") then
+    quarto.doc.add_html_dependency({
+      name = "mathviz-quiet-apps",
+      version = VERSION,
+      stylesheets = { "chrome/quiet-apps.css" }
+    })
   end
   if enabled(opts, "category-cloud") then
     chrome("category-cloud", nil, true)
