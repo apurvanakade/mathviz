@@ -149,23 +149,24 @@ h1, h1.title {
 }
 
 // No rule under h2 (Quarto's default): sections are set apart by space.
-h2 {
+// The second selector undoes Quarto's zero top margin on the first
+// section's h2 (`main.content > section:first-of-type > h2:nth-child(1)`,
+// and a 1rem `#quarto-content` variant), which assumes that section opens
+// the page under the title block: with an intro paragraph, list or chart
+// first, the heading sat on it with no room. Under the title the h2's
+// margin collapses with the title block's, as it does through a hidden OJS
+// setup cell (no height, no padding), so every page gets the same space
+// there whatever sits between. Only a section that is main's very first
+// child (no title block) keeps Quarto's zero. The id out-ranks both of
+// Quarto's selectors.
+h2,
+#quarto-content main.content > section:first-of-type:not(:first-child) > h2:first-child {
   font-size: $vm-h2-font-size;
   font-weight: $vm-font-weight-heading;
   margin-top: 3rem;
   margin-bottom: 0.9rem;
   border-bottom: 0;
   padding-bottom: 0;
-}
-/* Quarto zeroes the top margin of the first section's h2
- * (`main.content > section:first-of-type > h2:nth-child(1)`), assuming that
- * section opens the page right under the title block. When an intro
- * paragraph, list or chart comes first, that h2 sat on it with no room at
- * all. Keep Quarto's zero only where its assumption holds: the section is
- * main's first child or follows the title block directly. The id in :not()
- * out-ranks Quarto's selector (and its `#quarto-content` 1rem variant). */
-main.content > section:first-of-type:not(:first-child, #title-block-header + section) > h2:first-child {
-  margin-top: 3rem;
 }
 h3 { font-size: $vm-h3-font-size; font-weight: $vm-font-weight-heading; margin-top: 2rem; }
 

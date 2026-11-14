@@ -12,7 +12,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Fixed
 
-- Theme: a page's first `##` heading keeps its top margin when prose, a list or a chart comes before it. Quarto zeroes that margin on the assumption that the first section starts right under the title, so the heading sat on the text above it (17px under a list where later headings get 51px). The zero still applies when the section does follow the title directly.
+- Theme: a page's first `##` heading keeps its top margin when prose, a list or a chart comes before it. Quarto zeroes that margin on the assumption that the first section starts right under the title, so the heading sat on the text above it (17px under a list where later headings get 51px). Right under the title a heading now gets 3rem (it merges with the title block's 2.5rem, which a paragraph there still gets), with or without a hidden setup cell in between.
 
 ## [1.4.1] - 2026-11-14
 

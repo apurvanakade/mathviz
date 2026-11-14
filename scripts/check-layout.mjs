@@ -600,16 +600,16 @@ function sidebarSearchProblems() {
 
 // Quarto zeroes the top margin of the first section's h2, assuming that
 // section opens the page; with prose or an app above it, the heading sat on
-// them with no room. The theme keeps the zero only right under the title
-// block, so a first-section h2 after other content must get the same margin
-// as any later h2 (read off a probe section appended to the page).
+// them with no room. The theme gives it the same margin as any later h2
+// (read off a probe section appended to the page) unless the section is
+// main's very first child.
 function firstHeadingProblems() {
   const main = document.querySelector('main.content')
   const first = main && main.querySelector(':scope > section')
   const h2 = first && first.querySelector(':scope > h2:first-child')
   if (!h2) return []
   const prev = first.previousElementSibling
-  if (!prev || prev.id === 'title-block-header') return []
+  if (!prev) return []
   const probe = document.createElement('section')
   probe.className = 'level2'
   probe.innerHTML = '<h2>probe</h2>'
