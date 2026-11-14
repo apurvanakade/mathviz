@@ -72,6 +72,8 @@ const dragPages = ['drag.html']
 // Prose pages for the sidebar rail: one with a TOC under it, one that turns
 // it off with mathviz-page:.
 const railPages = ['rail-toc.html', 'no-rail.html']
+// Lecture-notes prose: inline math, theorems, an exercise, a callout.
+const prosePages = ['prose.html']
 
 // The fixture site is its own Quarto project, which only finds an extension
 // in its own _extensions/ -- so copy this checkout's in (gitignored), the
@@ -620,6 +622,98 @@ function firstHeadingProblems() {
   return got === want ? [] : [`the first section's h2 ("${h2.textContent.trim()}") has margin-top ${got} after other content; later h2s have ${want}`]
 }
 
+// The theme's reading rhythm on prose.html (theme.scss, "Block spacing" and
+// "Inline math"). Every one of these rendered wrong without throwing:
+// MathJax's inline boxes pushed their lines 28-35px apart where plain prose
+// keeps 28px, theorems ran into the next paragraph, math drew at 122% of the
+// text, and an h3 read as body text.
+function proseRhythmProblems() {
+  const problems = []
+  const main = document.querySelector('main.content')
+  const bodySize = parseFloat(getComputedStyle(main.querySelector(':scope > section > p')).fontSize)
+
+  // Lines with inline math as far apart as the paragraph's line height.
+  for (const p of main.querySelectorAll('section > p')) {
+    if (!p.querySelector('mjx-container') || p.querySelector('mjx-container[display="true"]')) continue
+    const lineHeight = parseFloat(getComputedStyle(p).lineHeight)
+    const bottoms = []
+    const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT, {
+      acceptNode: n => n.parentElement.closest('mjx-container') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+    })
+    for (let n; (n = walker.nextNode());) {
+      const range = document.createRange()
+      range.selectNodeContents(n)
+      for (const r of range.getClientRects()) if (r.height > 0) bottoms.push(Math.round(r.bottom))
+    }
+    const lines = [...new Set(bottoms)].sort((a, b) => a - b).filter((v, i, a) => i === 0 || v - a[i - 1] > 4)
+    for (let i = 1; i < lines.length; i++) {
+      const pitch = lines[i] - lines[i - 1]
+      if (Math.abs(pitch - lineHeight) > 2.5) {
+        problems.push(`a line of a paragraph with inline math is ${pitch}px below the one above; the line height is ${lineHeight.toFixed(1)}px ("${p.textContent.slice(0, 30)}")`)
+        break
+      }
+    }
+  }
+
+  // Math at 110% of the text.
+  const math = main.querySelector('p mjx-container')
+  if (math) {
+    const ratio = parseFloat(getComputedStyle(math).fontSize) / parseFloat(getComputedStyle(math.parentElement).fontSize)
+    if (Math.abs(ratio - 1.1) > 0.02) problems.push(`inline math is ${(ratio * 100).toFixed(1)}% of the text, not 110%`)
+  }
+
+  // Headings a clear step above the text.
+  const h3 = main.querySelector('h3')
+  if (h3 && parseFloat(getComputedStyle(h3).fontSize) < bodySize * 1.2) {
+    problems.push(`an h3 is ${getComputedStyle(h3).fontSize}, under 1.2x the ${bodySize}px text`)
+  }
+
+  // One gap around every set-apart block; none under a heading; a proof a
+  // paragraph's distance under its theorem.
+  const gap = (a, b) => Math.round(b.getBoundingClientRect().top - a.getBoundingClientRect().bottom)
+  const paragraphGap = Math.round(parseFloat(getComputedStyle(main.querySelector('section > p')).marginBottom))
+  const blockSel = '.callout, .theorem, .proof, .quarto-float, table.table'
+  const gaps = new Set()
+  for (const block of main.querySelectorAll(`section > :is(${blockSel})`)) {
+    const name = block.className.split(' ').slice(0, 2).join('.') || block.tagName
+    const prev = block.previousElementSibling
+    const next = block.nextElementSibling
+    if (prev && /^H\d$/.test(prev.tagName)) {
+      const want = Math.round(parseFloat(getComputedStyle(prev).marginBottom))
+      if (Math.abs(gap(prev, block) - want) > 1) problems.push(`${name} is ${gap(prev, block)}px under its heading, not the heading's ${want}px margin`)
+    } else if (prev && block.matches('.proof') && prev.matches('.theorem')) {
+      if (Math.abs(gap(prev, block) - bodySize) > 2) problems.push(`a proof is ${gap(prev, block)}px under its theorem, not 1rem`)
+    } else if (prev) {
+      gaps.add(gap(prev, block))
+    }
+    if (next && !(block.matches('.theorem') && next.matches('.proof'))) gaps.add(gap(block, next))
+  }
+  if (gaps.size > 1) problems.push(`the gaps around set-apart blocks differ: ${[...gaps].join(', ')}px`)
+  const blockGap = [...gaps][0]
+  if (blockGap !== undefined && paragraphGap !== undefined && blockGap <= paragraphGap) {
+    problems.push(`set-apart blocks are ${blockGap}px from the prose, no more than paragraphs' ${paragraphGap}px`)
+  }
+
+  // Items of a prose list apart.
+  const second = main.querySelector('section > ul > li + li')
+  if (second && gap(second.previousElementSibling, second) < 3) problems.push('the items of a prose list touch')
+  return problems
+}
+
+async function checkProsePage(context, base, relPath) {
+  const errors = []
+  for (const [label, width] of [['desktop', 1280], ['phone', 390]]) {
+    const page = await context.newPage()
+    await page.setViewportSize({ width, height: 844 })
+    page.on('pageerror', err => errors.push(`${label} pageerror: ${err.message}`))
+    for (const problem of await load(page, base + relPath)) errors.push(`${label}: ${problem}`)
+    for (const problem of await page.evaluate(proseRhythmProblems)) errors.push(`${label}: ${problem}`)
+    for (const problem of await page.evaluate(firstHeadingProblems)) errors.push(`${label}: ${problem}`)
+    await page.close()
+  }
+  return errors
+}
+
 async function checkPage(context, base, relPath) {
   const errors = []
   const watch = (page, prefix) => {
@@ -688,6 +782,10 @@ async function checkPage(context, base, relPath) {
     return null
   })
   for (const problem of await embed.evaluate(embedProblems, firstId)) errors.push(`embed=1: ${problem}`)
+  // The frame is sized to the app (height: calc(100vh - 1rem)); anything
+  // that adds to it, such as a margin from the theme, makes the frame scroll.
+  const frameOverflow = await embed.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)
+  if (frameOverflow > 1) errors.push(`embed=1: the frame scrolls (${frameOverflow}px taller than the window)`)
   const ids = await embed.evaluate(() => {
     const found = []
     for (const app of document.querySelectorAll('#quarto-document-content .vm-app[id]')) found.push(app.id)
@@ -1014,12 +1112,13 @@ async function main() {
   let failed = false
   try {
     const runs = [
-      ...[...pages, ...listingPages, ...dragPages, ...railPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
+      ...[...pages, ...listingPages, ...dragPages, ...railPages, ...prosePages].map((relPath) => [base, relPath, 'fixtures/layout/']),
       ...pageOptionsPages.map((relPath) => [pageOptionsBase, relPath, 'fixtures/page-options/'])
     ]
     for (const [siteBase, relPath, label] of runs) {
       let check = checkPage
       if (railPages.includes(relPath)) check = checkRailPage
+      if (prosePages.includes(relPath)) check = checkProsePage
       if (listingPages.includes(relPath)) check = checkCardsPage
       if (dragPages.includes(relPath)) check = checkDragPage
       if (siteBase === pageOptionsBase) check = checkPostsPage
