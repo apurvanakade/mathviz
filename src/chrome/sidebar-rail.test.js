@@ -46,7 +46,9 @@ function selectors(css) {
 test('every selector in sidebar-rail.css is scoped under html.vm-sidebar-rail, and all but the grid skip embed mode', () => {
   const sels = selectors(fs.readFileSync(path.join(here, 'sidebar-rail.css'), 'utf8'))
   assert.ok(sels.length > 10, `expected the rail's rules, found ${sels.length} selectors`)
-  const unscoped = sels.filter(sel => !GRID.test(sel) && !sel.startsWith(SCOPE + ':not(.vm-embed) '))
+  // The state classes sit on <html> too, so they come before :not(.vm-embed).
+  const scoped = /^html\.vm-sidebar-rail(\.vm-sidebar-(open|pinned))?:not\(\.vm-embed\) /
+  const unscoped = sels.filter(sel => !GRID.test(sel) && !scoped.test(sel))
   assert.deepEqual(unscoped, [])
   assert.equal(sels.filter(sel => GRID.test(sel)).length, 4, 'the floating and docked grid, each with and without a TOC')
 })
@@ -78,7 +80,7 @@ test('nothing loaded without the option styles the rail or its classes', () => {
 
 // sidebar-rail.js against a minimal document: the class goes on <html> at
 // load and comes off at init when there is no sidebar to drive.
-function loadRail({ sidebar = null, embed = false } = {}) {
+function loadRail({ sidebar = null, embed = false, wide = false, stored = null } = {}) {
   const classes = new Set(embed ? ['vm-embed'] : [])
   const appended = []
   const listeners = {}
@@ -88,17 +90,20 @@ function loadRail({ sidebar = null, embed = false } = {}) {
       classList: {
         add: c => classes.add(c),
         remove: c => classes.delete(c),
-        contains: c => classes.has(c)
+        contains: c => classes.has(c),
+        toggle: (c, on) => (on ? classes.add(c) : classes.delete(c))
       },
       style: { setProperty: () => {} }
     },
-    body: { appendChild: el => appended.push(el), classList: { add() {}, remove() {}, toggle() {}, contains: () => false } },
+    body: { appendChild: el => appended.push(el) },
     addEventListener: (type, fn) => { listeners[type] = fn },
     getElementById: id => (id === 'quarto-sidebar' ? sidebar : null),
     querySelector: () => null
   }
-  const run = new Function('document', 'window', fs.readFileSync(path.join(here, 'sidebar-rail.js'), 'utf8'))
-  run(doc, {})
+  const win = { matchMedia: q => ({ matches: q === '(min-width: 992px)' && wide }) }
+  const storage = { getItem: () => stored, setItem: () => { throw new Error('the default must not be stored') } }
+  const run = new Function('document', 'window', 'localStorage', fs.readFileSync(path.join(here, 'sidebar-rail.js'), 'utf8'))
+  run(doc, win, storage)
   return { classes, appended, listeners }
 }
 
@@ -128,4 +133,28 @@ test('embed mode keeps the class, for the page grid, and builds no rail', () => 
   listeners.DOMContentLoaded()
   assert.equal(classes.has('vm-sidebar-rail'), true)
   assert.equal(appended.length, 0)
+})
+
+// Pinned is the default from 992px up and is applied in <head>, so a docked
+// page is laid out docked at first paint; a stored choice beats the default.
+test('with no stored choice the sidebar starts pinned and open from 992px up, closed below', () => {
+  const wide = loadRail({ wide: true })
+  assert.ok(wide.classes.has('vm-sidebar-pinned') && wide.classes.has('vm-sidebar-open'))
+  const narrow = loadRail({ wide: false })
+  assert.equal(narrow.classes.has('vm-sidebar-pinned') || narrow.classes.has('vm-sidebar-open'), false)
+})
+
+test('a stored choice beats the default either way', () => {
+  assert.equal(loadRail({ wide: true, stored: '0' }).classes.has('vm-sidebar-pinned'), false)
+  assert.ok(loadRail({ wide: false, stored: '1' }).classes.has('vm-sidebar-pinned'))
+})
+
+test('a page with no sidebar, or an embed, drops the state classes the <head> pass set', () => {
+  const none = loadRail({ wide: true })
+  none.listeners.DOMContentLoaded()
+  assert.equal(none.classes.has('vm-sidebar-pinned') || none.classes.has('vm-sidebar-open'), false)
+  const sidebar = { classList: { contains: c => c === 'sidebar-navigation' } }
+  const embed = loadRail({ sidebar, embed: true, wide: true })
+  embed.listeners.DOMContentLoaded()
+  assert.equal(embed.classes.has('vm-sidebar-pinned') || embed.classes.has('vm-sidebar-open'), false)
 })

@@ -219,12 +219,14 @@ function Pandoc(doc)
       scripts = { "chrome/" .. name .. ".js" }
     }
     if not scriptOnly then chromeDep.stylesheets = { "chrome/" .. name .. ".css" } end
-    quarto.doc.add_html_dependency(chromeDep)
+    -- The meta tags go first: sidebar-rail.js reads its storage key while
+    -- <head> is still parsing, before anything below it exists.
     for meta_name, content in pairs(meta_tags or {}) do
       if content ~= nil and content ~= "" then
         headTag("mathviz-" .. meta_name, '<meta name="mathviz:' .. meta_name .. '" content="' .. escapeAttr(content) .. '">')
       end
     end
+    quarto.doc.add_html_dependency(chromeDep)
   end
 
   -- The rail's page grid gives the body column the width the site's

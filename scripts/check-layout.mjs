@@ -285,16 +285,48 @@ function railAtRestProblems(bodyWidth) {
   return problems
 }
 
-// Opening, pinning and closing: the hamburger opens the panel with the rail
-// riding its right edge, Escape closes it, the pin keeps it open through a
-// click outside, and the hamburger closes and unpins it.
+// A first visit from 992px up: the sidebar pinned and docked -- on screen
+// at the left edge, the rail riding its right edge, and the body column
+// clear of it (the grid gives up the panel's width rather than the panel
+// covering the start of every line).
+function railDockedProblems() {
+  const problems = []
+  const root = document.documentElement
+  if (!root.classList.contains('vm-sidebar-pinned')) problems.push('a first visit is not pinned at desktop width')
+  const sidebar = document.getElementById('quarto-sidebar')
+  const rail = document.getElementById('vm-sidebar-rail')
+  if (!sidebar || !rail) return [...problems, 'no #quarto-sidebar or #vm-sidebar-rail']
+  const sb = sidebar.getBoundingClientRect()
+  if (Math.abs(sb.left) > 1) problems.push(`the docked sidebar's left edge is at ${Math.round(sb.left)}px, not 0`)
+  if (Math.abs(rail.getBoundingClientRect().left - sb.right) > 1) problems.push('the rail does not ride the docked sidebar\'s edge')
+  if (rail.querySelector('[data-vm-pin]').getAttribute('aria-pressed') !== 'true') problems.push('aria-pressed not true on the pin of a docked sidebar')
+  const col = document.querySelector('#quarto-document-content').getBoundingClientRect()
+  if (col.left < sb.right - 1) problems.push(`the docked sidebar (right edge ${Math.round(sb.right)}px) covers the body column (left edge ${Math.round(col.left)}px)`)
+  if (root.scrollWidth > root.clientWidth) problems.push(`the docked page scrolls sideways (${root.scrollWidth}px in ${root.clientWidth}px)`)
+  return problems
+}
+
+// The hamburger on a docked sidebar closes and unpins it, giving the column
+// back its full width.
+async function railUndockProblems(page) {
+  await page.locator('#vm-sidebar-rail button[data-vm-toggle]').click()
+  await page.waitForTimeout(350)
+  const problems = []
+  if (await page.evaluate(() => document.documentElement.classList.contains('vm-sidebar-pinned'))) problems.push('the hamburger did not unpin a docked sidebar')
+  return problems
+}
+
+// Opening, pinning and closing, from closed: the hamburger opens the panel
+// with the rail riding its right edge, Escape closes it, the pin keeps it
+// open through a click outside, and the hamburger closes and unpins it.
 async function railInteractionProblems(page) {
   const problems = []
   const sidebarLeft = () => page.evaluate(() => Math.round(document.getElementById('quarto-sidebar').getBoundingClientRect().left))
-  const isOpen = () => page.evaluate(() => document.body.classList.contains('vm-sidebar-open'))
+  const isOpen = () => page.evaluate(() => document.documentElement.classList.contains('vm-sidebar-open'))
   const settle = () => page.waitForTimeout(350)
   const toggle = page.locator('#vm-sidebar-rail button[data-vm-toggle]')
   const pin = page.locator('#vm-sidebar-rail button[data-vm-pin]')
+  for (const problem of await railUndockProblems(page)) problems.push(problem)
   await toggle.click()
   await settle()
   if (!(await isOpen())) problems.push('the hamburger did not open the sidebar')
@@ -579,6 +611,11 @@ async function checkPage(context, base, relPath) {
   const page = await context.newPage()
   watch(page, '')
   for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
+  // First, before anything below presses Escape (which closes and unpins
+  // it): the first visit's docked sidebar, then undocked for the rest, laid
+  // out as it was before pinned became the default.
+  for (const problem of await page.evaluate(railDockedProblems)) errors.push(`sidebar rail: ${problem}`)
+  for (const problem of await railUndockProblems(page)) errors.push(`sidebar rail: ${problem}`)
   for (const problem of await page.evaluate(sliderTrackProblems)) errors.push(`desktop: ${problem}`)
   for (const problem of await page.evaluate(slidersBelowChart)) errors.push(`desktop: ${problem}`)
   for (const problem of await popoverProblems(page)) errors.push(`desktop: ${problem}`)
@@ -693,6 +730,9 @@ async function checkRailPage(context, base, relPath) {
   if (off) {
     for (const problem of await page.evaluate(noRailProblems)) errors.push(`desktop: ${problem}`)
   } else {
+    for (const problem of await page.evaluate(railDockedProblems)) errors.push(`desktop: ${problem}`)
+    for (const problem of await page.evaluate(railTocProblems)) errors.push(`desktop docked: ${problem}`)
+    for (const problem of await railUndockProblems(page)) errors.push(`desktop: ${problem}`)
     for (const problem of await page.evaluate(railAtRestProblems, null)) errors.push(`desktop: ${problem}`)
     for (const problem of await page.evaluate(railTocProblems)) errors.push(`desktop: ${problem}`)
   }
