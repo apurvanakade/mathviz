@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Changed
+
+- Sidebar rail: on a screen 992px or wider the sidebar starts pinned open until the reader unpins it (the stored choice still wins), so readers who never found the pin see the navigation. Pinned there, it docks: the page makes room for it instead of the panel covering the start of each line. Phones still start closed. The open and pinned classes moved from `<body>` to `<html>` and are set in `<head>`, so a pinned page is laid out docked at first paint instead of shifting after load.
+
 ## [1.4.0] - 2026-11-13
 
 ### Added

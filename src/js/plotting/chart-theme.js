@@ -124,7 +124,8 @@
   // The `last` check is what keeps this from firing on class changes that
   // have nothing to do with the theme. <body>'s class list is shared: a
   // site's own scripts write to it (the sidebar rail chrome toggles
-  // .vm-sidebar-open on it whenever the sidebar opens or closes), and
+  // .vm-sidebar-open on <html>, also observed, whenever the sidebar opens
+  // or closes), and
   // without this guard each of those notified every consumer -- which, on a
   // page whose chartColors cell depends on this, re-ran mainPlot, the legend
   // and both sub-charts, rebuilding the whole chart for nothing. The

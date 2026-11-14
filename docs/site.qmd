@@ -165,7 +165,7 @@ mathviz:
   sidebar-rail: true
 ```
 
-For a site with Quarto sidebar navigation (`style: floating` or `docked`). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages). Escape or a click outside closes it. The body column takes the sidebar's space and is as wide as your `grid: body-width` (Quarto's 800px if unset); a page with a table of contents keeps its right margin.
+For a site with Quarto sidebar navigation (`style: floating` or `docked`). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages and visits). On a screen 992px or wider it starts pinned until the reader chooses otherwise, and a pinned sidebar there sits beside the page rather than over it; on a phone it starts closed. Escape or the menu button closes and unpins it; a click outside closes an unpinned one. The body column takes the sidebar's space and is as wide as your `grid: body-width` (Quarto's 800px if unset); a page with a table of contents keeps its right margin.
 
 It changes nothing on a site or page that doesn't turn it on, or on a page without a sidebar: to switch it off for one page, set `mathviz-page: {sidebar-rail: false}`.
 
