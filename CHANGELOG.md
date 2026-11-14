@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-11-14
+
 ### Changed
 
 - Sidebar rail: on a screen 992px or wider the sidebar starts pinned open until the reader unpins it (the stored choice still wins), so readers who never found the pin see the navigation. Pinned there, it docks: the page makes room for it instead of the panel covering the start of each line. Phones still start closed. The open and pinned classes moved from `<body>` to `<html>` and are set in `<head>`, so a pinned page is laid out docked at first paint instead of shifting after load.
@@ -472,7 +474,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/apurvanakade/mathviz/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/apurvanakade/mathviz/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/apurvanakade/mathviz/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/apurvanakade/mathviz/compare/v1.3.0...v1.3.1
