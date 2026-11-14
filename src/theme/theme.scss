@@ -129,6 +129,16 @@ h2 {
   border-bottom: 0;
   padding-bottom: 0;
 }
+/* Quarto zeroes the top margin of the first section's h2
+ * (`main.content > section:first-of-type > h2:nth-child(1)`), assuming that
+ * section opens the page right under the title block. When an intro
+ * paragraph, list or chart comes first, that h2 sat on it with no room at
+ * all. Keep Quarto's zero only where its assumption holds: the section is
+ * main's first child or follows the title block directly. The id in :not()
+ * out-ranks Quarto's selector (and its `#quarto-content` 1rem variant). */
+main.content > section:first-of-type:not(:first-child, #title-block-header + section) > h2:first-child {
+  margin-top: 3rem;
+}
 h3 { font-size: $vm-h3-font-size; font-weight: $vm-font-weight-heading; margin-top: 2rem; }
 
 body {

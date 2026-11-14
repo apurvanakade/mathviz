@@ -598,6 +598,28 @@ function sidebarSearchProblems() {
   return problems
 }
 
+// Quarto zeroes the top margin of the first section's h2, assuming that
+// section opens the page; with prose or an app above it, the heading sat on
+// them with no room. The theme keeps the zero only right under the title
+// block, so a first-section h2 after other content must get the same margin
+// as any later h2 (read off a probe section appended to the page).
+function firstHeadingProblems() {
+  const main = document.querySelector('main.content')
+  const first = main && main.querySelector(':scope > section')
+  const h2 = first && first.querySelector(':scope > h2:first-child')
+  if (!h2) return []
+  const prev = first.previousElementSibling
+  if (!prev || prev.id === 'title-block-header') return []
+  const probe = document.createElement('section')
+  probe.className = 'level2'
+  probe.innerHTML = '<h2>probe</h2>'
+  main.append(probe)
+  const want = getComputedStyle(probe.firstChild).marginTop
+  probe.remove()
+  const got = getComputedStyle(h2).marginTop
+  return got === want ? [] : [`the first section's h2 ("${h2.textContent.trim()}") has margin-top ${got} after other content; later h2s have ${want}`]
+}
+
 async function checkPage(context, base, relPath) {
   const errors = []
   const watch = (page, prefix) => {
@@ -621,6 +643,7 @@ async function checkPage(context, base, relPath) {
   for (const problem of await popoverProblems(page)) errors.push(`desktop: ${problem}`)
   for (const problem of await shareProblems(page)) errors.push(`share: ${problem}`)
   for (const problem of await page.evaluate(sidebarSearchProblems)) errors.push(`sidebar search: ${problem}`)
+  for (const problem of await page.evaluate(firstHeadingProblems)) errors.push(`desktop: ${problem}`)
   for (const problem of await page.evaluate(railAtRestProblems, 1000)) errors.push(`sidebar rail: ${problem}`)
   if (relPath === 'index.html') {
     await page.reload({ waitUntil: 'load' })
