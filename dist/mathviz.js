@@ -1801,6 +1801,13 @@
     data !== null && typeof data === "object" && !Array.isArray(data) &&
     layout === undefined && config === undefined
 
+  // When a chart was last drawn, so the toggle's deferred repaint
+  // (watchThemeToggle below) can skip a chart its own cell has redrawn
+  // since. A time, not the theme's name: a draw inside the toggle's
+  // two-frame wait sees the new class but the old stylesheet.
+  const now = () => (globalThis.performance?.now ? globalThis.performance.now() : Date.now())
+  const stampDrawn = (div) => { div.__vmDrawnAt = now() }
+
   const themedCall = (original, Plotly) => (gd, data, layout, config) => {
     let figure = null
     if (isFigure(data, layout, config)) {
@@ -1821,7 +1828,10 @@
       : original(gd, parts.data, parts.layout, parts.config)
     // newPlot (and a react that redraws from scratch) has just thrown away
     // every listener on the div; put back the ones mathviz keeps.
-    if (div && typeof div === "object") globalThis.VM?.plotting?.keepListening?.(div)
+    if (div && typeof div === "object") {
+      globalThis.VM?.plotting?.keepListening?.(div)
+      stampDrawn(div)
+    }
     return result
   }
 
@@ -1865,20 +1875,51 @@
   // the shared theme watcher (chart-theme.js's onThemeChange, which already
   // knows which selector means "dark", defers two frames for the stylesheet
   // swap, and ignores unrelated <body> class churn) and relayout every live
-  // chart on the page immediately, without needing a per-page listener.
+  // chart on the page, without needing a per-page listener.
   //
   // Registration is deferred to DOMContentLoaded. This file is loaded from
   // <head> -- at which point document.body is still null, so guarding on
   // `document.body` and registering inline (which this did) silently
   // skipped the observer on every page and the toggle re-themed nothing.
+  //
+  // Charts on screen are re-themed at once, the rest one per idle period.
+  // A relayout costs up to ~65 ms, so re-theming every chart in one task
+  // (six on Monte Carlo Methods' estimating-pi page: a 247 ms block) left
+  // the chart in view light-coloured on the dark page until the last
+  // off-screen one was done. A deferred chart is skipped when it is gone
+  // or was drawn after the toggle settled -- its cell, reactive on
+  // vmTheme, usually redraws it first.
   const watchThemeToggle = () => {
     if (typeof document === "undefined" || !document.body) return
     if (!globalThis.VM?.plotting?.onThemeChange) return
+    const retheme = (gd) => {
+      globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch({layout: gd._fullLayout ?? gd.layout}))
+    }
+    const onScreen = (gd) => {
+      const r = gd.getBoundingClientRect()
+      return r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0 &&
+        r.top < window.innerHeight && r.left < window.innerWidth
+    }
+    const whenIdle = globalThis.requestIdleCallback
+      ? (fn) => globalThis.requestIdleCallback(fn, {timeout: 1000})
+      : (fn) => setTimeout(fn, 0)
+    let pending = []
+    let settledAt = 0
+    const drain = () => {
+      const gd = pending.shift()
+      if (!gd) return
+      if (gd.isConnected && !(gd.__vmDrawnAt > settledAt)) retheme(gd)
+      if (pending.length) whenIdle(drain)
+    }
     const repaint = () => {
       if (!globalThis.Plotly?.relayout || !globalThis.VM?.plotting?.themePatch) return
-      for (const gd of document.querySelectorAll(".js-plotly-plot")) {
-        globalThis.Plotly.relayout(gd, globalThis.VM.plotting.themePatch({layout: gd._fullLayout ?? gd.layout}))
-      }
+      settledAt = now()
+      const charts = [...document.querySelectorAll(".js-plotly-plot")]
+      const later = charts.filter((gd) => !onScreen(gd))
+      for (const gd of charts) if (!later.includes(gd)) retheme(gd)
+      const idle = pending.length === 0
+      pending = later
+      if (idle && pending.length) whenIdle(drain)
     }
     // onThemeChange calls back once immediately with the current theme;
     // there is nothing to repaint yet at that point, only on a later flip.

@@ -451,7 +451,7 @@ On load (and again on `DOMContentLoaded`) the library wraps `Plotly.newPlot` and
 
 - for a 3-D chart, meaning one whose layout has a `scene` (draw it with [`persistentPlot3d`](#persistentPlot3d), which guarantees one): `scene.dragmode: "turntable"` unless the page set one, since a scene otherwise inherits `"pan"` and slides instead of rotating; themed scene axes; and the modebar download PNG | turntable rotation, orbit rotation, pan, zoom | reset camera | fullscreen
 
-- a `relayout(themePatch({layout: gd._fullLayout}))` on every theme flip, which re-themes every subplot the chart has
+- a `relayout(themePatch({layout: gd._fullLayout}))` on every theme flip, which re-themes every subplot the chart has (charts on screen at once, the rest one per idle period, and a chart redrawn since is skipped -- see [internals](internals.qmd#dark-mode-detection))
 - after each call, the listeners registered with [`keepListening`](#keepListening) put back -- `newPlot` drops every listener on the div
 
 The patch is idempotent and a silent no-op when `Plotly` isn't on the page (`mathviz: {plotly: false}`).

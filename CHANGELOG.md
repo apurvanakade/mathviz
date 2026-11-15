@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- Dark/light toggle: the chart in view switches theme sooner (about 225ms after the click instead of about 380ms on Monte Carlo Methods' estimating-pi page, with six charts). Charts on screen are re-themed first, the rest one at a time while the browser is idle, and a chart its own cell has redrawn since is skipped. Every chart used to be re-themed in one long task, so the visible one stayed light-coloured on the dark page until the last off-screen one was done.
+
 ## [1.5.0] - 2026-11-14
 
 ### Added

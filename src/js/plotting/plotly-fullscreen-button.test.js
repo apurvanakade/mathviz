@@ -130,3 +130,54 @@ test('resolves a graph div given by id', () => {
   assert.equal(calls[0][0], 'chart', 'Plotly still gets what the page passed')
   assert.ok(div.__vmView, 'the view is tracked on the element')
 })
+
+test('a theme toggle re-themes charts on screen at once and the rest when idle', () => {
+  // A stub page: one chart in view, one below the fold, one below the
+  // fold that its own cell redraws before the idle queue reaches it.
+  let dark = false
+  const observers = []
+  const idle = []
+  const chart = (top) => ({
+    isConnected: true,
+    layout: {},
+    getBoundingClientRect: () => ({ top, bottom: top + 300, left: 0, right: 600, width: 600, height: 300 })
+  })
+  const inView = chart(100)
+  const below = chart(2000)
+  const redrawn = chart(3000)
+  globalThis.Plotly = null
+  globalThis.document = {
+    addEventListener: () => {},
+    readyState: 'complete',
+    documentElement: { matches: () => false },
+    body: { matches: () => dark },
+    querySelectorAll: (sel) => (sel === '.js-plotly-plot' ? [inView, below, redrawn] : [])
+  }
+  globalThis.innerHeight = 800
+  globalThis.innerWidth = 1280
+  globalThis.getComputedStyle = () => ({ getPropertyValue: () => '' })
+  globalThis.MutationObserver = class { constructor(cb) { observers.push(cb) } observe() {} disconnect() {} }
+  globalThis.requestAnimationFrame = (fn) => fn()
+  globalThis.requestIdleCallback = (fn) => { idle.push(fn) }
+  const relayouts = []
+  const original = () => {}
+  globalThis.Plotly = {
+    newPlot: original, react: original, Icons: { zoom_plus: {}, zoom_minus: {} },
+    relayout: (gd) => relayouts.push(gd)
+  }
+  try {
+    loadVM()
+    dark = true
+    for (const cb of observers) cb([])
+    assert.deepEqual(relayouts, [inView], 'only the chart in view is re-themed in the toggle task')
+    assert.equal(idle.length, 1, 'the rest wait for an idle period')
+
+    globalThis.Plotly.react(redrawn, [], {}, {})
+    while (idle.length) idle.shift()()
+    assert.deepEqual(relayouts, [inView, below], 'a chart redrawn since the toggle is skipped')
+  } finally {
+    delete globalThis.MutationObserver
+    delete globalThis.requestAnimationFrame
+    delete globalThis.requestIdleCallback
+  }
+})
