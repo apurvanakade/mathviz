@@ -83,9 +83,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-ae010aa0820343b3278cf965d0fdcb82.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-7b300555dd4b48d707f05811ef214d4c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-ae010aa0820343b3278cf965d0fdcb82.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bd089309c48056d115b64257fc48cc9a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-dafc20e7d5c911a8f53d723065a50860.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-bd089309c48056d115b64257fc48cc9a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
 <script defer="" src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script defer="" src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
@@ -1338,7 +1338,7 @@ Authors: Apurva Nakade
 </table>
 <p>Box select and lasso are absent. The list is spelled out as <code>config.modeBarButtons</code>. A page that passes its own <code>modeBarButtons</code> keeps them untouched; <code>modeBarButtonsToRemove</code> and <code>modeBarButtonsToAdd</code> are applied to the shared list (the gentler zoom steps answer to <code>"zoomIn2d"</code>/<code>"zoomOut2d"</code>). The fullscreen button is left out where element fullscreen can’t work – iPhone Safari, an iframe without <code>allow="fullscreen"</code>.</p></li>
 <li><p>for a 3-D chart, meaning one whose layout has a <code>scene</code> (draw it with <a href="#persistentPlot3d"><code>persistentPlot3d</code></a>, which guarantees one): <code>scene.dragmode: "turntable"</code> unless the page set one, since a scene otherwise inherits <code>"pan"</code> and slides instead of rotating; themed scene axes; and the modebar download PNG | turntable rotation, orbit rotation, pan, zoom | reset camera | fullscreen</p></li>
-<li><p>a <code>relayout(themePatch({layout: gd._fullLayout}))</code> on every theme flip, which re-themes every subplot the chart has</p></li>
+<li><p>a <code>relayout(themePatch({layout: gd._fullLayout}))</code> on every theme flip, which re-themes every subplot the chart has (charts on screen at once, the rest one per idle period, and a chart redrawn since is skipped – see <a href="../../docs/reference/internals.html#dark-mode-detection">internals</a>)</p></li>
 <li><p>after each call, the listeners registered with <a href="#keepListening"><code>keepListening</code></a> put back – <code>newPlot</code> drops every listener on the div</p></li>
 </ul>
 <p>The patch is idempotent and a silent no-op when <code>Plotly</code> isn’t on the page (<code>mathviz: {plotly: false}</code>).</p>
