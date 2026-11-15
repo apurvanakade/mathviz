@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-11-15
+
 ### Fixed
 
 - Dark/light toggle: the chart in view switches theme sooner (about 225ms after the click instead of about 380ms on Monte Carlo Methods' estimating-pi page, with six charts). Charts on screen are re-themed first, the rest one at a time while the browser is idle, and a chart its own cell has redrawn since is skipped. Every chart used to be re-themed in one long task, so the visible one stayed light-coloured on the dark page until the last off-screen one was done.
@@ -496,7 +498,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/apurvanakade/mathviz/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/apurvanakade/mathviz/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/apurvanakade/mathviz/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/apurvanakade/mathviz/compare/v1.3.2...v1.4.0
