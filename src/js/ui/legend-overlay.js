@@ -19,6 +19,15 @@
   // below re-renders each item's checked state, so a programmatic set stays
   // visually in sync with a user click.
   //
+  // The top-right corner is also where Plotly pins its modebar, which sits
+  // above the legend (z-index 1001) and appears on hover -- exactly when the
+  // reader reaches for a legend row -- so a legend moved there by a page's
+  // own `right:` rule lost its top rows to the modebar. The corner is an
+  // option instead, so the CSS can start a right-hand legend below the
+  // modebar in one place (legend-controls.css). Only the top corners: the
+  // bottom ones sit on the x-axis tick labels.
+  const CORNERS = ["top-left", "top-right"]
+
   /**
    * A floating legend of clickable swatch+label rows that toggles which
    * traces a chart shows. It is an Observable *view*: drop it into
@@ -42,15 +51,6 @@
    *   event on each user toggle -- but not on a programmatic set, matching
    *   Observable Inputs. Uses only DOM APIs; no `htl`/`Inputs` dependency.
    */
-  // The top-right corner is also where Plotly pins its modebar, which sits
-  // above the legend (z-index 1001) and appears on hover -- exactly when the
-  // reader reaches for a legend row -- so a legend moved there by a page's
-  // own `right:` rule lost its top rows to the modebar. The corner is an
-  // option instead, so the CSS can start a right-hand legend below the
-  // modebar in one place (legend-controls.css). Only the top corners: the
-  // bottom ones sit on the x-axis tick labels.
-  const CORNERS = ["top-left", "top-right"]
-
   const legendOverlay = (items, options = {}) => {
     const corner = options.corner ?? "top-left"
     if (!CORNERS.includes(corner)) {
