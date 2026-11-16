@@ -11,7 +11,9 @@ Authors: Apurva Nakade
 <!-- The crowded cases: a chart-controls bar of four sliders in a grid (label
      above track), and a panel with three sliders sharing one grid row --
      where slider tracks were once squeezed to 0px by Observable Inputs'
-     runtime styles. One column, no split. -->
+     runtime styles. One column, no split. The chart block's stat row is
+     written before the chart cell; the check asserts it is drawn under the
+     chart all the same. -->
 
 ```{ojs}
 //| output: false
@@ -63,6 +65,13 @@ viewof samples = Inputs.range([10, 500], {step: 1, value: 100, label: "Samples"}
 ```
 
 </div>
+
+```{ojs}
+VM.ui.statRow([
+  {label: "Prevalence", value: prevalence.toFixed(2)},
+  {label: "Samples", value: samples}
+])
+```
 
 ```{ojs}
 mainPlot = {

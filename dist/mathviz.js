@@ -7535,8 +7535,10 @@
   // estimate, its standard error, an acceptance rate -- that change on
   // every slider move. A results table is too heavy for that and a chart
   // title too cramped, so they sit in one row of label-over-value tiles
-  // between the controls panel and the chart (inside the page's .vm-app,
-  // so an embedded app keeps them). Styled by stat-row.css.
+  // under the chart, inside its .ojs-chart-block, so they stay out of the
+  // controls, come along when the chart is fullscreened and are kept by an
+  // embedded app. stat-row.css orders the row last in the block and styles
+  // it.
   /**
    * A row of small "label / value" readouts.
    *
