@@ -1,5 +1,7 @@
 ---
 title: "Function explorer"
+description: "A floating legend that toggles traces, and a field that turns red on bad input."
+categories: ["plotly", "legend", "inputs"]
 ---
 
 <!--
@@ -26,6 +28,9 @@ vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
 chartColors = VM.plotting.colors(vmTheme)
 ```
 
+<!-- An app with an id: the Share dialog's snippet then embeds
+     ?embed=explorer rather than "the first app on the page". -->
+:::: {.vm-app #explorer}
 ::: {.ojs-panel .ojs-row}
 ```{ojs}
 viewof fxText = {
@@ -104,3 +109,4 @@ mainPlot = {
 }
 ```
 :::
+::::

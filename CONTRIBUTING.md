@@ -16,8 +16,10 @@ so that any Quarto site (or any web page) can use it.
 Everything is authored here: the library (`src/`, the build scripts, the
 extension), its docs, the starter and the site kit. A change is an ordinary
 pull request against `main`, and a change to `src/` brings its
-`docs/reference/` entry and a `CHANGELOG.md` line in the same PR. CI's
-`docs-coverage`, `css-coverage` and `changelog` checks fail without them.
+`docs/reference/` entry and a `CHANGELOG.md` line in the same PR. A new
+style feature (a class, an attribute, a site option) also gets a starter
+page that shows it. CI's `docs-coverage`, `css-coverage`,
+`starter-coverage` and `changelog` checks fail without them.
 
 **Coming from a site that uses mathviz?** A function that site wrote for
 itself moves here once a second site wants it: put it in `src/js/<category>/`

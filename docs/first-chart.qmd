@@ -168,5 +168,9 @@ Each of the starter's other pages adds one thing to this pattern:
 | [try-an-example.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/try-an-example.qmd) | presets that fill the fields and run the page |
 | [observable-plot.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd) | Observable Plot in a chart block, with the SVG modebar every Plot chart gets |
 | [draggable-points.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/draggable-points.qmd) | points the reader drags on a chart, as an input ([`draggablePoints`](reference/plotting.qmd#draggablePoints)) |
+| [panels.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/panels.qmd) | every [panel layout](markup.qmd#panels) and every kind of input |
+| [readouts.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/readouts.qmd) | a [static key](reference/ui.qmd#staticKey) and a [stat row](reference/ui.qmd#statRow) under a chart; a hand-built SVG with the modebar |
+| [prose.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/prose.qmd) | [color words](markup.qmd#vm-swatch) and the [theme](site.qmd#theme)'s prose; one app embedded |
+| [gallery.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/gallery.qmd) | a listing of every page, with the [category cloud](site.qmd#category-cloud) |
 
 Then make the palette yours: [Theming](theming.qmd).

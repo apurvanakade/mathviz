@@ -1,5 +1,7 @@
 ---
 title: "Draggable points"
+description: "Points the reader drags on a chart, as an input."
+categories: ["plotly", "inputs"]
 ---
 
 <!--

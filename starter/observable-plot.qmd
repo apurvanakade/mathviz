@@ -1,5 +1,7 @@
 ---
 title: "Observable Plot in a chart block"
+description: "Observable Plot with the theme applied, and the SVG modebar every Plot chart gets."
+categories: ["observable plot", "modebar"]
 ---
 
 <!--

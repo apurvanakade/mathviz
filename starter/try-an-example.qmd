@@ -1,5 +1,7 @@
 ---
 title: "\"Try an example\" dropdown"
+description: "A \"Try an example\" dropdown that fills the fields and runs the page."
+categories: ["plotly", "inputs"]
 ---
 
 <!--

@@ -1,0 +1,41 @@
+---
+title: "All pages"
+listing:
+  contents: "*.qmd"
+  type: grid
+  sort: "title"
+  categories: cloud
+  fields: [image, title, description, categories]
+  image-placeholder: images/thumbnail.svg
+  image-height: "140px"
+mathviz-page:
+  category-cloud: true
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!--
+Shows: a grid listing of every page here, in the theme's card style, with
+its category cloud moved above the cards ("All" first). The cloud is on for
+this page only, through mathviz-page: (never mathviz: in a page's front
+matter -- it would replace every option in _quarto.yml). Each card reads
+its page's title, description and categories; a page with an `image:` gets
+that picture instead of the placeholder.
+
+  listing cards:  https://apurvanakade.github.io/mathviz/docs/site.html#cards
+  category cloud: https://apurvanakade.github.io/mathviz/docs/site.html#category-cloud
+-->
+
+<!-- The cloud is unstyled until the site styles it: this is the snippet
+     the category-cloud docs give. -->
+<style>
+.vm-category-cloud .quarto-listing-category { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; margin-bottom: 1.25rem; }
+.vm-category-cloud .category { cursor: pointer; color: var(--vm-text-soft); }
+.vm-category-cloud .category.active { color: var(--vm-accent); font-weight: 500; }
+</style>
+
+Every page in the starter. Pick a category to narrow the list.

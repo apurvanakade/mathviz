@@ -68,7 +68,7 @@ viewof heroK = Inputs.range([0.5, 4], {label: "k", step: 0.05, value: 1})
 
 ## A new site
 
-Copy the starter -- a complete Quarto website with seven working pages and the extension already installed:
+Copy the starter -- a complete Quarto website with every feature on a working page and the extension already installed:
 
 ```sh
 git clone https://github.com/apurvanakade/mathviz
