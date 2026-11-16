@@ -43,7 +43,7 @@
   html.vm-sidebar-rail body.floating .page-columns,
   html.vm-sidebar-rail body.docked .page-columns {
     grid-template-columns:
-      [screen-start] var(--vm-rail-gutter, 1.5em) [screen-start-inset] 5fr
+      [screen-start] var(--vm-rail-gutter, 1.5em) [screen-start-inset] var(--vm-rail-start-track, 5fr)
       [page-start page-start-inset body-start-outset body-start] var(--vm-rail-gutter, 1.5em)
       [body-content-start] minmax(0, calc(var(--vm-rail-body-width, 800px) - 2 * var(--vm-rail-gutter, 1.5em))) [body-content-end] var(--vm-rail-gutter, 1.5em)
       [body-end body-end-outset page-end-inset] var(--vm-rail-gutter, 1.5em)
@@ -60,7 +60,7 @@
   html.vm-sidebar-rail body.floating:has(nav#TOC) .page-columns,
   html.vm-sidebar-rail body.docked:has(nav#TOC) .page-columns {
     grid-template-columns:
-      [screen-start] var(--vm-rail-gutter, 1.5em) [screen-start-inset] 5fr
+      [screen-start] var(--vm-rail-gutter, 1.5em) [screen-start-inset] var(--vm-rail-start-track, 5fr)
       [page-start page-start-inset body-start-outset body-start] var(--vm-rail-gutter, 1.5em)
       [body-content-start] minmax(0, calc(var(--vm-rail-body-width, 800px) - 2 * var(--vm-rail-gutter, 1.5em))) [body-content-end] var(--vm-rail-gutter, 1.5em)
       [body-end] minmax(calc(0.1 * var(--vm-rail-margin-width, 250px)), calc(0.2 * var(--vm-rail-margin-width, 250px)))
@@ -137,19 +137,25 @@ html.vm-sidebar-rail:not(.vm-embed) .quarto-secondary-nav [data-bs-toggle="colla
   }
 }
 
-/* Pinned, from 992px up, the sidebar docks: the page's grid gives up the
- * panel's width on the left, so the body column centres in what is left
- * instead of running under the panel. Pinned is the default at these
- * widths (sidebar-rail.js), and an overlaid panel covered the start of
- * every line of a 1000px column in a 1280px window. #quarto-content is
- * the .page-columns grid container; its 5fr side tracks and the body
- * column's minmax(0, ...) shrink into the narrower box. The navbar and
- * footer keep the full width, as the panel starts under the navbar. Below
- * 992px a pinned sidebar still overlays: docking 85vw on a phone would
- * leave no page. */
+/* Pinned, from 992px up, the sidebar docks: it sits beside the page
+ * rather than over it. Pinned is the default at these widths
+ * (sidebar-rail.js), and an overlaid panel covered the start of every line
+ * of a 1000px column in a 1280px window. The column stays centred in the
+ * window and moves right only as far as it must to clear the panel and the
+ * rail riding its edge, by one gutter: the grid's left side track (5fr,
+ * the page grid's --vm-rail-start-track) gets a floor, so the text's left
+ * edge (gutter + track + gutter) is never under them. Where the window has
+ * room, both side tracks are wider than the floor and nothing moves; where
+ * it doesn't, the right track absorbs the difference, and below that the
+ * body column's minmax(0, ...) shrinks. Padding #quarto-content by the
+ * panel's width instead re-centred the column in what was left, pushing
+ * the text right by half the panel even when nothing overlapped. The
+ * navbar and footer keep the full width, as the panel starts under the
+ * navbar. Below 992px a pinned sidebar still overlays: docking 85vw on a
+ * phone would leave no page. */
 @media (min-width: 992px) {
   html.vm-sidebar-rail.vm-sidebar-pinned:not(.vm-embed) #quarto-content {
-    padding-left: 280px;
+    --vm-rail-start-track: minmax(calc(280px + 2.75rem - var(--vm-rail-gutter, 1.5em)), 5fr);
   }
 }
 

@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- Sidebar rail: a docked (pinned) sidebar no longer pushes the page right when it fits beside it. The body column stays centred in the window and moves right only as far as it must to clear the sidebar and its rail. It used to re-centre in the space beside the sidebar, about 140px right of centre, even in a window wide enough that nothing overlapped.
+
 ## [1.5.1] - 2026-11-15
 
 ### Fixed
