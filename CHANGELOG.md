@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.5.2] - 2026-11-16
+
 ### Fixed
 
 - Sidebar rail: a docked (pinned) sidebar no longer pushes the page right when it fits beside it. The body column stays centred in the window and moves right only as far as it must to clear the sidebar and its rail. It used to re-centre in the space beside the sidebar, about 140px right of centre, even in a window wide enough that nothing overlapped.
@@ -502,7 +504,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.5.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.5.2...HEAD
+[1.5.2]: https://github.com/apurvanakade/mathviz/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/apurvanakade/mathviz/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/apurvanakade/mathviz/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/apurvanakade/mathviz/compare/v1.4.0...v1.4.1
