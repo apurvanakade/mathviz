@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a "Report bug" popup). Each is one key under `mathviz:` in `_quarto.yml`, or under `mathviz-page:` in one page's front matter for a piece only that page uses (never `mathviz:` there -- see [Options for one page](install.qmd#page-options)). A site pays only for the pieces it turns on.
+Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a "Report bug" popup, a quieter look for apps). Each is one key under `mathviz:` in `_quarto.yml`, or under `mathviz-page:` in one page's front matter for a piece only that page uses (never `mathviz:` there -- see [Options for one page](install.qmd#page-options)). A site pays only for the pieces it turns on.
 
 These come with the Quarto extension only. The plain script bundle doesn't include them.
 
@@ -28,6 +28,7 @@ mathviz:
   report-bug:
     repo: owner/name
     branch: main
+  quiet-apps: true
 ```
 
 | Key | Values | Effect |
@@ -39,6 +40,7 @@ mathviz:
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
 | `share` | a map (see [Share](#share)) | Adds a "Share" button to every app. Turns `embed` on too. |
 | `report-bug` | a map with `repo` (required) and `branch` | Adds a "Report bug" popup when a reader selects text. |
+| `quiet-apps` | `true` | Draws every app without panel boxes, for pages that are mostly prose. |
 
 Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the default is `vm-sidebar-pinned`.
 
@@ -91,6 +93,23 @@ Embedding and Share both work on an **app**: the block holding a page's controls
 ```
 
 If a page has more than one app, give each an id: `::: {.vm-app #doors}`.
+
+## Quiet apps {#quiet-apps}
+
+```yaml
+mathviz:
+  quiet-apps: true
+```
+
+A lighter look for every `vm-app`, for a site whose pages are mostly prose (a blog, lecture notes), where boxed panels read as heavy. It's only a stylesheet, and changes nothing about how a page is written:
+
+- The controls panel and the slider bar have no fill or border. The fields, sliders and buttons keep theirs.
+- The slider bar's labels sit above their controls, as the panel's do, and a panel grid of sliders takes the bar's columns, so every label and control lines up down the app.
+- A stat row's readouts are inline label/value pairs split by thin rules instead of tiles.
+- The floating legend has no border or shadow.
+- The Share button is a plain link that shows while the pointer is over the app (always, on a touch screen).
+
+To try it on one page first, use `mathviz-page: {quiet-apps: true}` in that page's front matter.
 
 ## Embedding
 

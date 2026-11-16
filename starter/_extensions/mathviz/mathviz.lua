@@ -45,9 +45,9 @@
 --     report-bug:                  # "Report bug" popup on text selection,
 --       repo: owner/name           #   filing a GitHub issue that links the
 --       branch: main               #   page's .qmd source (branch: main)
---     quiet-apps: true             # (work in progress) every .vm-app
---                                  # without panel boxes, readout tiles or
---                                  # a legend frame; Share on hover
+--     quiet-apps: true             # every .vm-app without panel boxes,
+--                                  # readout tiles or a legend frame;
+--                                  # Share on hover
 --
 -- One page changes options with `mathviz-page:` in its front matter, never
 -- with `mathviz:` there. Quarto merges a page's front matter over the

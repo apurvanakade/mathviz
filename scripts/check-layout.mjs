@@ -73,7 +73,7 @@ const pageOptionsDir = path.join(repoRoot, 'fixtures', 'page-options')
 // their CDNs; every later load is served from the shared context's cache.
 const navigationTimeoutMs = 60000
 const settleTimeoutMs = 30000
-const pages = ['index.html', 'sliders.html', 'multi.html']
+const pages = ['index.html', 'sliders.html', 'multi.html', 'quiet.html']
 const listingPages = ['cards.html']
 const pageOptionsPages = ['posts.html']
 const dragPages = ['drag.html']

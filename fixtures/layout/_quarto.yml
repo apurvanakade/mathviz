@@ -42,6 +42,7 @@ website:
         - cards.qmd
         - rail-toc.qmd
         - no-rail.qmd
+        - quiet.qmd
 
 format:
   html:
