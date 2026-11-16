@@ -38,14 +38,7 @@ mhChain = VM.mcmc.randomWalkMetropolis({
 mhXs = mhChain.samples.map(s => s[0])
 ```
 
-```{ojs}
-VM.ui.statRow([
-  {label: "acceptance", value: (mhChain.acceptedCount / (mhXs.length - 1)).toFixed(2)},
-  {label: "ESS", value: VM.mcmc.effectiveSampleSize(mhXs).toFixed(0), title: "effective sample size of 2000 draws"},
-  {label: "mean", value: VM.mcmc.runningMean(mhXs).at(-1).toFixed(3)}
-])
-```
-
+::: {.ojs-chart-block}
 ```{ojs}
 {
   const c = chartColors
@@ -61,6 +54,15 @@ VM.ui.statRow([
   return html`<div>${trace}${acfPlot}</div>`
 }
 ```
+
+```{ojs}
+VM.ui.statRow([
+  {label: "acceptance", value: (mhChain.acceptedCount / (mhXs.length - 1)).toFixed(2)},
+  {label: "ESS", value: VM.mcmc.effectiveSampleSize(mhXs).toFixed(0), title: "effective sample size of 2000 draws"},
+  {label: "mean", value: VM.mcmc.runningMean(mhXs).at(-1).toFixed(3)}
+])
+```
+:::
 
 ## Samplers
 
