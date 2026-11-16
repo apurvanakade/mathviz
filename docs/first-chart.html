@@ -589,7 +589,7 @@ Authors: Apurva Nakade
 <h2 class="anchored" data-anchor-id="plotly-or-observable-plot">Plotly or Observable Plot</h2>
 <ul>
 <li><strong>An app’s chart is Plotly</strong>, like the one on this page: the chart the reader drives from the panel and sliders, and zooms and pans. It gets the modebar, fullscreen, the <a href="../docs/reference/ui.html#legendOverlay">floating legend</a> and the <a href="../docs/markup.html#ojs-chart-controls">slider bar</a>.</li>
-<li><strong>A simple figure is Observable Plot</strong>: a convergence plot, an error-decay plot, a comparison – anything the reader reads rather than explores. Theme it with <a href="../docs/reference/plotting.html#plotOptions"><code>plotOptions</code></a> and name its series with a <a href="../docs/reference/ui.html#staticKey">static key</a> under it. It needs no chart block, no modebar and no fullscreen.</li>
+<li><strong>A simple figure is Observable Plot</strong>: a convergence plot, an error-decay plot, a comparison – anything the reader reads rather than explores. Theme it with <a href="../docs/reference/plotting.html#plotOptions"><code>plotOptions</code></a> and name its series with a <a href="../docs/reference/ui.html#staticKey">static key</a> under it. It needs no chart block: every Plot chart gets the <a href="../docs/markup.html#svg-modebar">SVG modebar</a>, with a fullscreen button, on its own.</li>
 </ul>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> chart <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>(VM<span class="op">.</span><span class="at">plotting</span><span class="op">.</span><span class="fu">plotOptions</span>({</span>
@@ -638,7 +638,7 @@ Authors: Apurva Nakade
 </tr>
 <tr class="even">
 <td><a href="https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd">observable-plot.qmd</a></td>
-<td>Observable Plot with a fullscreen button</td>
+<td>Observable Plot in a chart block, with the SVG modebar every Plot chart gets</td>
 </tr>
 <tr class="odd">
 <td><a href="https://github.com/apurvanakade/mathviz/blob/main/starter/draggable-points.qmd">draggable-points.qmd</a></td>

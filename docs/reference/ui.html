@@ -1268,7 +1268,7 @@ Authors: Apurva Nakade
 </section>
 <section id="when-added" class="level2">
 <h2 class="anchored" data-anchor-id="when-added">Watching for new elements</h2>
-<p>OJS creates – and recreates – inputs, legends and figures long after the page loads, so mathviz’s self-installing pieces (the play buttons, the slider track fill, the draggable legend, the SVG fullscreen button) wait for them with one shared watcher instead of a <code>MutationObserver</code> each.</p>
+<p>OJS creates – and recreates – inputs, legends and figures long after the page loads, so mathviz’s self-installing pieces (the play buttons, the slider track fill, the draggable legend, the SVG modebar) wait for them with one shared watcher instead of a <code>MutationObserver</code> each.</p>
 <section id="whenAdded" class="level3">
 <h3 class="anchored" data-anchor-id="whenAdded">VM.ui.whenAdded(selector, enhance, opts?)</h3>
 <p>Calls <code>enhance</code> on every element matching <code>selector</code> now (at <code>DOMContentLoaded</code> if the page is still loading) and again whenever the DOM changes, with at most one query per selector per animation frame – however many nodes a Plotly redraw adds. The pass runs before the frame is painted, so an enhancement never shows up a frame late. <code>enhance</code> sees the same element on every pass, so it must be idempotent: mark what it did (a <code>data-*</code> attribute) and return early.</p>

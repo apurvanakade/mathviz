@@ -490,7 +490,7 @@ Authors: Apurva Nakade
 <p><strong>Outside a distribution’s support you get <code>0</code>.</strong> Never <code>NaN</code>, so a slider at an invalid parameter flattens a curve rather than breaking the chart.</p>
 <p><strong>math.js is passed in, not imported.</strong> <code>VM.expressions.*</code> and <code>polynomialFit</code> take the math.js instance as their first argument – the global <code>math</code> on a page rendered through the extension. The one exception is <code>makeRational</code>, which parses literals only and takes no instance.</p>
 <p><strong>Colors are read when you ask, not when the page loads.</strong> <code>colors()</code>, <code>alpha()</code> and the three <code>discreteMath</code> color helpers return whatever the active theme says right now. Call them inside the cell that builds the traces, and make that cell depend on <code>vmTheme</code> so it re-runs on a toggle – see <a href="../../docs/reference/plotting.html#onThemeChange"><code>onThemeChange</code></a>.</p>
-<p><strong>Self-installing modules take no call.</strong> The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the <a href="../../docs/markup.html">markup contract</a>.</p>
+<p><strong>Self-installing modules take no call.</strong> The Plotly patch, slider playback, the draggable legend, the SVG modebar and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the <a href="../../docs/markup.html">markup contract</a>.</p>
 </section>
 <section id="what-needs-what" class="level2">
 <h2 class="anchored" data-anchor-id="what-needs-what">What needs what</h2>
@@ -556,7 +556,7 @@ Authors: Apurva Nakade
 <td>views that follow Observable Inputs’ <code>value</code> + <code>"input"</code> protocol</td>
 </tr>
 <tr class="even">
-<td>slider playback, draggable legend, SVG fullscreen button, slider fill</td>
+<td>slider playback, draggable legend, SVG modebar, slider fill</td>
 <td>nothing – self-installing on the <a href="../../docs/markup.html">markup</a> they look for</td>
 </tr>
 </tbody>
