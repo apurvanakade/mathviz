@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-11-16
+
 ### Added
 
 - `quiet-apps: true`, an opt-in look for prose-first sites: every `.vm-app` is drawn without panel boxes or a legend frame, its readouts as inline label/value pairs split by hairlines, the slider bar's labels above their controls and a panel grid of sliders in the bar's columns, so every control lines up down the app, and the Share button shows on hover.
@@ -539,7 +541,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/apurvanakade/mathviz/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/apurvanakade/mathviz/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/apurvanakade/mathviz/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/apurvanakade/mathviz/compare/v1.5.1...v1.5.2
