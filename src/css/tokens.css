@@ -52,6 +52,14 @@
    * a floating card): --vm-shadow is a whole box-shadow and can't be reused
    * at another size. */
   --vm-shadow-color: rgba(28, 31, 35, 0.10);
+  /* How far below a chart's top edge a top-right legend starts, so it
+   * clears the Plotly modebar that shares that corner: the bar's bottom
+   * edge is 32px down (Plotly's 2px inset plus a 30px bar -- in px, not
+   * rem, because Plotly's own 22px .modebar-btn rule out-specifies
+   * modebar.css's button height), then an 8px gap. Measured, not derived,
+   * and npm run test:layout checks it against the drawn modebar. A site
+   * that restyles the modebar redeclares this to match. */
+  --vm-modebar-clearance: 40px;
 
   /* Controls. One height for every control a panel holds -- text field,
    * number readout, select, button -- so a row of mixed controls lines up

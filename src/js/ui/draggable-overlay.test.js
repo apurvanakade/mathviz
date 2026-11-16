@@ -82,3 +82,24 @@ test('overlayChartId prefers the block id, else labels and occurrence', () => {
   assert.equal(VM.ui.overlayChartId({id: '', labels: ['f', 'tangent'], occurrence: 1}), 'f|tangent#1')
   assert.equal(VM.ui.overlayStorageKey('/p/', 'legend', 'f|tangent#0'), 'vml-overlay-pos:/p/:legend:f|tangent#0')
 })
+
+// A modebar 250x40 in the top-right of the same 800x400 chart.
+const modebar = {left: 550, top: 0, right: 800, bottom: 40}
+
+test('clampOverlayOffset leaves a panel clear of the avoided box alone', () => {
+  assert.deepEqual(clampOverlayOffset({...legend, avoid: modebar, dx: 100, dy: 0}), {dx: 100, dy: 0})
+})
+
+test('clampOverlayOffset moves a panel dragged under the modebar the shortest way out', () => {
+  // At dx 588 the panel spans x 600..800, y 12..132: left is 250px away,
+  // down is 28px, so it goes down to the modebar's bottom edge.
+  assert.deepEqual(clampOverlayOffset({...legend, avoid: modebar, dx: 588, dy: 0}), {dx: 588, dy: 28})
+  // Overlapping by 10px at the modebar's left edge: left is the short way.
+  assert.deepEqual(clampOverlayOffset({...legend, avoid: modebar, dx: 348, dy: 0}), {dx: 338, dy: 0})
+})
+
+test('clampOverlayOffset leaves the overlap when no move clears it in bounds', () => {
+  const tight = {...legend, containerHeight: 150, containerWidth: 220}
+  const box = {left: 0, top: 0, right: 220, bottom: 40}
+  assert.deepEqual(clampOverlayOffset({...tight, avoid: box, dx: 0, dy: 0}), {dx: 0, dy: 0})
+})

@@ -67,14 +67,48 @@
    * @param {number} args.height
    * @param {number} args.containerWidth - The chart block's size.
    * @param {number} args.containerHeight
+   * @param {{left: number, top: number, right: number, bottom: number}|null} [args.avoid=null]
+   *   A rectangle the panel must not overlap (the modebar), in the same
+   *   coordinates as `offsetLeft`/`offsetTop`.
    * @returns {{dx: number, dy: number}} A panel larger than its container
-   *   is pinned to the near edge rather than given a crossed range.
+   *   is pinned to the near edge rather than given a crossed range. A panel
+   *   that overlaps `avoid` is moved the shortest distance -- down, up, left
+   *   or right -- that clears it and stays in bounds; when no such move
+   *   exists it is left overlapping.
    */
-  const clampOverlayOffset = ({dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight}) => {
-    return {
-      dx: clampValue(dx, -offsetLeft, containerWidth - offsetLeft - width),
-      dy: clampValue(dy, -offsetTop, containerHeight - offsetTop - height)
+  const clampOverlayOffset = ({dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight, avoid = null}) => {
+    const minX = -offsetLeft
+    const maxX = containerWidth - offsetLeft - width
+    const minY = -offsetTop
+    const maxY = containerHeight - offsetTop - height
+    const offset = {dx: clampValue(dx, minX, maxX), dy: clampValue(dy, minY, maxY)}
+    if (!avoid) return offset
+
+    // The modebar shares the chart's top-right corner, paints above the
+    // legend and appears on hover, so a legend dragged under it loses its
+    // top rows to it -- the overlap the corner option's CSS avoids at rest.
+    const left = offsetLeft + offset.dx
+    const top = offsetTop + offset.dy
+    const overlaps = left < avoid.right && left + width > avoid.left && top < avoid.bottom && top + height > avoid.top
+    if (!overlaps) return offset
+
+    const candidates = [
+      {dx: offset.dx, dy: avoid.bottom - offsetTop},
+      {dx: offset.dx, dy: avoid.top - offsetTop - height},
+      {dx: avoid.left - offsetLeft - width, dy: offset.dy},
+      {dx: avoid.right - offsetLeft, dy: offset.dy}
+    ]
+    let best = null
+    let bestDistance = Infinity
+    for (const candidate of candidates) {
+      if (candidate.dx < minX || candidate.dx > maxX || candidate.dy < minY || candidate.dy > maxY) continue
+      const distance = Math.abs(candidate.dx - offset.dx) + Math.abs(candidate.dy - offset.dy)
+      if (distance < bestDistance) {
+        best = candidate
+        bestDistance = distance
+      }
     }
+    return best ?? offset
   }
 
   // One key per panel per chart per page. The vml- prefix matches the site's
@@ -191,6 +225,27 @@
     // completely different shape, permanently rewrote the saved position.
     let desired = readStored(key) ?? {dx: 0, dy: 0}
 
+    // The modebar's box in the panel's layout coordinates (relative to its
+    // offsetParent), padded by a small gap, or null when the chart has none.
+    // Measured on every apply: Plotly draws it after the legend is enhanced,
+    // and it moves with every resize. Its opacity is 0 at rest, but it is
+    // still laid out, so the rect is real.
+    const modebarBox = () => {
+      const modebar = container.querySelector(".modebar")
+      const parent = panel.offsetParent
+      if (!modebar || !parent) return null
+      const bar = modebar.getBoundingClientRect()
+      if (bar.width === 0 || bar.height === 0) return null
+      const origin = parent.getBoundingClientRect()
+      const gap = 4
+      return {
+        left: bar.left - origin.left - gap,
+        top: bar.top - origin.top - gap,
+        right: bar.right - origin.left + gap,
+        bottom: bar.bottom - origin.top + gap
+      }
+    }
+
     const apply = () => {
       const offset = clampOverlayOffset({
         dx: desired.dx,
@@ -200,7 +255,8 @@
         width: panel.offsetWidth,
         height: panel.offsetHeight,
         containerWidth: container.clientWidth,
-        containerHeight: container.clientHeight
+        containerHeight: container.clientHeight,
+        avoid: modebarBox()
       })
       if (offset.dx === 0 && offset.dy === 0) panel.style.transform = ""
       else panel.style.transform = `translate(${offset.dx}px, ${offset.dy}px)`

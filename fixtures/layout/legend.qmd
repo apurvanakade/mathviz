@@ -1,0 +1,60 @@
+---
+title: "Legend corners"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- VM.ui.legendOverlay in both corners over a Plotly chart with its
+     modebar. The check hovers each chart (which shows the modebar) and
+     asserts the legend and the modebar don't overlap and that every legend
+     row can be clicked, then drags the top-left legend onto the modebar and
+     asserts it is moved clear. -->
+
+```{ojs}
+//| output: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+leftPlot = VM.plotting.persistentPlot({height: "360px"})
+rightPlot = VM.plotting.persistentPlot({height: "360px"})
+```
+
+```{ojs}
+//| output: false
+traces = {
+  const xs = Array.from({length: 101}, (_, i) => -3 + 6 * i / 100)
+  return [
+    {name: "first", x: xs, y: xs.map(x => Math.exp(-x * x / 2)), line: {color: chartColors.fn}},
+    {name: "second", x: xs, y: xs.map(x => Math.exp(-((x - 1) ** 2) / 2)), line: {color: chartColors.alt}},
+    {name: "third", x: xs, y: xs.map(x => Math.exp(-((x + 1) ** 2) / 2)), line: {color: chartColors.ok}}
+  ]
+}
+```
+
+<div class="ojs-chart-block" id="legend-left">
+
+```{ojs}
+viewof leftShown = VM.ui.legendOverlay(traces.map(t => ({label: t.name, color: t.line.color})))
+```
+
+```{ojs}
+leftPlot(traces.map(t => ({...t, visible: leftShown.includes(t.name) ? true : "legendonly"})), {showlegend: false})
+```
+
+</div>
+
+<div class="ojs-chart-block" id="legend-right">
+
+```{ojs}
+viewof rightShown = VM.ui.legendOverlay(traces.map(t => ({label: t.name, color: t.line.color})), {corner: "top-right"})
+```
+
+```{ojs}
+rightPlot(traces.map(t => ({...t, visible: rightShown.includes(t.name) ? true : "legendonly"})), {showlegend: false})
+```
+
+</div>

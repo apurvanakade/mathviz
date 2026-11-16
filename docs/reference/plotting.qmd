@@ -234,7 +234,7 @@ Dragging rotates the scene about its vertical axis (`turntable`, Plotly's own 3-
 
 **Returns** `(data, layout, config?) => HTMLElement`, with a `div` property, as for `persistentPlot`. Needs `window.Plotly`.
 
-### VM.plotting.plotWithLegend(plot, data, layout) {#plotWithLegend}
+### VM.plotting.plotWithLegend(plot, data, layout, opts?) {#plotWithLegend}
 
 For a figure with no controls of its own: draws the chart with a [`VM.ui.legendOverlay`](ui.qmd#legendOverlay) over it instead of Plotly's legend, and returns both wrapped in an `.ojs-chart-block`, in one cell. Clicking a row hides or shows every trace of that name (as `visible: "legendonly"`, so every trace keeps its index and its colorway color); unnamed traces and `showlegend: false` ones are always drawn. Hiding a trace never rescales the chart or moves its grid: the first click pins every axis at the range it had with all traces shown (see [`lockedAxes`](#lockedAxes)), and a new call -- new data, a theme toggle -- starts unpinned again. It is the three-cell `viewof` wiring the legend's reference shows, for pages with many such figures.
 
@@ -250,6 +250,7 @@ VM.plotting.plotWithLegend(figPlot, traces, {xaxis: {title: "n"}})
 | `plot` | `(data, layout) => HTMLElement` | A chart function, such as `persistentPlot()`'s return value. |
 | `data` | `Object[]` | Plotly traces. |
 | `layout` | `Object` | Plotly layout; `showlegend` is forced `false`. |
+| `opts.corner` | `"top-left"` \| `"top-right"` | Passed to [`legendOverlay`](ui.qmd#legendOverlay): which top corner the legend starts in. Default `"top-left"`. |
 
 **Returns** the `div.ojs-chart-block`: a div holding the legend, then the one `plot` returned. With no named traces it holds only the chart. The legend hides below a 600px-wide chart, like every overlay legend, and then every trace is drawn. A simple figure is better drawn with Observable Plot and a [static key](ui.qmd#staticKey), which stays visible at every width (see [Plotly or Observable Plot](../first-chart.qmd#plotly-or-observable-plot)).
 

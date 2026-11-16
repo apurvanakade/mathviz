@@ -60,6 +60,7 @@ Live: each swatch is the value your browser computes for the token **right now**
     ["--vm-radius", "panel and popover corners -- same in both themes"],
     ["--vm-radius-sm", "inputs, buttons, the legend grip -- same in both themes"],
     ["--vm-shadow", "legend, popover, modebar pill"],
+    ["--vm-modebar-clearance", "how far below the chart's top a <code>corner: \"top-right\"</code> legend starts, so it clears the Plotly modebar in that corner -- same in both themes. Redeclare it if you restyle the modebar"],
     ["--vm-shadow-color", "nothing in mathviz: the bare shadow colour, for a page's own larger shadows (a hover lift, a floating card), since --vm-shadow is a whole box-shadow"],
     ["--vm-font-sans", "chart text and the playback popover -- same in both themes. Redeclare it if your site self-hosts a font"],
     ["--vm-drag-point-size", "the dot <code>VM.plotting.draggablePoints</code> draws -- same in both themes. Its hit target stays larger"],

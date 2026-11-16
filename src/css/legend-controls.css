@@ -27,6 +27,17 @@
   max-width: min(220px, 45vw);
 }
 
+/* The top-right corner is shared with Plotly's modebar, which paints above
+ * the legend and fades in on hover -- just when the reader reaches for a
+ * row -- so a legend there starts below it (VM.ui.legendOverlay's corner
+ * option sets the class). The draggable-legend module also keeps a dragged
+ * legend off the modebar, so the reader can't put it back underneath. */
+.ojs-legend-overlay.ojs-legend-top-right {
+  top: var(--vm-modebar-clearance);
+  right: 0.75rem;
+  left: auto;
+}
+
 .ojs-legend-overlay .ojs-legend-item {
   display: flex;
   align-items: center;

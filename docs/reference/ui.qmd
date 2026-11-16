@@ -36,12 +36,13 @@ A floating legend of clickable swatch+label rows that toggles which traces a cha
 viewof shown = VM.ui.legendOverlay([{label: "f(x)", color: chartColors.fn}, {label: "f'(x)", color: chartColors.alt}])
 ```
 
-and `shown` is the array of checked labels. Put the cell inside the chart's `.ojs-chart-block`: the CSS floats it over the chart's top-left corner, and the draggable-legend module picks it up. For a Plotly figure with no controls, [`VM.plotting.plotWithLegend`](plotting.qmd#plotWithLegend) does this wiring in one cell; a simple figure is better drawn with Observable Plot and a [static key](#staticKey).
+and `shown` is the array of checked labels. Put the cell inside the chart's `.ojs-chart-block`: the CSS floats it over the chart's top-left corner (or, with `corner: "top-right"`, the top-right one, starting below the Plotly modebar that shares that corner), and the draggable-legend module picks it up. For a Plotly figure with no controls, [`VM.plotting.plotWithLegend`](plotting.qmd#plotWithLegend) does this wiring in one cell; a simple figure is better drawn with Observable Plot and a [static key](#staticKey).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `items` | `{label, color}[]` | | Rows, in display order. |
 | `options.value` | `string[]` | every label | The initially checked labels. |
+| `options.corner` | `"top-left"` \| `"top-right"` | `"top-left"` | Which top corner the legend starts in. Use `"top-right"` rather than moving the legend with a CSS rule of your own: it starts below the modebar (by [`--vm-modebar-clearance`](../theming.qmd)), which otherwise covers the legend's top rows whenever the reader hovers the chart. Any other value throws a `RangeError`. |
 
 **Returns** an `HTMLDivElement` (`div.ojs-legend-overlay`) with:
 
@@ -83,7 +84,7 @@ viewof legendShown = VM.ui.legendOverlay([
 legendShown
 ```
 
-Try dragging the legend by its grip (appears on hover), then reload -- the position is remembered.
+Try dragging the legend by its grip (appears on hover), then reload -- the position is remembered. A legend dragged onto the modebar is moved just clear of it.
 
 ### VM.ui.staticKey(items, options?) {#staticKey}
 
@@ -145,9 +146,9 @@ The grip on the legend above is added by a self-installing module. It clamps the
 
 ### VM.ui.clampOverlayOffset({…}) {#clampOverlayOffset}
 
-Clamps a proposed drag offset so no part of the panel leaves its container. Takes one object: `{dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight}`. `dx`/`dy` are the proposed offset; `offsetLeft`/`offsetTop` the panel's **layout** position (transforms don't affect layout, so they stay a fixed reference); `width`/`height` the panel's size; `containerWidth`/`containerHeight` the block's.
+Clamps a proposed drag offset so no part of the panel leaves its container. Takes one object: `{dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight}`. `dx`/`dy` are the proposed offset; `offsetLeft`/`offsetTop` the panel's **layout** position (transforms don't affect layout, so they stay a fixed reference); `width`/`height` the panel's size; `containerWidth`/`containerHeight` the block's. An optional `avoid: {left, top, right, bottom}`, in the same coordinates as `offsetLeft`/`offsetTop`, is a box the panel must not overlap -- the module passes the modebar's.
 
-**Returns** `{dx, dy}`. A panel larger than its container is pinned to the near edge rather than given a crossed range.
+**Returns** `{dx, dy}`. A panel larger than its container is pinned to the near edge rather than given a crossed range. A panel overlapping `avoid` is moved the shortest distance (down, up, left or right) that clears it and stays in bounds, or left where it is when no such move exists.
 
 ### VM.ui.overlayStorageKey(pathname, role, id) {#overlayStorageKey}
 
