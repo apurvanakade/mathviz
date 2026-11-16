@@ -1215,6 +1215,25 @@ async function modebarProblems(page) {
     await page.evaluate(() => document.fullscreenElement && document.exitFullscreen())
     await page.waitForTimeout(300)
   }
+  // A Plotly block that also holds a Plot chart is fullscreened by Plotly's
+  // own button and laid out by the Plotly chain alone. With the SVG chain
+  // also applying, the two fought and the Plot figure collapsed to 0x0 below
+  // the screen.
+  await page.locator('#plotly .js-plotly-plot').hover()
+  await page.locator('#plotly .modebar-btn[data-title="Toggle fullscreen"]').click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(500)
+  const plotlyProblem = await page.evaluate(() => {
+    const block = document.querySelector('#plotly .ojs-chart-block')
+    if (document.fullscreenElement !== block) return 'Plotly\'s fullscreen button did not fullscreen its block'
+    const figure = block.querySelector('svg.vm-fs-figure').getBoundingClientRect()
+    if (figure.width < 1 || figure.height < 1 || figure.bottom > window.innerHeight + 1) {
+      return `the Plot figure is not on screen in fullscreen (${Math.round(figure.width)}x${Math.round(figure.height)} at top ${Math.round(figure.top)})`
+    }
+    return null
+  })
+  if (plotlyProblem) problems.push(`#plotly: ${plotlyProblem}`)
+  await page.evaluate(() => document.fullscreenElement && document.exitFullscreen())
+  await page.waitForTimeout(300)
   return problems
 }
 
