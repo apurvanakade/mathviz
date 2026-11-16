@@ -21,8 +21,7 @@
 //
 // It can't tell whether the prose describing a name is still true -- a
 // changed value or behaviour under an unchanged name. That still needs a
-// read of the diff against the guide before a sync is merged: step 4 of
-// .claude/skills/land-pr/SKILL.md.
+// read of the diff against the guide before a change is merged.
 
 import test from 'node:test'
 import assert from 'node:assert/strict'

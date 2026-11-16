@@ -7,7 +7,7 @@
 # new version and bumps the install snippets; this workflow rebuilds, tests,
 # and opens the PR on release/vX.Y.Z.
 #
-# The PR lands like any other (the land-pr skill), and nothing merges itself.
+# The release PR is reviewed and merged like any other.
 # When it reaches main, tag-release.yml sees the new version and tags it.
 #
 # The branch is pushed and the PR opened with RELEASE_TOKEN, a fine-grained
