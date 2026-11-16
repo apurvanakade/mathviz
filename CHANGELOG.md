@@ -18,7 +18,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 - `VM.ui.statRow` belongs under its chart: inside an `.ojs-chart-block` the row is always drawn after the chart, whatever order the cells come in, with a gap above it under an Observable Plot chart as well as a Plotly one. The reference no longer suggests putting it between the controls panel and the chart. A row outside a chart block is unchanged; move it into the block to get it under the chart and into fullscreen.
 
-- The starter shows every feature: new pages for panel layouts and every input (`panels.qmd`), static keys, stat rows, a top-right legend and SVG modebars (`readouts.qmd`), color words and the theme's prose (`prose.qmd`), and a listing of every page with a category cloud (`gallery.qmd`). Its `_quarto.yml` now uses the mathviz theme and turns on every site option (fonts, sidebar rail and search, embed, Share, Report bug), with sidebar navigation for the rail; set `share: site-url` and `report-bug: repo` to your own when you copy it.
+- The starter shows every feature: new pages for panel layouts and every input (`panels.qmd`), static keys, stat rows, a top-right legend and SVG modebars (`readouts.qmd`), color words and the theme's prose (`prose.qmd`), the `quiet-apps` look on one page (`quiet-apps.qmd`), and a listing of every page with a category cloud (`gallery.qmd`). Its `_quarto.yml` now uses the mathviz theme and turns on every site option (fonts, sidebar rail and search, embed, Share, Report bug), with sidebar navigation for the rail; set `share: site-url` and `report-bug: repo` to your own when you copy it.
 
 ### Fixed
 

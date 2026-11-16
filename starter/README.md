@@ -39,11 +39,12 @@ The pages, simplest first:
 | `panels.qmd` | every panel layout class (`ojs-row`, `ojs-grid`, `ojs-fill`, `ojs-auto`, `ojs-end`) and every kind of input; a bar of sliders, one without a play button |
 | `readouts.qmd` | a static key and a stat row under a chart; a legend in the top-right corner; a hand-built SVG with the modebar, and a chart without one |
 | `prose.qmd` | color words that match their traces; callouts, a theorem, a table and a figure in the theme; one app to embed |
+| `quiet-apps.qmd` | the unboxed look for prose-first sites (`quiet-apps`), on this page alone |
 | `gallery.qmd` | a card for every page, with a category cloud |
 
 Each file starts with a comment saying what it demonstrates and where the relevant documentation is.
 
-`_quarto.yml` turns on every site option (theme, fonts, sidebar rail and search, embed, Share, Report bug), each with a comment; `banner.html` is a note of the site's own that embedded apps hide. Delete what you don't want.
+`_quarto.yml` turns on every site option (theme, fonts, sidebar rail and search, embed, Share, Report bug), each with a comment, and two pages turn on one for themselves (`category-cloud`, `quiet-apps`); `banner.html` is a note of the site's own that embedded apps hide. Delete what you don't want.
 
 ## Make it yours
 

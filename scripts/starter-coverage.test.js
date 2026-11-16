@@ -176,8 +176,13 @@ test('starter/_quarto.yml turns on every key in site.qmd\'s "All the keys", and 
   const yaml = block.slice(block.indexOf('```yaml'), block.indexOf('```', block.indexOf('```yaml') + 7))
   const keys = matchesOf(yaml, /^ {2}([a-z-]+):/gm)
   assert.ok(keys.length > 3, `parsed only ${JSON.stringify(keys)} from site.qmd's key block`)
-  // category-cloud may be on for its one page only, through mathviz-page:.
-  const missing = keys.filter(key => !new RegExp(`^\\s*${key}:`, 'm').test(key === 'category-cloud' ? starter : config))
+  // A key may be on for one page only, through that page's mathviz-page:
+  // (category-cloud on the listing; quiet-apps, which would otherwise
+  // replace the boxed look on every page).
+  const pageOptions = starterFiles.slice(1)
+    .map(name => (read(`starter/${name}`).match(/^---\n[\s\S]*?\nmathviz-page:\n((?: {2}.*\n)+)/) || [])[1] || '')
+    .join('')
+  const missing = keys.filter(key => !new RegExp(`^\\s*${key}:`, 'm').test(config + pageOptions))
   assert.deepEqual(missing, [])
   for (const file of ['mathviz-light.scss', 'mathviz-dark.scss']) {
     assert.ok(config.includes(`theme/${file}`), `starter/_quarto.yml doesn't use theme/${file}`)

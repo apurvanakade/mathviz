@@ -6,8 +6,10 @@
 # `quarto preview`, and you have a working site; copy any page to start a
 # new one. See README.md.
 #
-# Every option mathviz has is on here, so every feature shows somewhere on
-# the site. Each is optional: delete the ones you don't want.
+# Every option mathviz has is on here, or on the one page it suits
+# (category-cloud on gallery.qmd, quiet-apps on quiet-apps.qmd), so every
+# feature shows somewhere on the site. Each is optional: delete the ones
+# you don't want.
 project:
   type: website
   output-dir: _site
@@ -74,6 +76,7 @@ website:
             - panels.qmd
             - readouts.qmd
             - prose.qmd
+            - quiet-apps.qmd
 
 format:
   html:
