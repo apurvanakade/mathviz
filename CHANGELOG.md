@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-11-16
+
 ### Added
 
 - `VM.ui.legendOverlay(items, {corner: "top-right"})` (and `plotWithLegend`'s new `opts.corner`) starts the legend in the chart's top-right corner, below the Plotly modebar, by the new `--vm-modebar-clearance` token. A legend moved there with a page's own `right:` rule sat under the modebar, which covered its top rows whenever the reader hovered the chart.
@@ -523,7 +525,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/apurvanakade/mathviz/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/apurvanakade/mathviz/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/apurvanakade/mathviz/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/apurvanakade/mathviz/compare/v1.5.0...v1.5.1
