@@ -32,17 +32,34 @@
    * @param {Object} [options]
    * @param {string[]} [options.value] - The initially checked labels; every
    *   label by default.
+   * @param {"top-left"|"top-right"} [options.corner="top-left"] - Which top
+   *   corner of the chart the legend starts in. `"top-right"` starts it
+   *   below the Plotly modebar (`--vm-modebar-clearance`), which shares
+   *   that corner. Any other value throws a `RangeError`.
    * @returns {HTMLDivElement} A `div.ojs-legend-overlay` with a `value`
    *   accessor (`string[]`, in `items` order, each label once; the setter
    *   accepts any iterable, or `null` to clear) that dispatches a bubbling `"input"`
    *   event on each user toggle -- but not on a programmatic set, matching
    *   Observable Inputs. Uses only DOM APIs; no `htl`/`Inputs` dependency.
    */
+  // The top-right corner is also where Plotly pins its modebar, which sits
+  // above the legend (z-index 1001) and appears on hover -- exactly when the
+  // reader reaches for a legend row -- so a legend moved there by a page's
+  // own `right:` rule lost its top rows to the modebar. The corner is an
+  // option instead, so the CSS can start a right-hand legend below the
+  // modebar in one place (legend-controls.css). Only the top corners: the
+  // bottom ones sit on the x-axis tick labels.
+  const CORNERS = ["top-left", "top-right"]
+
   const legendOverlay = (items, options = {}) => {
+    const corner = options.corner ?? "top-left"
+    if (!CORNERS.includes(corner)) {
+      throw new RangeError(`legendOverlay: corner must be one of ${CORNERS.join(", ")}, got ${JSON.stringify(corner)}`)
+    }
     const selected = new Set(options.value ?? items.map(item => item.label))
 
     const root = document.createElement("div")
-    root.className = "ojs-legend-overlay"
+    root.className = corner === "top-right" ? "ojs-legend-overlay ojs-legend-top-right" : "ojs-legend-overlay"
 
     // Every row is kept, not one per label: two items with the same label
     // toggle together, and both have to show it.

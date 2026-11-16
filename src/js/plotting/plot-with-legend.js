@@ -98,11 +98,14 @@
    *   function such as `VM.plotting.persistentPlot()`'s return value.
    * @param {Object[]} data - Plotly traces.
    * @param {Object} layout - Plotly layout; `showlegend` is forced `false`.
+   * @param {Object} [opts]
+   * @param {"top-left"|"top-right"} [opts.corner="top-left"] - Passed to
+   *   `VM.ui.legendOverlay`: which top corner the legend starts in.
    * @returns {HTMLDivElement} The `.ojs-chart-block`: a div holding the
    *   legend, then the one `plot` returned. With no legend rows, the block
    *   holds only the chart.
    */
-  const plotWithLegend = (plot, data, layout) => {
+  const plotWithLegend = (plot, data, layout, opts = {}) => {
     const items = legendItems(data, layout?.colorway ?? globalThis.VM.plotting.colorway())
     const block = document.createElement("div")
     block.className = "ojs-chart-block"
@@ -111,7 +114,7 @@
       block.append(plot(data, quietLayout))
       return block
     }
-    const legend = globalThis.VM.ui.legendOverlay(items)
+    const legend = globalThis.VM.ui.legendOverlay(items, {corner: opts.corner})
     let div = null
     let pinnedLayout = quietLayout
     // Hidden traces stay in the array as "legendonly" rather than being

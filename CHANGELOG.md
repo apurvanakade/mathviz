@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.ui.legendOverlay(items, {corner: "top-right"})` (and `plotWithLegend`'s new `opts.corner`) starts the legend in the chart's top-right corner, below the Plotly modebar, by the new `--vm-modebar-clearance` token. A legend moved there with a page's own `right:` rule sat under the modebar, which covered its top rows whenever the reader hovered the chart.
+
+### Fixed
+
+- Draggable legend: a legend dragged onto the modebar, or restored there from a saved position, is moved just clear of it instead of sitting underneath it.
+
 ## [1.6.0] - 2026-11-16
 
 ### Added

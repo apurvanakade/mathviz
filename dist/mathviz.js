@@ -2457,11 +2457,14 @@
    *   function such as `VM.plotting.persistentPlot()`'s return value.
    * @param {Object[]} data - Plotly traces.
    * @param {Object} layout - Plotly layout; `showlegend` is forced `false`.
+   * @param {Object} [opts]
+   * @param {"top-left"|"top-right"} [opts.corner="top-left"] - Passed to
+   *   `VM.ui.legendOverlay`: which top corner the legend starts in.
    * @returns {HTMLDivElement} The `.ojs-chart-block`: a div holding the
    *   legend, then the one `plot` returned. With no legend rows, the block
    *   holds only the chart.
    */
-  const plotWithLegend = (plot, data, layout) => {
+  const plotWithLegend = (plot, data, layout, opts = {}) => {
     const items = legendItems(data, layout?.colorway ?? globalThis.VM.plotting.colorway())
     const block = document.createElement("div")
     block.className = "ojs-chart-block"
@@ -2470,7 +2473,7 @@
       block.append(plot(data, quietLayout))
       return block
     }
-    const legend = globalThis.VM.ui.legendOverlay(items)
+    const legend = globalThis.VM.ui.legendOverlay(items, {corner: opts.corner})
     let div = null
     let pinnedLayout = quietLayout
     // Hidden traces stay in the array as "legendonly" rather than being
@@ -6874,17 +6877,34 @@
    * @param {Object} [options]
    * @param {string[]} [options.value] - The initially checked labels; every
    *   label by default.
+   * @param {"top-left"|"top-right"} [options.corner="top-left"] - Which top
+   *   corner of the chart the legend starts in. `"top-right"` starts it
+   *   below the Plotly modebar (`--vm-modebar-clearance`), which shares
+   *   that corner. Any other value throws a `RangeError`.
    * @returns {HTMLDivElement} A `div.ojs-legend-overlay` with a `value`
    *   accessor (`string[]`, in `items` order, each label once; the setter
    *   accepts any iterable, or `null` to clear) that dispatches a bubbling `"input"`
    *   event on each user toggle -- but not on a programmatic set, matching
    *   Observable Inputs. Uses only DOM APIs; no `htl`/`Inputs` dependency.
    */
+  // The top-right corner is also where Plotly pins its modebar, which sits
+  // above the legend (z-index 1001) and appears on hover -- exactly when the
+  // reader reaches for a legend row -- so a legend moved there by a page's
+  // own `right:` rule lost its top rows to the modebar. The corner is an
+  // option instead, so the CSS can start a right-hand legend below the
+  // modebar in one place (legend-controls.css). Only the top corners: the
+  // bottom ones sit on the x-axis tick labels.
+  const CORNERS = ["top-left", "top-right"]
+
   const legendOverlay = (items, options = {}) => {
+    const corner = options.corner ?? "top-left"
+    if (!CORNERS.includes(corner)) {
+      throw new RangeError(`legendOverlay: corner must be one of ${CORNERS.join(", ")}, got ${JSON.stringify(corner)}`)
+    }
     const selected = new Set(options.value ?? items.map(item => item.label))
 
     const root = document.createElement("div")
-    root.className = "ojs-legend-overlay"
+    root.className = corner === "top-right" ? "ojs-legend-overlay ojs-legend-top-right" : "ojs-legend-overlay"
 
     // Every row is kept, not one per label: two items with the same label
     // toggle together, and both have to show it.
@@ -7172,14 +7192,48 @@
    * @param {number} args.height
    * @param {number} args.containerWidth - The chart block's size.
    * @param {number} args.containerHeight
+   * @param {{left: number, top: number, right: number, bottom: number}|null} [args.avoid=null]
+   *   A rectangle the panel must not overlap (the modebar), in the same
+   *   coordinates as `offsetLeft`/`offsetTop`.
    * @returns {{dx: number, dy: number}} A panel larger than its container
-   *   is pinned to the near edge rather than given a crossed range.
+   *   is pinned to the near edge rather than given a crossed range. A panel
+   *   that overlaps `avoid` is moved the shortest distance -- down, up, left
+   *   or right -- that clears it and stays in bounds; when no such move
+   *   exists it is left overlapping.
    */
-  const clampOverlayOffset = ({dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight}) => {
-    return {
-      dx: clampValue(dx, -offsetLeft, containerWidth - offsetLeft - width),
-      dy: clampValue(dy, -offsetTop, containerHeight - offsetTop - height)
+  const clampOverlayOffset = ({dx, dy, offsetLeft, offsetTop, width, height, containerWidth, containerHeight, avoid = null}) => {
+    const minX = -offsetLeft
+    const maxX = containerWidth - offsetLeft - width
+    const minY = -offsetTop
+    const maxY = containerHeight - offsetTop - height
+    const offset = {dx: clampValue(dx, minX, maxX), dy: clampValue(dy, minY, maxY)}
+    if (!avoid) return offset
+
+    // The modebar shares the chart's top-right corner, paints above the
+    // legend and appears on hover, so a legend dragged under it loses its
+    // top rows to it -- the overlap the corner option's CSS avoids at rest.
+    const left = offsetLeft + offset.dx
+    const top = offsetTop + offset.dy
+    const overlaps = left < avoid.right && left + width > avoid.left && top < avoid.bottom && top + height > avoid.top
+    if (!overlaps) return offset
+
+    const candidates = [
+      {dx: offset.dx, dy: avoid.bottom - offsetTop},
+      {dx: offset.dx, dy: avoid.top - offsetTop - height},
+      {dx: avoid.left - offsetLeft - width, dy: offset.dy},
+      {dx: avoid.right - offsetLeft, dy: offset.dy}
+    ]
+    let best = null
+    let bestDistance = Infinity
+    for (const candidate of candidates) {
+      if (candidate.dx < minX || candidate.dx > maxX || candidate.dy < minY || candidate.dy > maxY) continue
+      const distance = Math.abs(candidate.dx - offset.dx) + Math.abs(candidate.dy - offset.dy)
+      if (distance < bestDistance) {
+        best = candidate
+        bestDistance = distance
+      }
     }
+    return best ?? offset
   }
 
   // One key per panel per chart per page. The vml- prefix matches the site's
@@ -7296,6 +7350,27 @@
     // completely different shape, permanently rewrote the saved position.
     let desired = readStored(key) ?? {dx: 0, dy: 0}
 
+    // The modebar's box in the panel's layout coordinates (relative to its
+    // offsetParent), padded by a small gap, or null when the chart has none.
+    // Measured on every apply: Plotly draws it after the legend is enhanced,
+    // and it moves with every resize. Its opacity is 0 at rest, but it is
+    // still laid out, so the rect is real.
+    const modebarBox = () => {
+      const modebar = container.querySelector(".modebar")
+      const parent = panel.offsetParent
+      if (!modebar || !parent) return null
+      const bar = modebar.getBoundingClientRect()
+      if (bar.width === 0 || bar.height === 0) return null
+      const origin = parent.getBoundingClientRect()
+      const gap = 4
+      return {
+        left: bar.left - origin.left - gap,
+        top: bar.top - origin.top - gap,
+        right: bar.right - origin.left + gap,
+        bottom: bar.bottom - origin.top + gap
+      }
+    }
+
     const apply = () => {
       const offset = clampOverlayOffset({
         dx: desired.dx,
@@ -7305,7 +7380,8 @@
         width: panel.offsetWidth,
         height: panel.offsetHeight,
         containerWidth: container.clientWidth,
-        containerHeight: container.clientHeight
+        containerHeight: container.clientHeight,
+        avoid: modebarBox()
       })
       if (offset.dx === 0 && offset.dy === 0) panel.style.transform = ""
       else panel.style.transform = `translate(${offset.dx}px, ${offset.dy}px)`

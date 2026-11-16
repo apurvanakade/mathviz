@@ -118,7 +118,7 @@ The library writes these itself; a page never authors them.
 
 | Class / property | Written by |
 |---|---|
-| `ojs-legend-overlay`, `ojs-legend-item`, `ojs-legend-swatch` | `VM.ui.legendOverlay` |
+| `ojs-legend-overlay`, `ojs-legend-item`, `ojs-legend-swatch`, `ojs-legend-top-right` | `VM.ui.legendOverlay` (the last for `corner: "top-right"`) |
 | `vm-static-key`, `vm-static-key-item` | `VM.ui.staticKey` (its swatch SVGs are excluded from the SVG modebar's figure and from centering) |
 | `vm-overlay-grip`, `vm-overlay-dragging`, `data-vm-draggable` | the draggable-legend module |
 | `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |

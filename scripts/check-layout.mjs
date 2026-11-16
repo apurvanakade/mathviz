@@ -43,7 +43,10 @@
 //     bar on the wrong host, not at the figure's corner, rebuilt by a
 //     re-run, shown on a chart that opted out, a Plotly block or a color
 //     legend; a bare Plot cell moved by it; fullscreen enlarging anything
-//     but the host, or not letterboxing the figure.
+//     but the host, or not letterboxing the figure;
+//   - an overlay legend under the Plotly modebar while the chart is
+//     hovered (a top-right one at rest, or any one dragged there), or a
+//     legend row the modebar keeps from being clicked.
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
 // of its pages and was cut back because a heavy page on a busy runner made
@@ -74,6 +77,8 @@ const pages = ['index.html', 'sliders.html', 'multi.html']
 const listingPages = ['cards.html']
 const pageOptionsPages = ['posts.html']
 const dragPages = ['drag.html']
+// Overlay legends in both top corners, against the Plotly modebar.
+const legendPages = ['legend.html']
 // Prose pages for the sidebar rail: one with a TOC under it, one that turns
 // it off with mathviz-page:.
 const railPages = ['rail-toc.html', 'no-rail.html']
@@ -1252,6 +1257,101 @@ async function checkModebarPage(context, base, relPath) {
   return errors
 }
 
+// The modebar and a legend's box, measured with the chart hovered (which is
+// when the modebar shows), plus whether each legend row is what a click on
+// its centre would hit -- a row under the modebar is not.
+async function legendBoxes(page, blockId) {
+  await page.locator(`#${blockId} .js-plotly-plot`).hover({ position: { x: 40, y: 200 } })
+  await page.waitForTimeout(300)
+  return page.evaluate((id) => {
+    const block = document.getElementById(id)
+    const legend = block.querySelector('.ojs-legend-overlay')
+    const modebar = block.querySelector('.modebar')
+    const box = (el) => {
+      const r = el.getBoundingClientRect()
+      return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }
+    }
+    const blocked = []
+    for (const row of legend?.querySelectorAll('.ojs-legend-item') ?? []) {
+      const r = row.getBoundingClientRect()
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+      if (!row.contains(hit)) blocked.push(row.textContent.trim())
+    }
+    return {
+      legend: legend ? box(legend) : null,
+      modebar: modebar ? box(modebar) : null,
+      modebarOpacity: modebar ? getComputedStyle(modebar).opacity : null,
+      blocked
+    }
+  }, blockId)
+}
+
+const overlap = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
+
+async function legendProblems(page, blockId, label) {
+  const problems = []
+  const boxes = await legendBoxes(page, blockId)
+  if (!boxes.legend) return [`${label}: no legend`]
+  if (!boxes.modebar) return [`${label}: no modebar`]
+  if (boxes.modebarOpacity !== '1') problems.push(`${label}: hovering the chart did not show the modebar (opacity ${boxes.modebarOpacity})`)
+  if (overlap(boxes.legend, boxes.modebar)) {
+    problems.push(`${label}: the legend ${JSON.stringify(boxes.legend)} overlaps the modebar ${JSON.stringify(boxes.modebar)}`)
+  }
+  if (boxes.blocked.length > 0) problems.push(`${label}: legend rows ${boxes.blocked.join(', ')} can't be clicked with the chart hovered`)
+  return problems
+}
+
+async function checkLegendPage(context, base, relPath) {
+  const errors = []
+  const page = await context.newPage()
+  page.on('pageerror', err => errors.push(`pageerror: ${err.message}`))
+  page.on('console', msg => {
+    if (msg.type() === 'error') errors.push(`console.error: ${msg.text()}`)
+  })
+  for (const problem of await load(page, base + relPath)) errors.push(problem)
+  const ready = await page.waitForFunction(() => document.querySelectorAll('.ojs-chart-block .js-plotly-plot').length === 2 &&
+      document.querySelectorAll('.ojs-legend-overlay[data-vm-draggable="1"]').length === 2,
+    null, { timeout: settleTimeoutMs, polling: 50 }).then(() => true, () => false)
+  if (!ready) {
+    errors.push('the two charts and their draggable legends never appeared')
+    await page.close()
+    return errors
+  }
+
+  // At rest: a top-left legend is left, a top-right one starts below the modebar.
+  for (const [id, label] of [['legend-left', 'top-left legend'], ['legend-right', 'top-right legend']]) {
+    for (const problem of await legendProblems(page, id, label)) errors.push(problem)
+  }
+  const left = await legendBoxes(page, 'legend-left')
+  const right = await legendBoxes(page, 'legend-right')
+  // --vm-modebar-clearance is a measured value; a modebar restyled taller
+  // or shorter has to take it along, or the legend sits under the bar or
+  // floats far below it.
+  if (right.legend && right.modebar) {
+    const gap = right.legend.top - right.modebar.bottom
+    if (gap > 16) errors.push(`the top-right legend starts ${Math.round(gap)}px below the modebar; --vm-modebar-clearance is out of date`)
+  }
+  if (left.legend && right.legend && right.legend.left <= left.legend.right) {
+    errors.push(`the top-right legend (left edge ${right.legend.left}) is not on the right of the chart`)
+  }
+
+  // Dragged onto the modebar: moved clear of it, and kept clear on reload.
+  const grip = page.locator('#legend-left .vm-overlay-grip')
+  await page.locator('#legend-left .ojs-legend-overlay').hover()
+  const gripBox = await grip.boundingBox()
+  if (!gripBox || !left.modebar) {
+    errors.push('no grip or modebar to drag the top-left legend onto')
+  } else {
+    await page.mouse.move(gripBox.x + gripBox.width / 2, gripBox.y + gripBox.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(left.modebar.right + 400, left.modebar.top, { steps: 8 })
+    await page.mouse.up()
+    for (const problem of await legendProblems(page, 'legend-left', 'top-left legend dragged onto the modebar')) errors.push(problem)
+  }
+  await page.close()
+  return errors
+}
+
 async function main() {
   if (!process.argv.includes('--no-render')) {
     render(siteDir)
@@ -1274,7 +1374,7 @@ async function main() {
   let failed = false
   try {
     const runs = [
-      ...[...pages, ...listingPages, ...dragPages, ...railPages, ...prosePages, ...modebarPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
+      ...[...pages, ...listingPages, ...dragPages, ...railPages, ...prosePages, ...modebarPages, ...legendPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
       ...pageOptionsPages.map((relPath) => [pageOptionsBase, relPath, 'fixtures/page-options/'])
     ]
     for (const [siteBase, relPath, label] of runs) {
@@ -1284,6 +1384,7 @@ async function main() {
       if (listingPages.includes(relPath)) check = checkCardsPage
       if (dragPages.includes(relPath)) check = checkDragPage
       if (modebarPages.includes(relPath)) check = checkModebarPage
+      if (legendPages.includes(relPath)) check = checkLegendPage
       if (siteBase === pageOptionsBase) check = checkPostsPage
       const errors = await check(context, siteBase, relPath)
       if (errors.length === 0) {

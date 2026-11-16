@@ -84,3 +84,23 @@ test('plotWithLegend hides a trace as legendonly, keeping every index', () => {
   VM.ui.legendOverlay = originalLegend
   globalThis.document.createElement = originalCreate
 })
+
+test('plotWithLegend passes its corner to the legend', () => {
+  const seen = []
+  const legendStub = (items, options) => {
+    seen.push(options.corner)
+    const el = new EventTarget()
+    el.value = []
+    return el
+  }
+  const originalLegend = VM.ui.legendOverlay
+  const originalCreate = globalThis.document.createElement
+  VM.ui.legendOverlay = legendStub
+  globalThis.document.createElement = () => ({ append () {}, className: '' })
+  const plot = () => ({})
+  VM.plotting.plotWithLegend(plot, [{name: 'a'}], {}, {corner: 'top-right'})
+  VM.plotting.plotWithLegend(plot, [{name: 'a'}], {})
+  assert.deepEqual(seen, ['top-right', undefined])
+  VM.ui.legendOverlay = originalLegend
+  globalThis.document.createElement = originalCreate
+})
