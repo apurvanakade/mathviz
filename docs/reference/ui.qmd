@@ -397,7 +397,7 @@ VM.ui.playbackTweenMs
 
 ## Watching for new elements {#when-added}
 
-OJS creates -- and recreates -- inputs, legends and figures long after the page loads, so mathviz's self-installing pieces (the play buttons, the slider track fill, the draggable legend, the SVG fullscreen button) wait for them with one shared watcher instead of a `MutationObserver` each.
+OJS creates -- and recreates -- inputs, legends and figures long after the page loads, so mathviz's self-installing pieces (the play buttons, the slider track fill, the draggable legend, the SVG modebar) wait for them with one shared watcher instead of a `MutationObserver` each.
 
 ### VM.ui.whenAdded(selector, enhance, opts?) {#whenAdded}
 

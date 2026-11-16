@@ -221,7 +221,7 @@
 
 // One shared watch for elements that appear after load. The self-installing
 // modules (slider play buttons, the slider track fill, the draggable legend,
-// the SVG fullscreen button) each enhance elements that Observable Inputs
+// the SVG modebar) each enhance elements that Observable Inputs
 // and OJS create -- and recreate -- long after the page loads, so each used
 // to run its own MutationObserver over the whole body. Three of the four
 // ran a querySelectorAll on every added node, synchronously: a Plotly
@@ -1580,8 +1580,9 @@
   /**
    * The fullscreen modebar button, in Plotly's custom-button shape. The
    * patch adds it to every chart; a page only touches this to reuse its
-   * glyph (`VM.plotting.fullscreenButton.icon`, as the SVG fullscreen
-   * button does) or to add it to a chart built outside the patch.
+   * glyph (`VM.plotting.fullscreenButton.icon`, as the SVG modebar's
+   * fullscreen button does) or to add it to a chart built outside the
+   * patch.
    *
    * Clicking fullscreens the nearest `.ojs-chart-block` (so the controls
    * bar and legend come along) or, without one, the graph div itself, and
@@ -1948,7 +1949,7 @@
   Object.assign((globalThis.VM ??= {}).plotting ??= {}, {fullscreenButton, installPlotlyPatch})
 })(window)
 
-// ---- src/js/plotting/svg-fullscreen-button.js ----
+// ---- src/js/plotting/svg-modebar.js ----
 ;
 /**
  * Copyright (c) 2026 Apurva Nakade. All rights reserved.
@@ -1957,46 +1958,69 @@
  */
 
 (function attachVM(globalThis) {
-  // A fullscreen button for chart blocks that draw inline SVG (Observable
-  // Plot, or a hand-built <svg>) instead of a Plotly chart. A Plotly chart
-  // gets one for free from the modebar that js/plotting/plotly-fullscreen-
-  // button.js patches onto every graph div; an SVG has no modebar, so the
-  // same affordance has to be added from outside. Both fullscreen the same
-  // .ojs-chart-block wrapper, so the slider bar above the picture comes
-  // along either way.
+  // The modebar of a chart drawn as inline SVG -- Observable Plot, or a
+  // hand-built <svg> -- the counterpart of the one plotly-fullscreen-
+  // button.js patches onto every Plotly chart. An SVG has no modebar of its
+  // own, so this adds one from outside: a small bar of buttons pinned to the
+  // figure's top-right corner. Today it holds one button, fullscreen; a new
+  // button is one more entry in BUTTONS below and reaches every SVG chart
+  // on every page, the way a new Plotly modebar button reaches every Plotly
+  // chart through the patch.
   //
-  // Delegated and self-installing, like js/ui/draggable-overlay.js: a page
-  // opts in by adding `ojs-svg-block` next to `ojs-chart-block` on the
-  // wrapper, and this module does the rest -- one persistent button per
-  // block, as a direct child of the block rather than inside any cell's
-  // output, so a cell re-run (which rebuilds the SVG) never rebuilds the
-  // button with it. The opt-in class rather than "any block without a
-  // Plotly chart" because OJS renders cells asynchronously: at load time a
-  // Plotly page's block has no chart in it yet either.
+  // Automatic for Observable Plot. Plot's SVG carries its generated
+  // `plot-<hash>` class, so it is recognised wherever it lands and needs no
+  // markup: every Plot chart gets the bar. A hand-built <svg> has nothing to
+  // recognise it by, so its wrapper opts in with `ojs-svg-block` next to
+  // `ojs-chart-block`; from there both go through the same code. A chart
+  // opts out with `data-vm-modebar="off"` on it or any ancestor.
   //
-  // The button is pinned to the top-right corner of the *figure* -- the
-  // union of the block's figure SVGs, measured rather than assumed -- not
-  // of the block or the cell. A Plot.plot SVG with a fixed width sits
-  // left-aligned in a wider column, and in fullscreen every figure is
-  // letterboxed into the middle of the screen, so the cell's corner and the
-  // picture's corner are not the same point. It is re-measured whenever
-  // the block resizes, a figure SVG resizes or is replaced, or fullscreen
-  // toggles.
+  // The bar belongs to a *host*, the element fullscreen enlarges: the
+  // nearest .ojs-chart-block, so a controls bar, legend, key and stat row in
+  // it come along; else Quarto's per-cell output wrapper
+  // (.cell-output-display), which an OJS re-run keeps while it replaces the
+  // SVG inside; else the SVG's parent. The bar is a direct child of the
+  // host, never inside a cell's output, so a re-run (which rebuilds the
+  // SVG) never rebuilds the bar with it. The host gets `vm-svg-host`, which
+  // every CSS rule for it keys on (chart-block.css).
   //
-  // Fullscreen letterboxing is CSS (chart-block.css, `.ojs-svg-block:fullscreen`),
+  // A host that holds a Plotly chart shows no bar: Plotly's own modebar
+  // already has the fullscreen button. Checked on every update rather than
+  // once, because OJS renders cells asynchronously -- at load time a
+  // Plotly block has no chart in it yet either.
+  //
+  // The bar is pinned to the top-right corner of the *figure* -- the union
+  // of the host's figure SVGs, measured rather than assumed -- not of the
+  // host or the cell. A Plot.plot SVG with a fixed width sits left-aligned
+  // in a wider column, and in fullscreen every figure is letterboxed into
+  // the middle of the screen, so the cell's corner and the picture's corner
+  // are not the same point. It is re-measured whenever the host resizes, a
+  // figure SVG resizes or is replaced, or fullscreen toggles.
+  //
+  // Fullscreen letterboxing is CSS (chart-block.css, `.vm-svg-host:fullscreen`),
   // the same chain of fill-and-center wrappers the Plotly block uses; the
   // one thing CSS can't know is the picture's aspect ratio, so each figure
   // SVG is tagged `vm-fs-figure` and given its ratio as --vm-svg-aspect
   // here, from its viewBox or width/height attributes.
 
+  // Plot's chart SVG, not its color-ramp legend (`plot-<hash>-ramp`), which
+  // is a legend rather than a figure.
+  const PLOT_SELECTOR = 'svg[class^="plot-"]:not([class$="-ramp"])'
   const BLOCK_SELECTOR = ".ojs-chart-block.ojs-svg-block"
-  const BUTTON_CLASS = "vm-fullscreen-toggle"
+  const HOST_CLASS = "vm-svg-host"
+  const BAR_CLASS = "vm-svg-modebar"
+  const BUTTON_CLASS = "vm-svg-modebar-button"
   const FIGURE_CLASS = "vm-fs-figure"
   const ASPECT_PROP = "--vm-svg-aspect"
+  const OPT_OUT = '[data-vm-modebar="off"]'
+  // SVGs that are a chart's furniture rather than the chart: the controls
+  // bar's play icons, a legend's or key's swatches, button glyphs, and a
+  // Plotly chart's own layers. chart-block.css's centering rule mirrors
+  // this list.
+  const NOT_FIGURE = ".ojs-chart-controls, .ojs-legend-overlay, .vm-static-key, button, .js-plotly-plot"
   // An inline icon (a play button's glyph, a legend swatch) is never this
   // wide; a figure always is.
   const MIN_FIGURE_WIDTH = 64
-  // How far inside the figure's corner the button sits, in px.
+  // How far inside the figure's corner the bar sits, in px.
   const INSET = 6
 
   // The width/height ratio an <svg> draws at, from its attributes: the
@@ -2060,14 +2084,28 @@
   if (typeof document.querySelectorAll !== "function") return
   if (typeof document.createElement !== "function") return
 
-  // The figure SVGs: every <svg> in the block's drawing cells that is wide
-  // enough to be a picture. The controls bar is skipped outright (its play
-  // buttons are SVG icons), as is anything inside a button, the legend or a
-  // static key (its swatches are small SVGs).
-  const findFigures = (block) => {
+  // The modebar's buttons, in order. Each is {name, title, icon() ->
+  // {width, height, path}, available(), click(host)}; a button whose
+  // available() is false is left out, and a bar with no buttons is not
+  // added at all. Fullscreen reuses the Plotly modebar's button -- its
+  // glyph, its availability rule (no iPhone Safari, no frame without
+  // allow="fullscreen") and its toggle -- so the two can't drift apart.
+  const BUTTONS = [
+    {
+      name: "fullscreen",
+      title: "Toggle fullscreen",
+      icon: () => globalThis.VM.plotting.fullscreenButton.icon,
+      available: () => globalThis.VM.plotting.fullscreenButton.available(),
+      click: (host) => globalThis.VM.plotting.fullscreenButton.toggle(host)
+    }
+  ]
+
+  // The figure SVGs: every <svg> in the host that is wide enough to be a
+  // picture, isn't chart furniture and hasn't opted out.
+  const findFigures = (host) => {
     const figures = []
-    for (const svg of block.querySelectorAll("svg")) {
-      if (svg.closest(".ojs-chart-controls, .ojs-legend-overlay, .vm-static-key, button")) continue
+    for (const svg of host.querySelectorAll("svg")) {
+      if (svg.closest(NOT_FIGURE) || svg.closest(OPT_OUT)) continue
       if (svg.getBoundingClientRect().width < MIN_FIGURE_WIDTH) continue
       figures.push(svg)
     }
@@ -2089,39 +2127,49 @@
     if (ratio !== null) svg.style.setProperty(ASPECT_PROP, String(ratio))
   }
 
-  const makeButton = (block) => {
-    const button = document.createElement("button")
-    button.type = "button"
-    button.className = BUTTON_CLASS
-    button.title = "Toggle fullscreen"
-    button.setAttribute("aria-label", "Toggle fullscreen")
-    // Same glyph as the Plotly modebar's button, taken from that module so
-    // the two can't drift apart.
-    const icon = globalThis.VM.plotting.fullscreenButton.icon
-    button.innerHTML = `<svg viewBox="0 0 ${icon.width} ${icon.height}" width="16" height="16" aria-hidden="true"><path d="${icon.path}" fill="currentColor"/></svg>`
-    button.addEventListener("click", () => globalThis.VM.plotting.fullscreenButton.toggle(block))
-    return button
+  const makeBar = (host) => {
+    const bar = document.createElement("div")
+    bar.className = BAR_CLASS
+    for (const spec of BUTTONS) {
+      if (!spec.available()) continue
+      const button = document.createElement("button")
+      button.type = "button"
+      button.className = BUTTON_CLASS
+      button.dataset.vmButton = spec.name
+      button.title = spec.title
+      button.setAttribute("aria-label", spec.title)
+      const icon = spec.icon()
+      button.innerHTML = `<svg viewBox="0 0 ${icon.width} ${icon.height}" width="16" height="16" aria-hidden="true"><path d="${icon.path}" fill="currentColor"/></svg>`
+      button.addEventListener("click", () => spec.click(host))
+      bar.appendChild(button)
+    }
+    if (bar.childElementCount === 0) return null
+    return bar
   }
 
-  const enhance = (block) => {
-    // No button where it could only fail (iPhone Safari, a frame without
-    // allow="fullscreen") -- same rule as the Plotly modebar's.
-    if (!globalThis.VM.plotting.fullscreenButton.available()) return
-    if (block.querySelector(`:scope > .${BUTTON_CLASS}`)) return
-    const button = makeButton(block)
-    block.appendChild(button)
+  // Where an SVG's bar goes: see the header comment.
+  const hostFor = (svg) =>
+    svg.closest(".ojs-chart-block") ?? svg.closest(".cell-output-display") ?? svg.parentElement
+
+  const enhance = (host) => {
+    if (host.querySelector(`:scope > .${BAR_CLASS}`)) return
+    const bar = makeBar(host)
+    if (bar === null) return
+    host.classList.add(HOST_CLASS)
+    host.appendChild(bar)
 
     let figureObserver = null
+    let mutationObserver = null
     const observed = new Set()
 
     const update = () => {
-      if (!block.isConnected) {
+      if (!host.isConnected) {
         if (figureObserver) figureObserver.disconnect()
         if (mutationObserver) mutationObserver.disconnect()
         document.removeEventListener("fullscreenchange", scheduleUpdate)
         return
       }
-      const figures = findFigures(block)
+      const figures = findFigures(host)
       // Stop watching SVGs a re-run has already thrown away.
       for (const svg of observed) {
         if (svg.isConnected) continue
@@ -2139,13 +2187,13 @@
         }
       }
       const bounds = figureBounds(rects)
-      // Nothing drawn yet (the cell hasn't run): keep the button out of the
-      // way rather than floating it over the bar.
-      button.hidden = bounds === null
-      if (bounds === null) return
-      const blockRect = block.getBoundingClientRect()
-      button.style.top = `${bounds.top - blockRect.top + INSET}px`
-      button.style.right = `${blockRect.right - bounds.right + INSET}px`
+      // Nothing drawn yet (the cell hasn't run), or a Plotly chart whose own
+      // modebar already offers all of this: keep the bar out of the way.
+      bar.hidden = bounds === null || host.querySelector(".js-plotly-plot") !== null
+      if (bar.hidden) return
+      const hostRect = host.getBoundingClientRect()
+      bar.style.top = `${bounds.top - hostRect.top + INSET}px`
+      bar.style.right = `${hostRect.right - bounds.right + INSET}px`
     }
 
     // Measuring forces a layout, so at most one update per frame however
@@ -2163,28 +2211,36 @@
 
     if (typeof ResizeObserver !== "undefined") {
       figureObserver = new ResizeObserver(scheduleUpdate)
-      figureObserver.observe(block)
+      figureObserver.observe(host)
     }
     // Cell re-runs swap the SVG out; there is no resize to observe on a
-    // node that was replaced wholesale. Mutations inside the controls bar
-    // or the legend never change the figure, so they don't count.
-    let mutationObserver = null
+    // node that was replaced wholesale. Mutations inside the controls bar,
+    // the legend or the modebar itself never change the figure, so they
+    // don't count.
     if (typeof MutationObserver !== "undefined") {
       mutationObserver = new MutationObserver((records) => {
         for (const record of records) {
           const target = record.target.nodeType === 1 ? record.target : record.target.parentElement
-          if (target && target.closest(".ojs-chart-controls, .ojs-legend-overlay")) continue
+          if (target && target.closest(`.ojs-chart-controls, .ojs-legend-overlay, .${BAR_CLASS}`)) continue
           scheduleUpdate()
           return
         }
       })
-      mutationObserver.observe(block, {childList: true, subtree: true})
+      mutationObserver.observe(host, {childList: true, subtree: true})
     }
     document.addEventListener("fullscreenchange", scheduleUpdate)
     update()
   }
 
-  globalThis.VM.ui.whenAdded(BLOCK_SELECTOR, enhance)
+  globalThis.VM.ui.whenAdded(PLOT_SELECTOR, (svg) => {
+    if (svg.closest(OPT_OUT) || svg.closest(NOT_FIGURE)) return
+    const host = hostFor(svg)
+    if (host) enhance(host)
+  })
+  globalThis.VM.ui.whenAdded(BLOCK_SELECTOR, (block) => {
+    if (block.closest(OPT_OUT)) return
+    enhance(block)
+  })
 })(window)
 
 // ---- src/js/plotting/persistent-plot.js ----

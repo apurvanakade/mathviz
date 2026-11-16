@@ -1,5 +1,5 @@
 ---
-title: "Observable Plot in an SVG block"
+title: "Observable Plot in a chart block"
 ---
 
 <!--
@@ -9,13 +9,12 @@ Authors: Apurva Nakade
 -->
 
 <!--
-Shows: Observable Plot with the theme applied (VM.plotting.plotOptions), and
-ojs-svg-block on the wrapper for the fullscreen button an SVG chart has no
-modebar to provide. A polynomial fit (VM.numerical.polynomialFit) to noisy
-seeded points.
+Shows: Observable Plot with the theme applied (VM.plotting.plotOptions), in a
+chart block, with the SVG modebar every Plot chart gets (its fullscreen
+button). A polynomial fit (VM.numerical.polynomialFit) to noisy seeded points.
 
   plotOptions:   https://apurvanakade.github.io/mathviz/docs/reference/plotting.html#plotOptions
-  ojs-svg-block: https://apurvanakade.github.io/mathviz/docs/markup.html#ojs-svg-block
+  SVG modebar:   https://apurvanakade.github.io/mathviz/docs/markup.html#svg-modebar
   polynomialFit: https://apurvanakade.github.io/mathviz/docs/reference/numerical.html#polynomialFit
 -->
 
@@ -51,11 +50,11 @@ fitData = {
 }
 ```
 
-::: {.ojs-chart-block .ojs-svg-block}
+::: {.ojs-chart-block}
 ```{ojs}
-// Both classes go on the same div. The cell reads chartColors so it repaints
-// on a theme toggle; the fullscreen button lives outside the cell and
-// survives every re-run.
+// The cell reads chartColors so it repaints on a theme toggle. The SVG
+// modebar (the fullscreen button) is added to every Plot chart on its own;
+// it lives outside the cell and survives every re-run.
 {
   const {points, fit, curve} = fitData
   const title = fit === null ? "not enough points for that degree" : `degree ${plotDegree}, total squared error ${fit.totalSquaredError.toFixed(3)}`

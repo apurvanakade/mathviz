@@ -43,7 +43,7 @@ Every file under `src/js` is an IIFE that adds one member (occasionally two or t
 
 Members are added to the existing `VM` and namespace objects in place, never by replacing them, so a reference taken early (`const plotting = VM.plotting`, or the opt-in chrome scripts' `VM.chrome`) still sees every member added later.
 
-The in-place merge means files can load in any order *as far as attaching goes*; the manifest exists for the few real load-time dependencies (every `*Pmf`/`*Pdf` reads `logGamma`; the `discreteMath` color helpers read `VM.plotting`; the SVG fullscreen button reuses the Plotly button's icon). `mustPrecede` in `src/manifest.mjs` records them and `src/manifest.test.js` enforces them, along with "every file on disk is listed exactly once".
+The in-place merge means files can load in any order *as far as attaching goes*; the manifest exists for the few real load-time dependencies (every `*Pmf`/`*Pdf` reads `logGamma`; the `discreteMath` color helpers read `VM.plotting`; the SVG modebar reuses the Plotly fullscreen button). `mustPrecede` in `src/manifest.mjs` records them and `src/manifest.test.js` enforces them, along with "every file on disk is listed exactly once".
 
 ## The build is a concatenation, then a minify
 
@@ -97,7 +97,7 @@ Two places hold the dark-mode selector list and must stay identical: the `:where
 
 ## Self-installing modules
 
-Slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill share a pattern: one shared watcher, [`VM.ui.whenAdded`](ui.qmd#whenAdded) -- a single `MutationObserver` on `document.body` that re-queries each registered selector at most once per animation frame -- plus delegated document-level listeners, so they enhance elements Observable Inputs creates at runtime and recreates on every upstream change -- there is no single moment at which "all the sliders exist" to wire them up individually. (Each used to run its own observer, three of them querying every added node synchronously, which a Plotly redraw does thousands of times.) Each marks what it has enhanced (`data-vm-play-ready`, `data-vm-draggable`) to stay idempotent. `plotly-fullscreen-button.js` does the same job for Plotly by wrapping `Plotly.newPlot`/`react`, since there is no DOM to watch before the chart exists.
+Slider playback, the draggable legend, the SVG modebar and the slider-track fill share a pattern: one shared watcher, [`VM.ui.whenAdded`](ui.qmd#whenAdded) -- a single `MutationObserver` on `document.body` that re-queries each registered selector at most once per animation frame -- plus delegated document-level listeners, so they enhance elements Observable Inputs creates at runtime and recreates on every upstream change -- there is no single moment at which "all the sliders exist" to wire them up individually. (Each used to run its own observer, three of them querying every added node synchronously, which a Plotly redraw does thousands of times.) Each marks what it has enhanced (`data-vm-play-ready`, `data-vm-draggable`) to stay idempotent. `plotly-fullscreen-button.js` does the same job for Plotly by wrapping `Plotly.newPlot`/`react`, since there is no DOM to watch before the chart exists.
 
 ## Draggable points {#draggable-points}
 
@@ -119,10 +119,10 @@ The library writes these itself; a page never authors them.
 | Class / property | Written by |
 |---|---|
 | `ojs-legend-overlay`, `ojs-legend-item`, `ojs-legend-swatch` | `VM.ui.legendOverlay` |
-| `vm-static-key`, `vm-static-key-item` | `VM.ui.staticKey` (its swatch SVGs are excluded from the SVG fullscreen button's figure and from centering) |
+| `vm-static-key`, `vm-static-key-item` | `VM.ui.staticKey` (its swatch SVGs are excluded from the SVG modebar's figure and from centering) |
 | `vm-overlay-grip`, `vm-overlay-dragging`, `data-vm-draggable` | the draggable-legend module |
 | `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |
-| `vm-fullscreen-toggle`, `vm-fs-figure` | the SVG fullscreen button |
+| `vm-svg-host`, `vm-svg-modebar`, `vm-svg-modebar-button`, `data-vm-button`, `vm-fs-figure` | the SVG modebar: the element it belongs to (what fullscreen enlarges), the bar, each button (`data-vm-button` is its name, e.g. `fullscreen`), each figure SVG |
 | `vm-fs-plot-group` | the Plotly fullscreen button: the common wrapper of a block's charts, letterboxed as one figure when the block holds two or more |
 | `vm-drag-host`, `vm-drag-layer`, `vm-drag-pad`, `vm-drag-point`, `vm-drag-active` | `VM.plotting.draggablePoints`: the chart div, the layer over it, the `jump`/`add` pad, each point, the point being dragged |
 | `ojs-table-toolbar`, `ojs-table-container` | `VM.ui.renderTable` |

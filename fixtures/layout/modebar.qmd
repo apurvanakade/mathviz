@@ -1,0 +1,127 @@
+---
+title: "SVG modebar"
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- The SVG modebar (js/plotting/svg-modebar.js) in every situation it has
+     to tell apart. Each case is a div with an id the check looks up:
+       #in-block   Plot in an .ojs-chart-block with a slider: one bar, on
+                   the block, kept through a re-run; the figure centered.
+       #bare       Plot in a bare cell: one bar, on the cell's output
+                   wrapper; the figure not moved.
+       #off        Plot under data-vm-modebar="off": no bar.
+       #hand-built a hand-built <svg> in .ojs-chart-block.ojs-svg-block: one bar.
+       #plotly     a Plotly chart and a Plot chart in one block: no bar
+                   showing (Plotly's modebar has fullscreen).
+       #ramp       Plot's color-ramp legend alone in a cell: no bar. -->
+
+```{ojs}
+//| output: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+<div id="in-block">
+
+<div class="ojs-chart-block">
+
+<div class="ojs-chart-controls">
+
+```{ojs}
+viewof mbCount = Inputs.range([2, 40], {step: 1, value: 20, label: "Points"})
+```
+
+</div>
+
+```{ojs}
+{
+  const points = []
+  for (let i = 0; i < mbCount; i++) points.push([i, Math.sin(i / 3)])
+  return Plot.plot(VM.plotting.plotOptions({
+    width: 480, height: 300,
+    marks: [Plot.line(points, {stroke: chartColors.fn})]
+  }))
+}
+```
+
+</div>
+
+</div>
+
+<div id="bare">
+
+```{ojs}
+{
+  const points = []
+  for (let i = 0; i < 20; i++) points.push([i, Math.cos(i / 3)])
+  return Plot.plot(VM.plotting.plotOptions({
+    width: 480, height: 300,
+    marks: [Plot.line(points, {stroke: chartColors.alt})]
+  }))
+}
+```
+
+</div>
+
+<div id="off" data-vm-modebar="off">
+
+```{ojs}
+Plot.plot(VM.plotting.plotOptions({width: 480, height: 200, marks: [Plot.dot([[0, 0], [1, 1]], {fill: chartColors.ok})]}))
+```
+
+</div>
+
+<div id="hand-built">
+
+<div class="ojs-chart-block ojs-svg-block">
+
+```{ojs}
+{
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+  svg.setAttribute("viewBox", "0 0 400 200")
+  svg.setAttribute("width", "400")
+  svg.setAttribute("height", "200")
+  svg.innerHTML = `<rect x="10" y="10" width="380" height="180" fill="none" stroke="${chartColors.ink}"/>`
+  return svg
+}
+```
+
+</div>
+
+</div>
+
+<div id="plotly">
+
+<div class="ojs-chart-block">
+
+```{ojs}
+{
+  const div = document.createElement("div")
+  div.style.height = "240px"
+  Plotly.newPlot(div, [{x: [0, 1, 2], y: [0, 1, 0], showlegend: false, line: {color: chartColors.fn}}], VM.plotting.layout({}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+
+```{ojs}
+Plot.plot(VM.plotting.plotOptions({width: 300, height: 120, marks: [Plot.dot([[0, 0], [1, 1]], {fill: chartColors.ok})]}))
+```
+
+</div>
+
+</div>
+
+<div id="ramp">
+
+```{ojs}
+Plot.legend({color: {type: "linear", domain: [0, 1]}, width: 320})
+```
+
+</div>

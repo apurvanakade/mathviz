@@ -6,7 +6,7 @@
 
 // One shared watch for elements that appear after load. The self-installing
 // modules (slider play buttons, the slider track fill, the draggable legend,
-// the SVG fullscreen button) each enhance elements that Observable Inputs
+// the SVG modebar) each enhance elements that Observable Inputs
 // and OJS create -- and recreate -- long after the page loads, so each used
 // to run its own MutationObserver over the whole body. Three of the four
 // ran a querySelectorAll on every added node, synchronously: a Plotly
