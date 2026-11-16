@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Changed
+
+- `VM.ui.statRow` belongs under its chart: inside an `.ojs-chart-block` the row is always drawn after the chart, whatever order the cells come in, with a gap above it under an Observable Plot chart as well as a Plotly one. The reference no longer suggests putting it between the controls panel and the chart. A row outside a chart block is unchanged; move it into the block to get it under the chart and into fullscreen.
+
 ## [1.7.0] - 2026-11-16
 
 ### Added

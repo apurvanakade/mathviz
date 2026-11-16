@@ -13,7 +13,7 @@
 //     tracks once measured 0px), at desktop and phone width;
 //   - the playback popover clipped by an ancestor's overflow (it is visible
 //     only because it is a top-layer [popover]);
-//   - a slider below the chart it drives;
+//   - a slider below the chart it drives, or a stat row above it;
 //   - a page that scrolls sideways on a phone;
 //   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app, or
 //     showing it narrower than the content column;
@@ -173,6 +173,25 @@ function slidersBelowChart() {
       if (input.getBoundingClientRect().top >= chartTop) {
         const label = (input.closest('form')?.querySelector('label')?.textContent || '?').trim()
         bad.push(`slider "${label}" sits below the chart it drives`)
+      }
+    }
+  }
+  return bad
+}
+// A VM.ui.statRow in a chart block belongs under the chart, whatever order
+// its cell comes in (stat-row.css orders it last); sliders.qmd writes one
+// before its chart cell to prove it.
+function statRowsAboveChart() {
+  const bad = []
+  for (const block of document.querySelectorAll('.ojs-chart-block')) {
+    const chart = block.querySelector('.js-plotly-plot, svg[class^="plot-"]')
+    if (!chart || chart.offsetParent === null) continue
+    const chartBottom = chart.getBoundingClientRect().bottom
+    for (const row of block.querySelectorAll('.vm-stat-row')) {
+      if (row.offsetParent === null) continue
+      if (row.getBoundingClientRect().top < chartBottom) {
+        const first = (row.querySelector('.vm-stat-label')?.textContent || '?').trim()
+        bad.push(`the stat row starting "${first}" is not below its chart`)
       }
     }
   }
@@ -765,6 +784,7 @@ async function checkPage(context, base, relPath) {
   for (const problem of await railUndockProblems(page)) errors.push(`sidebar rail: ${problem}`)
   for (const problem of await page.evaluate(sliderTrackProblems)) errors.push(`desktop: ${problem}`)
   for (const problem of await page.evaluate(slidersBelowChart)) errors.push(`desktop: ${problem}`)
+  for (const problem of await page.evaluate(statRowsAboveChart)) errors.push(`desktop: ${problem}`)
   for (const problem of await popoverProblems(page)) errors.push(`desktop: ${problem}`)
   for (const problem of await shareProblems(page)) errors.push(`share: ${problem}`)
   for (const problem of await page.evaluate(sidebarSearchProblems)) errors.push(`sidebar search: ${problem}`)

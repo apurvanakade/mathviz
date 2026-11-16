@@ -1899,8 +1899,8 @@ input.vm-invalid:focus {
  * collapses a short row's empty tracks and shares the width among the
  * tiles left, so without the cap a single tile stretched across the whole
  * chart. Capping the row rather than each column keeps the columns counted
- * at their 8rem minimum, so a phone still fits two tiles to a row. Same surface and border as .ojs-panel so
- * the row reads as part of the controls, with the value in the monospace
+ * at their 8rem minimum, so a phone still fits two tiles to a row. Same
+ * surface and border as .ojs-panel, with the value in the monospace
  * face so digits don't jitter sideways as they change on every slider
  * move. */
 .vm-stat-row {
@@ -1935,13 +1935,19 @@ input.vm-invalid:focus {
   white-space: nowrap;
 }
 
-/* A row inside an .ojs-chart-block, so it stays on screen when the chart is
- * fullscreened -- the numbers are what a reader stepping through a run in
- * fullscreen is reading. Below a Plotly chart (the block's column puts it
- * after the chart, which comes after the slider bar and the legend's cell)
- * it needs a gap above the chart's x-axis title rather than below itself;
- * above an SVG figure it keeps the default margin. */
-.ojs-chart-block > div:has(.js-plotly-plot) ~ div .vm-stat-row {
+/* A row's place is under its chart, inside the .ojs-chart-block: the
+ * readouts are results, so they follow the chart rather than sitting
+ * among the controls above it, and inside the block they stay on screen
+ * when the chart is fullscreened -- the numbers are what a reader stepping
+ * through a run in fullscreen is reading. The block is a flex column
+ * (chart-block.css), so order puts the row's cell last whatever order the
+ * page's cells come in, the way the slider bar and legend cells are
+ * ordered above the chart. Under the chart it needs a gap above, clear of
+ * the chart's x-axis title, rather than below itself. */
+.ojs-chart-block > div:has(.vm-stat-row) {
+  order: 1;
+}
+.ojs-chart-block > div .vm-stat-row {
   margin: 0.5rem 0 0;
 }
 
