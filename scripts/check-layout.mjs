@@ -303,8 +303,27 @@ function railDockedProblems() {
   if (Math.abs(rail.getBoundingClientRect().left - sb.right) > 1) problems.push('the rail does not ride the docked sidebar\'s edge')
   if (rail.querySelector('[data-vm-pin]').getAttribute('aria-pressed') !== 'true') problems.push('aria-pressed not true on the pin of a docked sidebar')
   const col = document.querySelector('#quarto-document-content').getBoundingClientRect()
-  if (col.left < sb.right - 1) problems.push(`the docked sidebar (right edge ${Math.round(sb.right)}px) covers the body column (left edge ${Math.round(col.left)}px)`)
+  const railRight = rail.getBoundingClientRect().right
+  if (col.left < railRight - 1) problems.push(`the docked sidebar and rail (right edge ${Math.round(railRight)}px) cover the body column (left edge ${Math.round(col.left)}px)`)
   if (root.scrollWidth > root.clientWidth) problems.push(`the docked page scrolls sideways (${root.scrollWidth}px in ${root.clientWidth}px)`)
+  return problems
+}
+
+// A first visit in a window wide enough for the column to sit clear of the
+// docked sidebar where it is: docking doesn't move it. The column used to
+// re-centre in the space beside the panel, half the panel's width right of
+// where it sat with the sidebar closed, when nothing overlapped it.
+async function railWideProblems(context, url) {
+  const page = await context.newPage()
+  await page.setViewportSize({ width: 1920, height: 1080 })
+  const problems = await load(page, url)
+  const left = () => page.evaluate(() => document.querySelector('#quarto-document-content').getBoundingClientRect().left)
+  const docked = await left()
+  for (const problem of await page.evaluate(railDockedProblems)) problems.push(problem)
+  for (const problem of await railUndockProblems(page)) problems.push(problem)
+  const undocked = await left()
+  if (Math.abs(docked - undocked) > 1) problems.push(`docking moved the body column ${Math.round(docked - undocked)}px in a 1920px window, where it clears the sidebar where it is`)
+  await page.close()
   return problems
 }
 
@@ -742,6 +761,7 @@ async function checkPage(context, base, relPath) {
   if (relPath === 'index.html') {
     await page.reload({ waitUntil: 'load' })
     for (const problem of await railInteractionProblems(page)) errors.push(`sidebar rail: ${problem}`)
+    for (const problem of await railWideProblems(context, base + relPath)) errors.push(`wide: sidebar rail: ${problem}`)
   }
   await page.close()
 
@@ -858,6 +878,7 @@ async function checkRailPage(context, base, relPath) {
     for (const problem of await page.evaluate(railTocProblems)) errors.push(`desktop: ${problem}`)
   }
   await page.close()
+  if (!off) for (const problem of await railWideProblems(context, base + relPath)) errors.push(`wide: ${problem}`)
 
   const phone = await context.newPage()
   await phone.setViewportSize({ width: 390, height: 844 })
