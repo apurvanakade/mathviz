@@ -1,5 +1,7 @@
 ---
 title: "A first chart"
+description: "A text field and a slider driving one chart: the pattern every page follows."
+categories: ["plotly", "inputs"]
 ---
 
 <!--

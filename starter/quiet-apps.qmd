@@ -1,0 +1,101 @@
+---
+title: "Quiet apps"
+description: "The unboxed look for prose-first sites: one app with every piece quiet-apps restyles."
+categories: ["layout", "legend", "plotly", "sampling"]
+mathviz-page:
+  quiet-apps: true
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!--
+Shows: quiet-apps, turned on for this page alone with mathviz-page: (put
+`quiet-apps: true` under mathviz: in _quarto.yml for the whole site). One
+app with every piece it restyles: a controls panel with a grid of sliders,
+a slider bar, a floating legend, a stat row under the chart, and the Share
+button, which shows while the pointer is over the app. Compare with the
+boxed look on any other page.
+
+  quiet-apps: https://apurvanakade.github.io/mathviz/docs/site.html#quiet-apps
+-->
+
+A random-walk Metropolis chain targets a standard normal. The proposal half-width trades acceptance against step size: a small one accepts almost every move but crawls, a large one leaps but is rarely accepted.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+:::: {.vm-app #metropolis}
+::: {.ojs-panel .ojs-grid}
+```{ojs}
+viewof scale = Inputs.range([0.05, 10], {label: "proposal half-width", step: 0.05, value: 1})
+```
+```{ojs}
+viewof seed = Inputs.number({label: "seed", value: 1, step: 1})
+```
+:::
+
+```{ojs}
+// Two seeded chains from opposite starting points.
+chains = [1, -1].map((sign, k) => {
+  const run = VM.mcmc.randomWalkMetropolis({
+    logDensity: x => -x[0] * x[0] / 2,
+    start: [3 * sign], n: 2000, scale,
+    rng: VM.sampling.seededRandom(seed * 10 + k)
+  })
+  return {run, xs: run.samples.map(s => s[0])}
+})
+```
+
+::: {.ojs-chart-block}
+::: {.ojs-chart-controls}
+```{ojs}
+viewof shownSteps = Inputs.range([10, 2000], {label: "steps shown", step: 10, value: 500})
+```
+:::
+```{ojs}
+viewof shownChains = VM.ui.legendOverlay([
+  {label: "chain from +3", color: chartColors.fn},
+  {label: "chain from −3", color: chartColors.alt}
+])
+```
+```{ojs}
+{
+  const names = ["chain from +3", "chain from −3"]
+  const data = chains.map((c, i) => {
+    const xs = c.xs.slice(0, shownSteps)
+    return {
+      name: names[i], x: xs.map((_, j) => j), y: xs, mode: "lines",
+      line: {color: i === 0 ? chartColors.fn : chartColors.alt, width: 1},
+      visible: shownChains.includes(names[i]) ? true : "legendonly"
+    }
+  })
+  const div = document.createElement("div")
+  div.style.height = "320px"
+  Plotly.newPlot(div, data, VM.plotting.layout({showlegend: false, xaxis: {title: "step"}, yaxis: {title: "x"}}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+```{ojs}
+{
+  const xs = chains[0].xs
+  const ess = VM.mcmc.effectiveSampleSize(xs)
+  return VM.ui.statRow([
+    {label: "acceptance", value: (chains[0].run.acceptedCount / (xs.length - 1)).toFixed(2)},
+    {label: "ESS", value: ess.toFixed(0), title: "effective sample size of 2000 draws"},
+    {label: "mean", value: VM.mcmc.runningMean(xs).at(-1).toFixed(3)},
+    {label: "std. error", value: (1 / Math.sqrt(ess)).toFixed(4)}
+  ])
+}
+```
+:::
+::::
+
+Both chains forget their starting point within a few dozen steps. The effective sample size counts how many independent draws the 2000 correlated ones are worth, and the standard error shrinks with its square root, not with the chain's length.

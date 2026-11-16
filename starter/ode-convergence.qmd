@@ -1,5 +1,7 @@
 ---
 title: "ODE with a convergence plot"
+description: "Euler and RK4 steppers; a Plotly chart and an Observable Plot chart sharing the theme."
+categories: ["plotly", "observable plot", "numerics"]
 ---
 
 <!--

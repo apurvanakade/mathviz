@@ -14,9 +14,15 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 - `quiet-apps: true`, an opt-in look for prose-first sites: every `.vm-app` is drawn without panel boxes or a legend frame, its readouts as inline label/value pairs split by hairlines, the slider bar's labels above their controls and a panel grid of sliders in the bar's columns, so every control lines up down the app, and the Share button shows on hover.
 
+- The starter shows every feature: new pages for panel layouts and every input (`panels.qmd`), static keys, stat rows, a top-right legend and SVG modebars (`readouts.qmd`), color words and the theme's prose (`prose.qmd`), the `quiet-apps` look on one page (`quiet-apps.qmd`), and a listing of every page with a category cloud (`gallery.qmd`). Its `_quarto.yml` now uses the mathviz theme and turns on every site option (fonts, sidebar rail and search, embed, Share, Report bug), with sidebar navigation for the rail; set `share: site-url` and `report-bug: repo` to your own when you copy it.
+
 ### Changed
 
 - `VM.ui.statRow` belongs under its chart: inside an `.ojs-chart-block` the row is always drawn after the chart, whatever order the cells come in, with a gap above it under an Observable Plot chart as well as a Plotly one. The reference no longer suggests putting it between the controls panel and the chart. A row outside a chart block is unchanged; move it into the block to get it under the chart and into fullscreen.
+
+### Fixed
+
+- Theme: a page's title breadcrumbs sit on one line again. The prose list spacing (v1.5.0) also applied to the breadcrumb list, dropping every crumb after the first by 0.35rem.
 
 ## [1.7.0] - 2026-11-16
 

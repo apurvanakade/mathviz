@@ -1,5 +1,7 @@
 ---
 title: "Distribution explorer"
+description: "A closed-form density with a histogram of seeded samples under it."
+categories: ["plotly", "sampling"]
 ---
 
 <!--

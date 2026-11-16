@@ -1,0 +1,166 @@
+---
+title: "Keys, readouts and modebars"
+description: "A static key and a stat row under a chart, a legend in the top-right corner, and the SVG modebar on a hand-built SVG."
+categories: ["observable plot", "plotly", "legend", "modebar"]
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!--
+Shows: VM.ui.staticKey and VM.ui.statRow inside a chart block (both come
+along into fullscreen); VM.ui.legendOverlay with corner: "top-right",
+below the Plotly modebar; a hand-built <svg> given the SVG modebar by
+ojs-svg-block; a Plot chart without one (data-vm-modebar="off").
+
+  staticKey:     https://apurvanakade.github.io/mathviz/docs/reference/ui.html#staticKey
+  statRow:       https://apurvanakade.github.io/mathviz/docs/reference/ui.html#statRow
+  legendOverlay: https://apurvanakade.github.io/mathviz/docs/reference/ui.html#legendOverlay
+  SVG modebar:   https://apurvanakade.github.io/mathviz/docs/markup.html#svg-modebar
+-->
+
+A Monte Carlo estimate of $\pi$, and three ways of labeling a chart. Hover each chart for its fullscreen button.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## A static key and a stat row
+
+::: {.ojs-chart-block}
+::: {.ojs-chart-controls}
+```{ojs}
+viewof piN = Inputs.range([10, 2000], {label: "samples n", step: 10, value: 500})
+```
+:::
+```{ojs}
+// The running estimate of pi from n seeded points in the unit square, and
+// a band of two standard errors around it.
+piRun = {
+  const random = VM.sampling.seededRandom(7)
+  const rows = []
+  let inside = 0
+  for (let n = 1; n <= piN; n++) {
+    const x = random(), y = random()
+    if (x * x + y * y <= 1) inside++
+    const p = inside / n
+    const se = 4 * Math.sqrt(p * (1 - p) / n)
+    rows.push({n, estimate: 4 * p, lo: 4 * p - 2 * se, hi: 4 * p + 2 * se})
+  }
+  return rows
+}
+```
+```{ojs}
+{
+  const chart = Plot.plot(VM.plotting.plotOptions({
+    width: 640, height: 320,
+    x: {label: "n"}, y: {label: null, domain: [2.4, 3.9]},
+    marks: [
+      Plot.areaY(piRun, {x: "n", y1: "lo", y2: "hi", fill: chartColors.fn, fillOpacity: 0.2}),
+      Plot.line(piRun, {x: "n", y: "estimate", stroke: chartColors.fn, strokeWidth: 2}),
+      Plot.ruleY([Math.PI], {stroke: chartColors.alt, strokeWidth: 1.5, strokeDasharray: "6,4"})
+    ]
+  }))
+  const key = VM.ui.staticKey([
+    {label: "estimate ± 2 s.e.", marks: [
+      {mark: "area", fill: chartColors.fn, fillOpacity: 0.2},
+      {mark: "line", stroke: chartColors.fn, strokeWidth: 2}
+    ]},
+    {label: "π", stroke: chartColors.alt, strokeWidth: 1.5, strokeDasharray: "6,4"}
+  ])
+  const figure = document.createElement("div")
+  figure.append(chart, key)
+  return figure
+}
+```
+```{ojs}
+{
+  const last = piRun[piRun.length - 1]
+  return VM.ui.statRow([
+    {label: "estimate", value: last.estimate.toFixed(4)},
+    {label: "std. error", value: ((last.hi - last.lo) / 4).toFixed(4)},
+    {label: "error", value: Math.abs(last.estimate - Math.PI).toFixed(4), title: "distance from π"}
+  ])
+}
+```
+:::
+
+## A legend in the top-right corner
+
+`corner: "top-right"` starts the legend below the Plotly modebar. Drag it by its grip; click a row to hide that trace.
+
+::: {.ojs-chart-block}
+```{ojs}
+viewof cornerShown = VM.ui.legendOverlay([
+  {label: "sin x", color: chartColors.fn},
+  {label: "cos x", color: chartColors.alt},
+  {label: "sin x cos x", color: chartColors.ok}
+], {corner: "top-right"})
+```
+```{ojs}
+{
+  const xs = [], s = [], c = [], sc = []
+  for (let i = 0; i <= 300; i++) {
+    const x = -Math.PI + 2 * Math.PI * i / 300
+    xs.push(x); s.push(Math.sin(x)); c.push(Math.cos(x)); sc.push(Math.sin(x) * Math.cos(x))
+  }
+  const data = [
+    {name: "sin x", x: xs, y: s, line: {color: chartColors.fn, width: 2.5}},
+    {name: "cos x", x: xs, y: c, line: {color: chartColors.alt, width: 2}},
+    {name: "sin x cos x", x: xs, y: sc, line: {color: chartColors.ok, width: 2, dash: "dot"}}
+  ]
+  for (const trace of data) trace.visible = cornerShown.includes(trace.name) ? true : "legendonly"
+  const div = document.createElement("div")
+  div.style.height = "360px"
+  Plotly.newPlot(div, data, VM.plotting.layout({showlegend: false, yaxis: {range: [-1.2, 1.2]}}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::
+
+## A hand-built SVG
+
+The library can't tell a hand-built `<svg>` chart from an icon, so it gets the SVG modebar only in a block marked `ojs-svg-block`.
+
+::: {.ojs-chart-block .ojs-svg-block}
+```{ojs}
+{
+  // The unit circle and the square it sits in, drawn by hand.
+  const ns = "http://www.w3.org/2000/svg"
+  const svg = document.createElementNS(ns, "svg")
+  svg.setAttribute("viewBox", "-1.2 -1.2 2.4 2.4")
+  svg.setAttribute("width", "320")
+  svg.setAttribute("height", "320")
+  svg.setAttribute("role", "img")
+  svg.setAttribute("aria-label", "a unit circle inside a square")
+  const shape = (tag, attrs) => {
+    const el = document.createElementNS(ns, tag)
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v)
+    svg.append(el)
+  }
+  shape("rect", {x: -1, y: -1, width: 2, height: 2, fill: "none", stroke: chartColors.muted, "stroke-width": 0.02})
+  shape("circle", {cx: 0, cy: 0, r: 1, fill: chartColors.fn, "fill-opacity": 0.2, stroke: chartColors.fn, "stroke-width": 0.03})
+  return svg
+}
+```
+:::
+
+## A chart without a modebar
+
+`data-vm-modebar="off"` on the chart, or anything around it, leaves it without one.
+
+::: {.ojs-chart-block data-vm-modebar="off"}
+```{ojs}
+Plot.plot(VM.plotting.plotOptions({
+  width: 640, height: 200,
+  x: {label: "n"}, y: {label: "|error|", type: "log"},
+  marks: [Plot.line(piRun.filter(r => r.estimate !== Math.PI), {x: "n", y: r => Math.abs(r.estimate - Math.PI), stroke: chartColors.alt})]
+}))
+```
+:::

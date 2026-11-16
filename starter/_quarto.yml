@@ -5,6 +5,11 @@
 # A complete Quarto website using mathviz. Copy this folder, run
 # `quarto preview`, and you have a working site; copy any page to start a
 # new one. See README.md.
+#
+# Every option mathviz has is on here, or on the one page it suits
+# (category-cloud on gallery.qmd, quiet-apps on quiet-apps.qmd), so every
+# feature shows somewhere on the site. Each is optional: delete the ones
+# you don't want.
 project:
   type: website
   output-dir: _site
@@ -16,6 +21,23 @@ filters:
   - mathviz
 mathviz:
   referrer: same-origin
+  # Inter and JetBrains Mono, served from this site (the theme below uses them).
+  fonts: true
+  # The sidebar hides behind a slim rail at the left edge, with a pin button.
+  sidebar-rail: true
+  # A box at the top of the sidebar that narrows it to matching titles.
+  sidebar-search: true
+  # ?embed=1 on a page's address shows its first .vm-app alone, for another
+  # site's <iframe> (share turns this on too).
+  embed: true
+  # A "Share" button above every .vm-app, with links and an <iframe>
+  # snippet. Set site-url to your site's public address.
+  share:
+    site-url: https://example.com
+  # A "Report bug" button beside any text the reader selects, opening a
+  # GitHub issue. Set repo to your site's repository.
+  report-bug:
+    repo: your-name/your-site
 
 execute:
   # Pages here read as apps: the code stays in the .qmd source. Flip to
@@ -25,29 +47,47 @@ execute:
 
 website:
   title: "My math site"
+  page-navigation: true
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - text: Pages
-        menu:
-          - function-explorer.qmd
-          - step-slider.qmd
-          - ode-convergence.qmd
-          - distribution-explorer.qmd
-          - try-an-example.qmd
-          - observable-plot.qmd
-          - draggable-points.qmd
+      - href: gallery.qmd
+        text: All pages
     right:
       - icon: github
         href: https://github.com/apurvanakade/mathviz
+  sidebar:
+    - style: docked
+      contents:
+        - index.qmd
+        - gallery.qmd
+        - section: Patterns
+          contents:
+            - function-explorer.qmd
+            - step-slider.qmd
+            - ode-convergence.qmd
+            - distribution-explorer.qmd
+            - try-an-example.qmd
+            - observable-plot.qmd
+            - draggable-points.qmd
+        - section: Styles
+          contents:
+            - panels.qmd
+            - readouts.qmd
+            - prose.qmd
+            - quiet-apps.qmd
 
 format:
   html:
-    # A light/dark pair gives Quarto's theme toggle; every chart on the site
-    # follows it. Any Bootswatch pair works.
+    # The mathviz theme: Bootstrap's navbar, links, callouts, tables and
+    # listing cards in the panels' colors, light and dark; the pair is what
+    # gives Quarto's theme toggle, and every chart follows it. Any light/dark
+    # Bootswatch pair (cosmo/superhero, say) works instead.
     theme:
-      light: cosmo
-      dark: superhero
+      light: [_extensions/mathviz/theme/mathviz-light.scss]
+      dark: [_extensions/mathviz/theme/mathviz-dark.scss]
+    # Chrome of the site's own, on every page (see the file).
+    include-after-body: banner.html
     toc: false
     html-math-method: katex

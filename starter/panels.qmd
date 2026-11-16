@@ -1,0 +1,145 @@
+---
+title: "Panel layouts"
+description: "Every panel layout class and every kind of input, in one place."
+categories: ["layout", "inputs", "playback"]
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!--
+Shows: the layout classes (ojs-row, ojs-grid, ojs-fill, ojs-auto, ojs-end,
+a nested grid), every Observable Inputs control a panel restyles, a
+controls bar of several sliders (ojs-chart-controls ojs-grid), and a slider
+without the play button (data-vm-play="off").
+
+  layout classes: https://apurvanakade.github.io/mathviz/docs/markup.html#panels
+  data-vm-play:   https://apurvanakade.github.io/mathviz/docs/markup.html#data-vm-play
+-->
+
+Nothing here computes much: the page is a catalog of panel layouts. Resize the window to watch each one wrap.
+
+```{ojs}
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+## A row: fill, auto, end
+
+The first control fills the row; `ojs-fill` makes a text field a wide box the reader can drag wider, `ojs-auto` keeps a control at its natural width, and `ojs-end` pushes one to the right edge.
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+viewof rowExpr = {
+  const view = Inputs.text({label: "f(x)", value: "exp(-x^2/2) * cos(3x)"})
+  view.classList.add("ojs-fill")
+  return view
+}
+```
+```{ojs}
+viewof rowMethod = {
+  const view = Inputs.select(["trapezoid", "Simpson", "Gauss"], {label: "rule"})
+  view.classList.add("ojs-auto")
+  return view
+}
+```
+```{ojs}
+viewof rowReset = {
+  const view = Inputs.button("Reset")
+  view.classList.add("ojs-end")
+  return view
+}
+```
+:::
+
+## A grid of every input
+
+`ojs-grid` gives equal columns, as many as fit. Each kind of control shares one height and one label size, so the grid lines up on both edges.
+
+::: {.ojs-panel .ojs-grid}
+```{ojs}
+viewof gridText = Inputs.text({label: "text", value: "x^2"})
+```
+```{ojs}
+viewof gridNumber = Inputs.number({label: "number", value: 3})
+```
+```{ojs}
+viewof gridRange = Inputs.range([0, 1], {label: "range", step: 0.01, value: 0.5})
+```
+```{ojs}
+viewof gridSelect = Inputs.select(["Euler", "RK4", "midpoint"], {label: "select"})
+```
+```{ojs}
+viewof gridRadio = Inputs.radio(["sin", "cos"], {label: "radio", value: "sin"})
+```
+```{ojs}
+viewof gridCheck = Inputs.checkbox(["error", "exact"], {label: "checkbox", value: ["exact"]})
+```
+```{ojs}
+viewof gridToggle = Inputs.toggle({label: "toggle", value: true})
+```
+```{ojs}
+viewof gridButton = Inputs.button("button")
+```
+:::
+
+## A row with a grid inside
+
+One panel, a bare `ojs-grid` nested in it (never a second panel: the border and background would double up).
+
+::: {.ojs-panel .ojs-row}
+```{ojs}
+viewof nestedExpr = Inputs.text({label: "g(x)", value: "sin(x)"})
+```
+::: {.ojs-grid}
+```{ojs}
+viewof nestedA = Inputs.range([-5, 5], {label: "a", step: 0.1, value: -2})
+```
+```{ojs}
+viewof nestedB = Inputs.range([-5, 5], {label: "b", step: 0.1, value: 2})
+```
+:::
+:::
+
+## A controls bar of sliders
+
+`ojs-chart-controls ojs-grid` above a chart: fluid tracks, compact number fields, labels beside controls (above them on a phone). Each slider gets ▶; the last one opts out with `data-vm-play="off"`.
+
+::: {.ojs-chart-block}
+::: {.ojs-chart-controls .ojs-grid}
+```{ojs}
+viewof barAmp = Inputs.range([0.1, 2], {label: "amplitude", step: 0.05, value: 1})
+```
+```{ojs}
+viewof barFreq = Inputs.range([0.5, 6], {label: "frequency", step: 0.1, value: 2})
+```
+```{ojs}
+viewof barZoom = {
+  // A view setting, not a parameter to sweep: no play button.
+  const view = Inputs.range([1, 10], {label: "x range", step: 0.5, value: 6})
+  view.setAttribute("data-vm-play", "off")
+  return view
+}
+```
+:::
+```{ojs}
+{
+  const xs = [], ys = []
+  for (let i = 0; i <= 400; i++) {
+    const x = -barZoom + 2 * barZoom * i / 400
+    xs.push(x); ys.push(barAmp * Math.sin(barFreq * x))
+  }
+  const div = document.createElement("div")
+  div.style.height = "320px"
+  Plotly.newPlot(div, [
+    {x: xs, y: ys, name: "a sin(fx)", line: {color: chartColors.fn, width: 2.5}}
+  ], VM.plotting.layout({showlegend: false, yaxis: {range: [-2.2, 2.2]}}), VM.plotting.config())
+  VM.plotting.autoResize(div)
+  return div
+}
+```
+:::

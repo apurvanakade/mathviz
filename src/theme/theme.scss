@@ -471,8 +471,10 @@ body.quarto-dark main img:is([src$=".svg"], [src$=".png"], [src$=".gif"]):not(.t
 
 /* Items of a prose list were flush, so two-line items with math in them
  * ran together. A loose list's paragraphs already carry 1rem, which
- * collapses with this. Listing pages and the category cloud are left out. */
-main.content :is(ul, ol):not(.task-list, .quarto-listing *, .vm-category-cloud *) > li + li {
+ * collapses with this. Listing pages, the category cloud and navigation
+ * lists are left out: the title block's breadcrumbs are an <ol> in a <nav>,
+ * and the margin dropped every crumb after the first half a line. */
+main.content :is(ul, ol):not(.task-list, nav *, .quarto-listing *, .vm-category-cloud *) > li + li {
   margin-top: 0.35rem;
 }
 

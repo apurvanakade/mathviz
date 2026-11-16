@@ -53,10 +53,10 @@ src/css/               tokens.css (all --vm-* defaults), then panel, chart-block
 src/chrome/            opt-in site chrome (sidebar-rail, sidebar-search, category-cloud, embed, share, report-bug + shared site.js); each its own Lua-added dependency, not in the bundle
 src/fonts/             opt-in self-hosted Inter/JetBrains Mono (fonts: true); fonts.test.js guards the url()s
 src/theme/theme.scss   template build.mjs fills from tokens.css into dist/theme/mathviz-{light,dark}.scss
-scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js + css-coverage.test.js, release.mjs, check-layout.mjs (browser layout test)
+scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js + css-coverage.test.js + starter-coverage.test.js, release.mjs, check-layout.mjs (browser layout test)
 fixtures/layout/       the fixture Quarto site npm run test:layout renders and checks
 fixtures/page-options/ the second fixture site: no project mathviz:, options from mathviz-page: only
-starter/               clone-and-go Quarto site: README, _quarto.yml, index.qmd + one page per pattern, _extensions/mathviz/ (build mirror)
+starter/               clone-and-go Quarto site and the example of every feature: README, _quarto.yml (every site option on), index.qmd + one page per pattern + panels/readouts/prose/gallery, _extensions/mathviz/ (build mirror)
 _quarto.yml            the docs site project (output-dir _site, render allowlist)
 docs/                  the site: guide pages at the top level, reference/<category>.qmd + reference/internals.qmd
 kit/                   what a consumer site copies in: update-mathviz.sh (pre-render hook)
@@ -74,6 +74,7 @@ kit/                   what a consumer site copies in: update-mathviz.sh (pre-re
 - **Every public function has a JSDoc block** in the style of `src/js/plotting/padded-range.js` (summary, `@param` with types and `[opts.key=default]`, `@returns` with the exact shape, and the edge behaviour: what returns `null`, what isn't validated). The prose comments around it carry the *why*; don't fold them into the JSDoc or delete them. The build concatenates comments into `dist/`, so they reach consumers.
 - **Every `VM.*` member has a `### VM.<category>.<name>(…) {#name}` heading in `docs/reference/<category>.qmd`** (`discreteMath` → `discrete-math.qmd`). `scripts/docs-coverage.test.js` loads the bundle, walks `VM`, and fails on any member without a heading or heading without a member. The entry lands in the same PR as the member.
 - **Every token in `tokens.css` has a row in `docs/theming.qmd`'s live table; every other `--vm-*` property and every `ojs-*`/`vm-*` class the CSS uses is mentioned in `markup.qmd`, `theming.qmd` or `reference/internals.qmd`.** `scripts/css-coverage.test.js` enforces it (comments stripped first). It checks names, not prose: a changed value under an unchanged name still needs a read of the diff against the guide.
+- **Every style feature is shown on a starter page.** Every `ojs-*`/`vm-*` class and `data-vm-*` attribute `src/css` or `src/chrome` selects on, every name in `markup.qmd`'s "At a glance" table and every key in `site.qmd`'s "All the keys" is written by a starter page or `starter/_quarto.yml`, or -- for a name the library writes -- is listed in `shownBy` in `scripts/starter-coverage.test.js` with the call, markup or option that makes it, which a starter page then has. The starter also uses the theme. So `quarto preview starter` shows every feature, light and dark; a new class fails the test until a page shows it. A changed style needs no new page, but check the starter page that shows it. Keep `starter/index.qmd` the minimal page `docs/first-chart.qmd` walks through: new features go on other pages.
 - **A PR that touches `src/` must touch `CHANGELOG.md`** — CI's `changelog` job, skipped by the `no-changelog` label.
 - Every new file starts with the license header for its type — see CONTRIBUTING.md.
 

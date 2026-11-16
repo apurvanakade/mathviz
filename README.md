@@ -15,8 +15,8 @@ use it.
 
 ## Quick start
 
-**A new site** -- copy the starter, a complete Quarto website with seven
-working pages and the extension already installed:
+**A new site** -- copy the starter, a complete Quarto website with every
+feature on a working page and the extension already installed:
 
 ```sh
 git clone https://github.com/apurvanakade/mathviz
