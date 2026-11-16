@@ -1,0 +1,225 @@
+---
+title: "Quiet apps"
+mathviz-page:
+  quiet-apps: true
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!-- A prose page with apps in every piece quiet-apps restyles: a
+     controls panel, a slider bar, a floating legend, a stat row under the
+     chart (inside the chart block, so it stays in fullscreen) and the
+     Share button. The page turns the option on with mathviz-page:, the way
+     a site would try it on one page. -->
+
+A random-walk Metropolis chain targets a standard normal. The proposal
+half-width trades acceptance against step size: a small one accepts almost
+every move but crawls, a large one leaps but is rarely accepted.
+
+```{ojs}
+//| output: false
+VM = window.VM
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+tracePlot = VM.plotting.persistentPlot({height: "320px"})
+kalmanPlot = VM.plotting.persistentPlot({height: "340px"})
+```
+
+<div class="vm-app" id="metropolis">
+
+<div class="ojs-panel">
+
+<div class="ojs-grid">
+
+```{ojs}
+viewof scale = Inputs.range([0.05, 10], {label: "proposal half-width", step: 0.05, value: 1})
+```
+
+```{ojs}
+viewof seed = Inputs.number({label: "seed", value: 1, step: 1})
+```
+
+</div>
+
+</div>
+
+```{ojs}
+//| output: false
+chains = [1, 2].map(k => {
+  const run = VM.mcmc.randomWalkMetropolis({
+    logDensity: x => -x[0] * x[0] / 2,
+    start: [3 * (k === 1 ? 1 : -1)], n: 2000, scale,
+    rng: VM.sampling.seededRandom(seed * 10 + k)
+  })
+  return {run, xs: run.samples.map(s => s[0])}
+})
+```
+
+<div class="ojs-chart-block">
+
+<div class="ojs-chart-controls">
+
+```{ojs}
+viewof shownSteps = {
+  const slider = Inputs.range([10, 2000], {step: 10, value: 500, label: "steps shown"})
+  slider.classList.add("ojs-fill")
+  return slider
+}
+```
+
+</div>
+
+```{ojs}
+viewof shown = VM.ui.legendOverlay([
+  {label: "chain from +3", color: chartColors.fn},
+  {label: "chain from −3", color: chartColors.alt}
+])
+```
+
+```{ojs}
+tracePlot(chains.map((c, i) => {
+  const name = i === 0 ? "chain from +3" : "chain from −3"
+  const xs = c.xs.slice(0, shownSteps)
+  return {
+    name, x: xs.map((_, j) => j), y: xs, mode: "lines",
+    line: {color: i === 0 ? chartColors.fn : chartColors.alt, width: 1},
+    visible: shown.includes(name) ? true : "legendonly"
+  }
+}), {showlegend: false, xaxis: {title: {text: "step"}}, yaxis: {title: {text: "x"}}})
+```
+
+```{ojs}
+VM.ui.statRow([
+  {label: "acceptance", value: (chains[0].run.acceptedCount / (chains[0].xs.length - 1)).toFixed(2)},
+  {label: "ESS", value: VM.mcmc.effectiveSampleSize(chains[0].xs).toFixed(0), title: "effective sample size of 2000 draws"},
+  {label: "mean", value: VM.mcmc.runningMean(chains[0].xs).at(-1).toFixed(3)},
+  {label: "std. error", value: (1 / Math.sqrt(VM.mcmc.effectiveSampleSize(chains[0].xs))).toFixed(4)}
+])
+```
+
+</div>
+
+</div>
+
+Both chains forget their starting point within a few dozen steps. The
+effective sample size counts how many independent draws the 2000
+correlated ones are worth, and the standard error shrinks with its square
+root, not with the chain's length.
+
+## A crowded app
+
+A 1-D Kalman filter tracks a drifting signal from noisy measurements. The
+panel sets the true process; the bar sets what the filter assumes about
+it. A filter whose assumptions match the truth has the smallest error.
+
+<div class="vm-app" id="kalman">
+
+<div class="ojs-panel">
+
+<div class="ojs-grid">
+
+```{ojs}
+viewof trueR = Inputs.range([0.01, 10], {step: 0.01, value: 2, label: "True measurement noise"})
+```
+
+```{ojs}
+viewof trueQ = Inputs.range([0.001, 1], {step: 0.001, value: 0.05, label: "True process noise"})
+```
+
+```{ojs}
+viewof kSeed = Inputs.range([1, 50], {step: 1, value: 7, label: "Seed"})
+```
+
+</div>
+
+</div>
+
+```{ojs}
+//| output: false
+truth = {
+  const g = VM.sampling.gaussianRandom(VM.sampling.seededRandom(kSeed))
+  const xs = [], zs = []
+  let x = 0
+  for (let i = 0; i < 500; i++) {
+    x += Math.sqrt(trueQ) * g()
+    xs.push(x)
+    zs.push(x + Math.sqrt(trueR) * g())
+  }
+  return {xs, zs}
+}
+```
+
+```{ojs}
+//| output: false
+kf = {
+  const n = kSamples
+  const zs = truth.zs.slice(0, n), xs = truth.xs.slice(0, n)
+  const run = VM.filters.kalman1DFilter(zs, {R: assumedR, Q: assumedQ})
+  const smooth = []
+  let s = zs[0]
+  for (const z of zs) { s = alpha * z + (1 - alpha) * s; smooth.push(s) }
+  const rmse = est => Math.sqrt(est.reduce((a, e, i) => a + (e - xs[i]) ** 2, 0) / n)
+  return {n, zs, xs, run, smooth, rmse: rmse(run.xs), rmseSmooth: rmse(smooth), rmseRaw: rmse(zs)}
+}
+```
+
+<div class="ojs-chart-block">
+
+<div class="ojs-chart-controls ojs-grid">
+
+```{ojs}
+viewof alpha = Inputs.range([0, 1], {step: 0.01, value: 0.3, label: "Smoothing α"})
+```
+
+```{ojs}
+viewof assumedR = Inputs.range([0.01, 10], {step: 0.01, value: 2, label: "Assumed measurement noise R"})
+```
+
+```{ojs}
+viewof assumedQ = Inputs.range([0.001, 1], {step: 0.001, value: 0.05, label: "Assumed process noise Q"})
+```
+
+```{ojs}
+viewof kSamples = Inputs.range([10, 500], {step: 1, value: 200, label: "Samples"})
+```
+
+</div>
+
+```{ojs}
+viewof kShown = VM.ui.legendOverlay([
+  {label: "measurements", color: chartColors.muted},
+  {label: "truth", color: chartColors.ok},
+  {label: "Kalman", color: chartColors.fn},
+  {label: "smoother", color: chartColors.alt}
+])
+```
+
+```{ojs}
+kalmanPlot(
+  [
+    {name: "measurements", y: kf.zs, mode: "markers", marker: {size: 3, color: chartColors.muted, opacity: 0.4}},
+    {name: "truth", y: kf.xs, mode: "lines", line: {color: chartColors.ok, width: 1.5}},
+    {name: "Kalman", y: kf.run.xs, mode: "lines", line: {color: chartColors.fn, width: 1.5}},
+    {name: "smoother", y: kf.smooth, mode: "lines", line: {color: chartColors.alt, width: 1, dash: "dot"}}
+  ].map(t => ({...t, x: t.y.map((_, i) => i), visible: kShown.includes(t.name) ? true : "legendonly"})),
+  {showlegend: false, xaxis: {title: {text: "step"}}}
+)
+```
+
+```{ojs}
+VM.ui.statRow([
+  {label: "filter RMSE", value: kf.rmse.toFixed(3)},
+  {label: "smoother RMSE", value: kf.rmseSmooth.toFixed(3)},
+  {label: "raw RMSE", value: kf.rmseRaw.toFixed(3), title: "error of the measurements themselves"},
+  {label: "final gain", value: kf.run.Ks.at(-1).toFixed(3)},
+  {label: "final variance", value: kf.run.Ps.at(-1).toFixed(3)}
+])
+```
+
+</div>
+
+</div>
