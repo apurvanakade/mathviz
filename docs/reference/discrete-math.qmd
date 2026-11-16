@@ -33,7 +33,7 @@ viewof recolor = Inputs.button("Recolor")
 ```
 :::
 
-::: {.ojs-chart-block .ojs-svg-block}
+::: {.ojs-chart-block}
 ```{ojs}
 //| echo: false
 {

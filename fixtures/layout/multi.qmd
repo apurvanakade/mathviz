@@ -9,8 +9,8 @@ Authors: Apurva Nakade
 -->
 
 <!-- An article with two tagged apps, each with an id: ?embed=<id> must show
-     that one alone, ?embed=1 the first. The second draws an SVG
-     (ojs-svg-block) rather than a Plotly chart. -->
+     that one alone, ?embed=1 the first. The second draws an
+     Observable Plot SVG rather than a Plotly chart. -->
 
 ```{ojs}
 //| output: false
@@ -59,7 +59,7 @@ Prose between the figures.
 
 <div class="vm-app" id="dots">
 
-<div class="ojs-chart-block ojs-svg-block">
+<div class="ojs-chart-block">
 
 <div class="ojs-chart-controls">
 

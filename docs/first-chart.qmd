@@ -137,7 +137,7 @@ The wrapper around the chart cells. It's what the fullscreen button enlarges, an
 ## Plotly or Observable Plot
 
 - **An app's chart is Plotly**, like the one on this page: the chart the reader drives from the panel and sliders, and zooms and pans. It gets the modebar, fullscreen, the [floating legend](reference/ui.qmd#legendOverlay) and the [slider bar](markup.qmd#ojs-chart-controls).
-- **A simple figure is Observable Plot**: a convergence plot, an error-decay plot, a comparison -- anything the reader reads rather than explores. Theme it with [`plotOptions`](reference/plotting.qmd#plotOptions) and name its series with a [static key](reference/ui.qmd#staticKey) under it. It needs no chart block, no modebar and no fullscreen.
+- **A simple figure is Observable Plot**: a convergence plot, an error-decay plot, a comparison -- anything the reader reads rather than explores. Theme it with [`plotOptions`](reference/plotting.qmd#plotOptions) and name its series with a [static key](reference/ui.qmd#staticKey) under it. It needs no chart block: every Plot chart gets the [SVG modebar](markup.qmd#svg-modebar), with a fullscreen button, on its own.
 
 ```js
 {
@@ -166,7 +166,7 @@ Each of the starter's other pages adds one thing to this pattern:
 | [ode-convergence.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/ode-convergence.qmd) | ODE steppers; a Plotly chart and an Observable Plot chart sharing the theme |
 | [distribution-explorer.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/distribution-explorer.qmd) | an exact density over a histogram of seeded samples |
 | [try-an-example.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/try-an-example.qmd) | presets that fill the fields and run the page |
-| [observable-plot.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd) | Observable Plot with a fullscreen button |
+| [observable-plot.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd) | Observable Plot in a chart block, with the SVG modebar every Plot chart gets |
 | [draggable-points.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/draggable-points.qmd) | points the reader drags on a chart, as an input ([`draggablePoints`](reference/plotting.qmd#draggablePoints)) |
 
 Then make the palette yours: [Theming](theming.qmd).

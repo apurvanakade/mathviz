@@ -206,8 +206,9 @@
   /**
    * The fullscreen modebar button, in Plotly's custom-button shape. The
    * patch adds it to every chart; a page only touches this to reuse its
-   * glyph (`VM.plotting.fullscreenButton.icon`, as the SVG fullscreen
-   * button does) or to add it to a chart built outside the patch.
+   * glyph (`VM.plotting.fullscreenButton.icon`, as the SVG modebar's
+   * fullscreen button does) or to add it to a chart built outside the
+   * patch.
    *
    * Clicking fullscreens the nearest `.ojs-chart-block` (so the controls
    * bar and legend come along) or, without one, the graph div itself, and

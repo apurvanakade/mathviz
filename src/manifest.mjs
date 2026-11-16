@@ -20,7 +20,7 @@ export const js = [
   'plotting/keep-listening.js',
   'plotting/anchored-view.js',
   'plotting/plotly-fullscreen-button.js',
-  'plotting/svg-fullscreen-button.js',
+  'plotting/svg-modebar.js',
   'plotting/persistent-plot.js',
   'plotting/persistent-plot-3d.js',
   'plotting/plot-with-legend.js',
@@ -129,8 +129,8 @@ export const mustPrecede = [
   // anchored-view and draggable-points register their Plotly listeners
   // through keepListening, which the patch re-attaches after each redraw.
   ['plotting/keep-listening.js', /^plotting\/(anchored-view|draggable-points|plotly-fullscreen-button)\.js$/],
-  // svg-fullscreen-button reuses VM.plotting.fullscreenButton.icon.
-  ['plotting/plotly-fullscreen-button.js', 'plotting/svg-fullscreen-button.js'],
+  // svg-modebar reuses VM.plotting.fullscreenButton (icon, available, toggle).
+  ['plotting/plotly-fullscreen-button.js', 'plotting/svg-modebar.js'],
   ['discrete-math/sub-triangles.js', 'discrete-math/triangulation-edges.js'],
   ['numerical/linear-regression.js', 'numerical/l1-regression.js'],
   ['numerical/linear-regression.js', 'numerical/order-from-errors-vs-n.js'],
@@ -138,7 +138,7 @@ export const mustPrecede = [
   // The self-installing modules watch for new elements through whenAdded,
   // at load time; slider-play paces its sweeps with range-progress's
   // sliderBounds.
-  ['ui/when-added.js', /^(ui\/(range-progress|slider-play|draggable-overlay)|plotting\/svg-fullscreen-button)\.js$/],
+  ['ui/when-added.js', /^(ui\/(range-progress|slider-play|draggable-overlay)|plotting\/svg-modebar)\.js$/],
   ['ui/range-progress.js', 'ui/slider-play.js'],
   // persistentPlot calls VM.plotting.config/autoResize; springLayout seeds
   // its start positions with VM.sampling.seededRandom.

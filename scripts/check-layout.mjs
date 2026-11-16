@@ -39,6 +39,11 @@
 //     (after a drag, a theme toggle or a resize), escaping its bounds,
 //     losing its value on a theme toggle, showing a focus ring after a
 //     mouse drag, or trapping a touch scroll that starts beside it.
+//   - an Observable Plot chart without the SVG modebar, or with two; the
+//     bar on the wrong host, not at the figure's corner, rebuilt by a
+//     re-run, shown on a chart that opted out, a Plotly block or a color
+//     legend; a bare Plot cell moved by it; fullscreen enlarging anything
+//     but the host, or not letterboxing the figure.
 //
 // The checks came from Visual Math Lab's crawl, which ran them on every one
 // of its pages and was cut back because a heavy page on a busy runner made
@@ -74,6 +79,8 @@ const dragPages = ['drag.html']
 const railPages = ['rail-toc.html', 'no-rail.html']
 // Lecture-notes prose: inline math, theorems, an exercise, a callout.
 const prosePages = ['prose.html']
+// The SVG modebar in each situation it has to tell apart.
+const modebarPages = ['modebar.html']
 
 // The fixture site is its own Quarto project, which only finds an extension
 // in its own _extensions/ -- so copy this checkout's in (gitignored), the
@@ -1111,6 +1118,140 @@ async function checkDragPage(context, base, relPath) {
   return errors
 }
 
+// Each fixture case is a div with an id (see modebar.qmd): its expected bar
+// count, and the host the bar must sit on.
+function modebarLayoutProblems() {
+  const problems = []
+  const visibleBars = (root) => {
+    const bars = []
+    for (const bar of root.querySelectorAll('.vm-svg-modebar')) {
+      if (!bar.hidden) bars.push(bar)
+    }
+    return bars
+  }
+  const expect = [
+    ['in-block', 1, '.ojs-chart-block'],
+    ['bare', 1, '.cell-output-display'],
+    ['off', 0, null],
+    ['hand-built', 1, '.ojs-chart-block'],
+    ['plotly', 0, null],
+    ['ramp', 0, null]
+  ]
+  for (const [id, count, hostSelector] of expect) {
+    const root = document.getElementById(id)
+    if (!root) { problems.push(`#${id}: case missing from the fixture`); continue }
+    const bars = visibleBars(root)
+    if (bars.length !== count) { problems.push(`#${id}: ${bars.length} SVG modebar(s) showing, expected ${count}`); continue }
+    if (count === 0) continue
+    const bar = bars[0]
+    const host = bar.parentElement
+    if (!host.matches(hostSelector) || !host.classList.contains('vm-svg-host')) {
+      problems.push(`#${id}: the bar's parent is ${host.className || host.tagName}, expected ${hostSelector}.vm-svg-host`)
+    }
+    if (!bar.querySelector('.vm-svg-modebar-button[data-vm-button="fullscreen"]')) problems.push(`#${id}: no fullscreen button in the bar`)
+    // Pinned inside the figure's top-right corner.
+    const figure = host.querySelector('svg.vm-fs-figure')
+    if (!figure) { problems.push(`#${id}: no figure SVG tagged vm-fs-figure`); continue }
+    const f = figure.getBoundingClientRect()
+    const b = bar.getBoundingClientRect()
+    if (Math.abs(f.right - b.right) > 12 || Math.abs(b.top - f.top) > 12) {
+      problems.push(`#${id}: the bar is not at the figure's top-right corner (figure right/top ${Math.round(f.right)}/${Math.round(f.top)}, bar ${Math.round(b.right)}/${Math.round(b.top)})`)
+    }
+  }
+  // A chart in a block is centered; a bare cell's chart keeps its place.
+  const centred = (id) => {
+    const svg = document.querySelector(`#${id} svg.vm-fs-figure`)
+    const cell = svg && svg.closest('.cell-output-display')
+    if (!svg || !cell) return null
+    const s = svg.getBoundingClientRect()
+    const c = cell.getBoundingClientRect()
+    return {offset: Math.round(s.left + s.width / 2 - (c.left + c.width / 2)), left: Math.round(s.left - c.left)}
+  }
+  const inBlock = centred('in-block')
+  if (inBlock && Math.abs(inBlock.offset) > 2) problems.push(`#in-block: the figure is ${inBlock.offset}px off the block's centre`)
+  const bare = centred('bare')
+  if (bare && bare.left > 2) problems.push(`#bare: the bare cell's figure was moved ${bare.left}px from the cell's left edge`)
+  return problems
+}
+
+async function modebarProblems(page) {
+  const problems = [...await page.evaluate(modebarLayoutProblems)]
+  // The interactions below need the bars the layout check looks for.
+  if (problems.length > 0) return problems
+  // A re-run keeps the same bar.
+  const before = await page.evaluateHandle(() => document.querySelector('#in-block .vm-svg-modebar'))
+  await page.locator('#in-block input[type=range]').fill('35')
+  await page.waitForTimeout(300)
+  const kept = await page.evaluate((old) => {
+    const bars = document.querySelectorAll('#in-block .vm-svg-modebar')
+    return bars.length === 1 && bars[0] === old
+  }, before)
+  if (!kept) problems.push('#in-block: a re-run rebuilt the bar or added a second one')
+  // Hidden at rest, shown on hover.
+  await page.mouse.move(0, 0)
+  await page.waitForTimeout(300)
+  const rest = await page.evaluate(() => getComputedStyle(document.querySelector('#bare .vm-svg-modebar')).opacity)
+  if (rest !== '0') problems.push(`#bare: the bar shows at rest (opacity ${rest})`)
+  await page.locator('#bare svg.vm-fs-figure').hover()
+  await page.waitForTimeout(300)
+  const hovered = await page.evaluate(() => getComputedStyle(document.querySelector('#bare .vm-svg-modebar')).opacity)
+  if (hovered !== '1') problems.push(`#bare: the bar does not show on hover (opacity ${hovered})`)
+  // Fullscreen enlarges the host and letterboxes the figure.
+  for (const id of ['in-block', 'bare']) {
+    await page.locator(`#${id} svg.vm-fs-figure`).hover()
+    await page.locator(`#${id} .vm-svg-modebar-button[data-vm-button="fullscreen"]`).click({ timeout: 2000 }).catch(() => {})
+    await page.waitForTimeout(500)
+    const problem = await page.evaluate((caseId) => {
+      const host = document.querySelector(`#${caseId} .vm-svg-host`) ?? document.querySelector(`#${caseId}.vm-svg-host`)
+      if (!document.fullscreenElement) return 'fullscreen did not open'
+      if (document.fullscreenElement !== host) return `fullscreen enlarged ${document.fullscreenElement.className}, not the host`
+      const f = host.querySelector('svg.vm-fs-figure').getBoundingClientRect()
+      const fillsWidth = f.width > window.innerWidth * 0.9
+      const fillsHeight = f.height > window.innerHeight * 0.75
+      if (!fillsWidth && !fillsHeight) return `the figure is ${Math.round(f.width)}x${Math.round(f.height)} in a ${window.innerWidth}x${window.innerHeight} fullscreen`
+      return null
+    }, id)
+    if (problem) problems.push(`#${id}: ${problem}`)
+    await page.evaluate(() => document.fullscreenElement && document.exitFullscreen())
+    await page.waitForTimeout(300)
+  }
+  // A Plotly block that also holds a Plot chart is fullscreened by Plotly's
+  // own button and laid out by the Plotly chain alone. With the SVG chain
+  // also applying, the two fought and the Plot figure collapsed to 0x0 below
+  // the screen.
+  await page.locator('#plotly .js-plotly-plot').hover()
+  await page.locator('#plotly .modebar-btn[data-title="Toggle fullscreen"]').click({ timeout: 2000 }).catch(() => {})
+  await page.waitForTimeout(500)
+  const plotlyProblem = await page.evaluate(() => {
+    const block = document.querySelector('#plotly .ojs-chart-block')
+    if (document.fullscreenElement !== block) return 'Plotly\'s fullscreen button did not fullscreen its block'
+    const figure = block.querySelector('svg.vm-fs-figure').getBoundingClientRect()
+    if (figure.width < 1 || figure.height < 1 || figure.bottom > window.innerHeight + 1) {
+      return `the Plot figure is not on screen in fullscreen (${Math.round(figure.width)}x${Math.round(figure.height)} at top ${Math.round(figure.top)})`
+    }
+    return null
+  })
+  if (plotlyProblem) problems.push(`#plotly: ${plotlyProblem}`)
+  await page.evaluate(() => document.fullscreenElement && document.exitFullscreen())
+  await page.waitForTimeout(300)
+  return problems
+}
+
+async function checkModebarPage(context, base, relPath) {
+  const errors = []
+  const page = await context.newPage()
+  page.on('pageerror', err => errors.push(`pageerror: ${err.message}`))
+  page.on('console', msg => {
+    if (msg.type() === 'error') errors.push(`console.error: ${msg.text()}`)
+  })
+  for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
+  // whenAdded runs a frame after the last cell lands.
+  await page.waitForTimeout(300)
+  for (const problem of await modebarProblems(page)) errors.push(`desktop: ${problem}`)
+  await page.close()
+  return errors
+}
+
 async function main() {
   if (!process.argv.includes('--no-render')) {
     render(siteDir)
@@ -1133,7 +1274,7 @@ async function main() {
   let failed = false
   try {
     const runs = [
-      ...[...pages, ...listingPages, ...dragPages, ...railPages, ...prosePages].map((relPath) => [base, relPath, 'fixtures/layout/']),
+      ...[...pages, ...listingPages, ...dragPages, ...railPages, ...prosePages, ...modebarPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
       ...pageOptionsPages.map((relPath) => [pageOptionsBase, relPath, 'fixtures/page-options/'])
     ]
     for (const [siteBase, relPath, label] of runs) {
@@ -1142,6 +1283,7 @@ async function main() {
       if (prosePages.includes(relPath)) check = checkProsePage
       if (listingPages.includes(relPath)) check = checkCardsPage
       if (dragPages.includes(relPath)) check = checkDragPage
+      if (modebarPages.includes(relPath)) check = checkModebarPage
       if (siteBase === pageOptionsBase) check = checkPostsPage
       const errors = await check(context, siteBase, relPath)
       if (errors.length === 0) {

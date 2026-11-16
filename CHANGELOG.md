@@ -10,6 +10,15 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- SVG modebar: every Observable Plot chart gets a modebar with a fullscreen button, with no markup. It is pinned to the figure's top-right corner and shows on hover, like a Plotly chart's. Fullscreen enlarges the chart's `.ojs-chart-block`, or, without one, its cell's output, so a title, key or stat row comes along. A button added to it later reaches every SVG chart. `data-vm-modebar="off"` on a chart or an ancestor leaves it out. A chart in a bare cell keeps its on-page layout.
+
+### Changed
+
+- `ojs-svg-block` is needed only for a hand-built `<svg>`; an Observable Plot chart no longer needs it, and keeps working with it. A Plot chart in an `.ojs-chart-block` without the class is now centered in the block, as with it.
+- The SVG fullscreen button's markup is `<div class="vm-svg-modebar">` holding `<button class="vm-svg-modebar-button" data-vm-button="fullscreen">`, on a host tagged `vm-svg-host`; `vm-fullscreen-toggle` is gone. A site that styled that class restyles the new ones.
+
 ## [1.5.2] - 2026-11-16
 
 ### Fixed

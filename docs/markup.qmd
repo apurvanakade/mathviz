@@ -27,7 +27,8 @@ chartColors = VM.plotting.colors(vmTheme)
 | [`ojs-fill`](#ojs-fill) / `ojs-auto` / `ojs-end` | an input's wrapper (`classList.add`) | fill the row / natural width / push to the right edge |
 | [`ojs-chart-block`](#ojs-chart-block) | a div around the chart cell(s) | anchor for the legend; what fullscreen enlarges |
 | [`ojs-chart-controls`](#ojs-chart-controls) | a div **inside** the block, holding sliders | a bar directly above the chart that comes along into fullscreen |
-| [`ojs-svg-block`](#ojs-svg-block) | alongside `ojs-chart-block`, for SVG charts | adds the fullscreen button Plotly charts get from the modebar |
+| [`ojs-svg-block`](#ojs-svg-block) | alongside `ojs-chart-block`, for a hand-built `<svg>` chart | gives it the SVG modebar Observable Plot charts get automatically |
+| [`data-vm-modebar="off"`](#svg-modebar) | an SVG chart or any ancestor | no SVG modebar on that chart |
 | [`plotly-box-large`](#plotly-box-large) | the Plotly graph div | the one shipped chart size |
 | [`vm-swatch vm-swatch-alt`](#vm-swatch) (one modifier per palette color, plus `-accent`) | a `<span>` in prose | tints a color word with the matching palette color |
 | [`vm-invalid`](#vm-invalid) | an `<input>` | red border and tint for a field that failed validation |
@@ -173,11 +174,19 @@ mainPlot = { ... }
 :::
 ````
 
+### The SVG modebar {#svg-modebar}
+
+Every **Observable Plot** chart gets a modebar, with no markup: a small bar pinned to the top-right corner of the figure that appears when the reader hovers the chart, the counterpart of a Plotly chart's modebar. Today it holds the fullscreen button. A button added to it in a later release reaches every Plot chart on its own.
+
+Fullscreen enlarges the chart's nearest [`ojs-chart-block`](#ojs-chart-block), so a controls bar, key or stat row in it comes along, and keeps the figure's aspect ratio. A chart with no block is enlarged with whatever its cell draws (a title, a key under it). In a block, the figure is centered. A chart in a bare cell keeps its own alignment. The bar survives re-runs of the cell.
+
+To leave a chart without one, put `data-vm-modebar="off"` on it or on any element around it.
+
+Hover the chart on the [`VM.discreteMath` page](reference/discrete-math.qmd#live) or in the starter's [observable-plot.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd) to see the bar.
+
 ### `ojs-svg-block` {#ojs-svg-block}
 
-For a chart drawn as inline SVG -- Observable Plot, or a hand-built `<svg>` -- which has no Plotly modebar. Put it **on the same element** as `ojs-chart-block` and nothing else: the library adds a fullscreen button pinned to the top-right corner of the figure, centers the figure in the block, and keeps its aspect ratio in fullscreen. The button survives re-runs of the cell.
-
-The [`VM.discreteMath` page](reference/discrete-math.qmd#live) and the starter's [observable-plot.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/observable-plot.qmd) use it. Hover the chart there to see the button.
+For a chart drawn as a **hand-built `<svg>`**, which the library can't tell from an icon. Put it on the same element as `ojs-chart-block` (`class="ojs-chart-block ojs-svg-block"`), and the block's SVG gets the [SVG modebar](#svg-modebar), exactly as an Observable Plot chart does. An Observable Plot chart doesn't need it.
 
 ### `plotly-box-large` {#plotly-box-large}
 

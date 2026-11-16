@@ -31,8 +31,8 @@
   overflow: visible;
 }
 
-/* In an .ojs-svg-block the figure is centered (chart-block.css), so its key
- * is too. */
-.ojs-svg-block .vm-static-key {
+/* In a chart block holding an SVG chart the figure is centered
+ * (chart-block.css), so its key is too. */
+.ojs-chart-block.vm-svg-host .vm-static-key {
   justify-content: center;
 }

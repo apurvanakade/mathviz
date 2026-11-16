@@ -35,7 +35,7 @@ These hold across the whole surface, so each page states only its exceptions.
 
 **Colors are read when you ask, not when the page loads.** `colors()`, `alpha()` and the three `discreteMath` color helpers return whatever the active theme says right now. Call them inside the cell that builds the traces, and make that cell depend on `vmTheme` so it re-runs on a toggle -- see [`onThemeChange`](plotting.qmd#onThemeChange).
 
-**Self-installing modules take no call.** The Plotly patch, slider playback, the draggable legend, the SVG fullscreen button and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the [markup contract](../markup.qmd).
+**Self-installing modules take no call.** The Plotly patch, slider playback, the draggable legend, the SVG modebar and the slider-track fill all find their markup themselves. What each looks for, and how to opt out, is in the [markup contract](../markup.qmd).
 
 ## What needs what
 
@@ -56,7 +56,7 @@ Nothing here imports anything. Where a function needs a library, it takes it as 
 | `VM.ui.legendOverlay` | nothing -- plain DOM. It *implements* Observable's view contract; it doesn't require Observable |
 | `VM.ui.renderTable` | nothing -- plain DOM. Emits Bootstrap table classes |
 | `VM.ui.applyExampleParams` | views that follow Observable Inputs' `value` + `"input"` protocol |
-| slider playback, draggable legend, SVG fullscreen button, slider fill | nothing -- self-installing on the [markup](../markup.qmd) they look for |
+| slider playback, draggable legend, SVG modebar, slider fill | nothing -- self-installing on the [markup](../markup.qmd) they look for |
 
 ## Where the signatures live
 
