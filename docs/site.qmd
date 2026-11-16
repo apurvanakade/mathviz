@@ -107,7 +107,7 @@ A lighter look for every `vm-app`, for a site whose pages are mostly prose (a bl
 - The slider bar's labels sit above their controls, as the panel's do, and a panel grid of sliders takes the bar's columns, so every label and control lines up down the app.
 - A stat row's readouts are inline label/value pairs split by thin rules instead of tiles.
 - The floating legend has no border or shadow.
-- The Share button is a plain link that shows while the pointer is over the app (always, on a touch screen).
+- If `share` is on, its button is a plain link that shows while the pointer is over the app (always, on a touch screen).
 
 To try it on one page first, use `mathviz-page: {quiet-apps: true}` in that page's front matter.
 
