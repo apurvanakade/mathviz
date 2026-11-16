@@ -29,8 +29,8 @@ So the everyday loops are:
   reference entry and CHANGELOG line. Try it on a real page first with
   `quarto add /path/to/mathviz` (below).
 - **Documenting, or editing the guide or the starter** — a PR here.
-- **Releasing** — automatic: `/land-pr` releases every merged change (see
-  Releasing below); consumers pick it up on their next render.
+- **Releasing** — every merged change is released (see Releasing below);
+  consumers pick it up on their next render.
 
 ## Commands
 
@@ -73,21 +73,20 @@ kit/                   what a consumer site copies in: update-mathviz.sh (pre-re
 - **`src/css` targets Quarto OJS and Observable Inputs markup on purpose** — `.cell-output-display` (Quarto's per-cell output wrapper), `.quarto-layout-cell`, `form[class^="oi-"]` (Observable Inputs' generated forms). Quarto OJS is the primary host; the rules are harmless elsewhere. Observable Inputs injects its own `.oi-<hash>` rules into `<head>` at runtime, *after* any stylesheet, so a rule of ours that ties on specificity with one of those loses silently and only in the browser — out-specify it (scope under `.ojs-panel`/`.ojs-chart-controls` plus `form[class^="oi-"]`) or use `!important`, as the existing rules do.
 - **Every public function has a JSDoc block** in the style of `src/js/plotting/padded-range.js` (summary, `@param` with types and `[opts.key=default]`, `@returns` with the exact shape, and the edge behaviour: what returns `null`, what isn't validated). The prose comments around it carry the *why*; don't fold them into the JSDoc or delete them. The build concatenates comments into `dist/`, so they reach consumers.
 - **Every `VM.*` member has a `### VM.<category>.<name>(…) {#name}` heading in `docs/reference/<category>.qmd`** (`discreteMath` → `discrete-math.qmd`). `scripts/docs-coverage.test.js` loads the bundle, walks `VM`, and fails on any member without a heading or heading without a member. The entry lands in the same PR as the member.
-- **Every token in `tokens.css` has a row in `docs/theming.qmd`'s live table; every other `--vm-*` property and every `ojs-*`/`vm-*` class the CSS uses is mentioned in `markup.qmd`, `theming.qmd` or `reference/internals.qmd`.** `scripts/css-coverage.test.js` enforces it (comments stripped first). It checks names, not prose: a changed value under an unchanged name still needs a read of the diff against the guide, which is step 4 of `/land-pr`.
+- **Every token in `tokens.css` has a row in `docs/theming.qmd`'s live table; every other `--vm-*` property and every `ojs-*`/`vm-*` class the CSS uses is mentioned in `markup.qmd`, `theming.qmd` or `reference/internals.qmd`.** `scripts/css-coverage.test.js` enforces it (comments stripped first). It checks names, not prose: a changed value under an unchanged name still needs a read of the diff against the guide.
 - **A PR that touches `src/` must touch `CHANGELOG.md`** — CI's `changelog` job, skipped by the `no-changelog` label.
-- **Nothing merges itself**, including the release PR. Land any PR with the `/land-pr` skill (`.claude/skills/land-pr/SKILL.md`), run when asked: fix or answer the review comments (Copilot's; when Copilot is out of credits, a fresh local agent briefed as a maintainer reviews in its place, `.claude/skills/land-pr/maintainer-review.md`), check the guide and CHANGELOG against the diff, wait for green CI, squash-merge, then release: it runs the `Release` workflow (minor bump if `[Unreleased]` has Added/Removed/Deprecated, else patch; skipped when `[Unreleased]` is empty) and lands the release PR in the same session. A release PR (`release/v*`) gets no review or drift pass, only a check that its diff touches nothing but the files the release writes, then green CI.
 - Every new file starts with the license header for its type — see CONTRIBUTING.md.
 
 ## Releasing
 
-`/land-pr` does both steps right after merging any PR (its step 9); by hand:
+Every merged change is released right away, in two steps:
 
 1. Run the **`Release`** workflow with the new version. `scripts/release.mjs`
    sets the three version files, moves `CHANGELOG.md`'s `[Unreleased]` under
    the version and bumps the `apurvanakade/mathviz@vX.Y.Z` install snippets;
    the workflow rebuilds, tests and opens a `release/vX.Y.Z` PR. (Running
    the script by hand and opening the PR yourself works too.)
-2. Land it with `/land-pr`. Once it reaches `main`, `tag-release.yml` tags
+2. Merge the release PR. Once it reaches `main`, `tag-release.yml` tags
    the version, and `docs.yml` republishes the docs site.
 
 Consumers running `kit/update-mathviz.sh` as a pre-render hook get the new tag
