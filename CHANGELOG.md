@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-11-17
+
 ### Added
 
 - `VM.plotting.persistentPlot({aspectRatio})` (and `persistentPlot3d`): a full-width chart whose height follows a width / height ratio, e.g. `1` for a square, instead of the main chart box's 72vh or a fixed `height`. Fullscreen and embed mode size it as before. The starter's draggable-points triangle uses it.
@@ -545,7 +547,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/apurvanakade/mathviz/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/apurvanakade/mathviz/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/apurvanakade/mathviz/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/apurvanakade/mathviz/compare/v1.5.2...v1.6.0
