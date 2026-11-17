@@ -2361,7 +2361,7 @@
    * the 3-D tools (turntable/orbit rotation, pan, zoom, reset camera).
    *
    * @param {Object} [opts] - As for {@link persistentPlot}: `className`,
-   *   `height`.
+   *   `height`, `aspectRatio`.
    * @returns {((data: Object[], layout: Object, config?: Object) => HTMLElement) & {div: HTMLElement|null}}
    *   Draws or redraws and returns the same div every time; `div` as for
    *   {@link persistentPlot}. The layout's
