@@ -4,16 +4,15 @@
  * Authors: Apurva Nakade
  */
 
-// Sidebar rail: opt-in with `mathviz: {sidebar-rail: true}` (or a string,
-// the localStorage key the pin is kept under, or a map of `pin-key` and
-// `default`; see mathviz.lua). Quarto's
-// sidebar (#quarto-sidebar) is off-canvas only below 992px; sidebar-rail.css
-// makes it off-canvas at every width, driven by .vm-sidebar-open and
-// .vm-sidebar-pinned on <html>, which this script owns. In exchange it
-// provides a permanently visible way back in: a slim rail at the left edge
-// with a hamburger to open the sidebar and a pin to keep it open across
-// pages. Escape, a click outside, or the hamburger again closes an unpinned
-// sidebar; the hamburger or Escape closes and unpins a pinned one.
+// Sidebar rail: opt-in with `mathviz: {sidebar-rail: true}` (or a string, the
+// localStorage key the pin is kept under, or a map of `pin-key` and `default`;
+// see mathviz.lua). Quarto's sidebar (#quarto-sidebar) is off-canvas only
+// below 992px; sidebar-rail.css makes it off-canvas at every width, driven by
+// .vm-sidebar-open and .vm-sidebar-pinned on <html>, which this script owns.
+// In exchange it provides a permanently visible way back in: a slim rail at
+// the left edge with a hamburger to open the sidebar and a pin to keep it open
+// across pages. Escape, a click outside, or the hamburger again closes an
+// unpinned sidebar; the hamburger or Escape closes and unpins a pinned one.
 //
 // Pinned is the default from 992px up, until the reader chooses otherwise
 // (the choice is what's stored): a reader who never found the pin never
@@ -35,12 +34,13 @@
 // apply before the first paint -- and, when the sidebar is pinned,
 // .vm-sidebar-open and .vm-sidebar-pinned with it, so a docked page is laid
 // out docked from the start rather than jumping sideways (and the panel
-// sliding in) after load on every page. That is why the state classes are
-// on <html>, not <body> (which doesn't exist yet), and why mathviz.lua
-// emits the storage key's and the default's <meta> above this script. At DOMContentLoaded it
-// takes all three off again on a page with no Quarto sidebar navigation,
-// where it does nothing else. In embed mode (html.vm-embed) the rail class
-// stays, for the page grid, and no rail is built.
+// sliding in) after load on every page. That is why the state classes are on
+// <html>, not <body> (which doesn't exist yet), and why mathviz.lua emits the
+// storage key's and the default's <meta> above this script. At
+// DOMContentLoaded it takes all three off again on a page with no Quarto
+// sidebar navigation, where it does nothing else. In embed mode
+// (html.vm-embed) the rail class stays, for the page grid, and no rail is
+// built.
 (function attachSidebarRail() {
   var root = document.documentElement
   var keyMeta = document.querySelector('meta[name="mathviz:sidebar-pin-key"]')
