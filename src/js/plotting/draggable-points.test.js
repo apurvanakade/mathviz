@@ -602,7 +602,7 @@ test('pan without jump or add is refused', () => {
   assert.throws(() => draggablePoints(chart(), {value: [], pan: true}), TypeError)
 })
 
-test('with remove, a right-click removes a point and keeps the menu off it; a ctrl-click does not drag', () => {
+test('with remove, a right-click removes a point and keeps the menu off it', () => {
   const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.1}, {x: 2, y: 0.2}, {x: 3, y: 0.3}], remove: true, minPoints: 1})
   const changes = countEvents(gd, 'change')
   const menu = fire(handlesOf(gd)[1], 'contextmenu')
@@ -613,9 +613,31 @@ test('with remove, a right-click removes a point and keeps the menu off it; a ct
   fire(handlesOf(gd)[0], 'contextmenu')
   fire(handlesOf(gd)[0], 'contextmenu')
   assert.deepEqual(gd.value, [{x: 3, y: 0.3}])
+})
+
+test('with remove, a Mac ctrl-click (pointerdown then contextmenu) removes the point and ends its drag', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.1}, {x: 2, y: 0.2}, {x: 3, y: 0.3}], remove: true, minPoints: 1})
+  const changes = countEvents(gd, 'change')
   const [handle] = handlesOf(gd)
   fire(handle, 'pointerdown', {ctrlKey: true, clientX: 110, clientY: 110})
-  assert.ok(!handle.classes.has('vm-drag-active'))
+  fire(handle, 'contextmenu')
+  assert.deepEqual(gd.value, [{x: 2, y: 0.2}, {x: 3, y: 0.3}])
+  assert.ok(!handlesOf(gd).some((h) => h.classes.has('vm-drag-active')))
+  assert.equal(changes.count, 1)
+})
+
+test("a replaced instance's long-press timer is cleared", (t) => {
+  t.mock.timers.enable({apis: ['setTimeout', 'Date']})
+  const host = chart()
+  const gd = draggablePoints(host, {value: [{x: 2, y: 0.5}, {x: 4, y: 0.5}], remove: true})
+  const input = countEvents(gd, 'input')
+  const change = countEvents(gd, 'change')
+  fire(handlesOf(gd)[0], 'pointerdown', {pointerType: 'touch', clientX: 90, clientY: 70})
+  const next = draggablePoints(host, {value: [{x: 2, y: 0.5}, {x: 4, y: 0.5}], remove: true})
+  t.mock.timers.tick(600)
+  assert.equal(input.count, 0)
+  assert.equal(change.count, 0)
+  assert.equal(next.value.length, 2)
 })
 
 test('without remove, a right-click on a point shows the browser menu', () => {

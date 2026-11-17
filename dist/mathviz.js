@@ -3031,8 +3031,6 @@
         handle.style.color = (colors ? colors[i] : opts.color) ?? "var(--vm-color-fn)"
         handle.addEventListener("pointerdown", (event) => {
           if (event.button !== undefined && event.button !== 0) return
-          // Ctrl-click on a Mac is a right-click: it removes, not drags.
-          if (opts.remove && event.ctrlKey && event.pointerType === "mouse") return
           // Not cancelled: the browser's own press-focus is what gives the
           // keyboard the point without a focus ring, which a script focus()
           // after a cancelled press would draw. The point's CSS stops a text
@@ -3064,7 +3062,7 @@
             event.preventDefault()
             removeAt(i, false)
           }, {signal})
-          // A right-click, and a Mac's ctrl-click or two-finger click; the
+          // A right-click, and a Mac's ctrl-click (a drag the removal ends) or two-finger click; the
           // browser's menu stays off the point only. Android's echo of a
           // long press that already removed a point is swallowed.
           handle.addEventListener("contextmenu", (event) => {
@@ -3233,6 +3231,8 @@
     })
 
     const detach = () => {
+      clearTimeout(longPress)
+      if (activeDrag) activeDrag()
       listeners.abort()
       unlisten()
       layer.remove()
