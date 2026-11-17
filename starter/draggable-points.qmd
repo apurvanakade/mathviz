@@ -14,7 +14,8 @@ Authors: Apurva Nakade
 Shows: points the reader drags on a Plotly chart, as an OJS view
 (VM.plotting.draggablePoints). Three corners and a point P; `constrain`
 keeps P inside the triangle. The chart is drawn by a separate cell, so a
-theme toggle redraws it without moving the points.
+theme toggle redraws it without moving the points. Below it, a scatter
+the reader places (`add`, `remove`) and pans (`pan`).
 
   draggablePoints: https://apurvanakade.github.io/mathviz/docs/reference/plotting.html#draggablePoints
 -->
@@ -113,3 +114,39 @@ viewof points = VM.plotting.draggablePoints(trianglePlot, {
   return html`a = <b>${w.a.toFixed(2)}</b>, b = <b>${w.b.toFixed(2)}</b>, c = <b>${w.c.toFixed(2)}</b>`
 }
 ```
+
+## Placing points
+
+A scatter the reader builds: click the chart to add a point, drag a point to move it, and drag empty space to pan. Right-click, double-click or long-press a point to remove it. The mean of the points is the cross.
+
+```{ojs}
+//| output: false
+scatterPlot = VM.plotting.persistentPlot({height: "360px"})
+```
+
+::: {.ojs-chart-block}
+```{ojs}
+// `pan` tells a click on the plot area (adds a point, on the release) from
+// a drag (pans the chart); `remove` stops at two points.
+viewof placed = VM.plotting.draggablePoints(scatterPlot, {
+  value: [{x: 1, y: 1}, {x: 2, y: 2.5}, {x: 3.5, y: 2}],
+  add: true, pan: true, remove: true, minPoints: 2, maxPoints: 30,
+  xBounds: [0, 5], yBounds: [0, 4], label: "Point"
+})
+```
+```{ojs}
+//| output: false
+// Paints the mean. The axes move under a pan; `uirevision` keeps the
+// panned view through this redraw.
+{
+  const mean = {x: d3.mean(placed, p => p.x), y: d3.mean(placed, p => p.y)}
+  return scatterPlot([
+    {x: [mean.x], y: [mean.y], mode: "markers", hoverinfo: "skip",
+      marker: {symbol: "x-thin", size: 16, line: {width: 3, color: chartColors.accent2}}}
+  ], {
+    showlegend: false, hovermode: false, uirevision: "static",
+    xaxis: {range: [0, 5], zeroline: false}, yaxis: {range: [0, 4], zeroline: false}
+  })
+}
+```
+:::

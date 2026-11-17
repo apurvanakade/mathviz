@@ -99,6 +99,7 @@ const shownBy = [
     pattern: /VM\.plotting\.draggablePoints\(/,
     names: ['vm-drag-host', 'vm-drag-layer', 'vm-drag-pad', 'vm-drag-point', 'vm-drag-active']
   },
+  { what: 'VM.plotting.draggablePoints({pan})', pattern: /draggablePoints\([^)]*\bpan:\s*true/, names: ['vm-drag-panning'] },
   {
     what: 'an Observable Plot chart in a chart block (SVG modebar, fullscreen)',
     pattern: /Plot\.plot\(/,

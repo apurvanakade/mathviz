@@ -31,8 +31,15 @@
   // scroll, which the browser reports as `pointercancel`).
   //
   // With `add`, the same press on the plot area adds a point there instead,
-  // and with `remove` a double-click (or Delete on a focused point) takes one
-  // away: points the reader places, as in a regression demo. A `"change"`
+  // and with `remove` a right-click, a double-click, a long press on a touch
+  // screen, or Delete on a focused point takes one away: points the reader
+  // places, as in a regression demo.
+  //
+  // With `pan`, a mouse press on the plot area is told apart by how far it
+  // travels before the release: one that stays within a few pixels is a
+  // click and adds (or jumps) on the release, one that moves further pans
+  // the chart and adds nothing. A pan is a GUI relayout, so the chart's
+  // `uirevision` keeps it across redraws. A `"change"`
   // event follows each finished edit -- a drag released, a key press, a point
   // added or removed -- the way a native range fires `input` while it moves
   // and `change` when it lets go, so a page can redo slow work (a fitted
@@ -65,6 +72,17 @@
 
 
   const copyPoint = (point) => ({x: Number(point.x), y: Number(point.y)})
+
+  // How far, in CSS pixels, a mouse press on the pad may travel and still be
+  // a click; past it, with `pan`, it is a pan.
+  const CLICK_SLOP = 4
+  // A long press removes a point: held this long (ms) without moving more
+  // than LONG_PRESS_SLOP pixels.
+  const LONG_PRESS_MS = 500
+  const LONG_PRESS_SLOP = 8
+  // Android also reports a long press as a contextmenu event; one that comes
+  // this soon (ms) after a long press removed a point belongs to that press.
+  const LONG_PRESS_ECHO_MS = 800
 
   /**
    * Draggable points on a Plotly chart, as an OJS view. Call it in a
@@ -112,9 +130,17 @@
    *   press keeps dragging the new point). Takes the plot area's pointer
    *   events like `jump`, and can't be combined with it. Needs an array
    *   `value`.
-   * @param {boolean} [opts.remove=false] - Let a double-click on a point,
-   *   or Delete/Backspace while it has focus, remove it. Needs an array
-   *   `value`.
+   * @param {boolean} [opts.pan=false] - With `jump` or `add`: a mouse press
+   *   on the plot area that moves more than a few pixels pans the chart
+   *   (every axis of the points' subplot that isn't `fixedrange`) instead,
+   *   and one that doesn't is a click, which jumps or adds on its release
+   *   rather than on the press -- so a mouse press no longer keeps dragging
+   *   the point it placed. A touch is unchanged: a tap adds or jumps, a
+   *   swipe scrolls the page.
+   * @param {boolean} [opts.remove=false] - Let a right-click, a
+   *   double-click or a long press (a touch held still for half a second) on
+   *   a point, or Delete/Backspace while it has focus, remove it. Needs an
+   *   array `value`.
    * @param {number} [opts.minPoints=0] - `remove` stops at this many.
    * @param {number} [opts.maxPoints=Infinity] - `add` stops at this many.
    * @param {string|string[]} [opts.label="Point"] - Accessible name. With
@@ -140,8 +166,9 @@
    *   is finished: a drag released (if it moved anything), an arrow-key
    *   move, a point added or removed.
    * @throws {TypeError} When `plot` gives no drawn Plotly div,
-   *   `opts.value` is missing, `add` is combined with `jump`, or `add` or
-   *   `remove` is given a single point.
+   *   `opts.value` is missing, `add` is combined with `jump`, `add` or
+   *   `remove` is given a single point, or `pan` is given without `jump` or
+   *   `add`.
    */
   const draggablePoints = (plot, opts = {}) => {
     if (opts.value === null || typeof opts.value !== "object") {
@@ -154,6 +181,9 @@
     }
     if (single && (opts.add || opts.remove)) {
       throw new TypeError("draggablePoints: `add` and `remove` need an array `value`")
+    }
+    if (opts.pan && !opts.add && !opts.jump) {
+      throw new TypeError("draggablePoints: `pan` shares the plot area with `jump` or `add`; without either, the chart's own dragmode pans it")
     }
     const minPoints = opts.minPoints ?? 0
     const maxPoints = opts.maxPoints ?? Infinity
@@ -301,11 +331,16 @@
       handle.classList.add("vm-drag-active")
       const drag = new AbortController()
       let edited = changed
-      const finish = () => {
+      const stop = () => {
         handle.classList.remove("vm-drag-active")
         drag.abort()
+        if (activeDrag === stop) activeDrag = null
+      }
+      const finish = () => {
+        stop()
         if (edited) notify("change")
       }
+      activeDrag = stop
       const move = (moveEvent) => {
         if (moveEvent.pointerId !== event.pointerId) return
         // `buttons` is 0 once the primary button is up; a touch or pen
@@ -359,9 +394,13 @@
 
     // Removes point `index`. From the keyboard the focus moves on to the
     // point that took its place (or the new last one), so Delete pressed
-    // again keeps removing; from a double-click it is left alone.
+    // again keeps removing; from a pointer it is left alone. A drag still
+    // under way (a long press, a right-click mid-drag) ends without its own
+    // "change": the removal fires one.
     const removeAt = (index, keyboard) => {
       if (points.length <= minPoints) return
+      if (activeDrag) activeDrag()
+      clearTimeout(longPress)
       points.splice(index, 1)
       names?.splice(index, 1)
       colors?.splice(index, 1)
@@ -383,6 +422,39 @@
       build()
       notify("input")
       return index
+    }
+
+    // The drag in progress, as the function that ends it silently; the
+    // pending long-press timer; and when a long press last removed a point.
+    let activeDrag = null
+    let longPress
+    let longPressRemovedAt = -Infinity
+
+    // Arms the long press for a touch or pen press on point `index`: held
+    // still, it removes the point; moved, released or cancelled first, it
+    // is a drag or a tap as usual.
+    const armLongPress = (handle, event, index) => {
+      clearTimeout(longPress)
+      const press = new AbortController()
+      const disarm = () => {
+        clearTimeout(longPress)
+        press.abort()
+      }
+      longPress = setTimeout(() => {
+        press.abort()
+        longPressRemovedAt = Date.now()
+        removeAt(index, false)
+      }, LONG_PRESS_MS)
+      handle.addEventListener("pointermove", (moveEvent) => {
+        if (moveEvent.pointerId !== event.pointerId) return
+        const distance = Math.hypot(moveEvent.clientX - event.clientX, moveEvent.clientY - event.clientY)
+        if (distance > LONG_PRESS_SLOP) disarm()
+      }, {signal: press.signal})
+      for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+        handle.addEventListener(type, (endEvent) => {
+          if (endEvent.pointerId === event.pointerId) disarm()
+        }, {signal: press.signal})
+      }
     }
 
     const build = () => {
@@ -409,6 +481,7 @@
           // never reaches that.
           const center = handleCenter(i)
           startDrag(handle, event, i, {x: event.clientX - center.x, y: event.clientY - center.y})
+          if (opts.remove && event.pointerType !== undefined && event.pointerType !== "mouse") armLongPress(handle, event, i)
         }, {signal})
         handle.addEventListener("keydown", (event) => {
           const step = keyStep()
@@ -430,6 +503,14 @@
         if (opts.remove) {
           handle.addEventListener("dblclick", (event) => {
             event.preventDefault()
+            removeAt(i, false)
+          }, {signal})
+          // A right-click, and a Mac's ctrl-click (a drag the removal ends) or two-finger click; the
+          // browser's menu stays off the point only. Android's echo of a
+          // long press that already removed a point is swallowed.
+          handle.addEventListener("contextmenu", (event) => {
+            event.preventDefault()
+            if (Date.now() - longPressRemovedAt < LONG_PRESS_ECHO_MS) return
             removeAt(i, false)
           }, {signal})
         }
@@ -484,11 +565,99 @@
         }
         // Stops the press starting a text selection on the page.
         event.preventDefault()
+        if (opts.pan) {
+          clickOrPan(event)
+          return
+        }
         const index = jump(event)
         if (index < 0) return
         focusQuietly(handles[index])
         startDrag(pad, event, index, {x: 0, y: 0}, pressChanged)
       }, {signal})
+
+      // With `pan`: a mouse press that comes back up within CLICK_SLOP of
+      // where it went down jumps or adds there; one that travels further
+      // pans, from then to its release, and adds nothing.
+      const clickOrPan = (event) => {
+        if (pad.setPointerCapture) pad.setPointerCapture(event.pointerId)
+        const press = new AbortController()
+        let pan = null
+        const end = () => {
+          press.abort()
+          pad.classList.remove("vm-drag-panning")
+        }
+        pad.addEventListener("pointermove", (moveEvent) => {
+          if (moveEvent.pointerId !== event.pointerId) return
+          // A release this never heard (see startDrag): over, nothing added.
+          if (moveEvent.buttons === 0) {
+            end()
+            return
+          }
+          const dx = moveEvent.clientX - event.clientX
+          const dy = moveEvent.clientY - event.clientY
+          if (!pan) {
+            if (Math.hypot(dx, dy) <= CLICK_SLOP) return
+            pan = startPan()
+            pad.classList.add("vm-drag-panning")
+          }
+          pan(dx, dy)
+        }, {signal: press.signal})
+        pad.addEventListener("pointerup", (up) => {
+          if (up.pointerId !== event.pointerId) return
+          const panned = pan !== null
+          end()
+          if (panned) return
+          // Where the press went down: the click's slop doesn't move it.
+          const index = jump(event)
+          if (index < 0) return
+          focusQuietly(handles[index])
+          if (pressChanged) notify("change")
+        }, {signal: press.signal})
+        for (const type of ["pointercancel", "lostpointercapture"]) {
+          pad.addEventListener(type, (endEvent) => {
+            if (endEvent.pointerId === event.pointerId) end()
+          }, {signal: press.signal})
+        }
+      }
+    }
+
+    // Starts a pan from the axes' current ranges and returns the function
+    // that moves them by a pointer offset (dx, dy) from where it began, so
+    // the chart's content follows the pointer. Axes that are `fixedrange`
+    // stay put. Updates go through Plotly's GUI relayout, as Plotly's own
+    // pan does, so `uirevision` keeps them across a redraw; at most one per
+    // animation frame.
+    const startPan = () => {
+      const found = axes()
+      if (!found) return () => {}
+      const moving = []
+      for (const [key, axis, sign] of [[xKey, found.xa, -1], [yKey, found.ya, 1]]) {
+        if (axis.fixedrange || !Array.isArray(axis.range)) continue
+        const r2l = axis.r2l ?? ((v) => v)
+        moving.push({key, axis, sign, from: [r2l(axis.range[0]), r2l(axis.range[1])]})
+      }
+      let pending = null
+      const flush = () => {
+        const update = pending
+        pending = null
+        const Plotly = globalThis.Plotly
+        const relayout = Plotly?._guiRelayout ?? Plotly?.relayout
+        if (update && relayout) relayout(gd, update)
+      }
+      return (dx, dy) => {
+        if (moving.length === 0) return
+        const scheduled = pending !== null
+        pending = {}
+        for (const {key, axis, sign, from} of moving) {
+          const px = key === xKey ? dx : dy
+          const shift = sign * px * (from[1] - from[0]) / axis._length
+          const l2r = axis.l2r ?? ((v) => v)
+          pending[`${key}.range`] = [l2r(from[0] + shift), l2r(from[1] + shift)]
+        }
+        if (scheduled) return
+        if (typeof globalThis.requestAnimationFrame === "function") globalThis.requestAnimationFrame(flush)
+        else flush()
+      }
     }
 
     build()
@@ -505,6 +674,8 @@
     })
 
     const detach = () => {
+      clearTimeout(longPress)
+      if (activeDrag) activeDrag()
       listeners.abort()
       unlisten()
       layer.remove()

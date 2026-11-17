@@ -40,6 +40,11 @@
   cursor: crosshair;
 }
 
+/* With `pan`, once a press on the pad has moved far enough to be a pan. */
+.vm-drag-pad.vm-drag-panning {
+  cursor: grabbing;
+}
+
 /* The hit target is larger than the dot, and larger again on a touch
  * screen, where a finger covers what it presses. The script translates the
  * box's top-left corner to the point, and the negative margins center it
@@ -59,6 +64,8 @@
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  /* A long press removes the point (with `remove`); no iOS callout menu. */
+  -webkit-touch-callout: none;
 }
 
 @media (pointer: coarse) {
