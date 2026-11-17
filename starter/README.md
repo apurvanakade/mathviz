@@ -44,12 +44,12 @@ The pages, simplest first:
 
 Each file starts with a comment saying what it demonstrates and where the relevant documentation is.
 
-`_quarto.yml` turns on every site option (theme, fonts, sidebar rail and search, embed, Share, Report bug), each with a comment, and two pages turn on one for themselves (`category-cloud`, `quiet-apps`); `banner.html` is a note of the site's own that embedded apps hide. Delete what you don't want.
+`_quarto.yml` turns on every site option (theme, fonts, sidebar rail and search, embed, Share), each with a comment, and two pages turn on one for themselves (`category-cloud`, `quiet-apps`); `banner.html` is a note of the site's own that embedded apps hide. Delete what you don't want.
 
 ## Make it yours
 
 - **Site name, pages, theme**: `_quarto.yml`. The mathviz theme is on; any light/dark Bootswatch pair works instead, and the charts follow the toggle.
-- **Share and Report bug**: set `share: site-url` to your site's address and `report-bug: repo` to its repository.
+- **Share**: set `share: site-url` to your site's address.
 - **Colors and fonts**: add a `styles.css`, list it under `format: html: css:` in `_quarto.yml`, and redeclare `--vm-*` tokens -- see [Theming](https://apurvanakade.github.io/mathviz/docs/theming.html).
 - **Layout classes** (`ojs-panel`, `ojs-row`, `ojs-chart-block`, …): [Markup](https://apurvanakade.github.io/mathviz/docs/markup.html).
 - **Every function**: the [API reference](https://apurvanakade.github.io/mathviz/docs/reference/).

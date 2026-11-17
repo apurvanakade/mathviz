@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a "Report bug" popup, a quieter look for apps). Each is one key under `mathviz:` in `_quarto.yml`, or under `mathviz-page:` in one page's front matter for a piece only that page uses (never `mathviz:` there -- see [Options for one page](install.qmd#page-options)). A site pays only for the pieces it turns on.
+Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a quieter look for apps). Each is one key under `mathviz:` in `_quarto.yml`, or under `mathviz-page:` in one page's front matter for a piece only that page uses (never `mathviz:` there -- see [Options for one page](install.qmd#page-options)). A site pays only for the pieces it turns on.
 
 These come with the Quarto extension only. The plain script bundle doesn't include them.
 
@@ -25,9 +25,6 @@ mathviz:
   share:
     site-url: https://example.com
     embed-docs: embed.html
-  report-bug:
-    repo: owner/name
-    branch: main
   quiet-apps: true
 ```
 
@@ -39,7 +36,6 @@ mathviz:
 | `category-cloud` | `true` | Moves a listing's category cloud above its cards and adds an "All" entry. |
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
 | `share` | a map (see [Share](#share)) | Adds a "Share" button to every app. Turns `embed` on too. |
-| `report-bug` | a map with `repo` (required) and `branch` | Adds a "Report bug" popup when a reader selects text. |
 | `quiet-apps` | `true` | Draws every app without panel boxes, for pages that are mostly prose. |
 
 Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the default is `vm-sidebar-pinned`.
@@ -128,7 +124,7 @@ Adding `?embed=1` to a page's URL shows only the page's first app: no navbar, si
 </iframe>
 ```
 
-A page's own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail, Share button and Report bug popup stay hidden.
+A page's own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail and Share button stay hidden.
 
 ## Share {#share}
 
@@ -201,14 +197,3 @@ For a site with Quarto sidebar navigation, with or without the rail. A search bo
 - A section whose own title matches keeps everything under it. Any other section shows only its matching entries and disappears when it has none. Sections open while a search is active and go back to how they were when it is cleared.
 - Enter opens the first matching page. Escape clears the box and goes no further, so a second Escape closes the rail (or reaches a handler of the site's own).
 - Nothing is stored.
-
-## Report bug
-
-```yaml
-mathviz:
-  report-bug:
-    repo: owner/name
-    branch: main      # the default
-```
-
-When a reader selects text, a small "Report bug" button appears next to it. Clicking it opens a new GitHub issue in `repo`, labelled `bug`, with the page's URL, a link to the page's `.qmd` source on `branch`, and the selected text quoted. The source link assumes the Quarto project is at the repository root. Without `repo` the key is skipped with a warning.
