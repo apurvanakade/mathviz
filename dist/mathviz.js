@@ -2601,6 +2601,13 @@
   // added or removed -- the way a native range fires `input` while it moves
   // and `change` when it lets go, so a page can redo slow work (a fitted
   // window, a refit axis) once per gesture rather than on every frame.
+  //
+  // `visible` hides the whole layer (the `hidden` attribute, so display:
+  // none): the points leave the Tab order and the accessibility tree along
+  // with the screen, and a `jump`/`add` pad goes too, so a press on the plot
+  // area can't move or add a point nobody can see. It is the points' half of
+  // a legend toggle -- they are not Plotly traces, so hiding a trace leaves
+  // them up. The positions are kept, and setting `value` still works.
 
   const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value))
 
@@ -2715,7 +2722,13 @@
    * @param {string} [opts.xaxis="x"] - Axis id the points live on, for a
    *   chart with several subplots.
    * @param {string} [opts.yaxis="y"]
-   * @returns {HTMLElement} The chart's div, with a `value` accessor (a copy,
+   * @param {boolean} [opts.visible=true] - Whether the points show. A
+   *   hidden point can't be focused, dragged or announced, and `jump` and
+   *   `add` stop too; its position is kept.
+   * @returns {HTMLElement} The chart's div, with a `visible` accessor
+   *   (`opts.visible`; set it from a legend toggle, since hiding a trace
+   *   doesn't hide the points -- the chart itself stays up), and a `value`
+   *   accessor (a copy,
    *   `{x, y}` or `{x, y}[]` like `opts.value`; setting an array of another
    *   length rebuilds the points) that dispatches a bubbling `"input"` event
    *   on every move by the reader -- not on a programmatic set, matching
@@ -2778,6 +2791,7 @@
     let pad = null
     let handles = []
     gd.classList.add("vm-drag-host")
+    layer.hidden = opts.visible === false
     gd.append(layer)
 
     const axes = () => {
@@ -2882,22 +2896,28 @@
     // `changed` says the press itself already edited the points (a jump, an
     // add); either way the drag's release fires one "change" if anything
     // changed, and none for a press that moved nothing.
+
     const startDrag = (target, event, index, grab, changed = false) => {
       if (target.setPointerCapture) target.setPointerCapture(event.pointerId)
       const handle = handles[index]
       handle.classList.add("vm-drag-active")
       const drag = new AbortController()
       let edited = changed
+      // `stop` ends the drag silently (a removal fires its own "change");
+      // `finish` also fires the drag's "change" if it moved anything. The
+      // capture is released either way: a point hidden mid-drag need not
+      // lose it by itself.
       const stop = () => {
         handle.classList.remove("vm-drag-active")
         drag.abort()
-        if (activeDrag === stop) activeDrag = null
+        if (target.releasePointerCapture && target.hasPointerCapture?.(event.pointerId)) target.releasePointerCapture(event.pointerId)
+        if (activeDrag?.stop === stop) activeDrag = null
       }
       const finish = () => {
         stop()
         if (edited) notify("change")
       }
-      activeDrag = stop
+      activeDrag = {stop, finish}
       const move = (moveEvent) => {
         if (moveEvent.pointerId !== event.pointerId) return
         // `buttons` is 0 once the primary button is up; a touch or pen
@@ -2956,7 +2976,7 @@
     // "change": the removal fires one.
     const removeAt = (index, keyboard) => {
       if (points.length <= minPoints) return
-      if (activeDrag) activeDrag()
+      activeDrag?.stop()
       clearTimeout(longPress)
       points.splice(index, 1)
       names?.splice(index, 1)
@@ -2981,9 +3001,11 @@
       return index
     }
 
-    // The drag in progress, as the function that ends it silently; the
-    // pending long-press timer; and when a long press last removed a point.
+    // The drag in progress, as {stop, finish} (see startDrag); a `pan`
+    // press in progress, as the function that ends it; the pending
+    // long-press timer; and when a long press last removed a point.
     let activeDrag = null
+    let activePress = null
     let longPress
     let longPressRemovedAt = -Infinity
 
@@ -3142,7 +3164,10 @@
         const end = () => {
           press.abort()
           pad.classList.remove("vm-drag-panning")
+          if (pad.releasePointerCapture && pad.hasPointerCapture?.(event.pointerId)) pad.releasePointerCapture(event.pointerId)
+          if (activePress === end) activePress = null
         }
+        activePress = end
         pad.addEventListener("pointermove", (moveEvent) => {
           if (moveEvent.pointerId !== event.pointerId) return
           // A release this never heard (see startDrag): over, nothing added.
@@ -3232,7 +3257,7 @@
 
     const detach = () => {
       clearTimeout(longPress)
-      if (activeDrag) activeDrag()
+      activeDrag?.stop()
       listeners.abort()
       unlisten()
       layer.remove()
@@ -3240,6 +3265,25 @@
       gd.__vmDragPoints = undefined
     }
     gd.__vmDragPoints = {detach}
+
+    Object.defineProperty(gd, "visible", {
+      configurable: true,
+      get() {
+        return !layer.hidden
+      },
+      set(next) {
+        const show = Boolean(next)
+        if (show === !layer.hidden) return
+        // A drag or `pan` press under way ends here: a hidden element need
+        // not lose its pointer capture, and the point would go on following
+        // the pointer unseen, or a pan's release add one.
+        if (!show) {
+          activeDrag?.finish()
+          activePress?.()
+        }
+        layer.hidden = !show
+      }
+    })
 
     Object.defineProperty(gd, "value", {
       configurable: true,

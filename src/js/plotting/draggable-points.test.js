@@ -689,3 +689,60 @@ test('a mouse held still on a point is not a long press', (t) => {
   t.mock.timers.tick(1000)
   assert.equal(gd.value.length, 2)
 })
+
+test('visible hides the layer, keeps the value, and can be set back without an event', () => {
+  const gd = draggablePoints(chart(), {value: {x: 5, y: 0.25}, visible: false})
+  const inputs = countInputs(gd)
+  assert.equal(gd.visible, false)
+  assert.equal(layerOf(gd).hidden, true)
+  gd.value = {x: 2, y: 0.5}
+  assert.deepEqual(gd.value, {x: 2, y: 0.5})
+  gd.visible = true
+  assert.equal(gd.visible, true)
+  assert.equal(layerOf(gd).hidden, false)
+  assert.equal(handlesOf(gd)[0].style.transform, 'translate(90px, 70px)')
+  assert.equal(inputs.count, 0)
+})
+
+test('points are visible by default', () => {
+  const gd = draggablePoints(chart(), {value: {x: 5, y: 0.25}})
+  assert.equal(gd.visible, true)
+  assert.equal(layerOf(gd).hidden, false)
+})
+
+test('hiding the points ends a drag under way, with its change', () => {
+  const gd = draggablePoints(chart(), {value: {x: 5, y: 0.25}})
+  let changes = 0
+  gd.addEventListener('change', () => { changes += 1 })
+  const [handle] = handlesOf(gd)
+  fire(handle, 'pointerdown', {clientX: 150, clientY: 95})
+  fire(handle, 'pointermove', {clientX: 130, clientY: 95, buttons: 1})
+  gd.visible = false
+  assert.ok(!handle.classes.has('vm-drag-active'))
+  assert.equal(changes, 1)
+  fire(handle, 'pointermove', {clientX: 50, clientY: 95, buttons: 1})
+  fire(handle, 'pointerup')
+  assert.deepEqual(gd.value, {x: 4, y: 0.25})
+  assert.equal(changes, 1)
+})
+
+test('hiding the points ends a pan press, so its release adds nothing', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 5, y: 0.5}], add: true, pan: true})
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {clientX: 110, clientY: 70})
+  gd.visible = false
+  fire(pad, 'pointerup', {clientX: 110, clientY: 70})
+  assert.equal(gd.value.length, 1)
+})
+
+test('a removal mid-drag still ends the drag silently', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 2, y: 0.5}, {x: 4, y: 0.5}], remove: true})
+  let changes = 0
+  gd.addEventListener('change', () => { changes += 1 })
+  const [first] = handlesOf(gd)
+  fire(first, 'pointerdown', {clientX: 90, clientY: 70})
+  fire(first, 'pointermove', {clientX: 100, clientY: 70, buttons: 1})
+  fire(first, 'keydown', {key: 'Delete'})
+  assert.equal(gd.value.length, 1)
+  assert.equal(changes, 1)
+})
