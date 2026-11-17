@@ -518,3 +518,152 @@ test('add with jump, and add or remove on a single point, are refused', () => {
   assert.throws(() => draggablePoints(chart(), {value: {x: 0, y: 0}, add: true}), TypeError)
   assert.throws(() => draggablePoints(chart(), {value: {x: 0, y: 0}, remove: true}), TypeError)
 })
+
+// Plotly's GUI relayout, recorded: what a pan asks the chart for.
+const recordRelayouts = () => {
+  const calls = []
+  globalThis.Plotly._guiRelayout = (gd, update) => { calls.push(update) }
+  return calls
+}
+
+test('with add and pan, a mouse click adds on the release, where the press went down', () => {
+  const relayouts = recordRelayouts()
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.5}], add: true, pan: true})
+  const inputs = countInputs(gd)
+  const changes = countEvents(gd, 'change')
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {clientX: 210, clientY: 45})
+  assert.equal(gd.value.length, 1, 'nothing is added on the press')
+  // A wobble within the click's slop is still a click.
+  fire(pad, 'pointermove', {clientX: 213, clientY: 47})
+  fire(pad, 'pointerup', {clientX: 213, clientY: 47})
+  assert.deepEqual(gd.value, [{x: 1, y: 0.5}, {x: 8, y: 0.75}])
+  assert.ok(handlesOf(gd)[1].focused)
+  assert.deepEqual([inputs.count, changes.count], [1, 1])
+  assert.deepEqual(relayouts, [])
+  // The release ended the press: a later move drags nothing.
+  fire(pad, 'pointermove', {clientX: 230, clientY: 45})
+  assert.deepEqual(gd.value[1], {x: 8, y: 0.75})
+})
+
+test('with add and pan, a mouse drag on the plot area pans and adds nothing', () => {
+  const relayouts = recordRelayouts()
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.5}], add: true, pan: true})
+  const inputs = countInputs(gd)
+  const changes = countEvents(gd, 'change')
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {clientX: 150, clientY: 70})
+  fire(pad, 'pointermove', {clientX: 170, clientY: 80})
+  assert.ok(pad.classes.has('vm-drag-panning'))
+  // 20px right on a 0.05/px x-axis and 10px down on a 0.01/px y-axis: the
+  // view moves the other way, so the content follows the pointer.
+  assert.deepEqual(relayouts.at(-1), {'xaxis.range': [-1, 9], 'yaxis.range': [0.1, 1.1]})
+  // Measured from where the pan began, not from the last move.
+  fire(pad, 'pointermove', {clientX: 190, clientY: 70})
+  assert.deepEqual(relayouts.at(-1), {'xaxis.range': [-2, 8], 'yaxis.range': [0, 1]})
+  fire(pad, 'pointerup', {clientX: 190, clientY: 70})
+  assert.ok(!pad.classes.has('vm-drag-panning'))
+  assert.deepEqual(gd.value, [{x: 1, y: 0.5}])
+  assert.deepEqual([inputs.count, changes.count], [0, 0])
+})
+
+test('a pan leaves a fixedrange axis alone', () => {
+  const relayouts = recordRelayouts()
+  const gd = chart()
+  gd._fullLayout.yaxis.fixedrange = true
+  draggablePoints(gd, {value: [], add: true, pan: true})
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {clientX: 150, clientY: 70})
+  fire(pad, 'pointermove', {clientX: 170, clientY: 80})
+  assert.deepEqual(relayouts.at(-1), {'xaxis.range': [-1, 9]})
+})
+
+test('with jump and pan, a click moves the nearest point on the release', () => {
+  recordRelayouts()
+  const gd = draggablePoints(chart(), {value: {x: 5, y: 0.5}, jump: true, pan: true})
+  const changes = countEvents(gd, 'change')
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {clientX: 110, clientY: 70})
+  assert.deepEqual(gd.value, {x: 5, y: 0.5})
+  fire(pad, 'pointerup', {clientX: 110, clientY: 70})
+  assert.deepEqual(gd.value, {x: 3, y: 0.5})
+  assert.equal(changes.count, 1)
+})
+
+test('with pan, a touch still adds on a tap', () => {
+  const gd = draggablePoints(chart(), {value: [], add: true, pan: true})
+  const pad = padOf(gd)
+  fire(pad, 'pointerdown', {pointerType: 'touch', clientX: 210, clientY: 45})
+  fire(pad, 'pointerup', {pointerType: 'touch', clientX: 210, clientY: 45})
+  assert.deepEqual(gd.value, [{x: 8, y: 0.75}])
+})
+
+test('pan without jump or add is refused', () => {
+  assert.throws(() => draggablePoints(chart(), {value: [], pan: true}), TypeError)
+})
+
+test('with remove, a right-click removes a point and keeps the menu off it; a ctrl-click does not drag', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.1}, {x: 2, y: 0.2}, {x: 3, y: 0.3}], remove: true, minPoints: 1})
+  const changes = countEvents(gd, 'change')
+  const menu = fire(handlesOf(gd)[1], 'contextmenu')
+  assert.ok(menu.defaultPrevented)
+  assert.deepEqual(gd.value, [{x: 1, y: 0.1}, {x: 3, y: 0.3}])
+  assert.equal(changes.count, 1)
+  // Right-clicks in a row each remove one, down to minPoints.
+  fire(handlesOf(gd)[0], 'contextmenu')
+  fire(handlesOf(gd)[0], 'contextmenu')
+  assert.deepEqual(gd.value, [{x: 3, y: 0.3}])
+  const [handle] = handlesOf(gd)
+  fire(handle, 'pointerdown', {ctrlKey: true, clientX: 110, clientY: 110})
+  assert.ok(!handle.classes.has('vm-drag-active'))
+})
+
+test('without remove, a right-click on a point shows the browser menu', () => {
+  const gd = draggablePoints(chart(), {value: [{x: 1, y: 0.1}, {x: 2, y: 0.2}]})
+  const menu = fire(handlesOf(gd)[0], 'contextmenu')
+  assert.ok(!menu.defaultPrevented)
+  assert.equal(gd.value.length, 2)
+})
+
+test('with remove, a long press removes a touched point; moving or lifting first does not', (t) => {
+  t.mock.timers.enable({apis: ['setTimeout', 'Date']})
+  const gd = draggablePoints(chart(), {value: [{x: 2, y: 0.5}, {x: 4, y: 0.5}, {x: 6, y: 0.5}], remove: true})
+  const changes = countEvents(gd, 'change')
+  // Point 1 sits at (90, 70) in client space.
+  let handle = handlesOf(gd)[0]
+  fire(handle, 'pointerdown', {pointerType: 'touch', clientX: 90, clientY: 70})
+  fire(handle, 'pointermove', {pointerType: 'touch', clientX: 93, clientY: 70})
+  t.mock.timers.tick(499)
+  assert.equal(gd.value.length, 3)
+  t.mock.timers.tick(1)
+  assert.deepEqual(gd.value.map((p) => p.x), [4, 6])
+  // The drag it ended went silently: one change, from the removal.
+  assert.equal(changes.count, 1)
+  // Android's contextmenu echo of that press removes nothing more...
+  fire(handlesOf(gd)[0], 'contextmenu', {pointerType: 'touch'})
+  assert.equal(gd.value.length, 2)
+  // ...but a right-click later does.
+  t.mock.timers.tick(1000)
+  fire(handlesOf(gd)[1], 'contextmenu')
+  assert.deepEqual(gd.value.map((p) => p.x), [4])
+  // A press that moves past the slop, or lifts, is a drag or a tap.
+  const more = draggablePoints(chart(), {value: [{x: 2, y: 0.5}, {x: 4, y: 0.5}], remove: true})
+  handle = handlesOf(more)[0]
+  fire(handle, 'pointerdown', {pointerType: 'touch', clientX: 90, clientY: 70})
+  fire(handle, 'pointermove', {pointerType: 'touch', clientX: 100, clientY: 70})
+  t.mock.timers.tick(600)
+  assert.equal(more.value.length, 2)
+  fire(handle, 'pointerup', {pointerType: 'touch'})
+  fire(handle, 'pointerdown', {pointerType: 'touch', clientX: 100, clientY: 70})
+  fire(handle, 'pointerup', {pointerType: 'touch'})
+  t.mock.timers.tick(600)
+  assert.equal(more.value.length, 2)
+})
+
+test('a mouse held still on a point is not a long press', (t) => {
+  t.mock.timers.enable({apis: ['setTimeout', 'Date']})
+  const gd = draggablePoints(chart(), {value: [{x: 2, y: 0.5}, {x: 4, y: 0.5}], remove: true})
+  fire(handlesOf(gd)[0], 'pointerdown', {clientX: 90, clientY: 70})
+  t.mock.timers.tick(1000)
+  assert.equal(gd.value.length, 2)
+})
