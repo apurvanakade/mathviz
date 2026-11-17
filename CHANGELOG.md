@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-11-17
+
 ### Added
 
 - `VM.plotting.draggablePoints({visible})` and a `visible` accessor on the view: hide the points with the trace a legend hides (they aren't Plotly traces, so the legend can't). Hidden points can't be focused, dragged or read by a screen reader, `jump`/`add` stop, and their positions are kept.
@@ -576,7 +578,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/apurvanakade/mathviz/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/apurvanakade/mathviz/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/apurvanakade/mathviz/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/apurvanakade/mathviz/compare/v1.10.0...v1.11.0
