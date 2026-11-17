@@ -104,6 +104,7 @@ const shownBy = [
     pattern: /Plot\.plot\(/,
     names: ['vm-svg-host', 'vm-svg-modebar', 'vm-svg-modebar-button', 'vm-fs-figure']
   },
+  { what: 'VM.plotting.persistentPlot({aspectRatio})', pattern: /persistentPlot\(\{[^}]*aspectRatio:/, names: ['vm-plot-aspect'] },
   { what: 'a Plotly chart (fullscreen button)', pattern: /Plotly\.newPlot\(/, names: ['vm-fs-plot-group'] },
   // The starter's dark theme is Quarto's toggle (body.quarto-dark); vm-dark
   // is the same dark palette under the selector for hosts without one.

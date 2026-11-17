@@ -211,6 +211,7 @@ The first call creates the div, `Plotly.newPlot`s into it and hands it to [`auto
 |---|---|---|---|
 | `opts.className` | `string` | `"plotly-box-large"` | Class of the graph div. |
 | `opts.height` | `string` | | Inline CSS height, for a secondary chart that shouldn't take the main chart's box, e.g. `"320px"`. Sets `min-height` to the same value, so it holds below the box's own 500px minimum. |
+| `opts.aspectRatio` | `number` | | Width / height, e.g. `16 / 9`, or `1` for a square chart. The div keeps its full width and takes its height from the ratio, instead of the class's height and minimum; use it to give an equal-scale (`scaleanchor`) chart the shape of its data. Fullscreen letterboxes it at this ratio; in embed mode it takes the height the frame leaves, like any main chart. A tall ratio in a wide column can be taller than the screen. Throws a `RangeError` unless it is a finite number above 0, and a `TypeError` when given with `height`. |
 
 **Returns** `(data, layout, config?) => HTMLElement`, which draws or redraws and returns the same div every time. `config` defaults to [`config()`](#config). The function's read-only `div` property is that div (`null` before the first draw), for code that needs the chart without redrawing it. Needs `window.Plotly`.
 
@@ -231,6 +232,7 @@ Dragging rotates the scene about its vertical axis (`turntable`, Plotly's own 3-
 |---|---|---|---|
 | `opts.className` | `string` | `"plotly-box-large"` | As for `persistentPlot`. |
 | `opts.height` | `string` | | As for `persistentPlot`. |
+| `opts.aspectRatio` | `number` | | As for `persistentPlot`. |
 
 **Returns** `(data, layout, config?) => HTMLElement`, with a `div` property, as for `persistentPlot`. Needs `window.Plotly`.
 

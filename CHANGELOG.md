@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.plotting.persistentPlot({aspectRatio})` (and `persistentPlot3d`): a full-width chart whose height follows a width / height ratio, e.g. `1` for a square, instead of the main chart box's 72vh or a fixed `height`. Fullscreen and embed mode size it as before. The starter's draggable-points triangle uses it.
+
 ## [1.8.0] - 2026-11-16
 
 ### Added

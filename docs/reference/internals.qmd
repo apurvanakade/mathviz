@@ -123,6 +123,7 @@ The library writes these itself; a page never authors them.
 | `vm-overlay-grip`, `vm-overlay-dragging`, `data-vm-draggable` | the draggable-legend module |
 | `vm-play`, `vm-play-button`, `vm-play-more`, `vm-play-panel`, `vm-play-group`, `vm-play-pills`, `vm-play-pill`, `vm-play-pill-on`, `vm-playing`, `vm-has-play`, `data-vm-play-ready` | slider playback |
 | `vm-svg-host`, `vm-svg-modebar`, `vm-svg-modebar-button`, `data-vm-button`, `vm-fs-figure` | the SVG modebar: the element it belongs to (what fullscreen enlarges), the bar, each button (`data-vm-button` is its name, e.g. `fullscreen`), each figure SVG |
+| `vm-plot-aspect` | `VM.plotting.persistentPlot({aspectRatio})`: clears the chart box's height and minimum so the div's inline `aspect-ratio` sets its height; the fullscreen and embed rules out-rank it |
 | `vm-fs-plot-group` | the Plotly fullscreen button: the common wrapper of a block's charts, letterboxed as one figure when the block holds two or more |
 | `vm-drag-host`, `vm-drag-layer`, `vm-drag-pad`, `vm-drag-point`, `vm-drag-active` | `VM.plotting.draggablePoints`: the chart div, the layer over it, the `jump`/`add` pad, each point, the point being dragged |
 | `ojs-table-toolbar`, `ojs-table-container` | `VM.ui.renderTable` |
