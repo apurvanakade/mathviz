@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.plotting.draggablePoints({visible})` and a `visible` accessor on the view: hide the points with the trace a legend hides (they aren't Plotly traces, so the legend can't). Hidden points can't be focused, dragged or read by a screen reader, `jump`/`add` stop, and their positions are kept.
+
 ## [1.13.0] - 2026-11-17
 
 ### Added
