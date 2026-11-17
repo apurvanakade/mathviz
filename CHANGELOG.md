@@ -16,6 +16,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 - `VM.plotting.draggablePoints({pan})`: with `jump` or `add`, a mouse drag on the plot area pans the chart (its axes that aren't `fixedrange`) and a click jumps or adds on its release, so a chart that places points can still be panned. Off by default; without it a press still jumps or adds at once and keeps dragging the point.
 - `VM.plotting.draggablePoints({remove})`: a right-click (or Mac ctrl-click) and a long press on a touch screen remove a point too, beside the double-click and Delete. A right-click on a point no longer opens the browser's menu.
+- `sidebar-rail` takes a map, `{pin-key, default}`. `default: closed` starts the sidebar closed at every width, instead of pinned from 992px up, until the reader pins it; for a site whose pages need the whole window. `true` and a storage-key string work as before.
 
 ## [1.11.0] - 2026-11-17
 

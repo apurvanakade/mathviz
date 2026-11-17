@@ -80,7 +80,7 @@ test('nothing loaded without the option styles the rail or its classes', () => {
 
 // sidebar-rail.js against a minimal document: the class goes on <html> at
 // load and comes off at init when there is no sidebar to drive.
-function loadRail({ sidebar = null, embed = false, wide = false, stored = null } = {}) {
+function loadRail({ sidebar = null, embed = false, wide = false, stored = null, meta = {} } = {}) {
   const classes = new Set(embed ? ['vm-embed'] : [])
   const appended = []
   const listeners = {}
@@ -98,7 +98,12 @@ function loadRail({ sidebar = null, embed = false, wide = false, stored = null }
     body: { appendChild: el => appended.push(el) },
     addEventListener: (type, fn) => { listeners[type] = fn },
     getElementById: id => (id === 'quarto-sidebar' ? sidebar : null),
-    querySelector: () => null
+    // Only the filter's <meta name="mathviz:..."> tags, from `meta`.
+    querySelector: sel => {
+      const name = /^meta\[name="([^"]+)"\]$/.exec(sel)
+      if (!name || !(name[1] in meta)) return null
+      return { getAttribute: attr => (attr === 'content' ? meta[name[1]] : null) }
+    }
   }
   const win = { matchMedia: q => ({ matches: q === '(min-width: 992px)' && wide }) }
   const storage = { getItem: () => stored, setItem: () => { throw new Error('the default must not be stored') } }
@@ -142,6 +147,15 @@ test('with no stored choice the sidebar starts pinned and open from 992px up, cl
   assert.ok(wide.classes.has('vm-sidebar-pinned') && wide.classes.has('vm-sidebar-open'))
   const narrow = loadRail({ wide: false })
   assert.equal(narrow.classes.has('vm-sidebar-pinned') || narrow.classes.has('vm-sidebar-open'), false)
+})
+
+test('default: closed starts it closed at every width; a stored pin still wins', () => {
+  const closed = { 'mathviz:sidebar-default': 'closed' }
+  const wide = loadRail({ wide: true, meta: closed })
+  assert.equal(wide.classes.has('vm-sidebar-pinned') || wide.classes.has('vm-sidebar-open'), false)
+  assert.ok(loadRail({ wide: true, stored: '1', meta: closed }).classes.has('vm-sidebar-pinned'))
+  // Any other value keeps the usual default.
+  assert.ok(loadRail({ wide: true, meta: { 'mathviz:sidebar-default': 'pinned' } }).classes.has('vm-sidebar-pinned'))
 })
 
 test('a stored choice beats the default either way', () => {

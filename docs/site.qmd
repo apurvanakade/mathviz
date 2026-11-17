@@ -31,7 +31,7 @@ mathviz:
 | Key | Values | Effect |
 |---|---|---|
 | `fonts` | `true` | Serves Inter and JetBrains Mono from your own site. |
-| `sidebar-rail` | `true`, or a storage key | Hides Quarto's sidebar behind a slim rail at the left edge. |
+| `sidebar-rail` | `true`, a storage key, or a map (see [Sidebar rail](#sidebar-rail)) | Hides Quarto's sidebar behind a slim rail at the left edge. |
 | `sidebar-search` | `true` | Adds a search box at the top of the sidebar that narrows it to matching titles. |
 | `category-cloud` | `true` | Moves a listing's category cloud above its cards and adds an "All" entry. |
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
@@ -181,6 +181,17 @@ mathviz:
 ```
 
 For a site with Quarto sidebar navigation (`style: floating` or `docked`). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages and visits). On a screen 992px or wider it starts pinned until the reader chooses otherwise, and a pinned sidebar there sits beside the page rather than over it (the page moves right only when the window is too narrow for the sidebar to fit beside it); on a phone it starts closed. Escape or the menu button closes and unpins it; a click outside closes an unpinned one. The body column takes the sidebar's space and is as wide as your `grid: body-width` (Quarto's 800px if unset); a page with a table of contents keeps its right margin.
+
+If your pages need the whole window (a full-width split layout, say), start it closed at every width instead:
+
+```yaml
+mathviz:
+  sidebar-rail:
+    pin-key: my-site-sidebar-pinned   # optional; vm-sidebar-pinned if unset
+    default: closed
+```
+
+A reader who pins it still gets it pinned. `default: pinned` is the same as leaving `default` out.
 
 It changes nothing on a site or page that doesn't turn it on, or on a page without a sidebar: to switch it off for one page, set `mathviz-page: {sidebar-rail: false}`.
 

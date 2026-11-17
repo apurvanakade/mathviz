@@ -25,6 +25,9 @@ mathviz:
   fonts: true
   # The sidebar hides behind a slim rail at the left edge, with a pin button.
   sidebar-rail: true
+  # To start the sidebar closed at every width (until the reader pins it):
+  # sidebar-rail:
+  #   default: closed
   # A box at the top of the sidebar that narrows it to matching titles.
   sidebar-search: true
   # ?embed=1 on a page's address shows its first .vm-app alone, for another
