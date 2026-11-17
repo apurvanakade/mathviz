@@ -2274,6 +2274,15 @@
    *   that shouldn't take the main chart's box (e.g. `"320px"`). It sets the
    *   min-height too, since the class's own min-height (500px) would
    *   otherwise win over any smaller height.
+   * @param {number} [opts.aspectRatio] - Width / height, e.g. `16 / 9`, or
+   *   `1` for a square chart. The div keeps its full width and takes its
+   *   height from this ratio instead of the class's height and min-height,
+   *   so a chart with equal-scale (`scaleanchor`) axes can have the shape
+   *   of its data. Fullscreen still letterboxes it at this ratio, and embed
+   *   mode still gives it the height the frame leaves. Not combinable with
+   *   `height`.
+   * @throws {TypeError} When both `height` and `aspectRatio` are given.
+   * @throws {RangeError} When `aspectRatio` isn't a finite number above 0.
    * @returns {((data: Object[], layout: Object, config?: Object) => HTMLElement) & {div: HTMLElement|null}}
    *   Draws or redraws and returns the same div every time. `config`
    *   defaults to `VM.plotting.config()`. Its read-only `div` property is
@@ -2282,6 +2291,15 @@
    */
   const persistentPlot = (opts = {}) => {
     const className = opts.className ?? "plotly-box-large"
+    const {aspectRatio} = opts
+    if (aspectRatio !== undefined) {
+      if (opts.height !== undefined) {
+        throw new TypeError("persistentPlot: give height or aspectRatio, not both")
+      }
+      if (typeof aspectRatio !== "number" || !Number.isFinite(aspectRatio) || aspectRatio <= 0) {
+        throw new RangeError(`persistentPlot: aspectRatio must be a finite number above 0, got ${aspectRatio}`)
+      }
+    }
     let div = null
 
     const draw = (data, layout, config) => {
@@ -2293,6 +2311,14 @@
         if (opts.height !== undefined) {
           div.style.height = opts.height
           div.style.minHeight = opts.height
+        }
+        // The class clears the box's height and min-height (chart-block.css)
+        // rather than an inline height doing it, so the fullscreen and embed
+        // rules, which out-specify the class, still size the chart there;
+        // with width and height both set, they make aspect-ratio moot.
+        if (aspectRatio !== undefined) {
+          div.className += " vm-plot-aspect"
+          div.style.aspectRatio = String(aspectRatio)
         }
         Plotly.newPlot(div, data, layout, plotConfig)
         globalThis.VM.plotting.autoResize(div)

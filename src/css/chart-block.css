@@ -39,6 +39,17 @@ svg[class^="plot-"] {
   min-height: 500px;
 }
 
+/* persistentPlot({aspectRatio}): full width, height from the inline
+ * aspect-ratio. The element selector lifts this over .plotly-box-large here
+ * and in the phone media query at the end of the file. The fullscreen
+ * letterbox (.ojs-chart-block:fullscreen .js-plotly-plot) and embed mode's
+ * frame-filling .plotly-box-large rule out-specify it, so those still size
+ * the chart. */
+div.vm-plot-aspect {
+  height: auto;
+  min-height: 0;
+}
+
 /* Anchor for .ojs-legend-overlay below -- wrap a page's mainPlot cell and
  * its viewof VM.ui.legendOverlay(...) cell together in this so the legend
  * positions itself relative to the plot rather than the page.

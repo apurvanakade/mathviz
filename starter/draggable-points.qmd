@@ -30,8 +30,9 @@ chartColors = VM.plotting.colors(vmTheme)
 ```{ojs}
 //| output: false
 // Created once, in a cell that depends on nothing reactive: the view below
-// and the paint cell share its div.
-trianglePlot = VM.plotting.persistentPlot({height: "420px"})
+// and the paint cell share its div. The axes span 6 by 5 at equal scales,
+// so the chart takes that shape rather than a fixed height.
+trianglePlot = VM.plotting.persistentPlot({aspectRatio: 6 / 5})
 
 // The weights of p with respect to the corners [A, B, C]; null for a flat
 // triangle.
