@@ -117,7 +117,6 @@ const shownBy = [
       'vm-share-link', 'vm-share-link-label', 'vm-share-link-status', 'vm-share-copy', 'vm-share-code', 'vm-share-actions',
       'vm-share-checkbox-row', 'vm-share-height', 'vm-share-height-row']
   },
-  { what: 'mathviz: report-bug', config: /^\s*report-bug:/m, names: ['vm-report-bug-popup'] },
   {
     what: 'mathviz: sidebar-rail',
     config: /^\s*sidebar-rail:/m,

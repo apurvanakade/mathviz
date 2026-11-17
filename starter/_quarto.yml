@@ -34,10 +34,6 @@ mathviz:
   # snippet. Set site-url to your site's public address.
   share:
     site-url: https://example.com
-  # A "Report bug" button beside any text the reader selects, opening a
-  # GitHub issue. Set repo to your site's repository.
-  report-bug:
-    repo: your-name/your-site
 
 execute:
   # Pages here read as apps: the code stays in the .qmd source. Flip to

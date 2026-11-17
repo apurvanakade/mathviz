@@ -42,9 +42,6 @@
 --                                  #   (A filter can't see website.site-url:
 --                                  #   Quarto keeps project config out of a
 --                                  #   page's metadata, so it is repeated.)
---     report-bug:                  # "Report bug" popup on text selection,
---       repo: owner/name           #   filing a GitHub issue that links the
---       branch: main               #   page's .qmd source (branch: main)
 --     quiet-apps: true             # every .vm-app without panel boxes,
 --                                  # readout tiles or a legend frame;
 --                                  # Share on hover
@@ -274,7 +271,7 @@ function Pandoc(doc)
   if enabled(opts, "embed") or enabled(opts, "share") then
     chrome("embed")
   end
-  if enabled(opts, "share") or enabled(opts, "report-bug") then
+  if enabled(opts, "share") then
     quarto.doc.add_html_dependency({ name = "mathviz-chrome-site", version = VERSION, scripts = { "chrome/site.js" } })
   end
   if enabled(opts, "share") then
@@ -282,17 +279,6 @@ function Pandoc(doc)
       ["share-site-url"] = subOption(opts, "share", "site-url"),
       ["share-embed-docs"] = subOption(opts, "share", "embed-docs")
     })
-  end
-  if enabled(opts, "report-bug") then
-    local repo = subOption(opts, "report-bug", "repo")
-    if repo == nil then
-      quarto.log.warning("mathviz: report-bug needs report-bug.repo (owner/name); skipping it")
-    else
-      chrome("report-bug", {
-        ["report-bug-repo"] = repo,
-        ["report-bug-branch"] = subOption(opts, "report-bug", "branch")
-      })
-    end
   end
 
   -- Opt-in, because a site with its own typography shouldn't carry ~400kB of
