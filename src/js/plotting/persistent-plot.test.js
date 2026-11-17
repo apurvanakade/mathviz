@@ -49,10 +49,19 @@ test('persistentPlot exposes its div, null until the first draw', () => {
 test('persistentPlot sizes its div by aspectRatio', () => {
   globalThis.Plotly.newPlot = () => {}
   globalThis.Plotly.react = () => {}
-  globalThis.document.createElement = () => ({className: '', style: {}})
+  const makeDiv = () => {
+    const style = {}
+    style.setProperty = (name, value) => { style[name] = value }
+    return {className: '', style}
+  }
+  globalThis.document.createElement = makeDiv
   const originalAutoResize = VM.plotting.autoResize
   VM.plotting.autoResize = () => {}
   const div = persistentPlot({aspectRatio: 1.5})([], {})
+  // No maxHeight: the CSS default cap (72vh) applies.
+  assert.equal(div.style['--vm-plot-max-height'], undefined)
+  const capped = persistentPlot({aspectRatio: 1, maxHeight: '600px'})([], {})
+  assert.equal(capped.style['--vm-plot-max-height'], '600px')
   // The class clears the box's height and min-height (chart-block.css).
   assert.equal(div.className, 'plotly-box-large vm-plot-aspect')
   assert.equal(div.style.aspectRatio, '1.5')
@@ -67,4 +76,13 @@ test('persistentPlot rejects a bad aspectRatio, and one given with height', () =
   }
   assert.throws(() => persistentPlot({aspectRatio: 1, height: '300px'}), TypeError)
   assert.throws(() => VM.plotting.persistentPlot3d({aspectRatio: 0}), RangeError)
+})
+
+test('persistentPlot rejects maxHeight without aspectRatio, or not a CSS string', () => {
+  assert.throws(() => persistentPlot({maxHeight: '600px'}), TypeError)
+  assert.throws(() => persistentPlot({height: '300px', maxHeight: '600px'}), TypeError)
+  for (const maxHeight of ['', '  ', 600, null]) {
+    assert.throws(() => persistentPlot({aspectRatio: 1, maxHeight}), TypeError)
+  }
+  assert.doesNotThrow(() => persistentPlot({aspectRatio: 1, maxHeight: 'none'}))
 })

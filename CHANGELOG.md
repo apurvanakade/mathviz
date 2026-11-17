@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.plotting.persistentPlot({aspectRatio, maxHeight})` (and `persistentPlot3d`): an aspect-ratio chart's height stops at `maxHeight`, a CSS length, `72vh` (the main chart box's height) by default, or `"none"`. Past it the chart keeps its full width and Plotly letterboxes an equal-scale chart inside the box, so a tall ratio in a wide column no longer runs off the screen. Fullscreen and embed mode ignore the cap.
+
 ## [1.10.0] - 2026-11-17
 
 ### Removed
