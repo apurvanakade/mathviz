@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-11-17
+
 ### Added
 
 - `sidebar-rail` takes a map, `{pin-key, default}`. `default: closed` starts the sidebar closed at every width, instead of pinned from 992px up, until the reader pins it; for a site whose pages need the whole window. `true` and a storage-key string work as before.
@@ -570,7 +572,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/apurvanakade/mathviz/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/apurvanakade/mathviz/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/apurvanakade/mathviz/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/apurvanakade/mathviz/compare/v1.9.0...v1.10.0
