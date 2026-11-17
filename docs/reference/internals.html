@@ -589,8 +589,8 @@ kit/                   what a consumer site copies in: the update hook</code></p
 <td>the SVG modebar: the element it belongs to (what fullscreen enlarges), the bar, each button (<code>data-vm-button</code> is its name, e.g.&nbsp;<code>fullscreen</code>), each figure SVG</td>
 </tr>
 <tr class="even">
-<td><code>vm-plot-aspect</code></td>
-<td><code>VM.plotting.persistentPlot({aspectRatio})</code>: clears the chart box’s height and minimum so the div’s inline <code>aspect-ratio</code> sets its height; the fullscreen and embed rules out-rank it</td>
+<td><code>vm-plot-aspect</code>, <code>--vm-plot-max-height</code></td>
+<td><code>VM.plotting.persistentPlot({aspectRatio})</code>: clears the chart box’s height and minimum so the div’s inline <code>aspect-ratio</code> sets its height, capped at <code>--vm-plot-max-height</code> (72vh unless <code>maxHeight</code> sets it); the fullscreen and embed rules out-rank it and clear the cap</td>
 </tr>
 <tr class="odd">
 <td><code>vm-fs-plot-group</code></td>
