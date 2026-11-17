@@ -34,7 +34,14 @@
    *   of its data. Fullscreen still letterboxes it at this ratio, and embed
    *   mode still gives it the height the frame leaves. Not combinable with
    *   `height`.
-   * @throws {TypeError} When both `height` and `aspectRatio` are given.
+   * @param {string} [opts.maxHeight="72vh"] - With `aspectRatio`: the
+   *   tallest the div gets, as a CSS length (e.g. `"600px"`), or `"none"`
+   *   for no cap. Past it the div keeps its full width at this height, so a
+   *   tall ratio in a wide column stays on screen, and an equal-scale chart
+   *   is letterboxed inside the box as with a fixed `height`. The default is
+   *   the main chart box's own height. Fullscreen and embed mode ignore it.
+   * @throws {TypeError} When both `height` and `aspectRatio` are given, or
+   *   `maxHeight` is given without `aspectRatio` or isn't a non-empty string.
    * @throws {RangeError} When `aspectRatio` isn't a finite number above 0.
    * @returns {((data: Object[], layout: Object, config?: Object) => HTMLElement) & {div: HTMLElement|null}}
    *   Draws or redraws and returns the same div every time. `config`
@@ -44,13 +51,21 @@
    */
   const persistentPlot = (opts = {}) => {
     const className = opts.className ?? "plotly-box-large"
-    const {aspectRatio} = opts
+    const {aspectRatio, maxHeight} = opts
     if (aspectRatio !== undefined) {
       if (opts.height !== undefined) {
         throw new TypeError("persistentPlot: give height or aspectRatio, not both")
       }
       if (typeof aspectRatio !== "number" || !Number.isFinite(aspectRatio) || aspectRatio <= 0) {
         throw new RangeError(`persistentPlot: aspectRatio must be a finite number above 0, got ${aspectRatio}`)
+      }
+    }
+    if (maxHeight !== undefined) {
+      if (aspectRatio === undefined) {
+        throw new TypeError("persistentPlot: maxHeight caps an aspectRatio chart; give aspectRatio too")
+      }
+      if (typeof maxHeight !== "string" || maxHeight.trim() === "") {
+        throw new TypeError(`persistentPlot: maxHeight must be a CSS length string, got ${maxHeight}`)
       }
     }
     let div = null
@@ -72,6 +87,9 @@
         if (aspectRatio !== undefined) {
           div.className += " vm-plot-aspect"
           div.style.aspectRatio = String(aspectRatio)
+          // A custom property rather than an inline max-height, which would
+          // out-rank the fullscreen and embed rules that clear the cap.
+          if (maxHeight !== undefined) div.style.setProperty("--vm-plot-max-height", maxHeight)
         }
         Plotly.newPlot(div, data, layout, plotConfig)
         globalThis.VM.plotting.autoResize(div)
