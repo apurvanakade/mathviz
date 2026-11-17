@@ -2725,14 +2725,13 @@
    * @param {boolean} [opts.visible=true] - Whether the points show. A
    *   hidden point can't be focused, dragged or announced, and `jump` and
    *   `add` stop too; its position is kept.
-   * @returns {HTMLElement} The chart's div, with a `visible` accessor
-   *   (`opts.visible`; set it from a legend toggle, since hiding a trace
-   *   doesn't hide the points -- the chart itself stays up), and a `value`
-   *   accessor (a copy,
+   * @returns {HTMLElement} The chart's div, with a `value` accessor (a copy,
    *   `{x, y}` or `{x, y}[]` like `opts.value`; setting an array of another
-   *   length rebuilds the points) that dispatches a bubbling `"input"` event
-   *   on every move by the reader -- not on a programmatic set, matching
-   *   Observable Inputs -- and a bubbling `"change"` event once each edit
+   *   length rebuilds the points) and a `visible` accessor (`opts.visible`;
+   *   set it from a legend toggle, since hiding a trace doesn't hide the
+   *   points -- the chart itself stays up). It dispatches a bubbling
+   *   `"input"` event on every move by the reader -- not on a programmatic
+   *   set, matching Observable Inputs -- and a bubbling `"change"` event once each edit
    *   is finished: a drag released (if it moved anything), an arrow-key
    *   move, a point added or removed.
    * @throws {TypeError} When `plot` gives no drawn Plotly div,
@@ -2896,7 +2895,6 @@
     // `changed` says the press itself already edited the points (a jump, an
     // add); either way the drag's release fires one "change" if anything
     // changed, and none for a press that moved nothing.
-
     const startDrag = (target, event, index, grab, changed = false) => {
       if (target.setPointerCapture) target.setPointerCapture(event.pointerId)
       const handle = handles[index]
