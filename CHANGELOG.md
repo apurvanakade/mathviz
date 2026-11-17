@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-11-17
+
 ### Added
 
 - `VM.plotting.draggablePoints({pan})`: with `jump` or `add`, a mouse drag on the plot area pans the chart (its axes that aren't `fixedrange`) and a click jumps or adds on its release, so a chart that places points can still be panned. Off by default; without it a press still jumps or adds at once and keeps dragging the point.
@@ -564,7 +566,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/apurvanakade/mathviz/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/apurvanakade/mathviz/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/apurvanakade/mathviz/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/apurvanakade/mathviz/compare/v1.8.0...v1.9.0
