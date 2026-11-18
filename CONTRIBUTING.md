@@ -37,7 +37,7 @@ npm run build          # src/ -> dist/mathviz.{js,css} (+ .min and map) and _ext
 quarto preview         # the docs site, live-reloading, rendered through the extension in place
 quarto render          # the same, once, into _site/ (what CI runs)
 quarto render starter  # the starter site, through the extension the build mirrored into starter/_extensions/
-npx playwright install chromium   # once, for the next line
+npm install -g playwright && playwright install chromium   # once, for the next line
 npm run test:layout    # renders fixtures/layout/ and checks its layout in headless Chromium
 ```
 
