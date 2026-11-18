@@ -53,7 +53,7 @@ src/css/               tokens.css (all --vm-* defaults), then panel, chart-block
 src/chrome/            opt-in site chrome (sidebar-rail, sidebar-search, category-cloud, embed, share + shared site.js); each its own Lua-added dependency, not in the bundle
 src/fonts/             opt-in self-hosted Inter/JetBrains Mono (fonts: true); fonts.test.js guards the url()s
 src/theme/theme.scss   template build.mjs fills from tokens.css into dist/theme/mathviz-{light,dark}.scss
-scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js + css-coverage.test.js + starter-coverage.test.js, release.mjs, check-layout.mjs (browser layout test)
+scripts/               load-vm.mjs (test loader), build.mjs, docs-coverage.test.js + css-coverage.test.js + starter-coverage.test.js, release.mjs, check-layout.mjs (browser layout test), playwright.mjs (loads the global Playwright for check-layout.mjs)
 fixtures/layout/       the fixture Quarto site npm run test:layout renders and checks
 fixtures/page-options/ the second fixture site: no project mathviz:, options from mathviz-page: only
 starter/               clone-and-go Quarto site and the example of every feature: README, _quarto.yml (every site option on), index.qmd + one page per pattern + panels/readouts/prose/gallery, _extensions/mathviz/ (build mirror)
