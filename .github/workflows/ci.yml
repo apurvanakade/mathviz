@@ -41,7 +41,9 @@ jobs:
       # phone's width, embed mode and the Share dialog, on the fixture sites
       # in fixtures/layout/ and fixtures/page-options/. None of it throws when it breaks, so npm test's
       # stubbed DOM can't see it.
-      - run: npx playwright install --with-deps chromium
+      # Playwright is not a dependency: scripts/playwright.mjs loads the
+      # global copy, so a local checkout reuses its installed browsers.
+      - run: npm install -g playwright && playwright install --with-deps chromium
       - run: npm run test:layout
 
   # A pull request that changes the library must say so in CHANGELOG.md.

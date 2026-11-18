@@ -60,7 +60,7 @@ import http from 'node:http'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { chromium } from 'playwright'
+import { chromium } from './playwright.mjs'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Two fixture sites: layout/ sets project mathviz: options, as Visual Math
