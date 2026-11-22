@@ -123,6 +123,21 @@ $code-bg:    $vm-surface;
   --vm-font-sans: #{$font-family-sans-serif};
 }
 
+// A same-page link (a cross-reference, the table of contents, a footnote)
+// scrolls to its target instead of jumping, so the reader sees where on the
+// page they went. Back still returns to the line they left: the browser
+// restores a history entry's scroll position itself, at once, and this
+// property doesn't touch that. Not for a reader whose OS asks for reduced
+// motion. A site turns it off with `:root { scroll-behavior: auto; }` in its
+// own theme file's rules. Quarto's `smooth-scroll: true` is the other way to
+// get this and isn't needed with it: that one loads a script (zenscroll)
+// which takes clicks and the back button's scroll restoration over.
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    scroll-behavior: smooth;
+  }
+}
+
 h1, h1.title {
   font-weight: var(--vm-font-weight-display);
   letter-spacing: -0.02em;

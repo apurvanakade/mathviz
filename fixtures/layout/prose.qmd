@@ -12,9 +12,10 @@ Authors: Apurva Nakade
      exercise, a callout, a figure, a table and a list. check-layout.mjs asserts its
      rhythm: lines with a formula in them as far apart as plain lines, one
      gap around every block set apart from the prose, none between a heading
-     and its block, a proof a paragraph's distance under its theorem. -->
+     and its block, a proof a paragraph's distance under its theorem. It also clicks the
+     opening paragraph's same-page link: a scroll, and back returns. -->
 
-An opening paragraph, so the first section's heading follows prose.
+An opening paragraph, so the first section's heading follows prose. A same-page link, which the theme scrolls to: @exr-ci.
 
 ## Estimators
 

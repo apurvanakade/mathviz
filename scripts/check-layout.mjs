@@ -18,6 +18,8 @@
 //   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app, or
 //     showing it narrower than the content column;
 //   - the Share dialog's links and <iframe> snippet.
+//   - under the theme, a same-page link jumping instead of scrolling, or
+//     Back not returning to the line the reader left;
 //   - the sidebar search box not narrowing the menu;
 //   - grid listing cards wider than --vm-card-width, more than one to a
 //     row on a phone, or with a title pushed off the card's left edge (the
@@ -750,6 +752,46 @@ function proseRhythmProblems() {
   return problems
 }
 
+// A same-page link under the theme (theme.scss, `scroll-behavior`): the
+// click scrolls to the target rather than jumping, and Back returns to the
+// line the reader left. Clicked from script, so Playwright doesn't scroll
+// the link into view first and move the line being left.
+async function samePageLinkProblems(page) {
+  const problems = []
+  const settledY = () => page.evaluate(() => new Promise((resolve) => {
+    let last = window.scrollY
+    let still = 0
+    const tick = () => {
+      still = window.scrollY === last ? still + 1 : 0
+      last = window.scrollY
+      if (still >= 10) resolve(last)
+      else requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }))
+  await page.evaluate(() => window.scrollTo({ top: 200, behavior: 'instant' }))
+  const left = await settledY()
+  // Two frames after the click: a jump is already at the target, a scroll
+  // is still on its way. The href is matched by its end: Quarto rewrites a
+  // cross-reference's to the page's full address at load.
+  const early = await page.evaluate(() => new Promise((resolve) => {
+    document.querySelector('main a[href$="#exr-ci"]').click()
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve(window.scrollY)))
+  }))
+  const arrived = await settledY()
+  // In the window, not at its top: the fixture's target ends the page.
+  const [top, height] = await page.evaluate(() => [document.querySelector('#exr-ci').getBoundingClientRect().top, window.innerHeight])
+  if (arrived < left + 300) problems.push(`a same-page link moved the page from ${left}px to ${arrived}px: the fixture needs its target further down`)
+  else if (early >= arrived) problems.push(`a same-page link jumped to its target (at ${early}px of ${arrived}px two frames after the click) instead of scrolling`)
+  if (top < 0 || top > height) problems.push(`a same-page link left its target ${Math.round(top)}px from the top of a ${height}px window`)
+  if (!page.url().endsWith('#exr-ci')) problems.push(`a same-page link left the address at ${page.url()}`)
+  await page.goBack()
+  const back = await settledY()
+  if (Math.abs(back - left) > 2) problems.push(`Back after a same-page link returned to ${back}px, not the ${left}px the reader left`)
+  if (page.url().includes('#')) problems.push(`Back after a same-page link left the address at ${page.url()}`)
+  return problems
+}
+
 async function checkProsePage(context, base, relPath) {
   const errors = []
   for (const [label, width] of [['desktop', 1280], ['phone', 390]]) {
@@ -759,6 +801,7 @@ async function checkProsePage(context, base, relPath) {
     for (const problem of await load(page, base + relPath)) errors.push(`${label}: ${problem}`)
     for (const problem of await page.evaluate(proseRhythmProblems)) errors.push(`${label}: ${problem}`)
     for (const problem of await page.evaluate(firstHeadingProblems)) errors.push(`${label}: ${problem}`)
+    for (const problem of await samePageLinkProblems(page)) errors.push(`${label}: ${problem}`)
     await page.close()
   }
   return errors

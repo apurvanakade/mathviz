@@ -72,6 +72,8 @@ $vm-accent: #b5179e;
 
 The variables are `$vm-bg`, `$vm-surface`, `$vm-surface-hover`, `$vm-text`, `$vm-text-soft`, `$vm-border`, `$vm-accent`, `$vm-accent-hover`, `$vm-on-accent`, `$vm-grid`, `$vm-radius`, `$vm-radius-sm`, `$vm-shadow` and `$vm-shadow-color`. Their defaults are the [tokens](theming.qmd#the-tokens) of the same name. Five more set the type: `$vm-font-size-root` (the size every rem scales from, default 17px), `$vm-font-weight-display` (page titles, 300), `$vm-font-weight-heading` (section headings, 600), `$vm-h2-font-size` (1.6rem) and `$vm-h3-font-size` (1.3rem). `$vm-block-gap` (1.75rem) is the space above and below a callout, theorem, proof, figure, table or app. The theme sets the fonts to Inter and JetBrains Mono, falling back to system fonts; add `fonts: true` to make sure readers actually get them.
 
+A link to a place on the same page (a cross-reference, the table of contents, a footnote) scrolls there instead of jumping, and the browser's back button returns to the line you left. Readers whose system asks for reduced motion get the jump. To turn the scrolling off, add `:root { scroll-behavior: auto; }` to your own theme file's `/*-- scss:rules --*/` section. Don't also set Quarto's `smooth-scroll: true`.
+
 ### Listing cards {#cards}
 
 A grid listing's cards have no border or background: each is its image, rounded, with the title and description under it. On hover a card rises slightly and a soft panel appears around it, and the title turns the accent color. The panel reaches `$vm-card-lift-pad` (default `0.75rem`) past the card on every side, so leave at least that much room around a grid.
