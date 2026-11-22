@@ -34,7 +34,7 @@ jobs:
       # snippet still compiles.
       - uses: quarto-dev/quarto-actions/setup@v2
         with:
-          version: 1.11.9   # pinned, so CI renders with the Quarto used locally
+          version: 1.11.9   # pinned: bump deliberately, in both workflows, with local Quarto
       - run: quarto render
       # The starter is its own Quarto project with the extension vendored in,
       # the way a consumer has it: renders it as a consumer would.
