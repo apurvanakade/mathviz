@@ -26,7 +26,7 @@ filters:
   - mathviz
 ```
 
-The filter puts the minified `mathviz.min.js` and `mathviz.min.css` (served from your own `site_libs/`) into every HTML page's `<head>`, and on every page with `{ojs}` cells, math.js and Plotly ahead of them (from a CDN, pinned to the versions the library is tested against). All three scripts are deferred, so none of them holds up the page's first paint, and they still run in order, before the first OJS cell.
+The filter puts the minified `mathviz.min.js` and `mathviz.min.css` (served from your own `site_libs/`) into every HTML page's `<head>`, and on every page with `{ojs}` cells, math.js and Plotly ahead of them (from a CDN, pinned to the versions the library is tested against). All three scripts are deferred, so none of them holds up the page's first paint, and they still run in order, before the first OJS cell. Every page also gets the small smooth-scroll script and stylesheet (`smooth-scroll` below).
 
 ### Options
 
