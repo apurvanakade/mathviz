@@ -26,7 +26,6 @@ mathviz:
     site-url: https://example.com
     embed-docs: embed.html
   quiet-apps: true
-  smooth-scroll: true
 ```
 
 | Key | Values | Effect |
@@ -38,7 +37,6 @@ mathviz:
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
 | `share` | a map (see [Share](#share)) | Adds a "Share" button to every app. Turns `embed` on too. |
 | `quiet-apps` | `true` | Draws every app without panel boxes, for pages that are mostly prose. |
-| `smooth-scroll` | `true` | Scrolls to a same-page link's target instead of jumping. |
 
 Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the default is `vm-sidebar-pinned`.
 
@@ -108,17 +106,6 @@ A lighter look for every `vm-app`, for a site whose pages are mostly prose (a bl
 - If `share` is on, its button is a plain link that shows while the pointer is over the app (always, on a touch screen).
 
 To try it on one page first, use `mathviz-page: {quiet-apps: true}` in that page's front matter.
-
-## Smooth scroll {#smooth-scroll}
-
-```yaml
-mathviz:
-  smooth-scroll: true
-```
-
-A link to a place on the same page (a cross-reference, the table of contents, a footnote) scrolls there instead of jumping. The target stops just below a fixed navbar. The browser's back button returns to the line you left, as it does without this. Readers whose system asks for reduced motion keep the jump.
-
-Use this in place of Quarto's `smooth-scroll: true` under `format: html`, not with it.
 
 ## Embedding
 

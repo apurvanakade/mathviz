@@ -3,6 +3,7 @@ title: "A page with the rail switched off"
 toc: true
 mathviz-page:
   sidebar-rail: false
+  smooth-scroll: false
 ---
 
 <!--

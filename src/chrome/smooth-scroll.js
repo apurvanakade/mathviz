@@ -5,9 +5,10 @@
  */
 
 // A same-page link (a cross-reference, the table of contents, a footnote)
-// scrolls to its target instead of jumping: opt-in with
-// `mathviz: {smooth-scroll: true}`. The scrolling itself is one CSS property
-// (smooth-scroll.css); this script exists for Quarto's fixed navbar.
+// scrolls to its target instead of jumping. On for every page the filter
+// runs on; `mathviz: {smooth-scroll: false}` turns it off. The scrolling
+// itself is one CSS property (smooth-scroll.css); this script exists for
+// Quarto's fixed navbar.
 //
 // Quarto makes room for the navbar from script: on every `hashchange` its
 // quarto-nav.js scrolls back up by the height of `header.fixed-top` -- and
@@ -28,7 +29,7 @@
 // entry and Back stay the browser's own, and Back restores the scroll
 // position an entry was left at, at once. That is the reason not to use
 // Quarto's `smooth-scroll: true`, which loads a script (zenscroll) that
-// takes both over.
+// takes both over; on a page that sets it, the filter leaves this out.
 (function attachSmoothScroll(globalThis) {
   var document = globalThis.document
   var root = document.documentElement

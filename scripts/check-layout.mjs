@@ -18,9 +18,9 @@
 //   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app, or
 //     showing it narrower than the content column;
 //   - the Share dialog's links and <iframe> snippet.
-//   - with smooth-scroll on, a same-page link jumping instead of scrolling,
-//     Back not returning to the line the reader left, or a link up the
-//     page leaving its target under the navbar;
+//   - a same-page link jumping instead of scrolling, Back not returning to
+//     the line the reader left, or a link up the page leaving its target
+//     under the navbar; and any of it on a page with smooth-scroll: false;
 //   - the sidebar search box not narrowing the menu;
 //   - grid listing cards wider than --vm-card-width, more than one to a
 //     row on a phone, or with a title pushed off the card's left edge (the
@@ -753,7 +753,7 @@ function proseRhythmProblems() {
   return problems
 }
 
-// A same-page link with `smooth-scroll` on (src/chrome/smooth-scroll.*): the
+// A same-page link (src/chrome/smooth-scroll.*, on by default): the
 // click scrolls to the target rather than jumping, Back returns to the line
 // the reader left, and a link up the page stops its target below the navbar. Clicked from script, so Playwright doesn't scroll
 // the link into view first and move the line being left.
@@ -946,6 +946,18 @@ async function checkCardsPage(context, base, relPath) {
   return errors
 }
 
+// no-rail.html also sets `smooth-scroll: false`: none of it loads, and the
+// page keeps Quarto's jump. On every other page it is on with no option.
+function noSmoothScrollProblems() {
+  const problems = []
+  const root = document.documentElement
+  if (root.classList.contains('vm-smooth-scroll')) problems.push('html.vm-smooth-scroll on a page with smooth-scroll: false')
+  if (document.querySelector('script[src*="smooth-scroll"], link[href*="smooth-scroll"]')) problems.push('smooth-scroll files loaded on a page with smooth-scroll: false')
+  const behavior = getComputedStyle(root).scrollBehavior
+  if (behavior !== 'auto') problems.push(`scroll-behavior is ${behavior} on a page with smooth-scroll: false`)
+  return problems
+}
+
 // The rail's prose pages: rail-toc.html (rail on, with a TOC) and
 // no-rail.html (rail off), each at desktop width and on a phone.
 async function checkRailPage(context, base, relPath) {
@@ -962,6 +974,7 @@ async function checkRailPage(context, base, relPath) {
   for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
   if (off) {
     for (const problem of await page.evaluate(noRailProblems)) errors.push(`desktop: ${problem}`)
+    for (const problem of await page.evaluate(noSmoothScrollProblems)) errors.push(`desktop: ${problem}`)
   } else {
     for (const problem of await page.evaluate(railDockedProblems)) errors.push(`desktop: ${problem}`)
     for (const problem of await page.evaluate(railTocProblems)) errors.push(`desktop docked: ${problem}`)

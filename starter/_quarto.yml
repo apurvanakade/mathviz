@@ -30,9 +30,6 @@ mathviz:
   #   default: closed
   # A box at the top of the sidebar that narrows it to matching titles.
   sidebar-search: true
-  # A same-page link (a cross-reference, the table of contents) scrolls to
-  # its target instead of jumping.
-  smooth-scroll: true
   # ?embed=1 on a page's address shows its first .vm-app alone, for another
   # site's <iframe> (share turns this on too).
   embed: true

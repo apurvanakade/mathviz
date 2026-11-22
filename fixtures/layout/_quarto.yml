@@ -23,7 +23,6 @@ mathviz:
   fonts: true
   sidebar-rail: true
   sidebar-search: true
-  smooth-scroll: true
   share:
     site-url: https://example.com
 

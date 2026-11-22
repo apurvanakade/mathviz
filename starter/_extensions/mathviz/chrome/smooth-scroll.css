@@ -4,9 +4,9 @@
  * Authors: Apurva Nakade
  */
 
-/* `smooth-scroll: true`: a same-page link scrolls to its target instead of
- * jumping. Off by default; a site that doesn't turn it on never loads this
- * file.
+/* Smooth scroll: a same-page link scrolls to its target instead of
+ * jumping. On by default; a site that sets `smooth-scroll: false` never
+ * loads this file.
  *
  * Both rules wait for html.vm-smooth-scroll, which smooth-scroll.js sets
  * once it has measured Quarto's fixed navbar into --vm-scroll-offset: with

@@ -16,7 +16,7 @@ Authors: Apurva Nakade
      opening paragraph's same-page link (a scroll, and Back returns) and the
      closing paragraph's, back up the page (its target clears the navbar). -->
 
-An opening paragraph, so the first section's heading follows prose. A same-page link, which the theme scrolls to: @exr-ci.
+An opening paragraph, so the first section's heading follows prose. A same-page link, which `smooth-scroll` scrolls to: @exr-ci.
 
 ## Estimators
 
