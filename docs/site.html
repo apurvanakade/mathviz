@@ -412,6 +412,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#vm-app" id="toc-vm-app" class="nav-link" data-scroll-target="#vm-app">Tagging an app: <code>vm-app</code></a></li>
   <li><a href="#quiet-apps" id="toc-quiet-apps" class="nav-link" data-scroll-target="#quiet-apps">Quiet apps</a></li>
+  <li><a href="#quiet-toc" id="toc-quiet-toc" class="nav-link" data-scroll-target="#quiet-toc">Quiet table of contents</a></li>
   <li><a href="#embedding" id="toc-embedding" class="nav-link" data-scroll-target="#embedding">Embedding</a></li>
   <li><a href="#share" id="toc-share" class="nav-link" data-scroll-target="#share">Share</a></li>
   <li><a href="#category-cloud" id="toc-category-cloud" class="nav-link" data-scroll-target="#category-cloud">Category cloud</a></li>
@@ -449,7 +450,7 @@ Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
-<p>Everything on this page is optional and off by default. The extension can also dress up the site <em>around</em> your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a quieter look for apps). Each is one key under <code>mathviz:</code> in <code>_quarto.yml</code>, or under <code>mathviz-page:</code> in one page’s front matter for a piece only that page uses (never <code>mathviz:</code> there – see <a href="../docs/install.html#page-options">Options for one page</a>). A site pays only for the pieces it turns on.</p>
+<p>Everything on this page is optional and off by default. The extension can also dress up the site <em>around</em> your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a quieter look for apps, a quieter table of contents). Each is one key under <code>mathviz:</code> in <code>_quarto.yml</code>, or under <code>mathviz-page:</code> in one page’s front matter for a piece only that page uses (never <code>mathviz:</code> there – see <a href="../docs/install.html#page-options">Options for one page</a>). A site pays only for the pieces it turns on.</p>
 <p>These come with the Quarto extension only. The plain script bundle doesn’t include them.</p>
 <section id="all-the-keys" class="level2">
 <h2 class="anchored" data-anchor-id="all-the-keys">All the keys</h2>
@@ -462,7 +463,8 @@ Authors: Apurva Nakade
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">quiet-apps</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">quiet-apps</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">quiet-toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -506,6 +508,11 @@ Authors: Apurva Nakade
 <td><code>quiet-apps</code></td>
 <td><code>true</code></td>
 <td>Draws every app without panel boxes, for pages that are mostly prose.</td>
+</tr>
+<tr class="even">
+<td><code>quiet-toc</code></td>
+<td><code>true</code></td>
+<td>Draws the table of contents small, soft and faded, at the middle of the window.</td>
 </tr>
 </tbody>
 </table>
@@ -558,24 +565,42 @@ Authors: Apurva Nakade
 </ul>
 <p>To try it on one page first, use <code>mathviz-page: {quiet-apps: true}</code> in that page’s front matter.</p>
 </section>
+<section id="quiet-toc" class="level2">
+<h2 class="anchored" data-anchor-id="quiet-toc">Quiet table of contents</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">quiet-toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">format</span><span class="kw">:</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">html</span><span class="kw">:</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A table of contents that stays beside the text on every page without competing with it, for a site whose pages are mostly prose. It’s only a stylesheet for Quarto’s own table of contents in the right margin (<code>toc: true</code>), so the list’s entries, its depth (<code>toc-depth</code>) and the page that has one are still Quarto’s options:</p>
+<ul>
+<li>No “On this page” heading, and no rule down the list’s left edge.</li>
+<li>Small, soft text. The section being read keeps the accent color.</li>
+<li>The whole list is faded until the pointer or keyboard focus is on it (not on a touch screen, which has no hover).</li>
+<li>The list sits at the middle of the window’s height. It doesn’t move when the navbar slides away, and the footer doesn’t push it off the screen at the end of a page.</li>
+</ul>
+<p>A page without a table of contents (<code>toc: false</code>), or with one placed in the left sidebar or the body (<code>toc-location</code>), is unchanged. With the <a href="#sidebar-rail">sidebar rail</a>, the text column is in the same place on pages with and without a list.</p>
+<p>To try it on one page first, use <code>mathviz-page: {quiet-toc: true}</code> in that page’s front matter.</p>
+</section>
 <section id="embedding" class="level2">
 <h2 class="anchored" data-anchor-id="embedding">Embedding</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">embed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Adding <code>?embed=1</code> to a page’s URL shows only the page’s first app: no navbar, sidebar, title, footer or comments. <code>?embed=&lt;id&gt;</code> shows the app with that id instead, and <code>?embed=&lt;n&gt;</code> the n-th app on the page (what the Share dialog uses for an app without an id). Another site then frames it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">iframe</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  src</span><span class="op">=</span><span class="st">"https://example.com/apps/newton/?embed=1"</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  width</span><span class="op">=</span><span class="st">"100%"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"900"</span><span class="ot"> loading</span><span class="op">=</span><span class="st">"lazy"</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ot">  title</span><span class="op">=</span><span class="st">"Newton's method"</span><span class="dt">&gt;</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">iframe</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">iframe</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  src</span><span class="op">=</span><span class="st">"https://example.com/apps/newton/?embed=1"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  width</span><span class="op">=</span><span class="st">"100%"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"900"</span><span class="ot"> loading</span><span class="op">=</span><span class="st">"lazy"</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ot">  title</span><span class="op">=</span><span class="st">"Newton's method"</span><span class="dt">&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">iframe</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A page’s own URL parameters (the inputs it syncs into the URL) still work, so a frame can open at particular inputs. Inside a frame, the sidebar rail and Share button stay hidden.</p>
 </section>
 <section id="share" class="level2">
 <h2 class="anchored" data-anchor-id="share">Share</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">share</span><span class="kw">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">site-url</span><span class="kw">:</span><span class="at"> https://example.com</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">embed-docs</span><span class="kw">:</span><span class="at"> embed.html</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Puts a “Share” button above every <code>vm-app</code>. It opens a dialog with the page’s link, with and without the current inputs, and a ready-to-paste <code>&lt;iframe&gt;</code> snippet.</p>
 <ul>
 <li><code>site-url</code> is your site’s public address. Set it: the links then work even when copied from <code>quarto preview</code> or a test deploy. (Quarto doesn’t pass <code>website.site-url</code> to extensions, so you write it again here.)</li>
@@ -584,11 +609,11 @@ Authors: Apurva Nakade
 </section>
 <section id="category-cloud" class="level2">
 <h2 class="anchored" data-anchor-id="category-cloud">Category cloud</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">category-cloud</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Usually only one page has a cloud, so you can turn it on there alone, in that page’s front matter:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz-page</span><span class="kw">:</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">category-cloud</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Usually only one page has a cloud, so you can turn it on there alone, in that page’s front matter:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz-page</span><span class="kw">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">category-cloud</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For a listing with <code>categories: cloud</code>. Quarto puts the cloud in the right margin, which is narrow beside a grid and hidden on a phone. This moves it above the listing’s cards and adds an “All” entry first, which clears the filter. Clicking a category works as before, every entry can also be reached with Tab and picked with Enter or Space, and the page’s <code>#category=</code> links still open it filtered. Back and Forward step through the categories picked, “All” included. When a pick leaves the cloud above the window (a tag clicked on a card far down shortens the page), the page scrolls back to it; give <code>.vm-category-cloud</code> a <code>scroll-margin-top</code> if a fixed navbar would cover it. The page then has no margin column, so the listing gets the width. Without JavaScript the cloud stays in the margin.</p>
 <p>The cloud is unstyled: it looks the way Quarto draws it until your own CSS restyles it. Style it with these classes:</p>
 <table class="caption-top table">
@@ -621,28 +646,28 @@ Authors: Apurva Nakade
 </tr>
 </tbody>
 </table>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.quarto-listing-category</span> { <span class="kw">display</span><span class="ch">:</span> <span class="dv">flex</span><span class="op">;</span> <span class="kw">flex-wrap</span><span class="ch">:</span> <span class="dv">wrap</span><span class="op">;</span> <span class="kw">gap</span><span class="ch">:</span> <span class="dv">0.3</span><span class="dt">rem</span> <span class="dv">0.6</span><span class="dt">rem</span><span class="op">;</span> <span class="kw">margin-bottom</span><span class="ch">:</span> <span class="dv">1.25</span><span class="dt">rem</span><span class="op">;</span> }</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.category</span> { <span class="kw">cursor</span><span class="ch">:</span> <span class="dv">pointer</span><span class="op">;</span> <span class="kw">color</span><span class="ch">:</span> <span class="fu">var(</span><span class="va">--vm-text-soft</span><span class="fu">)</span><span class="op">;</span> }</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.category.active</span> { <span class="kw">color</span><span class="ch">:</span> <span class="fu">var(</span><span class="va">--vm-accent</span><span class="fu">)</span><span class="op">;</span> <span class="kw">font-weight</span><span class="ch">:</span> <span class="dv">500</span><span class="op">;</span> }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.quarto-listing-category</span> { <span class="kw">display</span><span class="ch">:</span> <span class="dv">flex</span><span class="op">;</span> <span class="kw">flex-wrap</span><span class="ch">:</span> <span class="dv">wrap</span><span class="op">;</span> <span class="kw">gap</span><span class="ch">:</span> <span class="dv">0.3</span><span class="dt">rem</span> <span class="dv">0.6</span><span class="dt">rem</span><span class="op">;</span> <span class="kw">margin-bottom</span><span class="ch">:</span> <span class="dv">1.25</span><span class="dt">rem</span><span class="op">;</span> }</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.category</span> { <span class="kw">cursor</span><span class="ch">:</span> <span class="dv">pointer</span><span class="op">;</span> <span class="kw">color</span><span class="ch">:</span> <span class="fu">var(</span><span class="va">--vm-text-soft</span><span class="fu">)</span><span class="op">;</span> }</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">.vm-category-cloud</span> <span class="fu">.category.active</span> { <span class="kw">color</span><span class="ch">:</span> <span class="fu">var(</span><span class="va">--vm-accent</span><span class="fu">)</span><span class="op">;</span> <span class="kw">font-weight</span><span class="ch">:</span> <span class="dv">500</span><span class="op">;</span> }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>With more than one listing on the page, the cloud goes above the first grid, default or table listing, and filters all of them, as Quarto’s does. A custom-template listing gets the cloud only when the page has no listing of those three types; its template must emit <code>metadataAttrs(item)</code> on each item for the filter to find the item’s categories.</p>
 </section>
 <section id="sidebar-rail" class="level2">
 <h2 class="anchored" data-anchor-id="sidebar-rail">Sidebar rail</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For a site with Quarto sidebar navigation (<code>style: floating</code> or <code>docked</code>). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages and visits). On a screen 992px or wider it starts pinned until the reader chooses otherwise, and a pinned sidebar there sits beside the page rather than over it (the page moves right only when the window is too narrow for the sidebar to fit beside it); on a phone it starts closed. Escape or the menu button closes and unpins it; a click outside closes an unpinned one. The body column takes the sidebar’s space and is as wide as your <code>grid: body-width</code> (Quarto’s 800px if unset); a page with a table of contents keeps its right margin.</p>
-<p>If your pages need the whole window (a full-width split layout, say), start it closed at every width instead:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">pin-key</span><span class="kw">:</span><span class="at"> my-site-sidebar-pinned</span><span class="co">   # optional; vm-sidebar-pinned if unset</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">default</span><span class="kw">:</span><span class="at"> closed</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For a site with Quarto sidebar navigation (<code>style: floating</code> or <code>docked</code>). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages and visits). On a screen 992px or wider it starts pinned until the reader chooses otherwise, and a pinned sidebar there sits beside the page rather than over it (the page moves right only when the window is too narrow for the sidebar to fit beside it); on a phone it starts closed. Escape or the menu button closes and unpins it; a click outside closes an unpinned one. The body column takes the sidebar’s space and is as wide as your <code>grid: body-width</code> (Quarto’s 800px if unset); a page with a table of contents keeps a right margin for it, as wide as your <code>grid: margin-width</code> (Quarto’s 250px if unset), and its body column stays where a page without one has it, centred in the window, wherever the window has room for the list beside it. In a narrower window the column moves left only as far as the list needs; beside a pinned sidebar, which leaves it no room to move, the column narrows instead and the list keeps its width.</p>
+<p>If your pages need the whole window (a full-width split layout, say), start it closed at every width instead:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-rail</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">pin-key</span><span class="kw">:</span><span class="at"> my-site-sidebar-pinned</span><span class="co">   # optional; vm-sidebar-pinned if unset</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">default</span><span class="kw">:</span><span class="at"> closed</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A reader who pins it still gets it pinned. <code>default: pinned</code> is the same as leaving <code>default</code> out.</p>
 <p>It changes nothing on a site or page that doesn’t turn it on, or on a page without a sidebar: to switch it off for one page, set <code>mathviz-page: {sidebar-rail: false}</code>.</p>
 </section>
 <section id="sidebar-search" class="level2">
 <h2 class="anchored" data-anchor-id="sidebar-search">Sidebar search</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mathviz</span><span class="kw">:</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sidebar-search</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For a site with Quarto sidebar navigation, with or without the rail. A search box at the top of the sidebar narrows the menu as the reader types. It searches titles only, not page text: Quarto’s own full-text search allows one box per page, so keep that one in the navbar.</p>
 <ul>
 <li>Each word typed must start a word of a title, in any order: “ode” finds “Methods for ODEs” but not “Model Fitting”. Case, accents and punctuation are ignored, and so are apostrophes, straight or curly.</li>
