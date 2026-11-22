@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `quiet-toc: true`, an opt-in look for Quarto's table of contents on prose-first sites: no "On this page" heading or rule, small soft text, the list faded until the pointer or keyboard focus is on it, and set at the middle of the window's height, where the navbar sliding away doesn't move it and the footer doesn't push it off the screen. Only a stylesheet: a page without a table of contents in the right margin is unchanged. The starter shows it on `quiet-toc.qmd`.
+
+### Changed
+
+- Sidebar rail: on a page with a table of contents the body column stays where a page without one has it, centred in the window, wherever the window has room for the list beside it, and the list hangs to the column's right at `grid: margin-width`. The column and the list used to be centred as a pair, which put the text half a margin left of its place on a page without a list. In a narrower window the column moves left only as far as the list needs.
+
 ## [1.15.1] - 2026-11-22
 
 ### Changed

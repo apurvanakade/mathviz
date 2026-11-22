@@ -1,0 +1,103 @@
+---
+title: "Quiet table of contents"
+description: "A long prose page with the quiet table of contents: no heading or rule, soft text, faded until hovered, at the middle of the window."
+categories: ["prose", "layout"]
+toc: true
+toc-depth: 3
+mathviz-page:
+  quiet-toc: true
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+<!--
+Shows: quiet-toc, turned on for this page alone with mathviz-page: (put
+`quiet-toc: true` under mathviz: in _quarto.yml for the whole site, with
+`toc: true` under format: html:). The list in the right margin has no
+"On this page" heading and no rule, is small and soft, fades until the
+pointer is on it, and sits at the middle of the window's height. Scroll:
+the navbar slides away and the list stays put; a section's subsections
+show only while you are in it (toc-depth: 3, Quarto's own behaviour).
+With the sidebar rail (on in _quarto.yml), close the sidebar and the text
+column sits where it does on a page without a table of contents.
+
+  quiet-toc:    https://apurvanakade.github.io/mathviz/docs/site.html#quiet-toc
+  sidebar rail: https://apurvanakade.github.io/mathviz/docs/site.html#sidebar-rail
+-->
+
+A page of lecture notes is mostly text, and a table of contents beside it
+competes with the text for the eye. This page keeps the list, since a long
+page needs one, and quietens it.
+
+## Estimating an area
+
+Throw points uniformly at a square that contains a region. The fraction
+that lands inside the region estimates the region's share of the square's
+area, and the estimate improves as the number of points grows.
+
+### The estimator
+
+Write the indicator of the region as $I$. The estimator is the sample mean
+of $I$ over $N$ independent uniform points, scaled by the square's area. It
+is unbiased, whatever the shape of the region.
+
+### Its error
+
+The standard error of a mean of $N$ independent samples falls like
+$N^{-1/2}$: a hundred times as many points buy one more correct digit. The
+constant in front depends on the region, the rate does not.
+
+## Estimating an integral
+
+An integral over the unit cube is the expectation of the integrand at a
+uniform point, so the same sample mean estimates it. The dimension enters
+only through the integrand's variance.
+
+### Hit or miss
+
+Bound the integrand by a box and count the points that fall under its
+graph. This is the area estimator again, one dimension up, and it throws
+away the integrand's value at each point.
+
+### The sample mean
+
+Average the integrand's values instead. The variance is never larger than
+hit or miss, and it is zero for a constant integrand.
+
+## Reducing the variance
+
+The rate is fixed, so the work goes into the constant. Each method below
+replaces the integrand, or the points, by one with the same mean and a
+smaller variance.
+
+### Antithetic points
+
+Pair each point $u$ with $1 - u$. For a monotone integrand the two values
+are negatively correlated, and their average varies less than two
+independent values would.
+
+### Control variates
+
+Subtract a function whose integral is known and which follows the
+integrand closely. What is left to estimate is small.
+
+### Importance sampling
+
+Draw the points from a density shaped like the integrand, and weight each
+value by the ratio of the densities. Points land where the integrand is
+large.
+
+## Quasi-random points
+
+Random points clump and leave gaps. A low-discrepancy sequence fills the
+cube evenly, and for a smooth integrand in a moderate dimension its error
+falls nearly like $N^{-1}$.
+
+## Summary
+
+Random points turn an integral into an average, with an error that falls
+like $N^{-1/2}$ in any dimension. The rest of the subject is the constant.

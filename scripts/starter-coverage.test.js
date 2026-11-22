@@ -181,7 +181,8 @@ test('starter/_quarto.yml turns on every key in site.qmd\'s "All the keys", and 
   assert.ok(keys.length > 3, `parsed only ${JSON.stringify(keys)} from site.qmd's key block`)
   // A key may be on for one page only, through that page's mathviz-page:
   // (category-cloud on the listing; quiet-apps, which would otherwise
-  // replace the boxed look on every page).
+  // replace the boxed look on every page; quiet-toc on the one long prose
+  // page with a table of contents).
   const pageOptions = starterFiles.slice(1)
     .map(name => (read(`starter/${name}`).match(/^---\n[\s\S]*?\nmathviz-page:\n((?: {2}.*\n)+)/) || [])[1] || '')
     .join('')

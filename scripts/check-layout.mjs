@@ -37,7 +37,12 @@
 //   - the sidebar rail not hiding the sidebar, not opening, pinning and
 //     closing, not centring the body column at the grid: width (in a frame
 //     too), squeezing a TOC, or drawing a rail in a frame -- or anything of
-//     it reaching a page that turns it off (no-rail.qmd);
+//     it reaching a page that turns it off (no-rail.qmd); a page with a
+//     TOC not keeping its body column centred where the window has room
+//     for the TOC beside it;
+//   - quiet-toc not hiding the TOC's heading, not fading the list, not
+//     holding it at the middle of the window (at the top of the page and
+//     at its foot), or reaching a page that doesn't turn it on;
 //   - a draggable point drawn away from the data point it stands for
 //     (after a drag, a theme toggle or a resize), escaping its bounds,
 //     losing its value on a theme toggle, showing a focus ring after a
@@ -85,6 +90,8 @@ const legendPages = ['legend.html']
 // Prose pages for the sidebar rail: one with a TOC under it, one that turns
 // it off with mathviz-page:.
 const railPages = ['rail-toc.html', 'no-rail.html']
+// A long prose page with a TOC and quiet-toc, under the rail.
+const quietTocPages = ['quiet-toc.html']
 // Lecture-notes prose: inline math, theorems, an exercise, a callout.
 const prosePages = ['prose.html']
 // The SVG modebar in each situation it has to tell apart.
@@ -357,6 +364,13 @@ async function railWideProblems(context, url) {
   for (const problem of await railUndockProblems(page)) problems.push(problem)
   const undocked = await left()
   if (Math.abs(docked - undocked) > 1) problems.push(`docking moved the body column ${Math.round(docked - undocked)}px in a 1920px window, where it clears the sidebar where it is`)
+  // Undocked, the column is centred at the grid's width -- on a page with
+  // a TOC too (this window has room for one beside the column), which
+  // hangs to the column's right.
+  for (const problem of await page.evaluate(railAtRestProblems, 1000)) problems.push(`undocked: ${problem}`)
+  if (await page.evaluate(() => !!document.querySelector('nav#TOC'))) {
+    for (const problem of await page.evaluate(tocBesideColumnProblems, 200)) problems.push(problem)
+  }
   await page.close()
   return problems
 }
@@ -440,6 +454,64 @@ function noRailProblems() {
   if (sb.left < 0 || sb.width < 150) problems.push(`Quarto's sidebar is not in its own track (left ${Math.round(sb.left)}px, ${Math.round(sb.width)}px wide)`)
   const col = document.querySelector('#quarto-document-content').getBoundingClientRect()
   if (col.left < sb.right - 1) problems.push('the body column overlaps the sidebar')
+  return problems
+}
+
+// A page with a TOC, in a window with room for it beside a centred column:
+// the TOC is right of the body column, inside the window, and at the
+// margin's width (the fixture's grid: margin-width, 200px), not the length
+// of the side track.
+function tocBesideColumnProblems(marginWidth) {
+  const problems = []
+  const toc = document.querySelector('#quarto-margin-sidebar nav#TOC')
+  if (!toc) return ['no TOC (#quarto-margin-sidebar nav#TOC)']
+  const box = toc.getBoundingClientRect()
+  const col = document.querySelector('#quarto-document-content').getBoundingClientRect()
+  if (box.left < col.right) problems.push(`the TOC (left edge ${Math.round(box.left)}px) overlaps the body column (right edge ${Math.round(col.right)}px)`)
+  if (box.right > document.documentElement.clientWidth) problems.push(`the TOC runs off the window (right edge ${Math.round(box.right)}px)`)
+  if (marginWidth && Math.abs(box.width - marginWidth) > 2) problems.push(`the TOC is ${Math.round(box.width)}px wide, expected ${marginWidth}px from grid: margin-width`)
+  return problems
+}
+
+// quiet-toc on a page with a TOC: its stylesheet, no heading, a faded list
+// (the browser here has a pointer, so `hover: hover` holds), and the list
+// at the middle of the window's height -- within the navbar's height of
+// it, since at the top of the page the margin sidebar still starts under
+// the navbar -- and wholly on screen.
+function quietTocProblems() {
+  const problems = []
+  if (!document.querySelector('link[rel="stylesheet"][href*="quiet-toc"]')) problems.push('no quiet-toc stylesheet on the page')
+  const toc = document.querySelector('#quarto-margin-sidebar nav#TOC')
+  if (!toc) return [...problems, 'no TOC (#quarto-margin-sidebar nav#TOC)']
+  const title = toc.querySelector('#toc-title')
+  if (title && getComputedStyle(title).display !== 'none') problems.push('the TOC heading is shown')
+  const opacity = parseFloat(getComputedStyle(toc).opacity)
+  if (!(opacity < 0.6)) problems.push(`the TOC is not faded at rest (opacity ${opacity})`)
+  const link = toc.querySelector('ul > li > a')
+  if (link && parseFloat(getComputedStyle(link).borderLeftWidth) > 0) problems.push('a TOC entry has a rule on its left')
+  const box = toc.getBoundingClientRect()
+  const header = document.getElementById('quarto-header')
+  const slack = (header ? header.getBoundingClientRect().height : 0) + 20
+  const offCentre = Math.round(box.top + box.height / 2 - window.innerHeight / 2)
+  if (Math.abs(offCentre) > slack) problems.push(`the TOC is ${offCentre}px off the middle of the window's height (scrollY ${Math.round(window.scrollY)})`)
+  if (box.top < 0 || box.bottom > window.innerHeight) problems.push(`the TOC is partly off screen (${Math.round(box.top)}..${Math.round(box.bottom)}px in a ${window.innerHeight}px window, scrollY ${Math.round(window.scrollY)})`)
+  return problems
+}
+
+// A page that doesn't turn quiet-toc on gets nothing of it: no stylesheet,
+// and Quarto's own TOC -- its heading shown, full strength, the margin
+// sidebar a plain block.
+function noQuietTocProblems() {
+  const problems = []
+  if (document.querySelector('link[rel="stylesheet"][href*="quiet-toc"]')) problems.push('a quiet-toc stylesheet is on a page without the option')
+  const margin = document.getElementById('quarto-margin-sidebar')
+  if (margin && getComputedStyle(margin).display === 'flex') problems.push('the margin sidebar is a flex box on a page without quiet-toc')
+  const toc = document.querySelector('#quarto-margin-sidebar nav#TOC')
+  if (!toc) return problems
+  const title = toc.querySelector('#toc-title')
+  if (title && getComputedStyle(title).display === 'none') problems.push('the TOC heading is hidden on a page without quiet-toc')
+  const opacity = parseFloat(getComputedStyle(toc).opacity)
+  if (opacity !== 1) problems.push(`the TOC is faded (opacity ${opacity}) on a page without quiet-toc`)
   return problems
 }
 
@@ -975,7 +1047,9 @@ async function checkRailPage(context, base, relPath) {
   if (off) {
     for (const problem of await page.evaluate(noRailProblems)) errors.push(`desktop: ${problem}`)
     for (const problem of await page.evaluate(noSmoothScrollProblems)) errors.push(`desktop: ${problem}`)
+    for (const problem of await page.evaluate(noQuietTocProblems)) errors.push(`desktop: ${problem}`)
   } else {
+    for (const problem of await page.evaluate(noQuietTocProblems)) errors.push(`desktop: ${problem}`)
     for (const problem of await page.evaluate(railDockedProblems)) errors.push(`desktop: ${problem}`)
     for (const problem of await page.evaluate(railTocProblems)) errors.push(`desktop docked: ${problem}`)
     for (const problem of await railUndockProblems(page)) errors.push(`desktop: ${problem}`)
@@ -990,6 +1064,53 @@ async function checkRailPage(context, base, relPath) {
   watch(phone, 'phone ')
   for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
   if (!off) for (const problem of await phone.evaluate(railAtRestProblems, null)) errors.push(`phone: ${problem}`)
+  const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
+  if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
+  await phone.close()
+  return errors
+}
+
+// quiet-toc.html (rail on, a TOC, quiet-toc): in a window with room for the
+// TOC beside a centred column, in one without, and on a phone.
+async function checkQuietTocPage(context, base, relPath) {
+  const errors = []
+  const watch = (page, prefix) => {
+    page.on('pageerror', err => errors.push(`${prefix}pageerror: ${err.message}`))
+    page.on('console', msg => {
+      if (msg.type() === 'error') errors.push(`${prefix}console.error: ${msg.text()}`)
+    })
+  }
+  // Instant, whatever smooth scroll would do, then time for sticky
+  // positioning and Quarto's navbar to settle.
+  const scrollTo = async (page, top) => {
+    await page.evaluate(y => window.scrollTo({ top: y === 'foot' ? document.documentElement.scrollHeight : y, behavior: 'instant' }), top)
+    await page.waitForTimeout(300)
+  }
+  for (const [label, width, height, roomy] of [['wide', 1920, 1000, true], ['desktop', 1280, 800, false]]) {
+    const page = await context.newPage()
+    await page.setViewportSize({ width, height })
+    // Away from the TOC: the list is at full strength under the pointer.
+    await page.mouse.move(5, height - 5)
+    watch(page, `${label} `)
+    for (const problem of await load(page, base + relPath)) errors.push(`${label}: ${problem}`)
+    for (const problem of await railUndockProblems(page)) errors.push(`${label}: ${problem}`)
+    for (const problem of await page.evaluate(railAtRestProblems, roomy ? 1000 : null)) errors.push(`${label}: ${problem}`)
+    for (const problem of await page.evaluate(tocBesideColumnProblems, 200)) errors.push(`${label}: ${problem}`)
+    for (const problem of await page.evaluate(quietTocProblems)) errors.push(`${label}, top of page: ${problem}`)
+    await scrollTo(page, 600)
+    for (const problem of await page.evaluate(quietTocProblems)) errors.push(`${label}, scrolled: ${problem}`)
+    await scrollTo(page, 'foot')
+    for (const problem of await page.evaluate(quietTocProblems)) errors.push(`${label}, foot of page: ${problem}`)
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
+    if (scrollWidth > width) errors.push(`${label}: the page scrolls sideways (${scrollWidth}px wide in a ${width}px window)`)
+    await page.close()
+  }
+
+  const phone = await context.newPage()
+  await phone.setViewportSize({ width: 390, height: 844 })
+  watch(phone, 'phone ')
+  for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
+  for (const problem of await phone.evaluate(railAtRestProblems, null)) errors.push(`phone: ${problem}`)
   const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
   if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
   await phone.close()
@@ -1467,12 +1588,13 @@ async function main() {
   let failed = false
   try {
     const runs = [
-      ...[...pages, ...listingPages, ...dragPages, ...railPages, ...prosePages, ...modebarPages, ...legendPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
+      ...[...pages, ...listingPages, ...dragPages, ...railPages, ...quietTocPages, ...prosePages, ...modebarPages, ...legendPages].map((relPath) => [base, relPath, 'fixtures/layout/']),
       ...pageOptionsPages.map((relPath) => [pageOptionsBase, relPath, 'fixtures/page-options/'])
     ]
     for (const [siteBase, relPath, label] of runs) {
       let check = checkPage
       if (railPages.includes(relPath)) check = checkRailPage
+      if (quietTocPages.includes(relPath)) check = checkQuietTocPage
       if (prosePages.includes(relPath)) check = checkProsePage
       if (listingPages.includes(relPath)) check = checkCardsPage
       if (dragPages.includes(relPath)) check = checkDragPage
