@@ -462,7 +462,9 @@ function noRailProblems() {
 // A page with a TOC, in a window with room for it beside a centred column:
 // the TOC is right of the body column, inside the window, and at the
 // margin's width (the fixture's grid: margin-width, 200px), not the length
-// of the side track.
+// of the side track. The width is the margin sidebar's box, which the rail
+// sizes: Quarto 1.11 pads its right edge for the links' focus ring, so the
+// list inside is that much narrower than the margin.
 function tocBesideColumnProblems(marginWidth) {
   const problems = []
   const toc = document.querySelector('#quarto-margin-sidebar nav#TOC')
@@ -471,7 +473,8 @@ function tocBesideColumnProblems(marginWidth) {
   const col = document.querySelector('#quarto-document-content').getBoundingClientRect()
   if (box.left < col.right) problems.push(`the TOC (left edge ${Math.round(box.left)}px) overlaps the body column (right edge ${Math.round(col.right)}px)`)
   if (box.right > document.documentElement.clientWidth) problems.push(`the TOC runs off the window (right edge ${Math.round(box.right)}px)`)
-  if (marginWidth && Math.abs(box.width - marginWidth) > 2) problems.push(`the TOC is ${Math.round(box.width)}px wide, expected ${marginWidth}px from grid: margin-width`)
+  const margin = document.getElementById('quarto-margin-sidebar').getBoundingClientRect()
+  if (marginWidth && Math.abs(margin.width - marginWidth) > 2) problems.push(`the TOC's margin sidebar is ${Math.round(margin.width)}px wide, expected ${marginWidth}px from grid: margin-width`)
   return problems
 }
 
