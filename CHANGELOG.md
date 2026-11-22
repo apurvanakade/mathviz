@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.15.1] - 2026-11-22
+
 ### Changed
 
 - A slider grid (`ojs-chart-controls ojs-grid`, and with `quiet-apps` a panel grid holding a slider) lays out at most two sliders per row at every width. Its 320px column floor allowed three or four across on a wide chart, and only one per row on a 680px page column, where two fit. Two now sit side by side whenever each gets 280px, about a 600px bar; a narrower bar stacks them.
@@ -588,7 +590,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.15.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.15.1...HEAD
+[1.15.1]: https://github.com/apurvanakade/mathviz/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/apurvanakade/mathviz/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/apurvanakade/mathviz/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/apurvanakade/mathviz/compare/v1.12.0...v1.13.0
