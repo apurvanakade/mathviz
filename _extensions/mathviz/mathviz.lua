@@ -48,6 +48,10 @@
 --     quiet-apps: true             # every .vm-app without panel boxes,
 --                                  # readout tiles or a legend frame;
 --                                  # Share on hover
+--     quiet-toc: true              # the table of contents without its
+--                                  # heading and rule, in small soft
+--                                  # text, faded until hovered, at the
+--                                  # middle of the window's height
 --
 -- One page changes options with `mathviz-page:` in its front matter, never
 -- with `mathviz:` there. Quarto merges a page's front matter over the
@@ -279,6 +283,14 @@ function Pandoc(doc)
       name = "mathviz-quiet-apps",
       version = VERSION,
       stylesheets = { "chrome/quiet-apps.css" }
+    })
+  end
+  -- Stylesheet only too.
+  if enabled(opts, "quiet-toc") then
+    quarto.doc.add_html_dependency({
+      name = "mathviz-quiet-toc",
+      version = VERSION,
+      stylesheets = { "chrome/quiet-toc.css" }
     })
   end
   if enabled(opts, "category-cloud") then

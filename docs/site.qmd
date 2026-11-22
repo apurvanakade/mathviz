@@ -9,7 +9,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a quieter look for apps). Each is one key under `mathviz:` in `_quarto.yml`, or under `mathviz-page:` in one page's front matter for a piece only that page uses (never `mathviz:` there -- see [Options for one page](install.qmd#page-options)). A site pays only for the pieces it turns on.
+Everything on this page is optional and off by default. The extension can also dress up the site *around* your charts: self-hosted fonts, a Quarto theme in the same colors as the panels, and a few pieces of site chrome (a collapsible sidebar, a sidebar search box, a category cloud above a listing, embedding, a Share button, a quieter look for apps, a quieter table of contents). Each is one key under `mathviz:` in `_quarto.yml`, or under `mathviz-page:` in one page's front matter for a piece only that page uses (never `mathviz:` there -- see [Options for one page](install.qmd#page-options)). A site pays only for the pieces it turns on.
 
 These come with the Quarto extension only. The plain script bundle doesn't include them.
 
@@ -26,6 +26,7 @@ mathviz:
     site-url: https://example.com
     embed-docs: embed.html
   quiet-apps: true
+  quiet-toc: true
 ```
 
 | Key | Values | Effect |
@@ -37,6 +38,7 @@ mathviz:
 | `embed` | `true` | Lets another site show one app alone in an `<iframe>`. |
 | `share` | a map (see [Share](#share)) | Adds a "Share" button to every app. Turns `embed` on too. |
 | `quiet-apps` | `true` | Draws every app without panel boxes, for pages that are mostly prose. |
+| `quiet-toc` | `true` | Draws the table of contents small, soft and faded, at the middle of the window. |
 
 Where a key takes a **storage key**, the string names the `localStorage` entry that remembers the reader's choice. Name your own if two sites share one origin (two GitHub Pages project sites, say), or if your privacy page lists what you store. With `true` the default is `vm-sidebar-pinned`.
 
@@ -106,6 +108,28 @@ A lighter look for every `vm-app`, for a site whose pages are mostly prose (a bl
 - If `share` is on, its button is a plain link that shows while the pointer is over the app (always, on a touch screen).
 
 To try it on one page first, use `mathviz-page: {quiet-apps: true}` in that page's front matter.
+
+## Quiet table of contents {#quiet-toc}
+
+```yaml
+mathviz:
+  quiet-toc: true
+
+format:
+  html:
+    toc: true
+```
+
+A table of contents that stays beside the text on every page without competing with it, for a site whose pages are mostly prose. It's only a stylesheet for Quarto's own table of contents in the right margin (`toc: true`), so the list's entries, its depth (`toc-depth`) and the page that has one are still Quarto's options:
+
+- No "On this page" heading, and no rule down the list's left edge.
+- Small, soft text. The section being read keeps the accent color.
+- The whole list is faded until the pointer or keyboard focus is on it (not on a touch screen, which has no hover).
+- The list sits at the middle of the window's height. It doesn't move when the navbar slides away, and the footer doesn't push it off the screen at the end of a page.
+
+A page without a table of contents (`toc: false`), or with one placed in the left sidebar or the body (`toc-location`), is unchanged. With the [sidebar rail](#sidebar-rail), the text column is in the same place on pages with and without a list.
+
+To try it on one page first, use `mathviz-page: {quiet-toc: true}` in that page's front matter.
 
 ## Embedding
 
@@ -180,7 +204,7 @@ mathviz:
   sidebar-rail: true
 ```
 
-For a site with Quarto sidebar navigation (`style: floating` or `docked`). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages and visits). On a screen 992px or wider it starts pinned until the reader chooses otherwise, and a pinned sidebar there sits beside the page rather than over it (the page moves right only when the window is too narrow for the sidebar to fit beside it); on a phone it starts closed. Escape or the menu button closes and unpins it; a click outside closes an unpinned one. The body column takes the sidebar's space and is as wide as your `grid: body-width` (Quarto's 800px if unset); a page with a table of contents keeps its right margin.
+For a site with Quarto sidebar navigation (`style: floating` or `docked`). The sidebar is hidden at every width, behind a slim rail at the left edge with two buttons: one to open it, one to pin it open (remembered across pages and visits). On a screen 992px or wider it starts pinned until the reader chooses otherwise, and a pinned sidebar there sits beside the page rather than over it (the page moves right only when the window is too narrow for the sidebar to fit beside it); on a phone it starts closed. Escape or the menu button closes and unpins it; a click outside closes an unpinned one. The body column takes the sidebar's space and is as wide as your `grid: body-width` (Quarto's 800px if unset); a page with a table of contents keeps a right margin for it, as wide as your `grid: margin-width` (Quarto's 250px if unset), and its body column stays where a page without one has it, centred in the window, wherever the window has room for the list beside it. In a narrower window the column moves left only as far as the list needs; beside a pinned sidebar, which leaves it no room to move, the column narrows instead and the list keeps its width.
 
 If your pages need the whole window (a full-width split layout, say), start it closed at every width instead:
 

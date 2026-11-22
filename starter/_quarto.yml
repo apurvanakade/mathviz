@@ -7,7 +7,8 @@
 # new one. See README.md.
 #
 # Every option mathviz has is on here, or on the one page it suits
-# (category-cloud on gallery.qmd, quiet-apps on quiet-apps.qmd), so every
+# (category-cloud on gallery.qmd, quiet-apps on quiet-apps.qmd, quiet-toc on
+# quiet-toc.qmd), so every
 # feature shows somewhere on the site. Each is optional: delete the ones
 # you don't want.
 project:
@@ -76,6 +77,7 @@ website:
             - readouts.qmd
             - prose.qmd
             - quiet-apps.qmd
+            - quiet-toc.qmd
 
 format:
   html:

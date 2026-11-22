@@ -65,7 +65,7 @@ The page gets every option from `_quarto.yml`, with its own `mathviz-page:` keys
 
 A `mathviz:` block in a page's front matter doesn't add to the project's; it replaces it, so that page silently loses every option `_quarto.yml` sets: its referrer meta, fonts, sidebar rail and the rest. Nothing warns you and the page still renders. [Internals](reference/internals.qmd#the-lua-filters-odd-shape) explains why.
 
-Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, a sidebar search box, a category cloud, embedding, a Share button, a quieter look for apps), and the extension ships an optional Quarto theme. All are off by default -- see [Site extras](site.qmd).
+Further keys turn on self-hosted fonts and site-wide chrome (a sidebar rail, a sidebar search box, a category cloud, embedding, a Share button, a quieter look for apps, a quieter table of contents), and the extension ships an optional Quarto theme. All are off by default -- see [Site extras](site.qmd).
 
 ### Versions and updating
 

@@ -172,6 +172,7 @@ Each of the starter's other pages adds one thing to this pattern:
 | [readouts.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/readouts.qmd) | a [static key](reference/ui.qmd#staticKey) and a [stat row](reference/ui.qmd#statRow) under a chart; a hand-built SVG with the modebar |
 | [prose.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/prose.qmd) | [color words](markup.qmd#vm-swatch) and the [theme](site.qmd#theme)'s prose; one app embedded |
 | [quiet-apps.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/quiet-apps.qmd) | the unboxed look for prose-first sites ([`quiet-apps`](site.qmd#quiet-apps)) |
+| [quiet-toc.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/quiet-toc.qmd) | a long prose page with the quiet table of contents ([`quiet-toc`](site.qmd#quiet-toc)) |
 | [gallery.qmd](https://github.com/apurvanakade/mathviz/blob/main/starter/gallery.qmd) | a listing of every page, with the [category cloud](site.qmd#category-cloud) |
 
 Then make the palette yours: [Theming](theming.qmd).
