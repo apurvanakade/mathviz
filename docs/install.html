@@ -83,12 +83,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd089309c48056d115b64257fc48cc9a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-dafc20e7d5c911a8f53d723065a50860.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd089309c48056d115b64257fc48cc9a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ae010aa0820343b3278cf965d0fdcb82.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7b300555dd4b48d707f05811ef214d4c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-ae010aa0820343b3278cf965d0fdcb82.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <meta name="referrer" content="same-origin">
 <script src="../site_libs/quarto-contrib/mathviz-1.14.0/mathviz.min.js" defer=""></script>
 <link href="../site_libs/quarto-contrib/mathviz-1.14.0/mathviz.min.css" rel="stylesheet">
+<script src="../site_libs/quarto-contrib/mathviz-smooth-scroll-1.14.0/smooth-scroll.js"></script>
+<link href="../site_libs/quarto-contrib/mathviz-smooth-scroll-1.14.0/smooth-scroll.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -449,7 +451,7 @@ Authors: Apurva Nakade
 <p>This copies the extension into <code>_extensions/apurvanakade/mathviz/</code> in your project. Enable it project-wide in <code>_quarto.yml</code>, or per page in front matter:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">filters</span><span class="kw">:</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> mathviz</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The filter puts the minified <code>mathviz.min.js</code> and <code>mathviz.min.css</code> (served from your own <code>site_libs/</code>) into every HTML page’s <code>&lt;head&gt;</code>, and on every page with <code>{ojs}</code> cells, math.js and Plotly ahead of them (from a CDN, pinned to the versions the library is tested against). All three scripts are deferred, so none of them holds up the page’s first paint, and they still run in order, before the first OJS cell.</p>
+<p>The filter puts the minified <code>mathviz.min.js</code> and <code>mathviz.min.css</code> (served from your own <code>site_libs/</code>) into every HTML page’s <code>&lt;head&gt;</code>, and on every page with <code>{ojs}</code> cells, math.js and Plotly ahead of them (from a CDN, pinned to the versions the library is tested against). All three scripts are deferred, so none of them holds up the page’s first paint, and they still run in order, before the first OJS cell. Every page also gets the small smooth-scroll script and stylesheet (<code>smooth-scroll</code> below).</p>
 <section id="options" class="level3">
 <h3 class="anchored" data-anchor-id="options">Options</h3>
 <p>All optional, under a <code>mathviz:</code> key in <code>_quarto.yml</code>:</p>
@@ -457,7 +459,8 @@ Authors: Apurva Nakade
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">plotly</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">             # your pages draw with D3/canvas/Plot -- skip Plotly</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mathjs</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">             # ...or math.js. Either also accepts true or a URL</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">css</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">                # bring your own stylesheet</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">referrer</span><span class="kw">:</span><span class="at"> same-origin</span><span class="co">     # emit &lt;meta name="referrer"&gt; ahead of the CDN tags</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">referrer</span><span class="kw">:</span><span class="at"> same-origin</span><span class="co">     # emit &lt;meta name="referrer"&gt; ahead of the CDN tags</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">smooth-scroll</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">      # same-page links jump, as in plain Quarto</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -486,6 +489,11 @@ Authors: Apurva Nakade
 <td><code>referrer</code></td>
 <td>a <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/name/referrer">referrer policy</a> string</td>
 <td>Emits <code>&lt;meta name="referrer" content="…"&gt;</code> <strong>before</strong> the CDN tags, so the third-party origins don’t see a page’s path or query string – which on a math page is the reader’s own input. Visual Math Lab uses <code>same-origin</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>smooth-scroll</code></td>
+<td><code>true</code> (default) or <code>false</code></td>
+<td>A link to a place on the same page (a cross-reference, the table of contents, a footnote) scrolls there instead of jumping, and its target stops just below a fixed navbar. The browser’s back button returns to the line you left, as it does without this. Readers whose system asks for reduced motion keep the jump. A page that sets Quarto’s own <code>smooth-scroll: true</code> keeps Quarto’s instead.</td>
 </tr>
 </tbody>
 </table>
