@@ -18,8 +18,9 @@
 //   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app, or
 //     showing it narrower than the content column;
 //   - the Share dialog's links and <iframe> snippet.
-//   - under the theme, a same-page link jumping instead of scrolling, or
-//     Back not returning to the line the reader left;
+//   - with smooth-scroll on, a same-page link jumping instead of scrolling,
+//     Back not returning to the line the reader left, or a link up the
+//     page leaving its target under the navbar;
 //   - the sidebar search box not narrowing the menu;
 //   - grid listing cards wider than --vm-card-width, more than one to a
 //     row on a phone, or with a title pushed off the card's left edge (the
@@ -752,9 +753,9 @@ function proseRhythmProblems() {
   return problems
 }
 
-// A same-page link under the theme (theme.scss, `scroll-behavior`): the
-// click scrolls to the target rather than jumping, and Back returns to the
-// line the reader left. Clicked from script, so Playwright doesn't scroll
+// A same-page link with `smooth-scroll` on (src/chrome/smooth-scroll.*): the
+// click scrolls to the target rather than jumping, Back returns to the line
+// the reader left, and a link up the page stops its target below the navbar. Clicked from script, so Playwright doesn't scroll
 // the link into view first and move the line being left.
 async function samePageLinkProblems(page) {
   const problems = []
@@ -789,6 +790,22 @@ async function samePageLinkProblems(page) {
   const back = await settledY()
   if (Math.abs(back - left) > 2) problems.push(`Back after a same-page link returned to ${back}px, not the ${left}px the reader left`)
   if (page.url().includes('#')) problems.push(`Back after a same-page link left the address at ${page.url()}`)
+
+  // A link back up the page, from its end. Scrolling up brings Quarto's
+  // navbar back (headroom), and Quarto doesn't make room for it once the
+  // scroll is smooth: the target landed underneath, at the window's top.
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }))
+  const end = await settledY()
+  await page.evaluate(() => document.querySelector('main a[href$="#thm-clt"]').click())
+  const up = await settledY()
+  const [targetTop, navbarBottom] = await page.evaluate(() => [
+    document.querySelector('#thm-clt').getBoundingClientRect().top,
+    document.querySelector('header.fixed-top')?.getBoundingClientRect().bottom ?? null
+  ])
+  if (navbarBottom === null || navbarBottom < 20) problems.push(`no navbar in view after a link up the page (bottom edge ${navbarBottom}): the fixture needs a fixed one`)
+  else if (up > end - 100) problems.push(`a link up the page moved it from ${end}px to ${up}px: the fixture needs its target further up`)
+  else if (targetTop < navbarBottom - 2) problems.push(`a link up the page left its target at ${Math.round(targetTop)}px, under the navbar (which ends at ${Math.round(navbarBottom)}px)`)
+  else if (targetTop > navbarBottom + 8) problems.push(`a link up the page left its target at ${Math.round(targetTop)}px, ${Math.round(targetTop - navbarBottom)}px below the navbar`)
   return problems
 }
 

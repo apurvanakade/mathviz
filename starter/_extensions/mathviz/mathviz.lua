@@ -264,6 +264,9 @@ function Pandoc(doc)
   if enabled(opts, "sidebar-search") then
     chrome("sidebar-search")
   end
+  if enabled(opts, "smooth-scroll") then
+    chrome("smooth-scroll")
+  end
   -- Stylesheet only: no script, no settings.
   if enabled(opts, "quiet-apps") then
     quarto.doc.add_html_dependency({

@@ -23,6 +23,7 @@ mathviz:
   fonts: true
   sidebar-rail: true
   sidebar-search: true
+  smooth-scroll: true
   share:
     site-url: https://example.com
 
@@ -33,6 +34,11 @@ execute:
 website:
   title: "mathviz layout fixtures"
   page-navigation: true
+  # A fixed navbar, as most sites have: the sidebar rail starts under it,
+  # and a same-page link's target has to stop below it (smooth-scroll).
+  navbar:
+    left:
+      - index.qmd
   sidebar:
     - style: floating
       contents:

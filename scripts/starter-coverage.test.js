@@ -127,7 +127,8 @@ const shownBy = [
     what: 'mathviz: sidebar-search',
     config: /^\s*sidebar-search:/m,
     names: ['vm-sidebar-search', 'vm-sidebar-search-empty', 'vm-sidebar-search-hidden']
-  }
+  },
+  { what: 'mathviz: smooth-scroll', config: /^\s*smooth-scroll:/m, names: ['vm-smooth-scroll'] }
 ]
 
 function entryShown(entry) {

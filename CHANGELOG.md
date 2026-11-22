@@ -12,7 +12,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Added
 
-- Theme: a same-page link (a cross-reference, the table of contents, a footnote) scrolls to its target instead of jumping; the browser's back button returns to the line you left, as before. Off when the OS asks for reduced motion. To turn it off, put `:root { scroll-behavior: auto; }` in your own theme file.
+- `smooth-scroll: true` (a `mathviz:` option): a same-page link (a cross-reference, the table of contents, a footnote) scrolls to its target instead of jumping, and stops below a fixed navbar. The browser's back button returns to the line you left, as before. Off when the OS asks for reduced motion.
 
 ## [1.14.0] - 2026-11-17
 
