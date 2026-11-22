@@ -33,6 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.11.9   # pinned, so CI renders with the Quarto used locally
       - uses: quarto-dev/quarto-actions/publish@v2
         with:
           target: gh-pages
