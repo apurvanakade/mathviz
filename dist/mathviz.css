@@ -205,7 +205,12 @@
  * Floor lowered from 250px to 200px, and the row/column gap widened slightly,
  * now that shrinking the label (see the form[class^="oi-"] label rule below)
  * leaves more compact fields -- four fit one row at normal page width instead
- * of three. */
+ * of three.
+ *
+ * The 0.6rem column gap is copied into the two-per-row slider formulas in
+ * legend-controls.css (.ojs-chart-controls.ojs-grid) and
+ * chrome/quiet-apps.css: change all three together, or two tracks plus the
+ * gap overflow and every slider grid drops to one column. */
 .ojs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
