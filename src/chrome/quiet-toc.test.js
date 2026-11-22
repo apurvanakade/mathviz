@@ -40,8 +40,21 @@ function selectors(css) {
 test('every selector in quiet-toc.css is scoped to a table of contents in the margin sidebar', () => {
   const sels = selectors(fs.readFileSync(path.join(here, 'quiet-toc.css'), 'utf8'))
   assert.ok(sels.length > 5, `expected the stylesheet's rules, found ${sels.length} selectors`)
-  const scoped = /^(body )?#quarto-margin-sidebar( nav#TOC|:has\(nav#TOC\)$)/
+  const scoped = /^(body |html:not\(\.vm-embed\) )?#quarto-margin-sidebar( nav#TOC|:has\(nav#TOC\)$)/
   assert.deepEqual(sels.filter(sel => !scoped.test(sel)), [])
+})
+
+// Quarto hides the margin sidebar below 768px, and embed mode hides it in a
+// frame, each with a `display: none` this file's selectors outrank. So the
+// one rule that sets `display` (the flex box that centres the list) applies
+// only from 768px up and outside a frame; unguarded, it put the list back
+// on a phone.
+test('quiet-toc.css sets display only from 768px up and outside embed mode', () => {
+  const css = stripComments(fs.readFileSync(path.join(here, 'quiet-toc.css'), 'utf8'))
+  const displays = css.match(/[^-]display\s*:/g) || []
+  assert.equal(displays.length, 2, 'the heading\'s display: none and the sidebar\'s display: flex')
+  assert.match(css, /#toc-title \{\s*display: none;/)
+  assert.match(css, /@media \(min-width: 768px\) \{\s*html:not\(\.vm-embed\) #quarto-margin-sidebar:has\(nav#TOC\) \{[^}]*display: flex;/)
 })
 
 // The filter loads it only for `quiet-toc`, as a stylesheet with no script.

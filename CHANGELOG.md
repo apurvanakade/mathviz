@@ -16,7 +16,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Changed
 
-- Sidebar rail: on a page with a table of contents the body column stays where a page without one has it, centred in the window, wherever the window has room for the list beside it, and the list hangs to the column's right at `grid: margin-width`. The column and the list used to be centred as a pair, which put the text half a margin left of its place on a page without a list. In a narrower window the column moves left only as far as the list needs.
+- Sidebar rail: on a page with a table of contents the body column stays where a page without one has it, centred in the window, wherever the window has room for the list beside it, and the list hangs to the column's right at `grid: margin-width`. The column and the list used to be centred as a pair, which put the text half a margin left of its place on a page without a list. In a narrower window the column moves left only as far as the list needs; beside a pinned sidebar the column narrows and the list keeps its width, as before (the column is one gutter narrower there than it was: the list now stands two gutters off the text, not one). A page with a list embedded in a frame (`?embed=`) takes the grid of a page without one, so its app is centred in the frame.
 
 ## [1.15.1] - 2026-11-22
 

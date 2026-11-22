@@ -22,7 +22,8 @@ import { fileURLToPath } from 'node:url'
 const here = path.dirname(fileURLToPath(import.meta.url))
 const repo = path.resolve(here, '..', '..')
 const SCOPE = 'html.vm-sidebar-rail'
-const GRID = /^html\.vm-sidebar-rail body\.(floating|docked)(:has\(nav#TOC\))? \.page-columns$/
+const GRID = /^html\.vm-sidebar-rail body\.(floating|docked) \.page-columns$/
+const TOC_GRID = /^html\.vm-sidebar-rail:not\(\.vm-embed\) body\.(floating|docked):has\(nav#TOC\) \.page-columns$/
 
 function stripComments(css) {
   return css.replace(/\/\*[\s\S]*?\*\//g, '')
@@ -42,7 +43,8 @@ function selectors(css) {
 
 // The page grid applies in embed mode too (the frame hides the sidebar, but
 // its track would still push the app right); everything else -- the
-// off-canvas panel, the rail -- skips a frame.
+// off-canvas panel, the rail, and the grid of a page with a TOC, whose
+// margin track would hold a framed app left of centre -- skips a frame.
 test('every selector in sidebar-rail.css is scoped under html.vm-sidebar-rail, and all but the grid skip embed mode', () => {
   const sels = selectors(fs.readFileSync(path.join(here, 'sidebar-rail.css'), 'utf8'))
   assert.ok(sels.length > 10, `expected the rail's rules, found ${sels.length} selectors`)
@@ -50,7 +52,8 @@ test('every selector in sidebar-rail.css is scoped under html.vm-sidebar-rail, a
   const scoped = /^html\.vm-sidebar-rail(\.vm-sidebar-(open|pinned))?:not\(\.vm-embed\) /
   const unscoped = sels.filter(sel => !GRID.test(sel) && !scoped.test(sel))
   assert.deepEqual(unscoped, [])
-  assert.equal(sels.filter(sel => GRID.test(sel)).length, 4, 'the floating and docked grid, each with and without a TOC')
+  assert.equal(sels.filter(sel => GRID.test(sel)).length, 2, 'the floating and docked grid')
+  assert.equal(sels.filter(sel => TOC_GRID.test(sel)).length, 2, 'the floating and docked grid of a page with a TOC, outside a frame')
 })
 
 test('nothing loaded without the option styles the rail or its classes', () => {

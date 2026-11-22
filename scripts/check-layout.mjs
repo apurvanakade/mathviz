@@ -42,7 +42,9 @@
 //     for the TOC beside it;
 //   - quiet-toc not hiding the TOC's heading, not fading the list, not
 //     holding it at the middle of the window (at the top of the page and
-//     at its foot), or reaching a page that doesn't turn it on;
+//     at its foot), showing the list on a phone or in a frame, or reaching
+//     a page that doesn't turn it on; a framed page with a TOC keeping
+//     a track for the hidden list, which holds its app off centre;
 //   - a draggable point drawn away from the data point it stands for
 //     (after a drag, a theme toggle or a resize), escaping its bounds,
 //     losing its value on a theme toggle, showing a focus ring after a
@@ -496,6 +498,15 @@ function quietTocProblems() {
   if (Math.abs(offCentre) > slack) problems.push(`the TOC is ${offCentre}px off the middle of the window's height (scrollY ${Math.round(window.scrollY)})`)
   if (box.top < 0 || box.bottom > window.innerHeight) problems.push(`the TOC is partly off screen (${Math.round(box.top)}..${Math.round(box.bottom)}px in a ${window.innerHeight}px window, scrollY ${Math.round(window.scrollY)})`)
   return problems
+}
+
+// Where Quarto or embed mode hides the margin sidebar (a phone, a frame),
+// quiet-toc doesn't bring it back: its `display: flex` outranks both.
+function hiddenTocProblems() {
+  const margin = document.getElementById('quarto-margin-sidebar')
+  if (!margin) return []
+  const display = getComputedStyle(margin).display
+  return display === 'none' ? [] : [`the margin sidebar is shown (display: ${display})`]
 }
 
 // A page that doesn't turn quiet-toc on gets nothing of it: no stylesheet,
@@ -1093,6 +1104,8 @@ async function checkQuietTocPage(context, base, relPath) {
     await page.mouse.move(5, height - 5)
     watch(page, `${label} `)
     for (const problem of await load(page, base + relPath)) errors.push(`${label}: ${problem}`)
+    for (const problem of await page.evaluate(railDockedProblems)) errors.push(`${label}: ${problem}`)
+    for (const problem of await page.evaluate(railTocProblems)) errors.push(`${label} docked: ${problem}`)
     for (const problem of await railUndockProblems(page)) errors.push(`${label}: ${problem}`)
     for (const problem of await page.evaluate(railAtRestProblems, roomy ? 1000 : null)) errors.push(`${label}: ${problem}`)
     for (const problem of await page.evaluate(tocBesideColumnProblems, 200)) errors.push(`${label}: ${problem}`)
@@ -1111,9 +1124,27 @@ async function checkQuietTocPage(context, base, relPath) {
   watch(phone, 'phone ')
   for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
   for (const problem of await phone.evaluate(railAtRestProblems, null)) errors.push(`phone: ${problem}`)
+  for (const problem of await phone.evaluate(hiddenTocProblems)) errors.push(`phone: ${problem}`)
   const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
   if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
   await phone.close()
+
+  // In a frame wide enough for the rail's grid (992px up): the list hidden,
+  // and the body column centred, with no track kept for the list beside
+  // it (an app on a page with a TOC sat left of the frame's centre).
+  const embed = await context.newPage()
+  await embed.setViewportSize({ width: 1100, height: 600 })
+  watch(embed, 'embed ')
+  for (const problem of await load(embed, `${base}${relPath}?embed=1`)) errors.push(`embed: ${problem}`)
+  if (!(await embed.evaluate(() => document.documentElement.classList.contains('vm-embed')))) errors.push('embed: html.vm-embed not set')
+  for (const problem of await embed.evaluate(hiddenTocProblems)) errors.push(`embed: ${problem}`)
+  const offCentre = await embed.evaluate(() => {
+    const r = document.querySelector('main').getBoundingClientRect()
+    return r.width > 0 ? Math.round(r.left + r.width / 2 - document.documentElement.clientWidth / 2) : null
+  })
+  if (offCentre === null) errors.push('embed: <main> has no width')
+  else if (Math.abs(offCentre) > 14) errors.push(`embed: the body column is ${offCentre}px off the frame's centre`)
+  await embed.close()
   return errors
 }
 

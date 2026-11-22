@@ -14,7 +14,8 @@ Authors: Apurva Nakade
 <!-- A prose page, long enough to scroll, with a table of contents and
      quiet-toc, under the sidebar rail: the list has no heading, is faded,
      stays at the middle of the window while the page scrolls to its foot,
-     and the body column sits where rail-toc.qmd's (no quiet-toc) does. -->
+     and the body column sits where rail-toc.qmd's (no quiet-toc) does. In
+     a frame (?embed=1) the list is hidden and no track is kept for it. -->
 
 ## First section
 
