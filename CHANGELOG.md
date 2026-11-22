@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-11-22
+
 ### Added
 
 - `quiet-toc: true`, an opt-in look for Quarto's table of contents on prose-first sites: no "On this page" heading or rule, small soft text, the list faded until the pointer or keyboard focus is on it, and set at the middle of the window's height, where the navbar sliding away doesn't move it and the footer doesn't push it off the screen. Only a stylesheet: a page without a table of contents in the right margin is unchanged. The starter shows it on `quiet-toc.qmd`.
@@ -598,7 +600,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.15.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/apurvanakade/mathviz/compare/v1.15.1...v1.16.0
 [1.15.1]: https://github.com/apurvanakade/mathviz/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/apurvanakade/mathviz/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/apurvanakade/mathviz/compare/v1.13.0...v1.14.0
