@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Changed
+
+- A slider grid (`ojs-chart-controls ojs-grid`, and with `quiet-apps` a panel grid holding a slider) lays out at most two sliders per row at every width. Its 320px column floor allowed three or four across on a wide chart, and only one per row on a 680px page column, where two fit. Two now sit side by side whenever each gets 280px, about a 600px bar; a narrower bar stacks them.
+
 ## [1.15.0] - 2026-11-22
 
 ### Added

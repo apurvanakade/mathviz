@@ -107,7 +107,7 @@ viewof nestedB = Inputs.range([-5, 5], {label: "b", step: 0.1, value: 2})
 
 ## A controls bar of sliders
 
-`ojs-chart-controls ojs-grid` above a chart: fluid tracks, compact number fields, labels beside controls (above them on a phone). Each slider gets ▶; the last one opts out with `data-vm-play="off"`.
+`ojs-chart-controls ojs-grid` above a chart: at most two sliders per row (one on a narrow bar), fluid tracks, compact number fields, each label above its control. Each slider gets ▶; the last one opts out with `data-vm-play="off"`.
 
 ::: {.ojs-chart-block}
 ::: {.ojs-chart-controls .ojs-grid}
