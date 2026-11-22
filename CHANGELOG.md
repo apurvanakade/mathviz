@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-11-22
+
 ### Added
 
 - Smooth scroll, on by default: a same-page link (a cross-reference, the table of contents, a footnote) scrolls to its target instead of jumping, and stops below a fixed navbar. The browser's back button returns to the line you left, as before. Off when the OS asks for reduced motion, and on a page that sets Quarto's own `smooth-scroll: true`. `mathviz: {smooth-scroll: false}` turns it off.
@@ -582,7 +584,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/apurvanakade/mathviz/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/apurvanakade/mathviz/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/apurvanakade/mathviz/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/apurvanakade/mathviz/compare/v1.11.0...v1.12.0
