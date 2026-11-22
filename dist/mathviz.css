@@ -205,7 +205,12 @@
  * Floor lowered from 250px to 200px, and the row/column gap widened slightly,
  * now that shrinking the label (see the form[class^="oi-"] label rule below)
  * leaves more compact fields -- four fit one row at normal page width instead
- * of three. */
+ * of three.
+ *
+ * The 0.6rem column gap is copied into the two-per-row slider formulas in
+ * legend-controls.css (.ojs-chart-controls.ojs-grid) and
+ * chrome/quiet-apps.css: change all three together, or two tracks plus the
+ * gap overflow and every slider grid drops to one column. */
 .ojs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1285,12 +1290,23 @@ div.vm-plot-aspect {
   }
 }
 
-/* Raised from the site-wide .ojs-grid minimum (250px) for this case only: at
- * 250px a typical chart width fits four cells per row, which is exactly the
- * cramped layout being fixed above. A wider floor lays the four out as a
- * clean 2x2 with room for the play button next to each track. */
+/* At most two sliders per row, said directly: every track is at least half
+ * the bar (less the .ojs-grid column gap, 0.6rem), so a third never fits,
+ * however wide the chart; auto-fit still lets a lone slider take the whole
+ * row. Four sliders lay out as a clean 2x2 with room for the play button
+ * next to each track.
+ *
+ * This used to be a 320px floor standing in for "two per row", tuned to a
+ * typical chart width: it allowed three and four across on a wide chart, and
+ * only one on a 680px page column (a 600px bar), where two fit comfortably.
+ *
+ * The 280px floor now only decides when two become one. A cell spends about
+ * 155px on the play button and the 5.5em number readout, so side by side a
+ * slider's track is never under about 125px; a narrower bar stacks them, each
+ * with a full-width track. The outer min() keeps a bar narrower than the
+ * floor from overflowing. */
 .ojs-chart-controls.ojs-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, max(280px, (100% - 0.6rem) / 2)), 1fr));
 }
 
 /* ── Draggable legend panel ──────────────────────────────────────── */
