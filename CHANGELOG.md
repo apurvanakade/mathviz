@@ -10,6 +10,10 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- Smooth scroll, on by default: a same-page link (a cross-reference, the table of contents, a footnote) scrolls to its target instead of jumping, and stops below a fixed navbar. The browser's back button returns to the line you left, as before. Off when the OS asks for reduced motion, and on a page that sets Quarto's own `smooth-scroll: true`. `mathviz: {smooth-scroll: false}` turns it off.
+
 ## [1.14.0] - 2026-11-17
 
 ### Added

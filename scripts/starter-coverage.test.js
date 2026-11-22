@@ -127,7 +127,9 @@ const shownBy = [
     what: 'mathviz: sidebar-search',
     config: /^\s*sidebar-search:/m,
     names: ['vm-sidebar-search', 'vm-sidebar-search-empty', 'vm-sidebar-search-hidden']
-  }
+  },
+  // On by default, so the filter alone shows it.
+  { what: 'the mathviz filter (smooth scroll is on by default)', config: /^\s*-\s*mathviz\s*$/m, names: ['vm-smooth-scroll'] }
 ]
 
 function entryShown(entry) {

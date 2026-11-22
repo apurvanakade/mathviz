@@ -12,9 +12,11 @@ Authors: Apurva Nakade
      exercise, a callout, a figure, a table and a list. check-layout.mjs asserts its
      rhythm: lines with a formula in them as far apart as plain lines, one
      gap around every block set apart from the prose, none between a heading
-     and its block, a proof a paragraph's distance under its theorem. -->
+     and its block, a proof a paragraph's distance under its theorem. It also clicks the
+     opening paragraph's same-page link (a scroll, and Back returns) and the
+     closing paragraph's, back up the page (its target clears the navbar). -->
 
-An opening paragraph, so the first section's heading follows prose.
+An opening paragraph, so the first section's heading follows prose. A same-page link, which `smooth-scroll` scrolls to: @exr-ci.
 
 ## Estimators
 
@@ -64,4 +66,4 @@ A $1 - \alpha$ confidence interval for $\theta$ is $\hat\theta_N \pm z_{\alpha/2
 Draw $N = 100$ samples many times and count how often the interval covers $\mu$.
 :::
 
-A closing paragraph.
+A closing paragraph, with a link back up the page: @thm-clt.

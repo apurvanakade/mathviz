@@ -18,6 +18,9 @@
 //   - ?embed=1 / ?embed=<id> showing anything but the chosen .vm-app, or
 //     showing it narrower than the content column;
 //   - the Share dialog's links and <iframe> snippet.
+//   - a same-page link jumping instead of scrolling, Back not returning to
+//     the line the reader left, or a link up the page leaving its target
+//     under the navbar; and any of it on a page with smooth-scroll: false;
 //   - the sidebar search box not narrowing the menu;
 //   - grid listing cards wider than --vm-card-width, more than one to a
 //     row on a phone, or with a title pushed off the card's left edge (the
@@ -750,6 +753,62 @@ function proseRhythmProblems() {
   return problems
 }
 
+// A same-page link (src/chrome/smooth-scroll.*, on by default): the
+// click scrolls to the target rather than jumping, Back returns to the line
+// the reader left, and a link up the page stops its target below the navbar. Clicked from script, so Playwright doesn't scroll
+// the link into view first and move the line being left.
+async function samePageLinkProblems(page) {
+  const problems = []
+  const settledY = () => page.evaluate(() => new Promise((resolve) => {
+    let last = window.scrollY
+    let still = 0
+    const tick = () => {
+      still = window.scrollY === last ? still + 1 : 0
+      last = window.scrollY
+      if (still >= 10) resolve(last)
+      else requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }))
+  await page.evaluate(() => window.scrollTo({ top: 200, behavior: 'instant' }))
+  const left = await settledY()
+  // Two frames after the click: a jump is already at the target, a scroll
+  // is still on its way. The href is matched by its end: Quarto rewrites a
+  // cross-reference's to the page's full address at load.
+  const early = await page.evaluate(() => new Promise((resolve) => {
+    document.querySelector('main a[href$="#exr-ci"]').click()
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve(window.scrollY)))
+  }))
+  const arrived = await settledY()
+  // In the window, not at its top: the fixture's target ends the page.
+  const [top, height] = await page.evaluate(() => [document.querySelector('#exr-ci').getBoundingClientRect().top, window.innerHeight])
+  if (arrived < left + 300) problems.push(`a same-page link moved the page from ${left}px to ${arrived}px: the fixture needs its target further down`)
+  else if (early >= arrived) problems.push(`a same-page link jumped to its target (at ${early}px of ${arrived}px two frames after the click) instead of scrolling`)
+  if (top < 0 || top > height) problems.push(`a same-page link left its target ${Math.round(top)}px from the top of a ${height}px window`)
+  if (!page.url().endsWith('#exr-ci')) problems.push(`a same-page link left the address at ${page.url()}`)
+  await page.goBack()
+  const back = await settledY()
+  if (Math.abs(back - left) > 2) problems.push(`Back after a same-page link returned to ${back}px, not the ${left}px the reader left`)
+  if (page.url().includes('#')) problems.push(`Back after a same-page link left the address at ${page.url()}`)
+
+  // A link back up the page, from its end. Scrolling up brings Quarto's
+  // navbar back (headroom), and Quarto doesn't make room for it once the
+  // scroll is smooth: the target landed underneath, at the window's top.
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }))
+  const end = await settledY()
+  await page.evaluate(() => document.querySelector('main a[href$="#thm-clt"]').click())
+  const up = await settledY()
+  const [targetTop, navbarBottom] = await page.evaluate(() => [
+    document.querySelector('#thm-clt').getBoundingClientRect().top,
+    document.querySelector('header.fixed-top')?.getBoundingClientRect().bottom ?? null
+  ])
+  if (navbarBottom === null || navbarBottom < 20) problems.push(`no navbar in view after a link up the page (bottom edge ${navbarBottom}): the fixture needs a fixed one`)
+  else if (up > end - 100) problems.push(`a link up the page moved it from ${end}px to ${up}px: the fixture needs its target further up`)
+  else if (targetTop < navbarBottom - 2) problems.push(`a link up the page left its target at ${Math.round(targetTop)}px, under the navbar (which ends at ${Math.round(navbarBottom)}px)`)
+  else if (targetTop > navbarBottom + 8) problems.push(`a link up the page left its target at ${Math.round(targetTop)}px, ${Math.round(targetTop - navbarBottom)}px below the navbar`)
+  return problems
+}
+
 async function checkProsePage(context, base, relPath) {
   const errors = []
   for (const [label, width] of [['desktop', 1280], ['phone', 390]]) {
@@ -759,6 +818,7 @@ async function checkProsePage(context, base, relPath) {
     for (const problem of await load(page, base + relPath)) errors.push(`${label}: ${problem}`)
     for (const problem of await page.evaluate(proseRhythmProblems)) errors.push(`${label}: ${problem}`)
     for (const problem of await page.evaluate(firstHeadingProblems)) errors.push(`${label}: ${problem}`)
+    for (const problem of await samePageLinkProblems(page)) errors.push(`${label}: ${problem}`)
     await page.close()
   }
   return errors
@@ -886,6 +946,18 @@ async function checkCardsPage(context, base, relPath) {
   return errors
 }
 
+// no-rail.html also sets `smooth-scroll: false`: none of it loads, and the
+// page keeps Quarto's jump. On every other page it is on with no option.
+function noSmoothScrollProblems() {
+  const problems = []
+  const root = document.documentElement
+  if (root.classList.contains('vm-smooth-scroll')) problems.push('html.vm-smooth-scroll on a page with smooth-scroll: false')
+  if (document.querySelector('script[src*="smooth-scroll"], link[href*="smooth-scroll"]')) problems.push('smooth-scroll files loaded on a page with smooth-scroll: false')
+  const behavior = getComputedStyle(root).scrollBehavior
+  if (behavior !== 'auto') problems.push(`scroll-behavior is ${behavior} on a page with smooth-scroll: false`)
+  return problems
+}
+
 // The rail's prose pages: rail-toc.html (rail on, with a TOC) and
 // no-rail.html (rail off), each at desktop width and on a phone.
 async function checkRailPage(context, base, relPath) {
@@ -902,6 +974,7 @@ async function checkRailPage(context, base, relPath) {
   for (const problem of await load(page, base + relPath)) errors.push(`desktop: ${problem}`)
   if (off) {
     for (const problem of await page.evaluate(noRailProblems)) errors.push(`desktop: ${problem}`)
+    for (const problem of await page.evaluate(noSmoothScrollProblems)) errors.push(`desktop: ${problem}`)
   } else {
     for (const problem of await page.evaluate(railDockedProblems)) errors.push(`desktop: ${problem}`)
     for (const problem of await page.evaluate(railTocProblems)) errors.push(`desktop docked: ${problem}`)

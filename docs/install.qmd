@@ -26,7 +26,7 @@ filters:
   - mathviz
 ```
 
-The filter puts the minified `mathviz.min.js` and `mathviz.min.css` (served from your own `site_libs/`) into every HTML page's `<head>`, and on every page with `{ojs}` cells, math.js and Plotly ahead of them (from a CDN, pinned to the versions the library is tested against). All three scripts are deferred, so none of them holds up the page's first paint, and they still run in order, before the first OJS cell.
+The filter puts the minified `mathviz.min.js` and `mathviz.min.css` (served from your own `site_libs/`) into every HTML page's `<head>`, and on every page with `{ojs}` cells, math.js and Plotly ahead of them (from a CDN, pinned to the versions the library is tested against). All three scripts are deferred, so none of them holds up the page's first paint, and they still run in order, before the first OJS cell. Every page also gets the small smooth-scroll script and stylesheet (`smooth-scroll` below).
 
 ### Options
 
@@ -38,6 +38,7 @@ mathviz:
   mathjs: false             # ...or math.js. Either also accepts true or a URL
   css: false                # bring your own stylesheet
   referrer: same-origin     # emit <meta name="referrer"> ahead of the CDN tags
+  smooth-scroll: false      # same-page links jump, as in plain Quarto
 ```
 
 | Key | Values | Effect |
@@ -46,6 +47,7 @@ mathviz:
 | `mathjs` | `"auto"` (default), `true`, `false`, or a URL | The same, for math.js. `VM.expressions.*` take the instance as an argument, so a page that loads math.js another way passes that. |
 | `css` | `true` (default) or `false` | Whether to add `mathviz.css`. With `false` you supply the `--vm-*` tokens and the `ojs-*` rules yourself -- see [Theming](theming.qmd). |
 | `referrer` | a [referrer policy](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/name/referrer) string | Emits `<meta name="referrer" content="…">` **before** the CDN tags, so the third-party origins don't see a page's path or query string -- which on a math page is the reader's own input. Visual Math Lab uses `same-origin`. |
+| `smooth-scroll` | `true` (default) or `false` | A link to a place on the same page (a cross-reference, the table of contents, a footnote) scrolls there instead of jumping, and its target stops just below a fixed navbar. The browser's back button returns to the line you left, as it does without this. Readers whose system asks for reduced motion keep the jump. A page that sets Quarto's own `smooth-scroll: true` keeps Quarto's instead. |
 
 ### Options for one page {#page-options}
 
