@@ -12,7 +12,7 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ### Changed
 
-- Theme: a reference list in a hanging-indent citation style (Quarto's default Chicago author-date, APA) is set as in a paper: 0.9rem text at a 1.5 line height, flush with its heading, a 1.5em hanging indent, a small gap between entries, and each entry's DOI or URL in the accent colour with its underline only on hover or focus. Quarto indented the whole list 1.5em and each entry 2em more, at the text's size, with no gap between entries. A numbered style is unchanged. The starter shows it on `prose.qmd`.
+- Theme: a reference list in a hanging-indent citation style (Quarto's default Chicago author-date, APA) is set as in a paper: 0.9rem text at a 1.5 line height, flush with its heading, a 1.5em hanging indent, a small gap between entries, and each entry's DOI or URL in the accent colour with its underline only on hover or focus. A `::: {#refs}` div in the page body had only Pandoc's styles (the whole list indented 1.5em, each entry 2em more with a 2em hang); the list Quarto appends by itself was already flush with a 1em hang. Both were at the text's size with no gap between entries; both now get the new layout. A numbered style is unchanged, links included. The starter shows it on `prose.qmd`.
 
 ## [1.16.0] - 2026-11-22
 

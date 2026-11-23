@@ -436,30 +436,35 @@ main .table > :not(caption) > * > * { line-height: 1.4; }
 
 /* A reference list (`::: {#refs}`, or the one Quarto appends), set as in a
  * paper: a size below the text, flush with its heading, each entry with a
- * hanging indent and a small gap before the next. Quarto indents the whole
- * list by 1.5em and then each entry by 2em more, at the text's size and
- * line height, with no gap between entries, so the list sat right of its
- * heading and its entries ran together. Only a hanging-indent style
- * (author-date: Chicago, APA) is touched; a numbered style lays its
- * entries out in two columns and keeps Quarto's layout. */
+ * hanging indent and a small gap before the next. A `#refs` div in the
+ * page body gets only Pandoc's inline styles: the whole list indented
+ * 1.5em (`div.hanging-indent`) and each entry 2em more with a -2em hang,
+ * at the text's size and line height, with no gap between entries, so the
+ * list sat right of its heading and its entries ran together. The list
+ * Quarto appends by itself, in its appendix, is already flush with a 1em
+ * hang (`.quarto-appendix-contents div.hanging-indent ...`, specificity
+ * (0,3,2) for an entry); the entry rules below are (0,3,3), so they win
+ * in both places. Only a hanging-indent style (author-date: Chicago, APA)
+ * is touched, links included; a numbered style lays its entries out in
+ * two columns and keeps Quarto's layout. */
 main div.csl-bib-body.hanging-indent {
   margin-left: 0;
   text-indent: 0;
   font-size: 0.9rem;
   line-height: 1.5;
 }
-main .hanging-indent div.csl-entry {
+main div.csl-bib-body.hanging-indent div.csl-entry {
   margin: 0 0 0.55em;
   padding-left: 1.5em;
   text-indent: -1.5em;
 }
-main .hanging-indent div.csl-entry:last-child { margin-bottom: 0; }
+main div.csl-bib-body.hanging-indent div.csl-entry:last-child { margin-bottom: 0; }
 /* An entry's DOI or URL is spelled out, so the underline that marks a link
  * in running text only adds weight: the accent colour marks it, and the
  * underline comes back on hover or keyboard focus. */
-main .csl-entry a { text-decoration: none; }
-main .csl-entry a:hover,
-main .csl-entry a:focus-visible { text-decoration: underline; }
+main div.csl-bib-body.hanging-indent .csl-entry a { text-decoration: none; }
+main div.csl-bib-body.hanging-indent .csl-entry a:hover,
+main div.csl-bib-body.hanging-indent .csl-entry a:focus-visible { text-decoration: underline; }
 
 /* An image figure drawn for a white page (black axes, transparent ground)
  * vanishes on the dark one, so in dark mode it gets a near-white backing.
