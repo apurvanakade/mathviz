@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.16.1] - 2026-11-23
+
 ### Changed
 
 - Theme: a reference list in a hanging-indent citation style (Quarto's default Chicago author-date, APA) is set as in a paper: 0.9rem text at a 1.5 line height, flush with its heading, a 1.5em hanging indent, a small gap between entries, and each entry's DOI or URL in the accent colour with its underline only on hover or focus. A `::: {#refs}` div in the page body had only Pandoc's styles (the whole list indented 1.5em, each entry 2em more with a 2em hang); the list Quarto appends by itself was already flush with a 1em hang. Both were at the text's size with no gap between entries; both now get the new layout. A numbered style is unchanged, links included. The starter shows it on `prose.qmd`.
@@ -604,7 +606,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.16.0...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.16.1...HEAD
+[1.16.1]: https://github.com/apurvanakade/mathviz/compare/v1.16.0...v1.16.1
 [1.16.0]: https://github.com/apurvanakade/mathviz/compare/v1.15.1...v1.16.0
 [1.15.1]: https://github.com/apurvanakade/mathviz/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/apurvanakade/mathviz/compare/v1.14.0...v1.15.0
