@@ -55,7 +55,7 @@ Turning `fonts` on only makes the fonts available. The [theme](#theme) is what u
 
 ## Theme {#theme}
 
-The Quarto theme gives Bootstrap's navbar, links, cards, callouts, tables, blockquotes, category chips, listing controls and footer the same colors as the mathviz panels, in light and dark. In dark mode it also puts a light backing behind SVG, PNG and GIF figures, which are usually drawn for a white page. List it **before** your own theme file:
+The Quarto theme gives Bootstrap's navbar, links, cards, callouts, tables, blockquotes, category chips, listing controls and footer the same colors as the mathviz panels, in light and dark. It sets a reference list as a paper does: smaller than the text, each entry with a hanging indent. In dark mode it also puts a light backing behind SVG, PNG and GIF figures, which are usually drawn for a white page. List it **before** your own theme file:
 
 ```yaml
 format:
