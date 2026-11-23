@@ -37,11 +37,11 @@ npm run build          # src/ -> dist/mathviz.{js,css} (+ .min and map) and _ext
 quarto preview         # the docs site, live-reloading, rendered through the extension in place
 quarto render          # the same, once, into _site/ (what CI runs)
 quarto render starter  # the starter site, through the extension the build mirrored into starter/_extensions/
-npm install -g playwright && playwright install chromium   # once, for the next line
+npm install -g playwright@1.64.0 && playwright install chromium   # once, for the next line
 npm run test:layout    # renders fixtures/layout/ and checks its layout in headless Chromium
 ```
 
-Use Quarto 1.11.9, the version CI is pinned to (`version:` in `.github/workflows/ci.yml` and `docs.yml`): a layout check can pass on one Quarto and fail on another. A Quarto upgrade bumps both pins in the same change.
+Use the versions CI is pinned to: Quarto 1.11.9 (`version:` in `.github/workflows/ci.yml` and `docs.yml`), Playwright 1.64.0 (the install line in `ci.yml`) and Node 24 (`node-version:` in `ci.yml`, `release.yml` and `tag-release.yml`). A layout check can pass on one Quarto or Chromium and fail on another. An upgrade of any of them bumps every pin for it in the same change.
 
 - **Source lives in `src/`**. `src/js/<category>/<name>.js` is one `VM.<category>.<name>` function per file (a few export two or three that belong together), wrapped in an IIFE that extends `window.VM`; `src/css/*.css` is the design system, split by concern. Colocate a `<name>.test.js` next to every function that has logic worth testing -- the tests load the real files through `scripts/load-vm.mjs`.
 - **Every public function carries a JSDoc block**, in the style of `src/js/plotting/padded-range.js`: a one-sentence summary, `@param {type} name - …` (with `[opts.key=default]` for options), and `@returns` giving the exact shape -- including the edge behaviour (what returns `null`, what isn't validated). Keep the surrounding prose comments that explain *why*; the JSDoc says *what*. The build concatenates comments into `dist/`, so consumers get them in their editor.
