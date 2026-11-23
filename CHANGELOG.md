@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.16.2] - 2026-11-23
+
 ### Fixed
 
 - Smooth scroll: a link into a page (`page.html#section`, from another page or the address bar) now ends at its target. On a page with apps above the target, the animated scroll was aimed before they rendered and stopped short, by thousands of pixels on a long page. The page now jumps to the target and keeps it just below the navbar while the page renders, until the reader scrolls, presses a key or clicks, or the page has stopped growing. With reduced motion the target no longer ends under a fixed navbar. A reload and the back button restore the position you left, as before.
@@ -610,7 +612,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.16.1...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.16.2...HEAD
+[1.16.2]: https://github.com/apurvanakade/mathviz/compare/v1.16.1...v1.16.2
 [1.16.1]: https://github.com/apurvanakade/mathviz/compare/v1.16.0...v1.16.1
 [1.16.0]: https://github.com/apurvanakade/mathviz/compare/v1.15.1...v1.16.0
 [1.15.1]: https://github.com/apurvanakade/mathviz/compare/v1.15.0...v1.15.1
