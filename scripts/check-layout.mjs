@@ -21,6 +21,9 @@
 //   - a same-page link jumping instead of scrolling, Back not returning to
 //     the line the reader left, or a link up the page leaving its target
 //     under the navbar; and any of it on a page with smooth-scroll: false;
+//   - a link into a page (page.html#target) leaving its target out of place
+//     once content above it has rendered, or holding it there after the
+//     reader scrolls;
 //   - the sidebar search box not narrowing the menu;
 //   - grid listing cards wider than --vm-card-width, more than one to a
 //     row on a phone, or with a title pushed off the card's left edge (the
@@ -895,6 +898,63 @@ async function samePageLinkProblems(page) {
   return problems
 }
 
+// A link into the page (page.html#exr-ci, from another page): the target
+// sits just below the navbar once the page has rendered, although content
+// above it arrives after the browser has aimed its scroll -- here two
+// blocks put above the first section, one while the page loads and one
+// after, standing in for the OJS cells and charts of a page of apps. A
+// third block below the target lets it reach the top of the window (the
+// fixture's target ends the page). Then the reader scrolls, and a later
+// block must not pull the page back.
+async function arrivalProblems(context, url, width) {
+  const problems = []
+  const page = await context.newPage()
+  await page.setViewportSize({ width, height: 844 })
+  await page.addInitScript(() => {
+    const block = (where) => {
+      const el = document.createElement('div')
+      el.className = 'late-block'
+      el.style.height = '1500px'
+      const main = document.querySelector('main')
+      if (where === 'above') main.insertBefore(el, main.querySelector('section'))
+      else main.appendChild(el)
+    }
+    window.addLateBlock = () => block('above')
+    document.addEventListener('DOMContentLoaded', () => {
+      block('below')
+      setTimeout(() => block('above'), 50)
+    })
+    window.addEventListener('load', () => setTimeout(() => block('above'), 300))
+  })
+  const place = () => page.evaluate(() => {
+    const header = document.querySelector('header.fixed-top')
+    return {
+      top: document.querySelector('#exr-ci').getBoundingClientRect().top,
+      navbar: header ? header.clientHeight : 0,
+      blocks: document.querySelectorAll('.late-block').length
+    }
+  })
+  try {
+    await page.goto(url + '#exr-ci', { waitUntil: 'load', timeout: navigationTimeoutMs })
+    await page.waitForFunction(() => document.querySelectorAll('.late-block').length === 3, null, { timeout: 5000 })
+    await page.waitForTimeout(500)
+    const arrived = await place()
+    if (Math.abs(arrived.top - arrived.navbar) > 2) problems.push(`a link into the page left its target ${Math.round(arrived.top)}px from the top of the window, not just below the ${arrived.navbar}px navbar, after content above it rendered`)
+    // The reader takes over; whatever renders later no longer moves the page.
+    await page.mouse.move(width / 2, 400)
+    await page.mouse.wheel(0, 300)
+    await page.waitForTimeout(300)
+    await page.evaluate(() => window.addLateBlock())
+    await page.waitForTimeout(500)
+    const after = await place()
+    if (Math.abs(after.top - after.navbar) < 100) problems.push(`a link into the page pulled its target back to ${Math.round(after.top)}px after the reader scrolled 300px away`)
+  } catch (err) {
+    problems.push(`the link-into-the-page check failed: ${err.message.split('\n')[0]}`)
+  }
+  await page.close()
+  return problems
+}
+
 async function checkProsePage(context, base, relPath) {
   const errors = []
   for (const [label, width] of [['desktop', 1280], ['phone', 390]]) {
@@ -906,6 +966,7 @@ async function checkProsePage(context, base, relPath) {
     for (const problem of await page.evaluate(firstHeadingProblems)) errors.push(`${label}: ${problem}`)
     for (const problem of await samePageLinkProblems(page)) errors.push(`${label}: ${problem}`)
     await page.close()
+    for (const problem of await arrivalProblems(context, base + relPath, width)) errors.push(`${label}: ${problem}`)
   }
   return errors
 }
