@@ -38,7 +38,7 @@ The pages, simplest first:
 | `draggable-points.qmd` | points the reader drags on a chart, as an input; one kept inside a triangle |
 | `panels.qmd` | every panel layout class (`ojs-row`, `ojs-grid`, `ojs-fill`, `ojs-auto`, `ojs-end`) and every kind of input; a bar of sliders, one without a play button |
 | `readouts.qmd` | a static key and a stat row under a chart; a legend in the top-right corner; a hand-built SVG with the modebar, and a chart without one |
-| `prose.qmd` | color words that match their traces; callouts, a theorem, a table and a figure in the theme; one app to embed |
+| `prose.qmd` | color words that match their traces; callouts, a theorem, a table, a figure and a reference list in the theme; one app to embed |
 | `quiet-apps.qmd` | the unboxed look for prose-first sites (`quiet-apps`), on this page alone |
 | `quiet-toc.qmd` | a long prose page with the quiet table of contents (`quiet-toc`), on this page alone |
 | `gallery.qmd` | a card for every page, with a category cloud |

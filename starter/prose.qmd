@@ -1,7 +1,8 @@
 ---
 title: "Prose and color words"
-description: "Color words that match their traces, and every prose element the theme styles: callouts, theorems, tables, figures, code and math."
+description: "Color words that match their traces, and every prose element the theme styles: callouts, theorems, tables, figures, code, math and a reference list."
 categories: ["prose", "plotly"]
+bibliography: references.bib
 ---
 
 <!--
@@ -14,7 +15,7 @@ Authors: Apurva Nakade
 Shows: every vm-swatch modifier beside the trace it names, and the prose
 the mathviz theme styles (headings, callouts, a theorem and proof, a table,
 a blockquote, a figure on its dark-mode backing, code, inline and display
-math), and embedding one app (?embed=palette).
+math, a reference list), and embedding one app (?embed=palette).
 
   vm-swatch: https://apurvanakade.github.io/mathviz/docs/markup.html#vm-swatch
   theme:     https://apurvanakade.github.io/mathviz/docs/site.html#theme
@@ -116,6 +117,16 @@ def newton(f, df, x, steps=10):
     return x
 ```
 
+### Citations
+
+The quotation above is from @hamming1962; the mean value theorem is in any analysis text [@rudin1976, chap. 5]. An entry with a DOI prints it as a link [@halton1960]. Entries come from `references.bib`, named by `bibliography:` at the top of this page, and the list is printed where the `#refs` div is.
+
 ## Embedding
 
 Press Share above the palette chart, or add `?embed=palette` to this page's address: the app shows alone, ready for another site's `<iframe>`. The note at the very bottom of every page (`banner.html`) is the site's own chrome, outside the page content; its `data-vm-embed-hide` attribute is what keeps it out of the frame.
+
+
+## References
+
+::: {#refs}
+:::
