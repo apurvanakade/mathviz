@@ -8,7 +8,8 @@
 // scrolls to its target instead of jumping. On for every page the filter
 // runs on; `mathviz: {smooth-scroll: false}` turns it off. The scrolling
 // itself is one CSS property (smooth-scroll.css); this script exists for
-// Quarto's fixed navbar.
+// Quarto's fixed navbar, and to hold the target of a link into the page
+// while the page renders (below).
 //
 // Quarto makes room for the navbar from script: on every `hashchange` its
 // quarto-nav.js scrolls back up by the height of `header.fixed-top` -- and
