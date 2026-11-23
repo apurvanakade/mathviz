@@ -10,15 +10,15 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Fixed
+
+- Smooth scroll: a link into a page (`page.html#section`, from another page or the address bar) now ends at its target. On a page with apps above the target, the animated scroll was aimed before they rendered and stopped short, by thousands of pixels on a long page. The page now jumps to the target and keeps it just below the navbar while the page renders, until the reader scrolls, presses a key or clicks, or the page has stopped growing. With reduced motion the target no longer ends under a fixed navbar. A reload and the back button restore the position you left, as before.
+
 ## [1.16.1] - 2026-11-23
 
 ### Changed
 
 - Theme: a reference list in a hanging-indent citation style (Quarto's default Chicago author-date, APA) is set as in a paper: 0.9rem text at a 1.5 line height, flush with its heading, a 1.5em hanging indent, a small gap between entries, and each entry's DOI or URL in the accent colour with its underline only on hover or focus. A `::: {#refs}` div in the page body had only Pandoc's styles (the whole list indented 1.5em, each entry 2em more with a 2em hang); the list Quarto appends by itself was already flush with a 1em hang. Both were at the text's size with no gap between entries; both now get the new layout. A numbered style is unchanged, links included. The starter shows it on `prose.qmd`.
-
-### Fixed
-
-- Smooth scroll: a link into a page (`page.html#section`, from another page or the address bar) now ends at its target. On a page with apps above the target, the animated scroll was aimed before they rendered and stopped short, by thousands of pixels on a long page. The page now jumps to the target and keeps it just below the navbar while the page renders, until the reader scrolls, presses a key or clicks, or the page has stopped growing. With reduced motion the target no longer ends under a fixed navbar. A reload and the back button restore the position you left, as before.
 
 ## [1.16.0] - 2026-11-22
 
