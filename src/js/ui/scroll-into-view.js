@@ -33,12 +33,24 @@
    * same-page link to the element ends. Use it instead of
    * `element.scrollIntoView()`; it changes neither the address nor history.
    *
+   * Edge behaviour: on a page with no `header.fixed-top` the element's top
+   * goes to the window's top (plus its `scroll-margin-top`). Only the window
+   * scrolls: an element inside a scroll container of its own is not brought
+   * into view within it. The target is clamped by the browser at the page's
+   * ends, as any `scrollTo` is. `behavior` is not validated (the browser
+   * treats an unknown value as `"auto"`).
+   *
    * @param {Element} element - The element to bring into view.
    * @param {Object} [opts]
    * @param {ScrollBehavior} [opts.behavior="auto"] - Passed to `window.scrollTo`: `"auto"` follows the page (smooth where mathviz's smooth scroll animates, a jump with reduced motion), `"instant"` always jumps, `"smooth"` always animates.
    * @returns {void}
+   * @throws {TypeError} When `element` is not an element (`null`, say, from
+   *   a `getElementById` that found nothing); nothing scrolls.
    */
   const scrollIntoView = (element, {behavior = "auto"} = {}) => {
+    if (!element || typeof element.getBoundingClientRect !== "function") {
+      throw new TypeError(`scrollIntoView: element must be an Element, got ${element === null ? "null" : typeof element}`)
+    }
     const document = globalThis.document
     const header = document.querySelector("header.fixed-top")
     const navbar = header ? header.clientHeight : 0

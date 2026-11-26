@@ -402,11 +402,11 @@ A script that scrolls the page to an element -- a "Show me" button, a scroll bac
 
 ### VM.ui.scrollIntoView(element, opts?) {#scrollIntoView}
 
-Scrolls the window so `element`'s top sits just below Quarto's fixed navbar (`header.fixed-top`, measured when called, as Quarto measures it), plus the element's own `scroll-margin-top`. That is where a same-page link to the element ends, and it is the same with smooth scroll on or off, with or without reduced motion, and on a page that sets Quarto's own `smooth-scroll: true`. It goes through `window.scrollTo`, which the root's `scroll-padding-top` doesn't affect, so the address and history are untouched and no `hashchange` fires. It scrolls the window only, not a scroll container the element is inside. On a page with no fixed navbar the element's top goes to the top of the window.
+Scrolls the window so `element`'s top sits just below Quarto's fixed navbar (`header.fixed-top`, measured when called, as Quarto measures it), plus the element's own `scroll-margin-top`. That is where a same-page link to the element ends, and it is the same with smooth scroll on or off, with or without reduced motion, and on a page that sets Quarto's own `smooth-scroll: true`. It goes through `window.scrollTo`, which the root's `scroll-padding-top` doesn't affect, so the address and history are untouched and no `hashchange` fires. It scrolls the window only, not a scroll container the element is inside. On a page with no fixed navbar the element's top goes to the top of the window. A missing element (`null` from a `getElementById` that found nothing) throws a `TypeError` and scrolls nothing.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `element` | `Element` | | The element to bring into view. |
+| `element` | `Element` | | The element to bring into view. Anything else (`null`, say) throws a `TypeError`. |
 | `opts.behavior` | `"auto" \| "instant" \| "smooth"` | `"auto"` | `"auto"` follows the page: it animates where smooth scroll does, and jumps with reduced motion or with `smooth-scroll: false`. `"instant"` always jumps, for a scroll that only puts back what a change moved off screen. |
 
 **Returns** nothing.

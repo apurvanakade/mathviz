@@ -12,15 +12,15 @@ const VM = loadVM()
 const { scrollIntoView } = VM.ui
 
 // A page scrolled to `scrollY`, with a navbar of `navbar` px (none when
-// null) and a root scroll-padding-top of `padding` px, which the helper
-// must ignore: it is there only where mathviz's smooth scroll animates.
-function page({ scrollY, navbar, padding = 0 }) {
+// null). The root's scroll-padding-top isn't stubbed: the helper never reads
+// it, and the browser check (`npm run test:layout`, the category cloud with
+// and without reduced motion) is what shows the padding doesn't move it.
+function page({ scrollY, navbar }) {
   const calls = []
   globalThis.scrollY = scrollY
   globalThis.scrollTo = (options) => calls.push(options)
   globalThis.document.querySelector = (selector) =>
     selector === 'header.fixed-top' && navbar !== null ? { clientHeight: navbar } : null
-  globalThis.document.documentElement = { style: { scrollPaddingTop: `${padding}px` } }
   globalThis.getComputedStyle = (el) => el.style
   return calls
 }
@@ -36,13 +36,10 @@ test('scrollIntoView puts the target just below the navbar', () => {
   assert.deepEqual(calls, [{ top: 1423, behavior: 'auto' }])
 })
 
-test('scrollIntoView lands in the same place whether or not the root has the smooth-scroll padding', () => {
-  const without = page({ scrollY: 1000, navbar: 77, padding: 0 })
+test('scrollIntoView scrolls up to a target above the window', () => {
+  const calls = page({ scrollY: 1000, navbar: 77 })
   scrollIntoView(target(-300))
-  const withPadding = page({ scrollY: 1000, navbar: 77, padding: 77 })
-  scrollIntoView(target(-300))
-  assert.deepEqual(withPadding, without)
-  assert.equal(without[0].top, 623)
+  assert.equal(calls[0].top, 623)
 })
 
 test("scrollIntoView adds the target's own scroll-margin-top beyond the navbar", () => {
@@ -61,4 +58,11 @@ test('scrollIntoView passes the behavior through', () => {
   const calls = page({ scrollY: 0, navbar: 50 })
   scrollIntoView(target(100), { behavior: 'instant' })
   assert.equal(calls[0].behavior, 'instant')
+})
+
+test('scrollIntoView throws a TypeError, and scrolls nothing, on a missing element', () => {
+  const calls = page({ scrollY: 0, navbar: 50 })
+  assert.throws(() => scrollIntoView(null), { name: 'TypeError', message: /got null/ })
+  assert.throws(() => scrollIntoView(undefined), TypeError)
+  assert.deepEqual(calls, [])
 })
