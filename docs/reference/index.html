@@ -470,7 +470,7 @@ Authors: Apurva Nakade
 </tr>
 <tr class="odd">
 <td><a href="../../docs/reference/ui.html"><code>VM.ui</code></a></td>
-<td>legend overlay, results table, stat readouts, URL state, example presets, slider playback</td>
+<td>legend overlay, results table, stat readouts, URL state, example presets, slider playback, scrolling to an element</td>
 <td><code>renderTable</code> needs htl’s <code>html</code></td>
 </tr>
 <tr class="even">
@@ -546,18 +546,22 @@ Authors: Apurva Nakade
 <td><code>location</code> and <code>history</code>, unless <code>opts.search</code> is given</td>
 </tr>
 <tr class="odd">
+<td><code>VM.ui.scrollIntoView</code></td>
+<td>nothing – plain DOM; reads Quarto’s <code>header.fixed-top</code> when there is one</td>
+</tr>
+<tr class="even">
 <td><code>VM.ui.legendOverlay</code></td>
 <td>nothing – plain DOM. It <em>implements</em> Observable’s view contract; it doesn’t require Observable</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>VM.ui.renderTable</code></td>
 <td>nothing – plain DOM. Emits Bootstrap table classes</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>VM.ui.applyExampleParams</code></td>
 <td>views that follow Observable Inputs’ <code>value</code> + <code>"input"</code> protocol</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>slider playback, draggable legend, SVG modebar, slider fill</td>
 <td>nothing – self-installing on the <a href="../../docs/markup.html">markup</a> they look for</td>
 </tr>

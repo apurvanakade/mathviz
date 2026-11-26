@@ -493,7 +493,7 @@ Authors: Apurva Nakade
 <tr class="odd">
 <td><code>smooth-scroll</code></td>
 <td><code>true</code> (default) or <code>false</code></td>
-<td>A link to a place on the same page (a cross-reference, the table of contents, a footnote) scrolls there instead of jumping, and its target stops just below a fixed navbar. A link into a page from elsewhere (<code>page.html#section</code>) jumps, and keeps its target in place while the apps above it render. The browser’s back button returns to the line you left, as it does without this. Readers whose system asks for reduced motion keep the jump. A page that sets Quarto’s own <code>smooth-scroll: true</code> keeps Quarto’s instead.</td>
+<td>A link to a place on the same page (a cross-reference, the table of contents, a footnote) scrolls there instead of jumping, and its target stops just below a fixed navbar. A link into a page from elsewhere (<code>page.html#section</code>) jumps, and keeps its target in place while the apps above it render. The browser’s back button returns to the line you left, as it does without this. Readers whose system asks for reduced motion keep the jump. A page that sets Quarto’s own <code>smooth-scroll: true</code> keeps Quarto’s instead. Your own script that scrolls to an element calls <a href="../docs/reference/ui.html#scrollIntoView"><code>VM.ui.scrollIntoView</code></a>, which stops it below the navbar whichever of these applies; don’t give it a <code>scroll-margin-top</code> for the navbar.</td>
 </tr>
 </tbody>
 </table>
