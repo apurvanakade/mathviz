@@ -88,6 +88,7 @@ export const js = [
   'ui/draggable-overlay.js',
   'ui/stat-row.js',
   'ui/url-params.js',
+  'ui/scroll-into-view.js',
   'discrete-math/barycentric-triples.js',
   'discrete-math/sub-triangles.js',
   'discrete-math/triangulation-edges.js',

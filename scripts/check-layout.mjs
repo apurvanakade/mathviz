@@ -579,14 +579,28 @@ async function cloudFilterProblems(page) {
 
 // A tag on the last card, scrolled to, filters the grid in place; the
 // shorter page must not leave the reader past the cards, below the cloud.
-async function cardTagScrollProblems(page) {
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+// The scroll back stops the cloud just below the navbar, as a link up the
+// page does (samePageLinkProblems), in every scroll mode: run once with
+// motion allowed (smooth scroll's scroll-padding-top on the root) and once
+// with reduced motion (no padding), where a plain scrollIntoView left the
+// cloud under the navbar. `mode` names the run in the messages.
+async function cardTagScrollProblems(page, mode) {
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }))
   await page.waitForTimeout(150)
   const tag = page.locator('.quarto-grid-item .listing-category', { hasText: 'Probability' })
   await tag.click({ timeout: 2000 }).catch(() => {})
-  await page.waitForTimeout(300)
-  const top = await page.evaluate(() => document.querySelector('.vm-category-cloud')?.getBoundingClientRect().top ?? null)
-  if (top === null || top < -1) return [`after a card's "Probability" tag the cloud is ${top === null ? 'missing' : `${Math.round(-top)}px above the window`}`]
+  // Long enough for headroom to bring the navbar back after the scroll up.
+  await page.waitForTimeout(500)
+  const [top, navbarBottom] = await page.evaluate(() => [
+    document.querySelector('.vm-category-cloud')?.getBoundingClientRect().top ?? null,
+    document.querySelector('header.fixed-top')?.getBoundingClientRect().bottom ?? null
+  ])
+  const after = `after a card's "Probability" tag (${mode})`
+  if (top === null) return [`${after} the cloud is missing`]
+  if (top < -1) return [`${after} the cloud is ${Math.round(-top)}px above the window`]
+  if (navbarBottom === null || navbarBottom < 20) return [`${after} no navbar is in view (bottom edge ${navbarBottom}): the fixture needs a fixed one`]
+  if (top < navbarBottom - 2) return [`${after} the cloud is at ${Math.round(top)}px, under the navbar (which ends at ${Math.round(navbarBottom)}px)`]
+  if (top > navbarBottom + 8) return [`${after} the cloud is at ${Math.round(top)}px, ${Math.round(top - navbarBottom)}px below the navbar`]
   return []
 }
 
@@ -1082,7 +1096,7 @@ async function checkCardsPage(context, base, relPath) {
   watch(phone, 'phone ')
   for (const problem of await load(phone, base + relPath)) errors.push(`phone: ${problem}`)
   for (const problem of await phone.evaluate(cardProblems, true)) errors.push(`phone: ${problem}`)
-  for (const problem of await cardTagScrollProblems(phone)) errors.push(`phone: ${problem}`)
+  for (const problem of await cardTagScrollProblems(phone, 'motion allowed')) errors.push(`phone: ${problem}`)
   await phone.evaluate(() => window.scrollTo(0, 0))
   // The hover panel overhangs a card by $vm-card-lift-pad; hovered, it must
   // still fit the window.
@@ -1090,6 +1104,16 @@ async function checkCardsPage(context, base, relPath) {
   const scrollWidth = await phone.evaluate(() => document.documentElement.scrollWidth)
   if (scrollWidth > 390) errors.push(`phone: the page scrolls sideways (${scrollWidth}px wide in a 390px window)`)
   await phone.close()
+
+  // The same scroll back with reduced motion, set before the load so the
+  // smooth-scroll chrome's stylesheet and script see it from the start.
+  const reduced = await context.newPage()
+  await reduced.setViewportSize({ width: 390, height: 844 })
+  await reduced.emulateMedia({ reducedMotion: 'reduce' })
+  watch(reduced, 'phone reduced-motion ')
+  for (const problem of await load(reduced, base + relPath)) errors.push(`phone reduced-motion: ${problem}`)
+  for (const problem of await cardTagScrollProblems(reduced, 'reduced motion')) errors.push(`phone: ${problem}`)
+  await reduced.close()
   return errors
 }
 
