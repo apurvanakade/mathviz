@@ -1,6 +1,6 @@
 ---
 title: "VM.ui"
-subtitle: "Controls: legend overlay, results table, readouts, URL state, example presets, slider playback"
+subtitle: "Controls: legend overlay, results table, readouts, URL state, example presets, slider playback, scrolling"
 ---
 
 <!--
@@ -17,7 +17,7 @@ Most of what `VM.ui` does needs **no call at all**. Three modules are self-insta
 | [Draggable legend](#draggable-legend) -- a grip that lets the reader move the floating legend, remembered per page | every `.ojs-legend-overlay` inside `.ojs-chart-block` | -- |
 | Slider fill -- paints the filled part of the track in WebKit/Blink, which have no native progress pseudo-element | every `input[type="range"]` | -- |
 
-The callable API is small: a legend that is also an Observable view, a table renderer, a row of stat readouts, a pair of URL-state helpers, the "try an example" helpers, and the pure arithmetic behind playback (exported for tests and for anyone building their own).
+The callable API is small: a legend that is also an Observable view, a table renderer, a row of stat readouts, a pair of URL-state helpers, the "try an example" helpers, a scroll to an element that clears the navbar, and the pure arithmetic behind playback (exported for tests and for anyone building their own).
 
 ```{ojs}
 //| echo: false
@@ -394,6 +394,25 @@ A **number**, not a function: the chart transition length `VM.plotting.layout()`
 
 ```{ojs}
 VM.ui.playbackTweenMs
+```
+
+## Scrolling to an element {#scrolling}
+
+A script that scrolls the page to an element -- a "Show me" button, a scroll back to a filter after it shortens the page -- calls `VM.ui.scrollIntoView(element)` rather than the element's own `scrollIntoView()`, so the element doesn't end under the site's fixed navbar. Don't give the element a `scroll-margin-top` for the navbar: this already leaves room for it, and a same-page link to the element gets its room from Quarto or mathviz's [smooth scroll](../install.qmd#options), so the margin would add a second navbar's height.
+
+### VM.ui.scrollIntoView(element, opts?) {#scrollIntoView}
+
+Scrolls the window so `element`'s top sits just below Quarto's fixed navbar (`header.fixed-top`, measured when called, as Quarto measures it), plus the element's own `scroll-margin-top`. That is where a same-page link to the element ends, and it is the same with smooth scroll on or off, with or without reduced motion, and on a page that sets Quarto's own `smooth-scroll: true`. It goes through `window.scrollTo`, which the root's `scroll-padding-top` doesn't affect, so the address and history are untouched and no `hashchange` fires. It scrolls the window only, not a scroll container the element is inside. On a page with no fixed navbar the element's top goes to the top of the window.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `element` | `Element` | | The element to bring into view. |
+| `opts.behavior` | `"auto" \| "instant" \| "smooth"` | `"auto"` | `"auto"` follows the page: it animates where smooth scroll does, and jumps with reduced motion or with `smooth-scroll: false`. `"instant"` always jumps, for a scroll that only puts back what a change moved off screen. |
+
+**Returns** nothing.
+
+```{ojs}
+Inputs.button("Scroll to this section", {reduce: () => VM.ui.scrollIntoView(document.getElementById("scrolling"))})
 ```
 
 ## Watching for new elements {#when-added}

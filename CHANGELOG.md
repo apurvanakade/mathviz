@@ -10,6 +10,14 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+### Added
+
+- `VM.ui.scrollIntoView(element, {behavior})`: scrolls the window so an element ends just below the fixed navbar, the place a same-page link to it ends, with smooth scroll on or off and with or without reduced motion. A site script that scrolls to an element itself (Visual Math Lab's scroll to its Gallery on a `#category=` link) calls it instead of `element.scrollIntoView()` and gives the element no `scroll-margin-top` for the navbar.
+
+### Fixed
+
+- Category cloud: the scroll back to the cloud after a pick stops just below the navbar in every scroll mode, with no CSS from the site. Since 1.15.0 a `scroll-margin-top` a site gave `.vm-category-cloud` for the navbar (as `site.qmd` used to advise) added to smooth scroll's own room, leaving the cloud a navbar's height too low; drop that margin. A margin set on the cloud for other reasons still adds to the room.
+
 ## [1.16.2] - 2026-11-23
 
 ### Fixed
