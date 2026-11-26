@@ -10,6 +10,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-11-26
+
 ### Added
 
 - `VM.ui.scrollIntoView(element, {behavior})`: scrolls the window so an element ends just below the fixed navbar, the place a same-page link to it ends, with smooth scroll on or off and with or without reduced motion. A site script that scrolls to an element itself (Visual Math Lab's scroll to its Gallery on a `#category=` link) calls it instead of `element.scrollIntoView()` and gives the element no `scroll-margin-top` for the navbar.
@@ -620,7 +622,8 @@ All notable changes to mathviz. The format follows [Keep a Changelog](https://ke
 - The `--vm-*` token contract, the `ojs-*` panel and chart-block classes, the Plotly modebar patch, slider playback, the draggable legend overlay, the SVG fullscreen button.
 - The Lua filter with `plotly`, `mathjs`, `css` and `referrer` options.
 
-[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.16.2...HEAD
+[Unreleased]: https://github.com/apurvanakade/mathviz/compare/v1.17.0...HEAD
+[1.17.0]: https://github.com/apurvanakade/mathviz/compare/v1.16.2...v1.17.0
 [1.16.2]: https://github.com/apurvanakade/mathviz/compare/v1.16.1...v1.16.2
 [1.16.1]: https://github.com/apurvanakade/mathviz/compare/v1.16.0...v1.16.1
 [1.16.0]: https://github.com/apurvanakade/mathviz/compare/v1.15.1...v1.16.0
